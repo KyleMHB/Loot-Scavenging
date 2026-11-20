@@ -6,7 +6,7 @@ Written 2026-11-20 at the end of the design session. Read this, then `spec.md` b
 
 - **Design is finished.** Every decision is settled and recorded in `spec.md`, section "Decisions".
 - **No gameplay code exists.** The repository holds scaffolding only: metadata, build, deploy script, docs.
-- **Nothing is committed.** `git init` was run and the files are untracked. Kyle has not asked for a commit.
+- **The scaffolding and spec are committed** on `main` as the first commit. There is no remote.
 - **Nothing has been tested in game.**
 
 ## What the mod is
