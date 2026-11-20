@@ -57,7 +57,7 @@ Built:
   - `ScrapStudy.TryGetWorth` is the single "what is this worth" lookup. `StudyWorth.UnitsPerThing` lets one item count as several scrap units.
   - `ScrapStudy.IngredientDefs(scrap)` is what each tier's bill filter allows. Ticket 07 adds unfamiliar items there, so the bill filter lets the player choose them.
 - `Source/Study/CompStudyInfo.cs`: inspect lines on scrap: points per unit, and either "can be studied now for X, with a study bill" or why not.
-- `Defs/ThingDefs/Scrap.xml`: `StudyPoints` per def (neolithic 10, medieval 20, industrial 30, spacer 50) and the inspect comp on `LS_ScrapBase`. These could later move into `ScrapTierDef`.
+- `Defs/ThingDefs/Scrap.xml`: `StudyPoints` per def (neolithic 10, medieval 20, industrial 30, spacer 50, ultratech 70, archotech 100) and the inspect comp on `LS_ScrapBase`. These could later move into `ScrapTierDef`.
 - Settings `studyEras`, `recycleOrStudy` and `studyTechprintProjects` (default off). No UI yet (ticket 11).
 - Dev actions under "Loot Scavenging":
   - "Study: spawn 20 scrap of each tier" (map tool)
@@ -68,9 +68,9 @@ Built:
   - "Study: cycle storyteller research factor" (1, then 0, then 2.5, then 1). This changes the save's difficulty, so cycle back to 1.
 
 Decisions the spec left open:
-- **Era comparison.** Each tier compares as its nominal era, so spacer scrap does not pay into Ultra or Archotech projects. Neolithic scrap counts as Animal for the colony check. A project with no tech level takes any scrap.
+- **Era comparison.** Each tier compares as its nominal era, so spacer scrap does not pay into Ultra or Archotech projects; those take ultratech and archotech scrap. Neolithic scrap counts as Animal for the colony check. A project with no tech level takes any scrap.
 - **Points.** Units x fixed points x the storyteller research factor, multiplied and never divided. A zero or invalid factor stops the bill (`NoGain`). Points are capped at the project's remaining cost, and no tech-level cost factor is applied.
-- **Time.** Each iteration takes enough units for about 100 base points: neolithic 10, medieval 5, industrial 4, spacer 2. Work is 30 ticks per base point at research speed 1, about four times faster than bench research. The bill system spends work at the pawn's research speed and grants Intellectual XP at the end, like any bill.
+- **Time.** Each iteration takes enough units for about 100 base points: neolithic 10, medieval 5, industrial 4, spacer 2, ultratech 2, archotech 1. Work is 30 ticks per base point at research speed 1, about four times faster than bench research. The bill system spends work at the pawn's research speed and grants Intellectual XP at the end, like any bill.
   - The game applies a bench speed stat only to work tables, so the bench's research speed factor does not apply.
   - The storyteller factor changes the points, not the time, as at the bench.
 - **Bench.** The bench must be able to research the current project (`CanBeResearchedAt`, power included).

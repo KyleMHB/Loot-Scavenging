@@ -3,13 +3,16 @@ using System.Collections.Generic;
 
 namespace LootScavenging.Model;
 
-/// <summary>The scrap items: one per era tier (spec, "Recycling" table). Spacer covers Ultra and Archotech.</summary>
+/// <summary>The scrap items: one per era tier (spec, "Recycling" table). Animal gear becomes neolithic scrap.
+/// New tiers go at the end: <c>ScrapDefs</c> indexes its defs by this order.</summary>
 public enum ScrapTier
 {
     Neolithic,
     Medieval,
     Industrial,
     Spacer,
+    Ultra,
+    Archotech,
 }
 
 public static class ScrapTiers
@@ -21,7 +24,11 @@ public static class ScrapTiers
     public static ScrapTier TierFor(Era itemEra, Era colonyEra)
     {
         Era era = itemEra == Era.Undefined ? colonyEra : itemEra;
-        if (era >= Era.Spacer)
+        if (era >= Era.Archotech)
+            return ScrapTier.Archotech;
+        if (era == Era.Ultra)
+            return ScrapTier.Ultra;
+        if (era == Era.Spacer)
             return ScrapTier.Spacer;
         if (era == Era.Industrial)
             return ScrapTier.Industrial;

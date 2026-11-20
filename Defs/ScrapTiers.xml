@@ -73,4 +73,35 @@
     <workPerUnit>150</workPerUnit>
   </LootScavenging.ScrapTierDef>
 
+  <!-- Vanilla has no ultratech or archotech bench, so both use the fabrication bench until a pack names its own. -->
+  <LootScavenging.ScrapTierDef>
+    <defName>LS_ScrapTier_Ultra</defName>
+    <tier>Ultra</tier>
+    <scrap>LS_Scrap_Ultra</scrap>
+    <studiedScrap>LS_StudiedScrap_Ultra</studiedScrap>
+    <benches>
+      <li>FabricationBench</li>
+    </benches>
+    <yields>
+      <li><thing>Plasteel</thing><count>4</count></li>
+      <li><thing>ComponentSpacer</thing><count>1</count><chance>0.06</chance></li>
+    </yields>
+    <workPerUnit>180</workPerUnit>
+  </LootScavenging.ScrapTierDef>
+
+  <LootScavenging.ScrapTierDef>
+    <defName>LS_ScrapTier_Archotech</defName>
+    <tier>Archotech</tier>
+    <scrap>LS_Scrap_Archotech</scrap>
+    <studiedScrap>LS_StudiedScrap_Archotech</studiedScrap>
+    <benches>
+      <li>FabricationBench</li>
+    </benches>
+    <yields>
+      <li><thing>Plasteel</thing><count>5</count></li>
+      <li><thing>ComponentSpacer</thing><count>1</count><chance>0.1</chance></li>
+    </yields>
+    <workPerUnit>220</workPerUnit>
+  </LootScavenging.ScrapTierDef>
+
 </Defs>

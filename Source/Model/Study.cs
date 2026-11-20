@@ -87,7 +87,9 @@ public static class StudyRules
         ScrapTier.Neolithic => Era.Neolithic,
         ScrapTier.Medieval => Era.Medieval,
         ScrapTier.Industrial => Era.Industrial,
-        _ => Era.Spacer,
+        ScrapTier.Spacer => Era.Spacer,
+        ScrapTier.Ultra => Era.Ultra,
+        _ => Era.Archotech,
     };
 
     private static Era LowestEraOf(ScrapTier tier) => tier == ScrapTier.Neolithic ? Era.Animal : EraOf(tier);

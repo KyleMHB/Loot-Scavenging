@@ -72,4 +72,26 @@
     </graphicData>
   </ThingDef>
 
+  <ThingDef ParentName="LS_ScrapBase">
+    <defName>LS_StudiedScrap_Ultra</defName>
+    <label>studied ultratech scrap</label>
+    <description>Ultratech scrap that has already been studied. It can only be recycled, for less than fresh scrap.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/Plasteel</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(0.52, 0.46, 0.68)</color>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="LS_ScrapBase">
+    <defName>LS_StudiedScrap_Archotech</defName>
+    <label>studied archotech scrap</label>
+    <description>Archotech scrap that has already been studied. It can only be recycled, for less than fresh scrap.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/Plasteel</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(0.68, 0.58, 0.34)</color>
+    </graphicData>
+  </ThingDef>
+
 </Defs>

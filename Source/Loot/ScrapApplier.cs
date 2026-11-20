@@ -6,7 +6,7 @@ using Verse;
 
 namespace LootScavenging.Loot;
 
-/// <summary>The four scrap ThingDefs, looked up by name once the defs are loaded.</summary>
+/// <summary>The scrap ThingDefs, one per ScrapTier in enum order, looked up by name once the defs are loaded.</summary>
 [StaticConstructorOnStartup]
 internal static class ScrapDefs
 {
@@ -16,6 +16,8 @@ internal static class ScrapDefs
         DefDatabase<ThingDef>.GetNamed("LS_Scrap_Medieval"),
         DefDatabase<ThingDef>.GetNamed("LS_Scrap_Industrial"),
         DefDatabase<ThingDef>.GetNamed("LS_Scrap_Spacer"),
+        DefDatabase<ThingDef>.GetNamed("LS_Scrap_Ultra"),
+        DefDatabase<ThingDef>.GetNamed("LS_Scrap_Archotech"),
     };
 
     static ScrapDefs()

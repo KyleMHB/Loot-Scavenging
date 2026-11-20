@@ -11,8 +11,8 @@ public class ScrapTests
     [InlineData(Era.Medieval, Era.Neolithic, ScrapTier.Medieval)]
     [InlineData(Era.Industrial, Era.Neolithic, ScrapTier.Industrial)]
     [InlineData(Era.Spacer, Era.Neolithic, ScrapTier.Spacer)]
-    [InlineData(Era.Ultra, Era.Neolithic, ScrapTier.Spacer)]
-    [InlineData(Era.Archotech, Era.Neolithic, ScrapTier.Spacer)]
+    [InlineData(Era.Ultra, Era.Neolithic, ScrapTier.Ultra)]
+    [InlineData(Era.Archotech, Era.Neolithic, ScrapTier.Archotech)]
     public void EraMapsToItsScrapTier(Era itemEra, Era colonyEra, ScrapTier expected)
     {
         Assert.Equal(expected, ScrapTiers.TierFor(itemEra, colonyEra));

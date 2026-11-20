@@ -111,4 +111,36 @@
     </graphicData>
   </ThingDef>
 
+  <ThingDef ParentName="LS_ScrapBase">
+    <defName>LS_Scrap_Ultra</defName>
+    <modExtensions>
+      <li Class="LootScavenging.StudyPoints">
+        <pointsPerUnit>70</pointsPerUnit>
+      </li>
+    </modExtensions>
+    <label>ultratech scrap</label>
+    <description>Shattered ultratech gear whose workings still resist inspection. Recycle it at a bench or study it for research.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/Plasteel</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(0.70, 0.62, 0.90)</color>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="LS_ScrapBase">
+    <defName>LS_Scrap_Archotech</defName>
+    <modExtensions>
+      <li Class="LootScavenging.StudyPoints">
+        <pointsPerUnit>100</pointsPerUnit>
+      </li>
+    </modExtensions>
+    <label>archotech scrap</label>
+    <description>Fragments of archotech work, cold and strangely heavy. Recycle it at a bench or study it for research.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/Plasteel</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(0.90, 0.78, 0.45)</color>
+    </graphicData>
+  </ThingDef>
+
 </Defs>

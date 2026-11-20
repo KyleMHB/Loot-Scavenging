@@ -94,7 +94,7 @@ Out-of-reach gear becomes scrap: one stackable item per era, where the amount ca
 
 ### Scrap
 
-- **One item per era.** Scrap is generic. It does not remember the item it came from, so it stacks fully and a large raid leaves a few piles.
+- **One item per era.** Six tiers: neolithic, medieval, industrial, spacer, ultratech and archotech. Animal-era gear becomes neolithic scrap, since no bench sits below the crafting spot. Scrap is generic. It does not remember the item it came from, so it stacks fully and a large raid leaves a few piles.
 - **Amount is value.** A stone knife becomes one unit of neolithic scrap and a charge rifle becomes several units of spacer scrap, scaled by the item's worth, quality and condition.
 - **Low market value.** Scrap is worth close to nothing by default, so a stockpile kept for a later era does not raise colony wealth or sell for silver. A setting changes this.
 - **Where it appears.** On the ground by default, like other drops. A setting leaves it on the body, to be collected when the corpse is stripped, butchered or cremated.
@@ -118,9 +118,11 @@ Recycling is a bill at an existing bench, with no new building.
 | Neolithic | Crafting spot | Wood, leather, cloth | About 6 silver |
 | Medieval | Smithy | Steel, cloth, wood, silver, with neolithic materials | About 9 silver |
 | Industrial | Machining table | Steel, chemfuel, silver, components, with lower-tier materials | About 11 silver |
-| Spacer and above | Fabrication bench | Plasteel, gold, uranium, advanced components, with steel and components | About 33 silver |
+| Spacer | Fabrication bench | Plasteel, gold, uranium, advanced components, with steel and components | About 33 silver |
+| Ultratech | Fabrication bench | Plasteel, uranium, gold, advanced components, with spacer materials | About 48 silver |
+| Archotech | Fabrication bench | Plasteel, gold, advanced components, with spacer materials | About 65 silver |
 
-These are vanilla starting values, set close to the total value of the earlier fixed yields. Weights are set when the table is written. The Progression pack's own benches and materials need checking before the table is fixed.
+Vanilla has no ultratech or archotech bench, so both name the fabrication bench until a pack supplies its own. These are vanilla starting values, set close to the total value of the earlier fixed yields. Weights are set when the table is written. The Progression pack's own benches and materials need checking before the table is fixed.
 
 ### Study
 
@@ -274,6 +276,7 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Originality | Built from this spec and the game's code only. |
 | Drop mode | A setting with four modes, defaulting to scrap for out-of-reach gear. "Off" was added so Cleanup and Vanilla can run without era handling. All four ship first. |
 | Scrap form | Generic per era. The amount carries the value. |
+| Scrap tiers | Six, neolithic to archotech, with Animal folded into neolithic. Ultratech and archotech were split from spacer 2026-11-21, so their research can be studied and their gear yields more. |
 | Recycling yields | A weighted loot pool per tier in XML, with a value per unit. One pick per unit, amount by market value. Lower tiers at about 15% weight. Static. No fixed lines, no keep-in-stock count, and bill text that names no materials. Changed from a fixed table 2026-11-21, because fixed yields oversupplied basic materials. |
 | Recycling gate | The bench alone. A bench handles its tier and below. |
 | Recycling place | Existing benches, no new building. |

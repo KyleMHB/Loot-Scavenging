@@ -13,6 +13,8 @@ public class RecyclingTests
         (ScrapTier.Medieval, new[] { "FueledSmithy", "ElectricSmithy" }),
         (ScrapTier.Industrial, new[] { "TableMachining" }),
         (ScrapTier.Spacer, new[] { "FabricationBench" }),
+        (ScrapTier.Ultra, new[] { "FabricationBench" }),
+        (ScrapTier.Archotech, new[] { "FabricationBench" }),
     };
 
     private static string[] UsersOf(ScrapTier scrap) => RecycleBenches.UsersFor(scrap, Table).ToArray();
@@ -44,7 +46,7 @@ public class RecyclingTests
     [Fact]
     public void FabricationBenchRecyclesEveryTier()
     {
-        foreach (ScrapTier t in new[] { ScrapTier.Neolithic, ScrapTier.Medieval, ScrapTier.Industrial, ScrapTier.Spacer })
+        foreach (ScrapTier t in (ScrapTier[])System.Enum.GetValues(typeof(ScrapTier)))
             Assert.Contains("FabricationBench", UsersOf(t));
     }
 

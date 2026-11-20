@@ -33,6 +33,8 @@ public class StudyTests
         Assert.Equal(StudyVerdict.ProjectAboveScrapEra, Check(ScrapTier.Neolithic, Era.Industrial, Project(Era.Industrial)));
         // Spacer scrap compares as Spacer, so it does not pay into Ultra projects.
         Assert.Equal(StudyVerdict.ProjectAboveScrapEra, Check(ScrapTier.Spacer, Era.Ultra, Project(Era.Ultra)));
+        Assert.Equal(StudyVerdict.Eligible, Check(ScrapTier.Ultra, Era.Ultra, Project(Era.Ultra)));
+        Assert.Equal(StudyVerdict.Eligible, Check(ScrapTier.Archotech, Era.Archotech, Project(Era.Archotech)));
     }
 
     [Fact]
