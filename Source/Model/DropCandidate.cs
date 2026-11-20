@@ -27,7 +27,12 @@ public enum ItemCategory
     Weapon,
     Apparel,
 
-    /// <summary>Inventory with no category rule yet. Ticket 09 splits it into the inventory groups.</summary>
+    Ammunition,
+    Drugs,
+    Medicine,
+    Food,
+
+    /// <summary>Inventory that fits no other group.</summary>
     Other,
 }
 
@@ -59,4 +64,16 @@ public sealed class DropCandidate
 
     /// <summary>Hit points over maximum, 0 to 1. Null when the item does not use hit points.</summary>
     public float? HitPointFraction;
+
+    /// <summary>The item's def name, matched against the keep and remove lists. Null matches no list.</summary>
+    public string DefName;
+
+    /// <summary>True when the item's research is unfinished or its era is above the colony's (EraReader.ItemEra).</summary>
+    public bool OutOfReach;
+
+    // Protection facts (step 4), read from the game by the glue.
+    public bool QuestTagged;
+    public bool UniqueWeapon;
+    public bool PersonaWeapon;
+    public bool Relic;
 }
