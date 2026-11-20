@@ -57,15 +57,14 @@ internal static class DisassembleApplier
             if (amounts != null && amounts.Count > 0)
             {
                 source = "item-based";
+                made = TierFor(amounts);
             }
             else
             {
-                // Era-typical mode, or an item with no cost list and no material to take apart.
+                // Era-typical mode, or an item with no cost list and no material to take apart: one pool pick per scrap unit.
                 source = "era-typical";
-                List<YieldEntry<ThingDef>> entries = ScrapTierTable.Yields(tier);
-                amounts = YieldMath.Fixed(entries, units).Concat(YieldMath.RollChance(entries, units, () => Rand.Value)).ToList();
+                made = ScrapTierTable.RollProducts(ScrapTierTable.For(tier), units).ToList();
             }
-            made = TierFor(amounts);
         }
 
         if (rules.ejectCharges)

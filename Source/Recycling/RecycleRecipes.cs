@@ -10,7 +10,9 @@ namespace LootScavenging;
 /// <summary>
 /// Generates one recycling RecipeDef per scrap tier from the tier table, in the game's own implied-def pass, so reference
 /// resolution and short hashes come for free. Each recipe is attached to benches through its own recipeUsers; no bench's
-/// recipes list is touched, so another mod's bills on the same bench are unaffected.
+/// recipes list is touched, so another mod's bills on the same bench are unaffected. A recipe has no products: everything
+/// comes through the Smelted special product, which ScrapThing rolls from the tier's loot pool, so a bill has no
+/// keep-in-stock count.
 /// </summary>
 [HarmonyPatch(typeof(DefGenerator), nameof(DefGenerator.GenerateImpliedDefs_PreResolve))]
 internal static class RecycleRecipes
@@ -62,34 +64,29 @@ internal static class RecycleRecipes
             if (users.Count == 0)
                 continue;
 
-            yield return Build(def, def.scrap, ScrapTierTable.Yields(t), defName, users);
+            yield return Build(def, def.scrap, defName, users);
 
-            // Studied scrap (ticket 05) recycles at the same benches, at the tier's reduced studied yield.
+            // Studied scrap (ticket 05) recycles at the same benches, from the same pool at the tier's studied factor.
             string studiedName = StudiedDefNamePrefix + t;
             if (def.studiedScrap != null && !(hotReload && DefDatabase<RecipeDef>.GetNamedSilentFail(studiedName) != null))
-                yield return Build(def, def.studiedScrap, ScrapTierTable.StudiedYields(t), studiedName, users);
+                yield return Build(def, def.studiedScrap, studiedName, users);
         }
     }
 
-    private static RecipeDef Build(ScrapTierDef def, ThingDef scrap, List<YieldEntry<ThingDef>> entries, string defName,
-        List<ThingDef> users)
+    private static RecipeDef Build(ScrapTierDef def, ThingDef scrap, string defName, List<ThingDef> users)
     {
-
         var recipe = new RecipeDef
         {
             defName = defName,
             label = "LootScavenging_RecycleLabel".Translate(scrap.label),
             jobString = "LootScavenging_RecycleJob".Translate(scrap.label),
-            description = "LootScavenging_RecycleDescription".Translate(scrap.label, YieldSummary(entries)),
+            description = "LootScavenging_RecycleDescription".Translate(scrap.label),
             workAmount = def.workPerUnit * def.batchSize,
             workSpeedStat = DefDatabase<StatDef>.GetNamedSilentFail("SmeltingSpeed"),
             effectWorking = DefDatabase<EffecterDef>.GetNamedSilentFail("Smelt"),
             soundWorking = DefDatabase<SoundDef>.GetNamedSilentFail("Recipe_Smelt"),
             specialProducts = new List<SpecialProductType> { SpecialProductType.Smelted },
-            workerCounterClass = typeof(RecipeWorkerCounter_Recycle),
             recipeUsers = users,
-            products = YieldMath.Fixed(entries, def.batchSize)
-                .Select(y => new ThingDefCountClass(y.Item, y.Count)).ToList(),
             ingredients = new List<IngredientCount>(),
             fixedIngredientFilter = new ThingFilter(),
             defaultIngredientFilter = new ThingFilter(),
@@ -102,19 +99,5 @@ internal static class RecycleRecipes
         recipe.fixedIngredientFilter.SetAllow(scrap, true);
         recipe.defaultIngredientFilter.SetAllow(scrap, true);
         return recipe;
-    }
-
-    /// <summary>"4x steel, 1x component (10% chance)": what one unit returns.</summary>
-    public static string YieldSummary(IEnumerable<YieldEntry<ThingDef>> entries)
-    {
-        var parts = new List<string>();
-        foreach (YieldEntry<ThingDef> e in entries)
-        {
-            if (e.IsFixed)
-                parts.Add("LootScavenging_YieldFixed".Translate(e.Count, e.Item.label));
-            else
-                parts.Add("LootScavenging_YieldChance".Translate(e.Count, e.Item.label, (e.Chance * 100f).ToString("0.#")));
-        }
-        return parts.ToCommaList(useAnd: true);
     }
 }

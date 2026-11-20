@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
-  <!-- The tier table (spec, "Recycling"). Each tier names its scrap, the benches that recycle it and what one unit of scrap
-       returns. A bench named for a tier also recycles every tier below it, with no check on the colony's era.
-       A yield with a chance below 1 is rolled once per unit. A pack changes benches or yields with a patch, e.g.
+  <!-- The tier table (spec, "Recycling"). Each tier names its scrap, the benches that recycle it, the silver value of one
+       unit and the loot pool each unit picks from. A bench named for a tier also recycles every tier below it, with no
+       check on the colony's era.
+       Each unit of scrap picks ONE material from the pool by weight and returns valuePerUnit worth of it: valuePerUnit
+       over the material's market value, rounded up or down at random so the average is exact. A material worth more than
+       valuePerUnit comes as a single item with the matching chance. Because every pick is worth the same, a weight is that
+       material's share of the tier's VALUE, not of the item count. The pool is static: it never reacts to research or stock.
+       A tier's pool also holds the materials of the tiers below it, about 15% of the weight in total.
+       A pool entry for a DLC material carries MayRequire (<li MayRequire="ludeon.rimworld.royalty"><thing>...</thing>
+       <weight>5</weight></li>); the game skips it when the DLC is off.
+       A pack changes benches, value or pool with a patch, e.g.
          <Operation Class="PatchOperationAdd">
-           <xpath>/Defs/LootScavenging.ScrapTierDef[defName="LS_ScrapTier_Spacer"]/benches</xpath>
-           <value><li>MyBench</li></value>
+           <xpath>/Defs/LootScavenging.ScrapTierDef[defName="LS_ScrapTier_Spacer"]/pool</xpath>
+           <value><li><thing>MyAlloy</thing><weight>10</weight></li></value>
          </Operation>
        batchSize is the units a bill iteration uses up; workPerUnit the work for each. Starting values, to be tuned.
        studiedScrap is what study leaves in "study first, then recycle" mode (ticket 05); it recycles at the same benches
-       at studiedYieldFactor (default 0.5) of the yield. -->
+       from the same pool, at studiedYieldFactor (default 0.5) of valuePerUnit. -->
 
   <LootScavenging.ScrapTierDef>
     <defName>LS_ScrapTier_Neolithic</defName>
@@ -20,10 +28,12 @@
     <benches>
       <li>CraftingSpot</li>
     </benches>
-    <yields>
-      <li><thing>WoodLog</thing><count>3</count></li>
-      <li><thing>Leather_Plain</thing><count>1</count></li>
-    </yields>
+    <valuePerUnit>6</valuePerUnit>
+    <pool>
+      <li><thing>WoodLog</thing><weight>40</weight></li>
+      <li><thing>Leather_Plain</thing><weight>30</weight></li>
+      <li><thing>Cloth</thing><weight>30</weight></li>
+    </pool>
     <workPerUnit>80</workPerUnit>
   </LootScavenging.ScrapTierDef>
 
@@ -36,10 +46,15 @@
       <li>FueledSmithy</li>
       <li>ElectricSmithy</li>
     </benches>
-    <yields>
-      <li><thing>Steel</thing><count>3</count></li>
-      <li><thing>Cloth</thing><count>2</count></li>
-    </yields>
+    <valuePerUnit>9</valuePerUnit>
+    <pool>
+      <li><thing>Steel</thing><weight>60</weight></li>
+      <li><thing>Silver</thing><weight>25</weight></li>
+      <!-- neolithic materials, 15% -->
+      <li><thing>WoodLog</thing><weight>6</weight></li>
+      <li><thing>Cloth</thing><weight>6</weight></li>
+      <li><thing>Leather_Plain</thing><weight>3</weight></li>
+    </pool>
     <workPerUnit>100</workPerUnit>
   </LootScavenging.ScrapTierDef>
 
@@ -51,10 +66,17 @@
     <benches>
       <li>TableMachining</li>
     </benches>
-    <yields>
-      <li><thing>Steel</thing><count>4</count></li>
-      <li><thing>ComponentIndustrial</thing><count>1</count><chance>0.1</chance></li>
-    </yields>
+    <valuePerUnit>11</valuePerUnit>
+    <pool>
+      <li><thing>Steel</thing><weight>40</weight></li>
+      <li><thing>ComponentIndustrial</thing><weight>25</weight></li>
+      <li><thing>Chemfuel</thing><weight>10</weight></li>
+      <li><thing>Silver</thing><weight>10</weight></li>
+      <!-- neolithic and medieval materials, 15% -->
+      <li><thing>Cloth</thing><weight>6</weight></li>
+      <li><thing>WoodLog</thing><weight>4</weight></li>
+      <li><thing>Leather_Plain</thing><weight>5</weight></li>
+    </pool>
     <workPerUnit>120</workPerUnit>
   </LootScavenging.ScrapTierDef>
 
@@ -66,10 +88,16 @@
     <benches>
       <li>FabricationBench</li>
     </benches>
-    <yields>
-      <li><thing>Plasteel</thing><count>3</count></li>
-      <li><thing>ComponentSpacer</thing><count>1</count><chance>0.03</chance></li>
-    </yields>
+    <valuePerUnit>33</valuePerUnit>
+    <pool>
+      <li><thing>Plasteel</thing><weight>40</weight></li>
+      <li><thing>Gold</thing><weight>15</weight></li>
+      <li><thing>Uranium</thing><weight>10</weight></li>
+      <li><thing>ComponentSpacer</thing><weight>20</weight></li>
+      <!-- steel and industrial components, 15% -->
+      <li><thing>Steel</thing><weight>9</weight></li>
+      <li><thing>ComponentIndustrial</thing><weight>6</weight></li>
+    </pool>
     <workPerUnit>150</workPerUnit>
   </LootScavenging.ScrapTierDef>
 
