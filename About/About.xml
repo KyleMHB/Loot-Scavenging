@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>Loot Scavenging (scrap, recycle, study)</name>
+  <author>KyleMHB</author>
+  <packageId>kylemhb.lootscavenging</packageId>
+  <supportedVersions>
+    <li>1.6</li>
+    <li>1.7</li>
+  </supportedVersions>
+  <modVersion>0.1.0</modVersion>
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+    </li>
+  </modDependencies>
+  <loadAfter>
+    <li>brrainz.harmony</li>
+  </loadAfter>
+  <incompatibleWith>
+    <li>CarnySenpai.LootingManager</li>
+  </incompatibleWith>
+  <description>In development. This build does not change the game yet.
+
+Loot Scavenging will decide what enemy gear becomes when it drops. Gear beyond your colony's research turns into scrap of its era, which you recycle for materials or study for research at benches you already have.</description>
+</ModMetaData>
