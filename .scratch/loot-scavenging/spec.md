@@ -64,7 +64,7 @@ A whole dropped stack is treated as one item, and a partial drop acts on the pie
 | Keep | Vanilla behaviour. |
 | Degrade | The item survives at a random hit-point level inside a set range, 10% to 40% by default. An option also lowers its quality one step. |
 | Scrap | The item becomes stackable scrap of its era, to be recycled or studied at a bench. This is the default for out-of-reach gear. |
-| Disassemble | The item is replaced on the spot by materials, with no bench work. A setting chooses the yield: era-typical materials from the scrap table, or the item's own ingredients at a set efficiency. |
+| Disassemble | The item is replaced on the spot by materials, with no bench work. A setting chooses the yield: era-typical materials picked from the tier's loot pool, or the item's own ingredients at a set efficiency. |
 | Delete | The item vanishes. |
 
 Loaded charges in reloadable gear follow their own setting: eject, or go with the item.
@@ -105,17 +105,22 @@ Out-of-reach gear becomes scrap: one stackable item per era, where the amount ca
 Recycling is a bill at an existing bench, with no new building.
 
 - **The bench is the gate.** Each scrap tier names a bench. A bench recycles its own tier and every tier below it. There is no second check on the colony's era.
-- **Fixed yields per tier.** Each unit of scrap returns era-typical materials from a table.
-- **One XML file.** The table holds the bench and the yields for each tier, so a pack can patch both without code.
+- **A loot pool per tier.** Each tier lists the materials it can return, each with a weight, and a value per unit in silver. A fixed bundle per unit floods the colony with the same basic material, steel above all. A pool spreads the same value across more materials.
+- **One pick per unit.** Each unit of scrap picks one material from its pool by weight. The amount is the tier's value per unit divided by that material's market value, rounded up or down at random so the average is exact. Every pick is worth the same, so a material's weight is its share of the tier's value. Expensive materials come in small amounts without a separate chance line. A bill of five units can come out lumpy, and that is intended.
+- **No fixed lines.** A pool has no guaranteed yield and no chance lines.
+- **Lower tiers at a low weight.** A tier's pool also holds materials from the tiers below it, at about 15% of its weight in total. This keeps the pools realistic without bringing back the flood of basic materials.
+- **Static.** The pool is exactly what the XML says. It does not react to the colony's research or stock.
+- **Vague bill text.** A recycling bill says the scrap is recycled into materials of its era. It names no materials, amounts or shares.
+- **One XML file.** The table holds the bench, the value per unit and the pool for each tier, so a pack can patch all three without code. Pool entries for DLC materials carry `MayRequire`. The Progression pack's materials go in its preset patch, not in this mod's table.
 
-| Scrap tier | Proposed bench | Proposed yield |
-| --- | --- | --- |
-| Neolithic | Crafting spot | Wood and leather |
-| Medieval | Smithy | Steel and cloth |
-| Industrial | Machining table | Steel, with a chance of components |
-| Spacer and above | Fabrication bench | Plasteel, with a small chance of advanced components |
+| Scrap tier | Proposed bench | Proposed pool | Proposed value per unit |
+| --- | --- | --- | --- |
+| Neolithic | Crafting spot | Wood, leather, cloth | About 6 silver |
+| Medieval | Smithy | Steel, cloth, wood, silver, with neolithic materials | About 9 silver |
+| Industrial | Machining table | Steel, chemfuel, silver, components, with lower-tier materials | About 11 silver |
+| Spacer and above | Fabrication bench | Plasteel, gold, uranium, advanced components, with steel and components | About 33 silver |
 
-These are vanilla starting values. The Progression pack's own benches and materials need checking before the table is fixed.
+These are vanilla starting values, set close to the total value of the earlier fixed yields. Weights are set when the table is written. The Progression pack's own benches and materials need checking before the table is fixed.
 
 ### Study
 
@@ -142,7 +147,7 @@ That mod has paid research from items since 2020, and its comments show where th
 - **Never divide by the research speed setting.** With the storyteller's research factor at zero, that mod wrote an infinite or invalid value into project progress. Study adds points through the game's research manager and is tested at research factors of zero and above 100%.
 - **No current project is a normal state.** The job does not start.
 - **Say what the player gets.** The scrap's inspect text shows the points per unit and whether it can be studied now, and finishing a study shows the gain and the project.
-- **No clicking per item.** Study and recycling are bench work with the usual bill controls, including a keep-in-stock count.
+- **No clicking per item.** Study and recycling are bench work with the usual bill controls. Recycling bills run "forever" or a set number of times. They have no keep-in-stock count, because a pool has no single product to count, and scrap is normally recycled until it is gone.
 - **Never consume what the player wants to keep.** In original-item mode, an item is studied or recycled only when the player marks it or a filter allows it.
 - **Add bills without touching other recipes.** Reports describe other mods' bench recipes disappearing while that mod was installed. Recycling bills are added to the named benches only, and the recycling stage checks that a bench from another mod still shows all its own bills.
 
@@ -210,7 +215,7 @@ The rules do not depend on the drop itself. Non uno Pinata keeps gear on the bod
 | Hooks | Thin Harmony patches that call the evaluator and applier. |
 | Settings window | Draws the page and the item picker. |
 | Era reader | One function returns the colony's era and one returns an item's era, with the fallbacks from the loot rules. Everything era-related calls these two. |
-| Scrap items and tier table | XML only: one scrap item per era, plus the bench and yields for each tier. |
+| Scrap items and tier table | XML only: one scrap item per era, plus the bench, value per unit and loot pool for each tier. |
 | Recycling bills | Generated from the tier table at startup and attached to the named benches. |
 | Study job | A work giver and job in the Research work type, modelled on how the game handles techprints. |
 
@@ -269,7 +274,7 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Originality | Built from this spec and the game's code only. |
 | Drop mode | A setting with four modes, defaulting to scrap for out-of-reach gear. "Off" was added so Cleanup and Vanilla can run without era handling. All four ship first. |
 | Scrap form | Generic per era. The amount carries the value. |
-| Recycling yields | Fixed era-typical table in XML. |
+| Recycling yields | A weighted loot pool per tier in XML, with a value per unit. One pick per unit, amount by market value. Lower tiers at about 15% weight. Static. No fixed lines, no keep-in-stock count, and bill text that names no materials. Changed from a fixed table 2026-11-21, because fixed yields oversupplied basic materials. |
 | Recycling gate | The bench alone. A bench handles its tier and below. |
 | Recycling place | Existing benches, no new building. |
 | Original-item mode | The item counts as its scrap equivalent at the bench. |
