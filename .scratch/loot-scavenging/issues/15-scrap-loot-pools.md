@@ -4,7 +4,7 @@
 
 **Blocked by:** 04, 08
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Recommended model:** `sonnet`: a contained rework of code from tickets 04 and 08, with the design settled.
 
@@ -24,13 +24,24 @@ Out of scope: the Progression pack's materials (ticket 13), colony-aware pools, 
 
 ## Acceptance
 
-- [ ] Each unit of scrap returns exactly one pool material, and its average value matches the tier's value per unit. (maths unit-tested)
-- [ ] A material's long-run share of value matches its weight. (maths unit-tested)
-- [ ] A material worth more than the value per unit drops as a single item with the matching chance, for example a component at 11 silver per unit about a third of the time. (maths unit-tested)
+- [x] Each unit of scrap returns exactly one pool material, and its average value matches the tier's value per unit. (maths unit-tested)
+- [x] A material's long-run share of value matches its weight. (maths unit-tested)
+- [x] A material worth more than the value per unit drops as a single item with the matching chance, for example a component at 11 silver per unit about a third of the time. (maths unit-tested)
 - [ ] A bill of 5 industrial scrap at a machining table returns a mix of pool materials. (in-game: pending)
 - [ ] The recycling bill offers no keep-in-stock option, and its description names no materials or amounts. (in-game: pending)
 - [ ] Instant disassembly with the era-typical yield returns pool materials scaled by the item's scrap units. (in-game: pending)
 - [ ] A `MayRequire` pool entry for an inactive DLC is skipped without errors. (in-game: pending)
-- [ ] Both the 1.7 and 1.6 builds compile, the unit tests pass and the translation check passes.
+- [x] Both the 1.7 and 1.6 builds compile, the unit tests pass and the translation check passes.
 
 ## Comments
+
+### 2026-11-21: implemented on ls/15
+
+- Built: `Model/Recycling.cs` now holds `PoolEntry<T>` and `LootPool` (`TryPick`, `Amount`, `Roll`, `Expected`); `YieldEntry` and `YieldMath` are gone. Tests in `RecyclingTests.cs` (pick by weight, random rounding, a component at 11 silver about a third of the time, long-run value and share of value, value factor).
+- `ScrapTierDef`: `valuePerUnit` and `pool` (thing, weight) replace `yields`, with config errors for no thing, weight 0 or less, `valuePerUnit` 0 or less and an empty pool. `ScrapTierTable.RollProducts(ScrapTierDef def, int units, float valueFactor = 1f)` is the one entry point; ticket 07 calls it for an unfamiliar original item counted as its scrap equivalent. `ScrapTierTable.ValueFactor(def, scrapDef)` gives 1 for scrap and `studiedYieldFactor` (capped at 1) for studied scrap.
+- Studied scrap uses the same pool at value per unit times `studiedYieldFactor`, with random rounding keeping the average exact. `StudiedYield.cs` and its tests were deleted, since the pool maths supersedes them.
+- `ScrapThing.SmeltProducts` rolls the pool; `DisassembleApplier` era-typical yield rolls it for the item's scrap units (components fallback and item-based yield unchanged). Recycling recipes have no `products`, so a bill has no keep-in-stock option; `RecipeWorkerCounter_Recycle` is deleted. Study's counter is untouched.
+- `Defs/ScrapTiers.xml`: values 6, 9, 11, 33. Weights are shares of value; lower-tier materials total 15% per tier. No `MayRequire` entries: no DLC material fits an era cleanly. The header comment shows the syntax and a patch example.
+- Text: `LootScavenging_YieldFixed` and `_YieldChance` removed; `_RecycleDescription` names no materials.
+- Tests: `dotnet test` 173 passed; both builds 0 warnings; translation check passes.
+- In-game: pending (all four in-game boxes).

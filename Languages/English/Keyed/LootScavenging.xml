@@ -5,9 +5,7 @@
   <LootScavenging_CannotEquipUnfamiliar>unfamiliar technology</LootScavenging_CannotEquipUnfamiliar>
   <LootScavenging_RecycleLabel>recycle {0}</LootScavenging_RecycleLabel>
   <LootScavenging_RecycleJob>Recycling {0}.</LootScavenging_RecycleJob>
-  <LootScavenging_RecycleDescription>Break {0} down into raw materials. Each unit returns {1}.</LootScavenging_RecycleDescription>
-  <LootScavenging_YieldFixed>{0}x {1}</LootScavenging_YieldFixed>
-  <LootScavenging_YieldChance>{0}x {1} ({2}% chance)</LootScavenging_YieldChance>
+  <LootScavenging_RecycleDescription>Recycle {0} into raw materials of its era.</LootScavenging_RecycleDescription>
   <!-- Study (ticket 05) -->
   <LootScavenging_StudyPointsPerUnit>Study: {0} research points per unit.</LootScavenging_StudyPointsPerUnit>
   <LootScavenging_StudyNow>Can be studied now for {0}, with a study bill at a research bench.</LootScavenging_StudyNow>

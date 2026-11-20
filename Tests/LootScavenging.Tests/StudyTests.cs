@@ -184,49 +184,7 @@ public class StudyTests
     [InlineData(RecycleOrStudy.OneOrTheOther, 0, 0)]
     public void StudiedScrapFollowsTheRecycleOrStudySetting(RecycleOrStudy mode, int units, int expected)
     {
-        // Each studied unit becomes one unit of studied scrap, which recycles at the tier table's reduced yield.
+        // Each studied unit becomes one unit of studied scrap, which recycles from the tier's pool at the studied factor.
         Assert.Equal(expected, StudyRules.StudiedScrapUnits(units, mode));
-    }
-}
-
-public class StudiedYieldTests
-{
-    [Fact]
-    public void ReducedYieldKeepsTheExpectedAmountAtTheFactor()
-    {
-        var entries = new[]
-        {
-            new YieldEntry<string>("steel", 3, 1f),
-            new YieldEntry<string>("component", 1, 0.1f),
-        };
-        var reduced = StudiedYield.Reduce(entries, 0.5f);
-        // 3 steel at half value: 1 certain plus a 50% chance of 1 more; the component chance halves.
-        Assert.Contains(new YieldEntry<string>("steel", 1, 1f), reduced);
-        Assert.Contains(new YieldEntry<string>("steel", 1, 0.5f), reduced);
-        Assert.Contains(new YieldEntry<string>("component", 1, 0.05f), reduced);
-        Assert.Equal(3, reduced.Count);
-    }
-
-    [Fact]
-    public void AWholeResultKeepsLinesWhole()
-    {
-        var reduced = StudiedYield.Reduce(new[] { new YieldEntry<string>("wood", 4, 1f) }, 0.5f);
-        Assert.Equal(new[] { new YieldEntry<string>("wood", 2, 1f) }, reduced);
-    }
-
-    [Theory]
-    [InlineData(0f)]
-    [InlineData(-1f)]
-    [InlineData(float.NaN)]
-    public void AZeroOrInvalidFactorYieldsNothing(float factor)
-    {
-        Assert.Empty(StudiedYield.Reduce(new[] { new YieldEntry<string>("wood", 4, 1f) }, factor));
-    }
-
-    [Fact]
-    public void AFactorAboveOneIsCappedAtTheFullYield()
-    {
-        var reduced = StudiedYield.Reduce(new[] { new YieldEntry<string>("wood", 4, 1f) }, 3f);
-        Assert.Equal(new[] { new YieldEntry<string>("wood", 4, 1f) }, reduced);
     }
 }

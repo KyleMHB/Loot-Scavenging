@@ -4,13 +4,14 @@ using Verse;
 namespace LootScavenging;
 
 /// <summary>
-/// Scrap. Recycling bills list the certain yield as recipe products so bills can keep a count in stock; the game asks the
-/// ingredient for the rest (special product "Smelted"), which here is the chance lines, rolled once per unit.
+/// Scrap and studied scrap. Recycling bills return everything through the game's "Smelted" special product, which asks the
+/// ingredient: here that is one pick from the tier's loot pool per unit.
 /// </summary>
 public class ScrapThing : ThingWithComps
 {
     public override IEnumerable<Thing> SmeltProducts(float efficiency)
     {
-        return ScrapTierTable.ChanceProducts(def, stackCount);
+        ScrapTierDef tier = ScrapTierTable.ForScrap(def);
+        return ScrapTierTable.RollProducts(tier, stackCount, ScrapTierTable.ValueFactor(tier, def));
     }
 }

@@ -1,21 +1,21 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using LootScavenging.Model;
 using Verse;
 
 namespace LootScavenging;
 
-/// <summary>One line of a tier's yield, per unit of scrap: <see cref="count"/> of <see cref="thing"/> with probability <see cref="chance"/>.</summary>
-public class ScrapYield
+/// <summary>One material in a tier's loot pool. Its weight is its share of the tier's value, not of the item count.</summary>
+public class ScrapPoolEntry
 {
     public ThingDef thing;
-    public int count = 1;
-    public float chance = 1f;
+    public float weight = 1f;
 }
 
 /// <summary>
-/// The tier table (spec, "Recycling"): one def per scrap tier naming its scrap, the benches that recycle it and the fixed
-/// yield of each unit. Lives in Defs/ScrapTiers.xml, so a pack patches benches and yields without code.
+/// The tier table (spec, "Recycling"): one def per scrap tier naming its scrap, the benches that recycle it, the silver
+/// value of each unit and the loot pool each unit picks a material from. Lives in Defs/ScrapTiers.xml, so a pack patches
+/// benches, value and pool without code.
 /// </summary>
 public class ScrapTierDef : Def
 {
@@ -25,11 +25,14 @@ public class ScrapTierDef : Def
     /// <summary>Benches named for this tier. Each also recycles every tier below it.</summary>
     public List<ThingDef> benches = new List<ThingDef>();
 
-    public List<ScrapYield> yields = new List<ScrapYield>();
+    /// <summary>Silver value one unit of scrap returns, spent on the one material the unit picks.</summary>
+    public float valuePerUnit = 10f;
+
+    public List<ScrapPoolEntry> pool = new List<ScrapPoolEntry>();
 
     /// <summary>
     /// What study leaves in "study first, then recycle" mode (ticket 05). It recycles at the same benches as the scrap,
-    /// at <see cref="studiedYieldFactor"/> of its yield, and is never studied again.
+    /// from the same pool, at <see cref="studiedYieldFactor"/> of the value per unit, and is never studied again.
     /// </summary>
     public ThingDef studiedScrap;
 
@@ -49,17 +52,21 @@ public class ScrapTierDef : Def
             yield return "scrap is not set"; // not translated
         if (batchSize < 1)
             yield return "batchSize must be at least 1"; // not translated
-        foreach (ScrapYield y in yields)
+        if (!(valuePerUnit > 0f))
+            yield return "valuePerUnit must be above 0"; // not translated
+        if (pool.Count == 0)
+            yield return "the pool is empty"; // not translated
+        foreach (ScrapPoolEntry p in pool)
         {
-            if (y.thing == null)
-                yield return "a yield names no thing"; // not translated
-            else if (y.count < 1)
-                yield return "yield " + y.thing.defName + " has a count below 1"; // not translated
+            if (p.thing == null)
+                yield return "a pool entry names no thing"; // not translated
+            else if (!(p.weight > 0f))
+                yield return "pool entry " + p.thing.defName + " has a weight of 0 or less"; // not translated
         }
     }
 }
 
-/// <summary>Reads the tier table. Ticket 08's instant disassembly takes its era-typical yields from here.</summary>
+/// <summary>Reads the tier table and rolls its pools. Ticket 07 calls <see cref="RollProducts"/> too.</summary>
 internal static class ScrapTierTable
 {
     public static ScrapTierDef For(ScrapTier tier)
@@ -88,48 +95,53 @@ internal static class ScrapTierTable
         return null;
     }
 
-    /// <summary>A tier's yield lines for studied scrap: the scrap's yield reduced by the studied-yield factor.</summary>
-    public static List<YieldEntry<ThingDef>> StudiedYields(ScrapTier tier)
+    /// <summary>The share of the value per unit that <paramref name="scrap"/> pays: 1 for scrap, the studied factor (at most 1) for studied scrap.</summary>
+    public static float ValueFactor(ScrapTierDef def, ThingDef scrap)
     {
-        ScrapTierDef def = For(tier);
-        return def == null ? new List<YieldEntry<ThingDef>>() : StudiedYield.Reduce(Yields(tier), def.studiedYieldFactor);
+        if (def == null || scrap == def.scrap)
+            return 1f;
+        return Math.Min(1f, def.studiedYieldFactor);
     }
 
-    /// <summary>The tier's yield lines as plain model entries, skipping lines with no item.</summary>
-    public static List<YieldEntry<ThingDef>> Yields(ScrapTier tier)
+    /// <summary>The tier's pool as plain model entries, skipping entries with no item.</summary>
+    public static List<PoolEntry<ThingDef>> Pool(ScrapTierDef def)
     {
-        ScrapTierDef def = For(tier);
-        var list = new List<YieldEntry<ThingDef>>();
-        if (def == null)
-            return list;
-        foreach (ScrapYield y in def.yields)
+        var list = new List<PoolEntry<ThingDef>>();
+        foreach (ScrapPoolEntry p in def.pool)
         {
-            if (y.thing != null)
-                list.Add(new YieldEntry<ThingDef>(y.thing, y.count, y.chance));
+            if (p.thing != null)
+                list.Add(new PoolEntry<ThingDef>(p.thing, p.weight));
         }
         return list;
     }
 
-    /// <summary>Makes stacks (split at each item's stack limit) for amounts from <see cref="YieldMath"/>.</summary>
-    public static IEnumerable<Thing> MakeThings(IEnumerable<YieldAmount<ThingDef>> amounts)
+    /// <summary>
+    /// The one way to turn scrap units into materials: one pool pick per unit, worth the tier's value per unit times
+    /// <paramref name="valueFactor"/> (1 for scrap, the studied factor for studied scrap, 1 for an unfamiliar original item
+    /// counted as its scrap equivalent). Returns new things, split at each item's stack limit, not yet placed anywhere.
+    /// </summary>
+    public static IEnumerable<Thing> RollProducts(ScrapTierDef def, int units, float valueFactor = 1f)
     {
+        if (def == null || units <= 0)
+            return new List<Thing>();
+        List<YieldAmount<ThingDef>> amounts = LootPool.Roll(Pool(def), def.valuePerUnit, valueFactor, units,
+            t => t.BaseMarketValue, () => Rand.Value);
+        return MakeThings(amounts);
+    }
+
+    /// <summary>Makes stacks (split at each item's stack limit) for amounts from <see cref="LootPool"/>.</summary>
+    public static List<Thing> MakeThings(IEnumerable<YieldAmount<ThingDef>> amounts)
+    {
+        var things = new List<Thing>();
         foreach (YieldAmount<ThingDef> a in amounts)
         {
             foreach (int stack in ScrapAmounts.SplitIntoStacks(a.Count, a.Item.stackLimit))
             {
                 Thing thing = ThingMaker.MakeThing(a.Item);
                 thing.stackCount = stack;
-                yield return thing;
+                things.Add(thing);
             }
         }
-    }
-
-    public static IEnumerable<Thing> ChanceProducts(ThingDef scrap, int units)
-    {
-        ScrapTierDef def = ForScrap(scrap);
-        if (def == null)
-            return Enumerable.Empty<Thing>();
-        List<YieldEntry<ThingDef>> yields = scrap == def.scrap ? Yields(def.tier) : StudiedYields(def.tier);
-        return MakeThings(YieldMath.RollChance(yields, units, () => Rand.Value));
+        return things;
     }
 }
