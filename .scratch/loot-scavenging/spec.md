@@ -171,19 +171,20 @@ The page is grouped into six sections.
 
 - **Default preset is Progression.** A one-time message on first load says what the mod is doing and where the presets are.
 
-The presets set these values. Cleanup's numbers are proposed and can change before stage 8.
+The presets set these values.
 
 | Setting | Progression | Cleanup | Vanilla |
 | --- | --- | --- | --- |
 | Drop mode | Scrap out-of-reach gear | Off | Off |
 | Moment | Death, downed and strip | Death only | Not used |
 | Owner groups | Hostile, non-hostile faction, no faction, prisoners | Hostile only | None |
-| Weapons and apparel | Keep within reach | Delete below Normal quality or below 50% hit points, otherwise keep | Keep |
+| Weapons | Keep within reach | Delete below Normal quality or below 50% hit points, otherwise keep | Keep |
+| Apparel | Keep within reach | Delete below Good quality or below 50% hit points, otherwise keep | Keep |
 | Inventory groups | Keep within reach | Keep | Keep |
 | Corpses | Off | Humanlike on at 100%; animal and mechanoid off | Off |
-| Butchering removes worn apparel | Off | On | Off |
+| Butchering removes worn apparel | Off | Off | Off |
 
-Cleanup leaves animal corpses for food and mechanoid corpses for smelting, so it removes only what a colony has no use for.
+Cleanup leaves animal corpses for food and mechanoid corpses for smelting, so it removes only what a colony has no use for. Apparel has a higher quality bar than weapons because everything worn at death is tainted, so Normal apparel from the dead is clutter while Good or better armour is still worth wearing or selling. The butchering option stays off because every hostile humanlike corpse is already removed, which leaves it almost nothing to act on.
 - **Presets** set every setting at once. The page shows which preset is active and whether it has been changed.
 - **Each row says what will happen** in a sentence under it.
 - **Lists** are picked from a searchable item menu and stored by item name, so a removed mod does not break the settings.
@@ -286,7 +287,7 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Instant disassembly | Stays, with a setting for era-typical or item-based yields. |
 | Default preset | Progression, with a one-time first-load message. |
 | Downed, stripped and prisoner gear | The Progression preset applies the rules on downed and on strip, with the prisoner group on. Cleanup applies them on death only. |
-| Cleanup preset | No era handling. Deletes worn-out or low-quality weapons and apparel from hostile dead, removes humanlike corpses and strips apparel at butchering. Exact values in the presets table are proposed. |
+| Cleanup preset | No era handling. From hostile dead, deletes weapons below Normal quality, apparel below Good, and either one below 50% hit points. Removes every hostile humanlike corpse. Butchering apparel removal stays off. Progression leaves corpses alone. Settled 2026-11-21. |
 | Game versions | 1.6 and 1.7. |
 | Scrap art | Made or commissioned by Kyle. Placeholder icons until then. |
 | Credit | An inspired-by line on the Workshop page naming Looting Manager and Non uno Pinata. |
