@@ -218,7 +218,7 @@ Item-based disassembly uses the mod's own calculation from the item's cost list 
 
 A dev-mode log line per decision makes bug reports answerable.
 
-The method names above, and `ResearchManager`, `JobDriver_ApplyTechprint` and `EquipmentUtility.CanEquip`, exist in the installed 1.7.5014 game assembly. Their exact signatures and the order of calls on death still need confirming in a decompiler before coding.
+The method names above, and `ResearchManager`, `JobDriver_ApplyTechprint` and `EquipmentUtility.CanEquip`, exist in the installed 1.7.5014 game assembly. Their exact signatures and the order of calls on death still need confirming in a decompiler before coding. The death, downed and strip methods are now confirmed (see "Unverified").
 
 ## Compatibility
 
@@ -313,7 +313,10 @@ Stages 1 to 5 make a playable mod in the default mode. Stage 6 is the costliest 
 
 ## Unverified
 
-- Exact signatures and call order of the death, downed and strip methods on 1.6 and 1.7.
+- ~~Exact signatures and call order of the death, downed and strip methods on 1.6 and 1.7.~~ Confirmed 2026-11-21 from a decompile of the 1.7.5014 game assembly and the 1.6.4871 reference assembly. The signatures are the same in both. The call order comes from 1.7 only, because the 1.6 reference assembly has no method bodies.
+  - **Death:** `public override void Kill(DamageInfo? dinfo, Hediff exactCulprit = null)` on `Pawn`. Kill records whether the pawn was spawned, then runs the pre-death changes: worn apparel takes damage and is marked as worn by a corpse. Next it despawns the pawn and makes the corpse. Only then, and only if the pawn was spawned, does `DropAndForbidEverything()` drop equipment and inventory, forbidden. Apparel is never dropped and stays on the corpse. A pawn with no map, in a caravan or with no corpse drops nothing. Kill has no early return, so only another mod's prefix can cancel a death. The hook is a prefix with the lowest priority. At that point the gear is still on the pawn and the apparel is still undamaged. The prefix does not depend on stripping.
+  - **Downed:** `private void MakeDowned(DamageInfo? dinfo, Hediff hediff)` on `Pawn_HealthTracker` (the pawn is its private field `pawn`). It returns with an error if the pawn is already downed. Otherwise, if the pawn is spawned, it calls `DropAndForbidEverything(keepInventoryAndEquipmentIfInBed: true, rememberPrimary: true)`, which drops equipment and inventory but never apparel, and drops nothing if the pawn is in bed. The hook is a prefix with the same conditions.
+  - **Strip:** `public void Strip(bool notifyFaction = true)` on `Pawn`. `Corpse.Strip` forwards to it, as do the strip job, the butchering ingredient step and caravan forming. In a caravan, gear moves to other caravan members. Otherwise equipment, apparel and inventory drop unforbidden; locked apparel drops only from a dead pawn. Then the faction is notified. The hook is a prefix that acts only on living pawns outside a caravan, because a corpse's gear was already sorted at death.
 - Where the Progression pack stores the colony's era, and which benches and materials it has per era.
 - How the game treats points added to a project whose techprints are missing.
 - How Research Papers and Semi Random Research react to a project completed by study.
