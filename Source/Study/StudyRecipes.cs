@@ -216,6 +216,9 @@ public class RecipeWorkerCounter_Study : RecipeWorkerCounter
         return count;
     }
 
+    // The base reads recipe.products[0]; a study recipe has no products, and its output does not go to a stockpile.
+    public override bool CanPossiblyStore(Bill_Production bill, ISlotGroup slotGroup) => true;
+
     public override string ProductsDescription(Bill_Production bill)
     {
         return StudyRecipes.TryGetTier(recipe, out ScrapTier tier)
@@ -251,6 +254,8 @@ internal static class StudyBillPatch
             }
             if (__instance.repeatMode == BillRepeatModeDefOf.TargetCount)
             {
+                // The vanilla pause test treats reaching X as done; for study, being above X is the working state.
+                __instance.paused = false;
                 int inStock = __instance.recipe.WorkerCounter.CountProducts(__instance);
                 int batch = __instance.recipe.ingredients.Count > 0 ? (int)__instance.recipe.ingredients[0].GetBaseCount() : 1;
                 __result = StudyRules.KeepsStudying(inStock, __instance.targetCount, batch);
