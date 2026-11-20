@@ -13,9 +13,19 @@ public class LootScavengingSettings : ModSettings
     // Era fallback for gear with no research era and no tech level (spec: replaces the carrying faction's era).
     public EraFallback eraFallback = EraFallback.CarrierFaction;
 
+    // Corpse removal and the butchering option (ticket 10). Code defaults: everything off.
+    public CorpseRules corpses = new CorpseRules();
+
     public override void ExposeData()
     {
         base.ExposeData();
+
+        var corpseDefaults = new CorpseRules();
+        Scribe_Values.Look(ref corpses.humanlike, "corpseHumanlike", corpseDefaults.humanlike);
+        Scribe_Values.Look(ref corpses.animal, "corpseAnimal", corpseDefaults.animal);
+        Scribe_Values.Look(ref corpses.mechanoid, "corpseMechanoid", corpseDefaults.mechanoid);
+        Scribe_Values.Look(ref corpses.chance, "corpseChance", corpseDefaults.chance);
+        Scribe_Values.Look(ref corpses.butcherRemovesApparel, "butcherRemovesApparel", corpseDefaults.butcherRemovesApparel);
 
         var defaults = new LootRules();
         Scribe_Values.Look(ref rules.hostile, "hostile", defaults.hostile);
