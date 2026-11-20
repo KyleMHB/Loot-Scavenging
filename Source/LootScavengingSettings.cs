@@ -15,9 +15,19 @@ public class LootScavengingSettings : ModSettings
     // Which gear is labelled unfamiliar in original-item mode (ticket 06).
     public UnfamiliarScope unfamiliarScope = UnfamiliarScope.AllOutOfReach;
 
+    // Corpse removal and the butchering option (ticket 10). Code defaults: everything off.
+    public CorpseRules corpses = new CorpseRules();
+
     public override void ExposeData()
     {
         base.ExposeData();
+
+        var corpseDefaults = new CorpseRules();
+        Scribe_Values.Look(ref corpses.humanlike, "corpseHumanlike", corpseDefaults.humanlike);
+        Scribe_Values.Look(ref corpses.animal, "corpseAnimal", corpseDefaults.animal);
+        Scribe_Values.Look(ref corpses.mechanoid, "corpseMechanoid", corpseDefaults.mechanoid);
+        Scribe_Values.Look(ref corpses.chance, "corpseChance", corpseDefaults.chance);
+        Scribe_Values.Look(ref corpses.butcherRemovesApparel, "butcherRemovesApparel", corpseDefaults.butcherRemovesApparel);
 
         var defaults = new LootRules();
         Scribe_Values.Look(ref rules.hostile, "hostile", defaults.hostile);

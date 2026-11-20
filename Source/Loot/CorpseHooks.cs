@@ -1,0 +1,128 @@
+using System;
+using HarmonyLib;
+using LootScavenging.Model;
+using RimWorld;
+using Verse;
+using Verse.AI;
+
+namespace LootScavenging.Loot;
+
+// Corpse removal and the butchering option (spec, "Corpses and butchering"). The decisions live in CorpseEvaluator.
+
+[HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
+internal static class CorpseRemovalHook
+{
+    // The owner is read before the death: a colony prisoner's status may not survive Kill.
+    private static void Prefix(Pawn __instance, out OwnerGroup? __state)
+    {
+        __state = null;
+        try
+        {
+            if (Current.ProgramState == ProgramState.Playing && !__instance.Dead && !__instance.Destroyed)
+                __state = GearSorter.OwnerOf(__instance);
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[Loot Scavenging] Reading the owner of {__instance} before death failed: {e}"); // not translated
+        }
+    }
+
+    // By now the kill prefix has sorted the gear and the game has dropped equipment and inventory, so the corpse holds
+    // only worn apparel. A pawn that left no corpse, or died off-map or in a caravan, has nothing spawned and is skipped.
+    private static void Postfix(Pawn __instance, OwnerGroup? __state)
+    {
+        if (__state == null || !__instance.Dead)
+            return;
+        try
+        {
+            Corpse corpse = __instance.Corpse;
+            if (corpse == null || corpse.Destroyed || !corpse.Spawned)
+                return;
+            if (HasQuestTag(corpse) || HasQuestTag(__instance))
+                return;
+
+            var candidate = new CorpseCandidate
+            {
+                Owner = __state.Value,
+                Map = corpse.Map.IsPlayerHome ? MapKind.Home : MapKind.Away,
+                Kind = KindOf(__instance),
+            };
+            CorpseDecision decision = CorpseEvaluator.Evaluate(candidate, LootScavengingMod.Settings.rules, LootScavengingMod.Settings.corpses, Rand.Value);
+            if (Prefs.DevMode)
+                Log.Message($"[Loot Scavenging] Corpse of {__instance} ({candidate.Owner}, {candidate.Map} map, {candidate.Kind}) -> {decision}"); // not translated
+            if (decision != CorpseDecision.Remove)
+                return;
+
+            // Worn apparel the loot rules kept goes to the ground rather than vanishing with the body. Dead pawns are
+            // not sorted again on strip. No faction notification: this is cleanup, not the colony stripping a body.
+            __instance.Strip(notifyFaction: false);
+            corpse.Destroy();
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[Loot Scavenging] Removing the corpse of {__instance} failed: {e}"); // not translated
+        }
+    }
+
+    private static bool HasQuestTag(Thing thing) => thing.questTags != null && thing.questTags.Count > 0;
+
+    private static CorpseKind KindOf(Pawn pawn)
+    {
+        RaceProperties race = pawn.RaceProps;
+        if (race.Humanlike)
+            return CorpseKind.Humanlike;
+        if (race.IsMechanoid)
+            return CorpseKind.Mechanoid;
+        if (race.Animal)
+            return CorpseKind.Animal;
+        return CorpseKind.Other;
+    }
+}
+
+// A butcher bill strips the corpse of its apparel while it gathers its ingredients (autoStripCorpses). Marking that
+// window tells the Strip patch below apart from a player's strip job and from any other strip.
+[HarmonyPatch(typeof(Toils_Recipe), "CalculateIngredients")]
+internal static class ButcherIngredientsHook
+{
+    internal static int Depth;
+
+    private static void Prefix(Job job, out bool __state)
+    {
+        __state = job?.RecipeDef?.specialProducts != null && job.RecipeDef.specialProducts.Contains(SpecialProductType.Butchery);
+        if (__state)
+            Depth++;
+    }
+
+    private static void Finalizer(bool __state)
+    {
+        if (__state)
+            Depth--;
+    }
+}
+
+[HarmonyPatch(typeof(Pawn), nameof(Pawn.Strip))]
+internal static class ButcherStripHook
+{
+    private static void Prefix(Pawn __instance)
+    {
+        if (ButcherIngredientsHook.Depth <= 0 || !__instance.Dead || __instance.apparel == null)
+            return;
+        try
+        {
+            Map map = __instance.MapHeld;
+            MapKind mapKind = map == null ? MapKind.None : map.IsPlayerHome ? MapKind.Home : MapKind.Away;
+            OwnerGroup owner = GearSorter.OwnerOf(__instance);
+            LootScavengingSettings settings = LootScavengingMod.Settings;
+            if (!CorpseEvaluator.RemovesApparelOnButchering(owner, mapKind, settings.rules, settings.corpses))
+                return;
+            if (Prefs.DevMode)
+                Log.Message($"[Loot Scavenging] Butchering the corpse of {__instance} removes its worn apparel"); // not translated
+            // Equipment and inventory were dropped at death and strip as usual.
+            __instance.apparel.DestroyAll();
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[Loot Scavenging] Removing worn apparel at butchering of {__instance} failed: {e}"); // not translated
+        }
+    }
+}
