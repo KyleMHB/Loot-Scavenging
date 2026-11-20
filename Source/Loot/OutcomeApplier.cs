@@ -7,7 +7,7 @@ namespace LootScavenging.Loot;
 /// <summary>Carries out an outcome on an item still held by its pawn, before the game drops it.</summary>
 internal static class OutcomeApplier
 {
-    public static void Apply(Pawn pawn, Thing thing, Outcome outcome)
+    public static void Apply(Pawn pawn, Thing thing, Outcome outcome, EraResult era, DecisionReason reason)
     {
         switch (outcome)
         {
@@ -17,9 +17,14 @@ internal static class OutcomeApplier
             case Outcome.Delete:
                 Delete(pawn, thing);
                 return;
+            case Outcome.Degrade:
+                DisassembleApplier.Degrade(thing);
+                return;
+            case Outcome.Disassemble:
+                DisassembleApplier.Disassemble(pawn, thing, era, reason);
+                return;
             default:
-                // Degrade, scrap and disassemble arrive with later tickets; until then the item is kept.
-                Log.Warning($"[Loot Scavenging] Outcome {outcome} is not built yet; keeping {thing}."); // not translated
+                Log.Warning($"[Loot Scavenging] Outcome {outcome} is not handled here; keeping {thing}."); // not translated
                 return;
         }
     }

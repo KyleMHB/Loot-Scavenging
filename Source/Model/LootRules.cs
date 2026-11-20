@@ -59,6 +59,16 @@ public sealed class LootRules
     public CategoryRule food = new CategoryRule(Outcome.Keep);
     public CategoryRule other = new CategoryRule(Outcome.Keep);
 
+    // Degrade and disassemble (ticket 08). Code defaults; ticket 11's presets set them.
+    public float degradeMin = Disassembly.DefaultDegradeMin;
+    public float degradeMax = Disassembly.DefaultDegradeMax;
+    public bool degradeLowersQuality;
+    public DisassemblyYield disassemblyYield = DisassemblyYield.EraTypical;
+    public float disassemblyEfficiency = Disassembly.DefaultEfficiency;
+
+    /// <summary>Loaded charges in reloadable gear: true ejects the ammo near the item, false lets it go with the item.</summary>
+    public bool ejectCharges = true;
+
     // Protection (step 4). The four toggles default on; the keep list always wins over the remove list.
     public bool protectQuestItems = true;
     public bool protectUniqueWeapons = true;

@@ -86,6 +86,6 @@ internal static class GearSorter
         if (decision.Outcome == Outcome.Scrap)
             ScrapApplier.Apply(pawn, thing, candidate.ItemEra, moment);
         else
-            OutcomeApplier.Apply(pawn, thing, decision.Outcome);
+            OutcomeApplier.Apply(pawn, thing, decision.Outcome, candidate.ItemEra, decision.Reason);
     }
 }
