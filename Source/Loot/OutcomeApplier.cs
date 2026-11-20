@@ -24,7 +24,7 @@ internal static class OutcomeApplier
     }
 
     // Each tracker's own removal keeps its bookkeeping right (primary weapon, worn graphics, inventory counts).
-    private static void Delete(Pawn pawn, Thing thing)
+    internal static void Delete(Pawn pawn, Thing thing)
     {
         if (thing is ThingWithComps eq && pawn.equipment != null && pawn.equipment.Contains(eq))
         {

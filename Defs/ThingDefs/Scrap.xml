@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Scrap: one generic, fully stackable item per era tier (spec, "Scrap"). It remembers nothing about its source item.
+       Textures are vanilla placeholders tinted per tier until Kyle's art arrives. The market value is a near-zero default;
+       the "scrap value" setting overwrites it at startup. -->
+
+  <ThingCategoryDef>
+    <defName>LS_Scrap</defName>
+    <label>scrap</label>
+    <parent>Root</parent>
+    <iconPath>UI/Icons/ThingCategories/ResourcesRaw</iconPath>
+  </ThingCategoryDef>
+
+  <ThingDef Name="LS_ScrapBase" Abstract="True">
+    <thingClass>ThingWithComps</thingClass>
+    <category>Item</category>
+    <drawerType>MapMeshOnly</drawerType>
+    <selectable>true</selectable>
+    <altitudeLayer>Item</altitudeLayer>
+    <stackLimit>500</stackLimit>
+    <useHitPoints>false</useHitPoints>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <alwaysHaulable>true</alwaysHaulable>
+    <drawGUIOverlay>true</drawGUIOverlay>
+    <rotatable>false</rotatable>
+    <pathCost>14</pathCost>
+    <allowedArchonexusCount>-1</allowedArchonexusCount>
+    <soundInteract>Metal_Drop</soundInteract>
+    <soundDrop>Metal_Drop</soundDrop>
+    <statBases>
+      <MarketValue>0.01</MarketValue>
+      <Mass>0.1</Mass>
+      <Flammability>0</Flammability>
+    </statBases>
+    <comps>
+      <li Class="CompProperties_Forbiddable"/>
+    </comps>
+    <thingCategories>
+      <li>LS_Scrap</li>
+    </thingCategories>
+    <graphicData>
+      <graphicClass>Graphic_StackCount</graphicClass>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="LS_ScrapBase">
+    <defName>LS_Scrap_Neolithic</defName>
+    <label>neolithic scrap</label>
+    <description>Broken stone, bone and wood gear, good for little until a colony knows how to work it. Recycle it at a bench or study it for research.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/WoodLog</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(0.78, 0.68, 0.55)</color>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="LS_ScrapBase">
+    <defName>LS_Scrap_Medieval</defName>
+    <label>medieval scrap</label>
+    <description>Bent blades and torn leather and mail. Recycle it at a bench or study it for research.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/Steel</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(0.72, 0.62, 0.52)</color>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="LS_ScrapBase">
+    <defName>LS_Scrap_Industrial</defName>
+    <label>industrial scrap</label>
+    <description>Wrecked firearms and armour. Recycle it at a bench or study it for research.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/Steel</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(0.62, 0.68, 0.74)</color>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="LS_ScrapBase">
+    <defName>LS_Scrap_Spacer</defName>
+    <label>spacer scrap</label>
+    <description>Fused, humming remains of advanced weapons and armour. Recycle it at a bench or study it for research.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/Plasteel</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(0.55, 0.80, 0.85)</color>
+    </graphicData>
+  </ThingDef>
+
+</Defs>

@@ -59,8 +59,14 @@ internal static class GearSorter
 
     private static void Judge(Pawn pawn, Thing thing, OwnerGroup owner, Moment moment, MapKind mapKind, ItemCategory category, LootRules rules)
     {
+        // Scrap already on the pawn (including scrap made earlier in this pass) is never judged again.
+        if (ScrapDefs.IsScrap(thing.def))
+            return;
+
         var candidate = new DropCandidate
         {
+            // Era is only read when a drop mode uses it.
+            ItemEra = rules.dropMode == DropMode.Off ? default : EraReader.ItemEra(thing.def, pawn.Faction),
             Owner = owner,
             Moment = moment,
             Map = mapKind,
@@ -73,6 +79,9 @@ internal static class GearSorter
         if (Prefs.DevMode)
             Log.Message($"[Loot Scavenging] {moment} of {pawn} ({owner}, {mapKind} map): {thing} -> {decision.Outcome} ({decision.Reason})"); // not translated
 
-        OutcomeApplier.Apply(pawn, thing, decision.Outcome);
+        if (decision.Outcome == Outcome.Scrap)
+            ScrapApplier.Apply(pawn, thing, candidate.ItemEra, moment);
+        else
+            OutcomeApplier.Apply(pawn, thing, decision.Outcome);
     }
 }

@@ -12,6 +12,13 @@ public class LootScavengingSettings : ModSettings
     // Era fallback for gear with no research era and no tech level (spec: replaces the carrying faction's era).
     public EraFallback eraFallback = EraFallback.CarrierFaction;
 
+    // Scrap (ticket 03). Market value per unit: near zero so stockpiled scrap does not raise wealth or sell for silver.
+    public const float DefaultScrapMarketValue = 0.01f;
+    public float scrapMarketValue = DefaultScrapMarketValue;
+
+    // Death-time scrap lands on the ground by default; false leaves it in the corpse's inventory.
+    public bool scrapOnGround = true;
+
     public override void ExposeData()
     {
         base.ExposeData();
@@ -27,5 +34,7 @@ public class LootScavengingSettings : ModSettings
         Scribe_Values.Look(ref rules.weapons.outcome, "weaponsOutcome", defaults.weapons.outcome);
         Scribe_Values.Look(ref rules.apparel.outcome, "apparelOutcome", defaults.apparel.outcome);
         Scribe_Values.Look(ref eraFallback, "eraFallback", EraFallback.CarrierFaction);
+        Scribe_Values.Look(ref scrapMarketValue, "scrapMarketValue", DefaultScrapMarketValue);
+        Scribe_Values.Look(ref scrapOnGround, "scrapOnGround", true);
     }
 }

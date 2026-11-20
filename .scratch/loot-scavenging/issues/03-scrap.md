@@ -12,5 +12,28 @@
 - [ ] A stone knife becomes about one unit of neolithic scrap, and a charge rifle becomes several units of spacer scrap.
 - [ ] "Scrap everything" turns all dropped gear into scrap, and "Off" leaves out-of-reach gear to its category rule.
 - [ ] Scrap from a large raid lands in a few piles, not one per item.
-- [ ] The scrap modes save nothing in the game file and add no data to items.
-- [ ] Both the 1.7 and 1.6 builds compile.
+- [x] The scrap modes save nothing in the game file and add no data to items. (by construction; in-game save check pending)
+- [x] Both the 1.7 and 1.6 builds compile.
+
+## Comments
+
+### 2026-11-21: implemented on ls/03
+
+Built:
+- `Source/Model/LootEvaluator.cs`: drop mode step `ApplyDropMode`, between the moment step and the category step (ticket 09's protection goes before it). New `DecisionReason`s: `OutOfReachScrap`, `ScrapEverything`, `ComponentsFallback`, `OutOfReachKept`. `DropCandidate.ItemEra` is an `EraResult` filled from `EraReader.ItemEra(def, pawn.Faction)`, only read when the mode is not Off.
+- `Source/Model/Scrap.cs`: `ScrapTier` (Neolithic, Medieval, Industrial, Spacer), `ScrapTiers.TierFor`, `ScrapAmounts.Units` and `SplitIntoStacks`.
+- `Defs/ThingDefs/Scrap.xml`: four scrap defs (`LS_Scrap_<tier>`, stack limit 500, vanilla placeholder textures tinted per tier) and an `LS_Scrap` category.
+- `Source/Loot/ScrapApplier.cs`: scrap def lookup, the applier, and a `Pawn.Kill` postfix for the on-body setting. `GearSorter` calls it for `Outcome.Scrap` and skips existing scrap.
+- Settings `scrapMarketValue` (default 0.01) and `scrapOnGround` (default true), saved in mod settings only. No UI yet (ticket 11, which should call `ScrapDefs.ApplyMarketValue()` on change).
+- Dev actions under "Loot Scavenging": "Scrap: cycle drop mode", "Scrap: toggle on ground or on body", "Scrap: cycle scrap market value".
+
+Decisions the spec left open:
+- Modes: ScrapOutOfReach scraps out-of-reach gear and leaves the rest to its category rule. ScrapEverything scraps all gear. Off skips the step. KeepOriginal leaves out-of-reach gear as Keep (`OutOfReachKept`); within-reach gear follows its category rule. Ticket 06 adds the label and equip block elsewhere.
+- Components fallback: in the two scrap modes the evaluator returns `Outcome.Disassemble` (`ComponentsFallback`), so such gear is never scrapped. The Disassemble applier is ticket 08's; until then it warns and keeps. In Off and KeepOriginal the flag is ignored and the category rule applies.
+- Tier: Animal and Neolithic give neolithic scrap; Ultra and Archotech give spacer scrap. Gear with no era (only scrapped in "scrap everything") becomes scrap of the colony's era.
+- Amount: per item max(1, round(sqrt(market value) / 8)), times the stack count. Market value already carries quality and hit points. A stone knife gives 1, a charge rifle about 5. Divisor: `ScrapAmounts.ValueScale`.
+- Placement: scrap is added to the pawn's inventory, so the game drops it with the gear and merges it (one pile per tier near each body). With "on body" and a death, it is held in memory and added to the dead pawn's inventory after `Kill`; stripping the corpse drops it. At downed and strip moments the game drops inventory anyway, so the setting has no effect there.
+
+Tests: `dotnet test` 61 passed. Both builds clean, 0 warnings; translation check passes.
+
+In-game pending (dev mode, Debug actions > "Loot Scavenging"): kill a pirate at a tribal-era colony and look for an industrial scrap stack (log `became N LS_Scrap_Industrial`); stone knife about 1 neolithic unit, charge rifle several spacer; cycle the drop mode to check scrap everything and Off; a big raid gives a few piles; the on-body toggle leaves scrap in the corpse and stripping drops it; the market value toggle changes a stack's value; save and load with scrap on the map.
