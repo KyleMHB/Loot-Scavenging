@@ -23,6 +23,7 @@ public class LootScavengingSettings : ModSettings
         Scribe_Values.Look(ref rules.prisoners, "prisoners", defaults.prisoners);
         Scribe_Values.Look(ref rules.homeMapOnly, "homeMapOnly", defaults.homeMapOnly);
         Scribe_Values.Look(ref rules.onDownedAndStrip, "onDownedAndStrip", defaults.onDownedAndStrip);
+        Scribe_Values.Look(ref rules.dropMode, "dropMode", defaults.dropMode);
         Scribe_Values.Look(ref rules.weapons.outcome, "weaponsOutcome", defaults.weapons.outcome);
         Scribe_Values.Look(ref rules.apparel.outcome, "apparelOutcome", defaults.apparel.outcome);
         Scribe_Values.Look(ref eraFallback, "eraFallback", EraFallback.CarrierFaction);

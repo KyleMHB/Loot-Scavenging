@@ -33,6 +33,9 @@ public sealed class LootRules
     // Moment (step 3). Death always applies; this extends the rules to downed and strip.
     public bool onDownedAndStrip;
 
+    // What out-of-reach gear becomes. Ticket 03 adds the evaluator step that reads it.
+    public DropMode dropMode = DropMode.ScrapOutOfReach;
+
     // Category rules (step 5).
     public CategoryRule weapons = new CategoryRule(Outcome.Delete);
     public CategoryRule apparel = new CategoryRule(Outcome.Keep);
