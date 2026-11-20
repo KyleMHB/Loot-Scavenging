@@ -159,9 +159,10 @@ public static class StudyRules
     {
         if (available <= 0 || !IsUsable(paidPerUnit) || !IsUsable(payable))
             return 0;
-        int needed = (int)Math.Ceiling(payable / paidPerUnit);
-        int perTrip = IsUsable(maxPointsPerTrip) ? Math.Max(1, (int)Math.Floor(maxPointsPerTrip / paidPerUnit)) : 1;
-        return Math.Min(available, Math.Min(needed, perTrip));
+        // Compared as doubles before narrowing: a float-to-int cast of a huge value is not saturating on every runtime.
+        double needed = Math.Ceiling((double)payable / paidPerUnit);
+        double perTrip = IsUsable(maxPointsPerTrip) ? Math.Max(1d, Math.Floor((double)maxPointsPerTrip / paidPerUnit)) : 1d;
+        return (int)Math.Min(available, Math.Min(needed, perTrip));
     }
 
     /// <summary>

@@ -138,6 +138,12 @@ public class StudyTests
     }
 
     [Fact]
+    public void AnUnboundedTripTakesWhatTheProjectNeeds()
+    {
+        Assert.Equal(30, StudyRules.UnitsToTake(available: 30, paidPerUnit: 20f, payable: 1000f, maxPointsPerTrip: float.MaxValue));
+    }
+
+    [Fact]
     public void StudyTimeScalesWithPointsAndResearchSpeed()
     {
         int base100 = StudyRules.StudyTicks(100f, researchSpeed: 1f);
