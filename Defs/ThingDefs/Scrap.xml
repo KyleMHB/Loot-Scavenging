@@ -13,7 +13,7 @@
   </ThingCategoryDef>
 
   <ThingDef Name="LS_ScrapBase" Abstract="True">
-    <thingClass>ThingWithComps</thingClass>
+    <thingClass>LootScavenging.ScrapThing</thingClass>
     <category>Item</category>
     <drawerType>MapMeshOnly</drawerType>
     <selectable>true</selectable>

@@ -3,4 +3,9 @@
   <LootScavenging_UnfamiliarLabel>unfamiliar</LootScavenging_UnfamiliarLabel>
   <LootScavenging_UnfamiliarInspect>Unfamiliar technology: cannot be equipped or worn until its research is finished.</LootScavenging_UnfamiliarInspect>
   <LootScavenging_CannotEquipUnfamiliar>unfamiliar technology</LootScavenging_CannotEquipUnfamiliar>
+  <LootScavenging_RecycleLabel>recycle {0}</LootScavenging_RecycleLabel>
+  <LootScavenging_RecycleJob>Recycling {0}.</LootScavenging_RecycleJob>
+  <LootScavenging_RecycleDescription>Break {0} down into raw materials. Each unit returns {1}.</LootScavenging_RecycleDescription>
+  <LootScavenging_YieldFixed>{0}x {1}</LootScavenging_YieldFixed>
+  <LootScavenging_YieldChance>{0}x {1} ({2}% chance)</LootScavenging_YieldChance>
 </LanguageData>

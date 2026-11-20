@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- The tier table (spec, "Recycling"). Each tier names its scrap, the benches that recycle it and what one unit of scrap
+       returns. A bench named for a tier also recycles every tier below it, with no check on the colony's era.
+       A yield with a chance below 1 is rolled once per unit. A pack changes benches or yields with a patch, e.g.
+         <Operation Class="PatchOperationAdd">
+           <xpath>/Defs/LootScavenging.ScrapTierDef[defName="LS_ScrapTier_Spacer"]/benches</xpath>
+           <value><li>MyBench</li></value>
+         </Operation>
+       batchSize is the units a bill iteration uses up; workPerUnit the work for each. Starting values, to be tuned. -->
+
+  <LootScavenging.ScrapTierDef>
+    <defName>LS_ScrapTier_Neolithic</defName>
+    <tier>Neolithic</tier>
+    <scrap>LS_Scrap_Neolithic</scrap>
+    <benches>
+      <li>CraftingSpot</li>
+    </benches>
+    <yields>
+      <li><thing>WoodLog</thing><count>3</count></li>
+      <li><thing>Leather_Plain</thing><count>1</count></li>
+    </yields>
+    <workPerUnit>80</workPerUnit>
+  </LootScavenging.ScrapTierDef>
+
+  <LootScavenging.ScrapTierDef>
+    <defName>LS_ScrapTier_Medieval</defName>
+    <tier>Medieval</tier>
+    <scrap>LS_Scrap_Medieval</scrap>
+    <benches>
+      <li>FueledSmithy</li>
+      <li>ElectricSmithy</li>
+    </benches>
+    <yields>
+      <li><thing>Steel</thing><count>3</count></li>
+      <li><thing>Cloth</thing><count>2</count></li>
+    </yields>
+    <workPerUnit>100</workPerUnit>
+  </LootScavenging.ScrapTierDef>
+
+  <LootScavenging.ScrapTierDef>
+    <defName>LS_ScrapTier_Industrial</defName>
+    <tier>Industrial</tier>
+    <scrap>LS_Scrap_Industrial</scrap>
+    <benches>
+      <li>TableMachining</li>
+    </benches>
+    <yields>
+      <li><thing>Steel</thing><count>4</count></li>
+      <li><thing>ComponentIndustrial</thing><count>1</count><chance>0.1</chance></li>
+    </yields>
+    <workPerUnit>120</workPerUnit>
+  </LootScavenging.ScrapTierDef>
+
+  <LootScavenging.ScrapTierDef>
+    <defName>LS_ScrapTier_Spacer</defName>
+    <tier>Spacer</tier>
+    <scrap>LS_Scrap_Spacer</scrap>
+    <benches>
+      <li>FabricationBench</li>
+    </benches>
+    <yields>
+      <li><thing>Plasteel</thing><count>3</count></li>
+      <li><thing>ComponentSpacer</thing><count>1</count><chance>0.03</chance></li>
+    </yields>
+    <workPerUnit>150</workPerUnit>
+  </LootScavenging.ScrapTierDef>
+
+</Defs>
