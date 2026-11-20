@@ -37,18 +37,15 @@ internal static class ScrapEquivalent
     }
 
     /// <summary>
-    /// What recycling this item returns: what the same units of its tier's scrap would return. Ticket 15 swaps the body for
-    /// its weighted-pool roll (<c>ScrapTierTable.RollProducts(tier, units, valueFactor)</c>); callers do not change.
+    /// What recycling this item returns: what the same units of its tier's scrap would return. Rolled from the tier's weighted pool,
+    /// the same as the scrap.
     /// </summary>
     public static IEnumerable<Thing> RecycleProducts(Thing thing)
     {
         if (!TryGet(thing, out ScrapTier tier, out int units))
             return new List<Thing>();
 
-        var products = new List<Thing>();
-        products.AddRange(ScrapTierTable.MakeThings(YieldMath.Fixed(ScrapTierTable.Yields(tier), units)));
-        products.AddRange(ScrapTierTable.ChanceProducts(ScrapDefs.For(tier), units));
-        return products;
+        return ScrapTierTable.RollProducts(ScrapTierTable.For(tier), units);
     }
 
     /// <summary>Recycling work for one item: its units at the tier's work per unit, as the scrap would take.</summary>
