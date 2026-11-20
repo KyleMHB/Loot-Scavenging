@@ -52,6 +52,12 @@ public class LootScavengingSettings : ModSettings
         ScribeRule(rules.medicine, "medicine", defaults.medicine);
         ScribeRule(rules.food, "food", defaults.food);
         ScribeRule(rules.other, "other", defaults.other);
+        Scribe_Values.Look(ref rules.degradeMin, "degradeMin", defaults.degradeMin);
+        Scribe_Values.Look(ref rules.degradeMax, "degradeMax", defaults.degradeMax);
+        Scribe_Values.Look(ref rules.degradeLowersQuality, "degradeLowersQuality", defaults.degradeLowersQuality);
+        Scribe_Values.Look(ref rules.disassemblyYield, "disassemblyYield", defaults.disassemblyYield);
+        Scribe_Values.Look(ref rules.disassemblyEfficiency, "disassemblyEfficiency", defaults.disassemblyEfficiency);
+        Scribe_Values.Look(ref rules.ejectCharges, "ejectCharges", defaults.ejectCharges);
         Scribe_Values.Look(ref rules.protectQuestItems, "protectQuestItems", defaults.protectQuestItems);
         Scribe_Values.Look(ref rules.protectUniqueWeapons, "protectUniqueWeapons", defaults.protectUniqueWeapons);
         Scribe_Values.Look(ref rules.protectPersonaWeapons, "protectPersonaWeapons", defaults.protectPersonaWeapons);
