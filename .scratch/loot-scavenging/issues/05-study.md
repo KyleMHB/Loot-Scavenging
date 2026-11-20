@@ -4,7 +4,7 @@
 
 **Blocked by:** 03
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Recommended model:** `opus` — A custom job and work giver, research-factor and techprint edge cases, and the spec's lessons from Technology Blueprints.
 
@@ -38,7 +38,13 @@ Decisions the spec left open:
 - Techprints: with the setting off, a project with unapplied techprints receives nothing. With it on, study pays in but stops one point short of finishing, because `FinishProject` would hand over the missing techprints for free. In vanilla the research tab only lets a project become current when its techprints are applied, so this mostly matters for mods that set the project another way, such as Semi Random Research.
 - Recycle or study: StudyThenRecycle passes ceil(units x 0.5) remaining units to `StudyRemains.Handler`. Until ticket 04 sets the handler, nothing remains (dev log line). Ticket 04 decides whether the remains become yields at once or a studied-scrap item.
 
-After merging `loot-scavenging`, which now includes ticket 04, the handler can be set from `ScrapTierTable.Yields(tier)` at reduced value. The points in `StudyPoints` could also move into `ScrapTierDef`.
+Open: StudyThenRecycle does nothing yet beyond the dev log line, so it behaves like OneOrTheOther. Wire it before ticket 11 shows the setting. Do not just spawn `ScrapTierTable.Yields(tier)` at the research bench, because that skips the rule that the recycling bench is the gate. With AnyEra, a tribal colony would get plasteel with no fabrication bench. The two options are:
+- the remains become a per-tier "studied scrap" item, recycled at that tier's bench at reduced yield;
+- yields appear at once, but only when the map has a bench that can recycle the tier.
+
+Either way, the remains must never come back as studyable scrap, because rounding up would let one unit be studied forever. The points in `StudyPoints` could also move into ticket 04's `ScrapTierDef`.
+
+Open (spec): study has no keep-in-stock count. At priority 110 researchers study every eligible stack, even scrap the player meant to recycle. The player's controls are forbidding stacks and the study-eras setting.
 
 Tests: `dotnet test` 150 passed after the merge. Both builds 0 warnings, 0 errors; `rwtranslate check` passes.
 
