@@ -50,7 +50,7 @@ Every item a pawn drops passes the same ordered checks, and the first check that
 
 1. **Owner.** Colony pawns are never affected. Other pawns fall into four groups, each with its own toggle: hostile, non-hostile faction, no faction (wild animals, wild people), and the colony's prisoners.
 2. **Place.** An optional "home map only" setting leaves loot alone on caravan, quest and outpost maps.
-3. **Moment.** Rules apply on death by default. A setting extends them to gear dropped when a pawn is downed or stripped.
+3. **Moment.** Rules always apply on death. A setting extends them to gear dropped when a pawn is downed or stripped. The Progression preset turns it on and switches the prisoner group on, so out-of-reach gear cannot be taken intact from a downed raider or a stripped prisoner. The Cleanup preset leaves it off.
 4. **Protection.** Quest-tagged items, unique weapons, persona weapons, relics and anything on the player's keep list are never touched.
 5. **Category.** The item is matched to one category rule: weapons, apparel, or an inventory group (ammunition, drugs, medicine, food, other).
 6. **Conditions.** The category rule can be limited to items beyond the colony's reach, below a quality, or below a hit-point percentage.
@@ -84,8 +84,9 @@ Step 3 covers modded and uncraftable gear with no era of its own. Two settings r
 | Scrap out-of-reach gear (default) | Gear within reach follows its category rule. Gear beyond it becomes scrap. |
 | Scrap everything | All gear enemies drop becomes scrap. Maximum cleanup, no usable loot. |
 | Keep the original item | Out-of-reach gear drops whole but cannot be used until researched. It can be recycled or studied as if it were scrap. |
+| Off | No era handling. Out-of-reach gear follows its category rule like any other gear. Used by the Cleanup and Vanilla presets. |
 
-All three modes ship in the first release.
+All four modes ship in the first release.
 
 ## Scrap, recycling and study
 
@@ -169,6 +170,20 @@ The page is grouped into six sections.
 | Lists | Always keep, always remove, protection toggles |
 
 - **Default preset is Progression.** A one-time message on first load says what the mod is doing and where the presets are.
+
+The presets set these values. Cleanup's numbers are proposed and can change before stage 8.
+
+| Setting | Progression | Cleanup | Vanilla |
+| --- | --- | --- | --- |
+| Drop mode | Scrap out-of-reach gear | Off | Off |
+| Moment | Death, downed and strip | Death only | Not used |
+| Owner groups | Hostile, non-hostile faction, no faction, prisoners | Hostile only | None |
+| Weapons and apparel | Keep within reach | Delete below Normal quality or below 50% hit points, otherwise keep | Keep |
+| Inventory groups | Keep within reach | Keep | Keep |
+| Corpses | Off | Humanlike on at 100%; animal and mechanoid off | Off |
+| Butchering removes worn apparel | Off | On | Off |
+
+Cleanup leaves animal corpses for food and mechanoid corpses for smelting, so it removes only what a colony has no use for.
 - **Presets** set every setting at once. The page shows which preset is active and whether it has been changed.
 - **Each row says what will happen** in a sentence under it.
 - **Lists** are picked from a searchable item menu and stored by item name, so a removed mod does not break the settings.
@@ -251,7 +266,7 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Workshop title | Loot Scavenging (scrap, recycle, study) |
 | Package id | `kylemhb.lootscavenging` |
 | Originality | Built from this spec and the game's code only. |
-| Drop mode | A setting with three modes, defaulting to scrap for out-of-reach gear. All three ship first. |
+| Drop mode | A setting with four modes, defaulting to scrap for out-of-reach gear. "Off" was added so Cleanup and Vanilla can run without era handling. All four ship first. |
 | Scrap form | Generic per era. The amount carries the value. |
 | Recycling yields | Fixed era-typical table in XML. |
 | Recycling gate | The bench alone. A bench handles its tier and below. |
@@ -270,6 +285,8 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Unknown era | The carrying faction's era, with settings for the colony's era or straight to components. |
 | Instant disassembly | Stays, with a setting for era-typical or item-based yields. |
 | Default preset | Progression, with a one-time first-load message. |
+| Downed, stripped and prisoner gear | The Progression preset applies the rules on downed and on strip, with the prisoner group on. Cleanup applies them on death only. |
+| Cleanup preset | No era handling. Deletes worn-out or low-quality weapons and apparel from hostile dead, removes humanlike corpses and strips apparel at butchering. Exact values in the presets table are proposed. |
 | Game versions | 1.6 and 1.7. |
 | Scrap art | Made or commissioned by Kyle. Placeholder icons until then. |
 | Credit | An inspired-by line on the Workshop page naming Looting Manager and Non uno Pinata. |
