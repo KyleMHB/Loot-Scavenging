@@ -9,6 +9,9 @@ public class LootScavengingSettings : ModSettings
     // Read directly by the evaluator, so there is nothing to cache or rebuild.
     public LootRules rules = new LootRules();
 
+    // Era fallback for gear with no research era and no tech level (spec: replaces the carrying faction's era).
+    public EraFallback eraFallback = EraFallback.CarrierFaction;
+
     public override void ExposeData()
     {
         base.ExposeData();
@@ -22,5 +25,6 @@ public class LootScavengingSettings : ModSettings
         Scribe_Values.Look(ref rules.onDownedAndStrip, "onDownedAndStrip", defaults.onDownedAndStrip);
         Scribe_Values.Look(ref rules.weapons.outcome, "weaponsOutcome", defaults.weapons.outcome);
         Scribe_Values.Look(ref rules.apparel.outcome, "apparelOutcome", defaults.apparel.outcome);
+        Scribe_Values.Look(ref eraFallback, "eraFallback", EraFallback.CarrierFaction);
     }
 }
