@@ -77,7 +77,12 @@ Decisions the spec left open:
 - **Special sources** never receive points: Anomaly knowledge projects, projects with no research cost, and projects whose analysed-item or grav-engine requirement is unmet. Unfinished prerequisites and finished projects are refused too.
 - **Techprints.** With the setting off, a project with unapplied techprints receives nothing. With it on, study stops one point short of finishing, because `FinishProject` would hand over the missing techprints for free. In vanilla the current project always has its techprints, so this matters for mods such as Semi Random Research.
 - **Recycle or study.** The default mode produces nothing besides points. StudyThenRecycle gives one studied-scrap unit per studied unit, recycled at its tier's own bench at half yield.
-- **Saves.** Study bills are saved on the bench, like ticket 04's recycling bills. Removing the mod drops them, and the bench returns to the vanilla class.
+- **Saves and removal.** Every saved thing carries a `Class` attribute. Without the mod, an unknown class makes `ScribeExtractor.SaveableFromNode` fall back to the def's thingClass, so the bench would survive, but with a "Could not find class" error per bench. `Source/Study/StudyBenchSaveCompat.cs` avoids that:
+  - A prefix on `ScribeSaver.WriteAttribute` writes `Building_StudyBench` as `Building_ResearchBench`.
+  - A postfix on `BackCompatibility.GetBackCompatibleType` maps it back when the saved def uses `Building_StudyBench`.
+  - Without the mod, the bench loads as a plain research bench and its `billStack` node is never read. Study bills are lost; nothing else is.
+  - Saves made before this change carry the old class name. They load fine with the mod and log the fallback error once per bench without it.
+- **Bench speed factor gap.** The game applies a bill's `workTableSpeedStat` only to `Building_WorkTable`. Study time therefore uses the pawn's research speed and ignores the bench's research speed factor (hi-tech bench, multi-analyzer). Closing the gap needs a patch on `Toils_Recipe.DoRecipeWork` or a custom pawn stat.
 
 Tests: `dotnet test` 163 passed. Both builds 0 warnings, 0 errors; `rwtranslate check` passes.
 
