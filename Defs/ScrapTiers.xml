@@ -110,10 +110,16 @@
     <benches>
       <li>FabricationBench</li>
     </benches>
-    <yields>
-      <li><thing>Plasteel</thing><count>4</count></li>
-      <li><thing>ComponentSpacer</thing><count>1</count><chance>0.06</chance></li>
-    </yields>
+    <valuePerUnit>48</valuePerUnit>
+    <pool>
+      <li><thing>Plasteel</thing><weight>35</weight></li>
+      <li><thing>Uranium</thing><weight>15</weight></li>
+      <li><thing>Gold</thing><weight>15</weight></li>
+      <li><thing>ComponentSpacer</thing><weight>20</weight></li>
+      <!-- spacer materials, 15% -->
+      <li><thing>Steel</thing><weight>6</weight></li>
+      <li><thing>ComponentIndustrial</thing><weight>9</weight></li>
+    </pool>
     <workPerUnit>180</workPerUnit>
   </LootScavenging.ScrapTierDef>
 
@@ -125,10 +131,15 @@
     <benches>
       <li>FabricationBench</li>
     </benches>
-    <yields>
-      <li><thing>Plasteel</thing><count>5</count></li>
-      <li><thing>ComponentSpacer</thing><count>1</count><chance>0.1</chance></li>
-    </yields>
+    <valuePerUnit>65</valuePerUnit>
+    <pool>
+      <li><thing>Plasteel</thing><weight>35</weight></li>
+      <li><thing>Gold</thing><weight>25</weight></li>
+      <li><thing>ComponentSpacer</thing><weight>25</weight></li>
+      <!-- spacer materials, 15% -->
+      <li><thing>Uranium</thing><weight>8</weight></li>
+      <li><thing>Steel</thing><weight>7</weight></li>
+    </pool>
     <workPerUnit>220</workPerUnit>
   </LootScavenging.ScrapTierDef>
 
