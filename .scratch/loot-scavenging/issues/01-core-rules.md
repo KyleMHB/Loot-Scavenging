@@ -48,9 +48,13 @@
 
 **In-game checks pending** (dev mode, Debug actions > "Loot Scavenging"):
 - **Raider, defaults:** kill a spawned raider. The weapon is gone and the apparel stays on the corpse.
-- **Wild animal:** kill one. The log shows `OwnerGroupOff` and nothing changes. With "Toggle no-faction group" on, its gear follows the rules.
+- **Wild animal:** kill one. It has no gear, so it logs nothing and nothing changes; that is the pass. For a visible check, kill an armed wild man: with the defaults the log shows `OwnerGroupOff`, and after "Toggle no-faction group" it shows `CategoryRule` lines and the weapon is deleted.
 - **Colonist:** kill one. The log shows `ColonyPawn`.
-- **Downed and strip:** down a raider and strip a prisoner. The log shows `MomentOff`. With "Toggle downed and strip" on, the weapon is deleted. Add "Toggle prisoner group" for the prisoner.
+- **Downed raider:** with the defaults the log shows `MomentOff`. With "Toggle downed and strip" on, the weapon is deleted (`CategoryRule`).
+- **Stripped prisoner:** the owner check runs first.
+  1. With the defaults the log shows `OwnerGroupOff`.
+  2. After "Toggle prisoner group" it shows `MomentOff`.
+  3. With "Toggle downed and strip" also on, the apparel lines show `Keep (CategoryRule)`.
 - **Home map only:** turn on "Toggle home map only", then kill a raider on a quest or caravan map. The log shows `NotHomeMap`.
 - **Mechanoid:** kill a weapon-carrying mechanoid. The log shows a death decision for its weapon. Vanilla mech weapons are also destroyed when dropped, so the visible result is the same either way.
 - **Log rules:** prints the current values.
