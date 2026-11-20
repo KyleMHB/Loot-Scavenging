@@ -244,6 +244,16 @@ internal static class StudyBillPatch
     {
         try
         {
+            if (OriginalItemRecipes.IsStudy(__instance.recipe) && !__instance.suspended)
+            {
+                // Original items: the bill waits when there is no project or this bench cannot research it. Whether an item
+                // can be studied is decided per item when the bill looks for ingredients.
+                ResearchProjectDef current = ScrapStudy.CurrentProject;
+                if (current == null || (__instance.billStack?.billGiver is Building_ResearchBench originalBench
+                    && !current.CanBeResearchedAt(originalBench, ignoreResearchBenchPowerStatus: false)))
+                    __result = false;
+                return;
+            }
             if (!StudyRecipes.TryGetTier(__instance.recipe, out ScrapTier tier) || __instance.suspended)
                 return;
 

@@ -39,14 +39,21 @@ public readonly struct StudyWorth
 public static class ScrapStudy
 {
     /// <summary>
-    /// The single "what is this worth at the bench" lookup. Today only scrap has a worth; studied scrap has none, so it is
-    /// never studied twice. Ticket 07 adds unfamiliar original items here as their scrap equivalent (tier from the item's
-    /// era, units per thing from ScrapAmounts.Units).
+    /// The single "what is this worth at the bench" lookup: scrap, or an unfamiliar original item as its scrap equivalent
+    /// (its tier's points, its units per thing). Studied scrap has no worth, so it is never studied twice.
     /// </summary>
     public static bool TryGetWorth(Thing thing, out StudyWorth worth)
     {
         worth = default;
-        return thing != null && TryGetWorth(thing.def, out worth);
+        if (thing == null)
+            return false;
+        if (TryGetWorth(thing.def, out worth))
+            return true;
+        if (!ScrapEquivalent.TryGet(thing, out ScrapTier tier, out int units)
+            || !TryGetWorth(ScrapDefs.For(tier), out StudyWorth perUnit))
+            return false;
+        worth = new StudyWorth(tier, units, perUnit.PointsPerUnit);
+        return true;
     }
 
     /// <summary>The worth of one unit of a scrap def.</summary>
@@ -62,7 +69,7 @@ public static class ScrapStudy
 
     /// <summary>
     /// The defs a tier's study bill allows in its ingredient filter, given that tier's scrap. Runs in the implied-def pass.
-    /// Ticket 07 adds the unfamiliar original items of that tier here; the bill's filter then lets the player choose them.
+    /// Original items are not listed here: their own recipe (OriginalItemRecipes) takes them one at a time.
     /// </summary>
     public static IEnumerable<ThingDef> IngredientDefs(ThingDef scrap)
     {
