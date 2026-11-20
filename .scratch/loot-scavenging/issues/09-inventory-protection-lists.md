@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
+
 - [ ] A raider carrying medicine and a quest weapon drops both untouched with the default rules.
 - [ ] An item on the keep list is never touched, and one on the remove list is acted on.
 - [ ] A partial stack drop is never partly deleted.

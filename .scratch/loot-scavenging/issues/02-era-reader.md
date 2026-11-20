@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
+
 - [ ] The dev readout names the right era and out-of-reach result for a vanilla researched weapon, a vanilla unresearched weapon, an uncraftable weapon and a modded item with no research.
 - [ ] The colony's era is read through a single function, so a later pack integration can supply the value.
 - [ ] The fallback settings change the result the readout shows.

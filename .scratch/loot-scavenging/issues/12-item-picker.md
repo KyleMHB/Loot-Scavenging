@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
+
 - [ ] Searching finds items by label, and picking one adds it to the chosen list.
 - [ ] An item added through the picker is kept or removed in game as the list says.
 - [ ] After removing the mod that added a listed item, the settings load without an error and the entry is kept for if the mod returns.

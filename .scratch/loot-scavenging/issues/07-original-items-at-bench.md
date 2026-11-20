@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
+
 - [ ] A looted rifle recycles for the same yield as the scrap it would have become.
 - [ ] Studying it pays the same points as that scrap.
 - [ ] An unfamiliar item that is neither marked nor allowed by a filter is never picked up for recycling or study.

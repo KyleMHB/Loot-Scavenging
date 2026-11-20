@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Recommended model:** `opus` — Every later ticket builds on the hook choice, the call order found in the game code, and the evaluator and applier split.
+
 - [ ] The signatures and call order of the death, downed and strip methods are confirmed against the 1.7 game code before any hook is written, and the result is recorded in the spec's Unverified list.
 - [ ] Killing a spawned raider removes its weapon and keeps its apparel, with the default test rules.
 - [ ] Killing a wild animal changes nothing while the "no faction" group is off.

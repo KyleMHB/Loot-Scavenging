@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
+
 - [ ] With humanlike removal on, a dead raider's corpse is removed after its gear has gone through the loot rules.
 - [ ] A wild animal's corpse stays unless the "no faction" group is on.
 - [ ] A pawn that dies without leaving a corpse, or is killed off-map, is skipped with no error.

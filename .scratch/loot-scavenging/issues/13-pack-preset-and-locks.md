@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
+
 - [ ] A test patch changes a default, and the page shows the patched value on a fresh config.
 - [ ] A locked setting cannot be changed on the page, and the page says why.
 - [ ] The pack preset sets disassembly to era-typical yields.

@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
+
 - [ ] A degraded item lands inside the set range, and the quality option lowers its quality one step.
 - [ ] Changing the efficiency setting visibly changes the item-based yield.
 - [ ] The era-typical yield matches the tier table.

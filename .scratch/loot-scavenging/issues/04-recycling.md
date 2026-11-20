@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
+
 - [ ] A machining table recycles industrial and medieval scrap.
 - [ ] A smithy refuses industrial scrap.
 - [ ] Each unit returns the materials the tier table lists.

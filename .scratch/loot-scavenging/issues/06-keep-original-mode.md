@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
+
 - [ ] A looted charge rifle in a tribal colony shows as unfamiliar and cannot be equipped.
 - [ ] Once its research finishes, the same rifle can be equipped.
 - [ ] With the looted-only scope, an out-of-reach item that was not looted can be equipped, and the marker survives a save and reload.

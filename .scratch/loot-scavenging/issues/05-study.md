@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Recommended model:** `opus` — A custom job and work giver, research-factor and techprint edge cases, and the spec's lessons from Technology Blueprints.
+
 - [ ] Studying same-era scrap advances the current project, and finishing a study shows the gain and the project.
 - [ ] Higher-era scrap is refused, and the inspect text says why.
 - [ ] With no current project the job does not start.

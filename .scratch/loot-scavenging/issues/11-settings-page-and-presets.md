@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Recommended model:** `opus` — The largest ticket: it draws on every earlier rule, and the presets must match the table exactly.
+
 - [ ] Each preset produces the behaviour the presets table states, checked in game for each one.
 - [ ] Changing any setting after picking a preset marks the preset as changed.
 - [ ] The first-load message appears once and not again after a reload.

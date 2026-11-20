@@ -6,6 +6,8 @@
 
 **Status:** ready-for-human
 
+**Recommended model:** `none` — in-game runs by a human.
+
 - [ ] Each run loads and plays through a raid with no errors.
 - [ ] With Non uno Pinata, gear that stays on the body still follows the loot rules.
 - [ ] With Progression: Ammunition, ammo is recognised and follows the ammunition rule.

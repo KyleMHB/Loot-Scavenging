@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
+
 - [ ] A tribal colony that kills a pirate gets a stack of industrial scrap, sized by the gear.
 - [ ] A stone knife becomes about one unit of neolithic scrap, and a charge rifle becomes several units of spacer scrap.
 - [ ] "Scrap everything" turns all dropped gear into scrap, and "Off" leaves out-of-reach gear to its category rule.

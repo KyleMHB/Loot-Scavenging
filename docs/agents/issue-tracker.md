@@ -8,6 +8,7 @@ Issues and specifications live in this repository under `.scratch/`.
 - Canonical specification: `.scratch/<feature-slug>/spec.md`.
 - Implementation tickets: `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01`, one file per ticket.
 - Record triage state as a `Status:` line near the top, using [triage labels](triage-labels.md). Existing bold `**Status:**` fields remain readable; preserve their format when updating old tickets.
+- A ticket may carry a `**Recommended model:**` line under its status: `opus`, `sonnet` or `none`, then a dash and the reason. An orchestrator passes the value as the implementing subagent's model; `none` marks a human-only ticket.
 - Append comments and conversation history under `## Comments` at the bottom.
 - Fetch a referenced spec or ticket by reading its local file. Resolve a bare number within the named feature; numbers are not unique across features.
 
