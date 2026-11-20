@@ -38,6 +38,8 @@ Decisions the spec left open:
 - Techprints: with the setting off, a project with unapplied techprints receives nothing. With it on, study pays in but stops one point short of finishing, because `FinishProject` would hand over the missing techprints for free. In vanilla the research tab only lets a project become current when its techprints are applied, so this mostly matters for mods that set the project another way, such as Semi Random Research.
 - Recycle or study: StudyThenRecycle passes ceil(units x 0.5) remaining units to `StudyRemains.Handler`. Until ticket 04 sets the handler, nothing remains (dev log line). Ticket 04 decides whether the remains become yields at once or a studied-scrap item.
 
-Tests: `dotnet test` 130 passed. Both builds 0 warnings, 0 errors; `rwtranslate check` passes.
+After merging `loot-scavenging`, which now includes ticket 04, the handler can be set from `ScrapTierTable.Yields(tier)` at reduced value. The points in `StudyPoints` could also move into `ScrapTierDef`.
+
+Tests: `dotnet test` 150 passed after the merge. Both builds 0 warnings, 0 errors; `rwtranslate check` passes.
 
 In-game pending: studying same-era scrap advances the project and shows the message; finishing a project through study; higher-era scrap refused, with the inspect reason; no job with no project; research factor 0 (no job, inspect says why) and 2.5 (progress capped at the cost); techprint setting off with a techprint project; study time and Intellectual XP; a save and load during a study job.
