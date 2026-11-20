@@ -1,28 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
-  <!-- Study (spec, "Study"): a researcher carries scrap to a research bench and uses it up for research points. -->
+  <!-- Study (spec, "Study"): bills at a research bench use up scrap for research points. The study recipes and the list of
+       research benches below are filled in at startup (LootScavenging.StudyRecipes), so modded benches that use the
+       vanilla research bench class are included. Above vanilla research (priorityInType 100, sorted descending), so a
+       researcher works study bills first. -->
 
-  <JobDef>
-    <defName>LS_StudyScrap</defName>
-    <driverClass>LootScavenging.JobDriver_StudyScrap</driverClass>
-    <reportString>studying TargetB.</reportString>
-    <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
-  </JobDef>
-
-  <!-- Above vanilla research (priorityInType 100, sorted descending), so a researcher studies waiting scrap first. -->
   <WorkGiverDef>
-    <defName>LS_StudyScrap</defName>
-    <label>study scrap</label>
-    <giverClass>LootScavenging.WorkGiver_StudyScrap</giverClass>
+    <defName>LS_DoBillsStudy</defName>
+    <label>study scrap at research benches</label>
+    <giverClass>WorkGiver_DoBill</giverClass>
     <workType>Research</workType>
     <verb>study</verb>
-    <gerund>studying</gerund>
+    <gerund>studying at</gerund>
     <priorityInType>110</priorityInType>
+    <fixedBillGiverDefs>
+      <li>SimpleResearchBench</li>
+      <li>HiTechResearchBench</li>
+    </fixedBillGiverDefs>
     <requiredCapacities>
       <li>Manipulation</li>
     </requiredCapacities>
+    <prioritizeSustains>true</prioritizeSustains>
     <canBeDoneByMechs>false</canBeDoneByMechs>
   </WorkGiverDef>
+
+  <!-- What study leaves in "study first, then recycle" mode. It recycles at its tier's benches at a reduced yield
+       (studiedYieldFactor in Defs/ScrapTiers.xml) and is never studied again: it has no study points. -->
+
+  <ThingDef ParentName="LS_ScrapBase">
+    <defName>LS_StudiedScrap_Neolithic</defName>
+    <label>studied neolithic scrap</label>
+    <description>Neolithic scrap that has already been studied. It can only be recycled, for less than fresh scrap.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/WoodLog</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(0.58, 0.52, 0.45)</color>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="LS_ScrapBase">
+    <defName>LS_StudiedScrap_Medieval</defName>
+    <label>studied medieval scrap</label>
+    <description>Medieval scrap that has already been studied. It can only be recycled, for less than fresh scrap.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/Steel</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(0.55, 0.48, 0.42)</color>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="LS_ScrapBase">
+    <defName>LS_StudiedScrap_Industrial</defName>
+    <label>studied industrial scrap</label>
+    <description>Industrial scrap that has already been studied. It can only be recycled, for less than fresh scrap.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/Steel</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(0.46, 0.50, 0.55)</color>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="LS_ScrapBase">
+    <defName>LS_StudiedScrap_Spacer</defName>
+    <label>studied spacer scrap</label>
+    <description>Spacer scrap that has already been studied. It can only be recycled, for less than fresh scrap.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/Plasteel</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(0.42, 0.60, 0.64)</color>
+    </graphicData>
+  </ThingDef>
 
 </Defs>

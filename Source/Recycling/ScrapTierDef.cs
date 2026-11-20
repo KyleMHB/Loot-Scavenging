@@ -27,6 +27,14 @@ public class ScrapTierDef : Def
 
     public List<ScrapYield> yields = new List<ScrapYield>();
 
+    /// <summary>
+    /// What study leaves in "study first, then recycle" mode (ticket 05). It recycles at the same benches as the scrap,
+    /// at <see cref="studiedYieldFactor"/> of its yield, and is never studied again.
+    /// </summary>
+    public ThingDef studiedScrap;
+
+    public float studiedYieldFactor = 0.5f;
+
     /// <summary>Scrap units one bill iteration uses up. Leftovers below this stay unrecycled.</summary>
     public int batchSize = 5;
 
@@ -69,14 +77,22 @@ internal static class ScrapTierTable
         return found;
     }
 
+    /// <summary>The tier of a scrap or studied-scrap def.</summary>
     public static ScrapTierDef ForScrap(ThingDef scrap)
     {
         foreach (ScrapTierDef def in DefDatabase<ScrapTierDef>.AllDefsListForReading)
         {
-            if (def.scrap == scrap)
+            if (def.scrap == scrap || (def.studiedScrap != null && def.studiedScrap == scrap))
                 return def;
         }
         return null;
+    }
+
+    /// <summary>A tier's yield lines for studied scrap: the scrap's yield reduced by the studied-yield factor.</summary>
+    public static List<YieldEntry<ThingDef>> StudiedYields(ScrapTier tier)
+    {
+        ScrapTierDef def = For(tier);
+        return def == null ? new List<YieldEntry<ThingDef>>() : StudiedYield.Reduce(Yields(tier), def.studiedYieldFactor);
     }
 
     /// <summary>The tier's yield lines as plain model entries, skipping lines with no item.</summary>
@@ -113,6 +129,7 @@ internal static class ScrapTierTable
         ScrapTierDef def = ForScrap(scrap);
         if (def == null)
             return Enumerable.Empty<Thing>();
-        return MakeThings(YieldMath.RollChance(Yields(def.tier), units, () => Rand.Value));
+        List<YieldEntry<ThingDef>> yields = scrap == def.scrap ? Yields(def.tier) : StudiedYields(def.tier);
+        return MakeThings(YieldMath.RollChance(yields, units, () => Rand.Value));
     }
 }

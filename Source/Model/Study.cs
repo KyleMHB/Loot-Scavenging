@@ -75,14 +75,8 @@ public static class StudyRules
     /// </summary>
     public const int TicksPerPoint = 30;
 
-    /// <summary>One study job lasts at most this long (two in-game hours), so a 500-stack is not one day-long job.</summary>
-    public const int MaxTicksPerJob = 5000;
-
-    /// <summary>Research speed is floored here, so a pawn with no research speed still has a finite study time.</summary>
-    public const float MinResearchSpeed = 0.05f;
-
-    /// <summary>Share of the studied units that remain for recycling in <see cref="RecycleOrStudy.StudyThenRecycle"/>.</summary>
-    public const float RemainsFraction = 0.5f;
+    /// <summary>A study bill iteration takes enough units for about this many base points (about 3000 ticks of work).</summary>
+    public const float PointsPerBatch = 100f;
 
     /// <summary>
     /// The era a tier is compared as: its nominal era. Spacer scrap compares as Spacer, so it does not pay into Ultra
@@ -154,44 +148,49 @@ public static class StudyRules
         return Math.Min(units * paidPerUnit, payable);
     }
 
-    /// <summary>Units one job takes: no more than the stack, than the project needs, or than one trip can study.</summary>
-    public static int UnitsToTake(int available, float paidPerUnit, float payable, float maxPointsPerTrip)
+    /// <summary>
+    /// Units an iteration actually uses: no more than it brought, nor than the project still needs. The rest is left at the
+    /// bench, so scrap is not used up past a project's completion.
+    /// </summary>
+    public static int UnitsUsed(int available, float paidPerUnit, float payable)
     {
         if (available <= 0 || !IsUsable(paidPerUnit) || !IsUsable(payable))
             return 0;
         // Compared as doubles before narrowing: a float-to-int cast of a huge value is not saturating on every runtime.
         double needed = Math.Ceiling((double)payable / paidPerUnit);
-        double perTrip = IsUsable(maxPointsPerTrip) ? Math.Max(1d, Math.Floor((double)maxPointsPerTrip / paidPerUnit)) : 1d;
-        return (int)Math.Min(available, Math.Min(needed, perTrip));
+        return (int)Math.Min(available, needed);
+    }
+
+    /// <summary>Units one study bill iteration takes: about <see cref="PointsPerBatch"/> base points, at least one unit.</summary>
+    public static int BatchUnits(float pointsPerUnit)
+    {
+        if (!IsUsable(pointsPerUnit))
+            return 1;
+        return (int)Math.Max(1d, Math.Ceiling(PointsPerBatch / (double)pointsPerUnit));
     }
 
     /// <summary>
-    /// Study time for the points paid. <paramref name="researchSpeed"/> is the pawn's research speed times the bench's
-    /// research speed factor; it is floored, never trusted as a divisor as it stands.
+    /// Bill work for an iteration, from the tier's base points. The bill system spends work at the pawn's research speed,
+    /// so the time scales with the points and research speed applies. The storyteller factor changes the points paid, not
+    /// the time, as at the research bench.
     /// </summary>
-    public static int StudyTicks(float points, float researchSpeed)
+    public static float WorkAmount(int units, float pointsPerUnit)
     {
-        double speed = float.IsNaN(researchSpeed) || researchSpeed < MinResearchSpeed ? MinResearchSpeed : researchSpeed;
-        if (!IsUsable(points))
-            return 1;
-        double ticks = points * (double)TicksPerPoint / speed;
-        // Allow for float rounding, so a trip sized by MaxPointsPerTrip lasts exactly MaxTicksPerJob.
-        return Math.Max(1, (int)Math.Ceiling(ticks - 0.001));
+        if (units <= 0 || !IsUsable(pointsPerUnit))
+            return TicksPerPoint;
+        return units * pointsPerUnit * TicksPerPoint;
     }
 
-    /// <summary>The most points one trip can study at this speed, from <see cref="MaxTicksPerJob"/>.</summary>
-    public static float MaxPointsPerTrip(float researchSpeed)
-    {
-        float speed = float.IsNaN(researchSpeed) || researchSpeed < MinResearchSpeed ? MinResearchSpeed : researchSpeed;
-        return MaxTicksPerJob * speed / TicksPerPoint;
-    }
+    /// <summary>
+    /// The "do until you have X" control on a study bill means "keep X in stock": an iteration starts only when a whole
+    /// batch can be studied without the stock dropping below X.
+    /// </summary>
+    public static bool KeepsStudying(int inStock, int keep, int batch) => inStock - batch >= keep && inStock >= batch;
 
-    /// <summary>Scrap units left for recycling after study: none by default, half (rounded up) when studied first.</summary>
-    public static int RemainsAfterStudy(int units, RecycleOrStudy mode)
+    /// <summary>Studied scrap made by an iteration: none by default, one unit per studied unit when studied first.</summary>
+    public static int StudiedScrapUnits(int units, RecycleOrStudy mode)
     {
-        if (mode != RecycleOrStudy.StudyThenRecycle || units <= 0)
-            return 0;
-        return (int)Math.Ceiling(units * RemainsFraction);
+        return mode == RecycleOrStudy.StudyThenRecycle && units > 0 ? units : 0;
     }
 
     private static bool IsUsable(float value) => value > 0f && !float.IsInfinity(value) && !float.IsNaN(value);

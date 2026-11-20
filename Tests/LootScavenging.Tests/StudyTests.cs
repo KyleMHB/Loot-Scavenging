@@ -127,39 +127,34 @@ public class StudyTests
     }
 
     [Fact]
-    public void AJobTakesOnlyTheUnitsTheProjectNeedsAndATripCanHold()
+    public void AnIterationUsesOnlyTheUnitsTheProjectStillNeeds()
     {
-        Assert.Equal(3, StudyRules.UnitsToTake(available: 500, paidPerUnit: 20f, payable: 45f, maxPointsPerTrip: 1000f));
-        Assert.Equal(4, StudyRules.UnitsToTake(available: 4, paidPerUnit: 20f, payable: 1000f, maxPointsPerTrip: 1000f));
-        Assert.Equal(10, StudyRules.UnitsToTake(available: 500, paidPerUnit: 20f, payable: 1000f, maxPointsPerTrip: 200f));
-        // A unit worth more than a trip still makes a one-unit job.
-        Assert.Equal(1, StudyRules.UnitsToTake(available: 500, paidPerUnit: 300f, payable: 1000f, maxPointsPerTrip: 200f));
-        Assert.Equal(0, StudyRules.UnitsToTake(available: 500, paidPerUnit: 0f, payable: 1000f, maxPointsPerTrip: 200f));
-    }
-
-    [Fact]
-    public void AnUnboundedTripTakesWhatTheProjectNeeds()
-    {
-        Assert.Equal(30, StudyRules.UnitsToTake(available: 30, paidPerUnit: 20f, payable: 1000f, maxPointsPerTrip: float.MaxValue));
-    }
-
-    [Fact]
-    public void StudyTimeScalesWithPointsAndResearchSpeed()
-    {
-        int base100 = StudyRules.StudyTicks(100f, researchSpeed: 1f);
-        Assert.Equal(100 * StudyRules.TicksPerPoint, base100);
-        Assert.Equal(2 * base100, StudyRules.StudyTicks(200f, 1f));
-        Assert.Equal(base100 / 2, StudyRules.StudyTicks(100f, 2f));
+        Assert.Equal(3, StudyRules.UnitsUsed(available: 5, paidPerUnit: 20f, payable: 45f));
+        Assert.Equal(5, StudyRules.UnitsUsed(available: 5, paidPerUnit: 20f, payable: 1000f));
+        Assert.Equal(0, StudyRules.UnitsUsed(available: 5, paidPerUnit: 0f, payable: 1000f));
+        Assert.Equal(0, StudyRules.UnitsUsed(available: 5, paidPerUnit: 20f, payable: 0f));
+        Assert.Equal(5, StudyRules.UnitsUsed(available: 5, paidPerUnit: 1e-30f, payable: float.MaxValue));
     }
 
     [Theory]
-    [InlineData(0f)]
-    [InlineData(-3f)]
-    [InlineData(float.NaN)]
-    public void StudyTimeStaysFiniteForAnInvalidSpeed(float speed)
+    [InlineData(10f, 10)]   // neolithic
+    [InlineData(20f, 5)]    // medieval
+    [InlineData(30f, 4)]    // industrial: rounded up
+    [InlineData(50f, 2)]    // spacer
+    [InlineData(500f, 1)]
+    [InlineData(0f, 1)]
+    [InlineData(float.NaN, 1)]
+    public void ABillIterationStudiesAboutAHundredPoints(float pointsPerUnit, int expectedUnits)
     {
-        int ticks = StudyRules.StudyTicks(100f, speed);
-        Assert.InRange(ticks, 1, StudyRules.StudyTicks(100f, StudyRules.MinResearchSpeed));
+        Assert.Equal(expectedUnits, StudyRules.BatchUnits(pointsPerUnit));
+    }
+
+    [Fact]
+    public void StudyWorkScalesWithThePointsPaid()
+    {
+        Assert.Equal(100f * StudyRules.TicksPerPoint, StudyRules.WorkAmount(units: 5, pointsPerUnit: 20f));
+        Assert.Equal(2 * StudyRules.WorkAmount(5, 20f), StudyRules.WorkAmount(10, 20f));
+        Assert.Equal(StudyRules.TicksPerPoint, StudyRules.WorkAmount(5, float.NaN));
     }
 
     [Fact]
@@ -169,20 +164,67 @@ public class StudyTests
         Assert.True(StudyRules.TicksPerPoint < 121);
     }
 
-    [Fact]
-    public void ATripIsBoundedInTime()
+    [Theory]
+    [InlineData(20, 10, 5, true)]
+    [InlineData(15, 10, 5, true)]    // studying a batch leaves exactly the kept amount
+    [InlineData(14, 10, 5, false)]   // a batch would dip below the kept amount
+    [InlineData(5, 0, 5, true)]
+    [InlineData(4, 0, 5, false)]     // not a whole batch in stock
+    public void KeepInStockLeavesAtLeastTheTargetUnstudied(int inStock, int keep, int batch, bool expected)
     {
-        float points = StudyRules.MaxPointsPerTrip(researchSpeed: 1f);
-        Assert.Equal(StudyRules.MaxTicksPerJob, StudyRules.StudyTicks(points, 1f));
+        Assert.Equal(expected, StudyRules.KeepsStudying(inStock, keep, batch));
     }
 
     [Theory]
     [InlineData(RecycleOrStudy.OneOrTheOther, 10, 0)]
-    [InlineData(RecycleOrStudy.StudyThenRecycle, 10, 5)]
+    [InlineData(RecycleOrStudy.StudyThenRecycle, 10, 10)]
     [InlineData(RecycleOrStudy.StudyThenRecycle, 1, 1)]
-    [InlineData(RecycleOrStudy.StudyThenRecycle, 3, 2)]
-    public void RemainsAfterStudyFollowTheRecycleOrStudySetting(RecycleOrStudy mode, int units, int expected)
+    [InlineData(RecycleOrStudy.OneOrTheOther, 0, 0)]
+    public void StudiedScrapFollowsTheRecycleOrStudySetting(RecycleOrStudy mode, int units, int expected)
     {
-        Assert.Equal(expected, StudyRules.RemainsAfterStudy(units, mode));
+        // Each studied unit becomes one unit of studied scrap, which recycles at the tier table's reduced yield.
+        Assert.Equal(expected, StudyRules.StudiedScrapUnits(units, mode));
+    }
+}
+
+public class StudiedYieldTests
+{
+    [Fact]
+    public void ReducedYieldKeepsTheExpectedAmountAtTheFactor()
+    {
+        var entries = new[]
+        {
+            new YieldEntry<string>("steel", 3, 1f),
+            new YieldEntry<string>("component", 1, 0.1f),
+        };
+        var reduced = StudiedYield.Reduce(entries, 0.5f);
+        // 3 steel at half value: 1 certain plus a 50% chance of 1 more; the component chance halves.
+        Assert.Contains(new YieldEntry<string>("steel", 1, 1f), reduced);
+        Assert.Contains(new YieldEntry<string>("steel", 1, 0.5f), reduced);
+        Assert.Contains(new YieldEntry<string>("component", 1, 0.05f), reduced);
+        Assert.Equal(3, reduced.Count);
+    }
+
+    [Fact]
+    public void AWholeResultKeepsLinesWhole()
+    {
+        var reduced = StudiedYield.Reduce(new[] { new YieldEntry<string>("wood", 4, 1f) }, 0.5f);
+        Assert.Equal(new[] { new YieldEntry<string>("wood", 2, 1f) }, reduced);
+    }
+
+    [Theory]
+    [InlineData(0f)]
+    [InlineData(-1f)]
+    [InlineData(float.NaN)]
+    public void AZeroOrInvalidFactorYieldsNothing(float factor)
+    {
+        Assert.Empty(StudiedYield.Reduce(new[] { new YieldEntry<string>("wood", 4, 1f) }, factor));
+    }
+
+    [Fact]
+    public void AFactorAboveOneIsCappedAtTheFullYield()
+    {
+        var reduced = StudiedYield.Reduce(new[] { new YieldEntry<string>("wood", 4, 1f) }, 3f);
+        Assert.Equal(new[] { new YieldEntry<string>("wood", 4, 1f) }, reduced);
     }
 }

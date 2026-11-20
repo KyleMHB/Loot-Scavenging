@@ -33,35 +33,40 @@ public readonly struct StudyWorth
 
 /// <summary>
 /// Study glue (spec, "Study"): reads the game's state into the plain rules in Model/Study.cs. The two lookups ticket 07
-/// extends for unfamiliar original items are <see cref="TryGetWorth"/> and <see cref="Candidates"/>.
+/// extends for unfamiliar original items are <see cref="TryGetWorth"/> (what a thing is worth at the bench) and
+/// <see cref="IngredientDefs"/> (what a tier's study bill may take).
 /// </summary>
 public static class ScrapStudy
 {
     /// <summary>
-    /// The single "what is this worth at the bench" lookup. Today only scrap has a worth. Ticket 07 adds unfamiliar
-    /// original items here as their scrap equivalent (tier from the item's era, units from ScrapAmounts.Units).
+    /// The single "what is this worth at the bench" lookup. Today only scrap has a worth; studied scrap has none, so it is
+    /// never studied twice. Ticket 07 adds unfamiliar original items here as their scrap equivalent (tier from the item's
+    /// era, units per thing from ScrapAmounts.Units).
     /// </summary>
     public static bool TryGetWorth(Thing thing, out StudyWorth worth)
     {
         worth = default;
-        if (thing == null)
-            return false;
-        StudyPoints points = thing.def.GetModExtension<StudyPoints>();
-        if (points == null || !TryGetScrapTier(thing.def, out ScrapTier tier))
+        return thing != null && TryGetWorth(thing.def, out worth);
+    }
+
+    /// <summary>The worth of one unit of a scrap def.</summary>
+    public static bool TryGetWorth(ThingDef def, out StudyWorth worth)
+    {
+        worth = default;
+        StudyPoints points = def?.GetModExtension<StudyPoints>();
+        if (points == null || !TryGetScrapTier(def, out ScrapTier tier))
             return false;
         worth = new StudyWorth(tier, 1, points.pointsPerUnit);
         return true;
     }
 
-    /// <summary>Things on the map that may be studied. Ticket 07 adds the unfamiliar items the player allows.</summary>
-    public static IEnumerable<Thing> Candidates(Map map)
+    /// <summary>
+    /// The defs a tier's study bill allows in its ingredient filter, given that tier's scrap. Runs in the implied-def pass.
+    /// Ticket 07 adds the unfamiliar original items of that tier here; the bill's filter then lets the player choose them.
+    /// </summary>
+    public static IEnumerable<ThingDef> IngredientDefs(ThingDef scrap)
     {
-        foreach (ScrapTier tier in (ScrapTier[])Enum.GetValues(typeof(ScrapTier)))
-        {
-            List<Thing> things = map.listerThings.ThingsOfDef(ScrapDefs.For(tier));
-            for (int i = 0; i < things.Count; i++)
-                yield return things[i];
-        }
+        yield return scrap;
     }
 
     public static bool TryGetScrapTier(ThingDef def, out ScrapTier tier)
@@ -108,37 +113,7 @@ public static class ScrapStudy
     public static float Payable(ResearchProjectDef project) =>
         StudyRules.Payable(FactsOf(project), LootScavengingMod.Settings.studyTechprintProjects);
 
-    /// <summary>Research speed at a bench, as bench research uses it: the pawn's speed times the bench's factor.</summary>
-    public static float ResearchSpeed(Pawn pawn, Thing bench) =>
-        pawn.GetStatValue(StatDefOf.ResearchSpeed) * bench.GetStatValue(StatDefOf.ResearchSpeedFactor);
-
-    /// <summary>How many things of the stack one study trip takes; 0 when nothing is worth taking.</summary>
-    public static int ThingsToTake(Thing thing, StudyWorth worth, ResearchProjectDef project, float researchSpeed)
-    {
-        float paid = PaidPerUnit(worth) * worth.UnitsPerThing;
-        return StudyRules.UnitsToTake(thing.stackCount, paid, Payable(project), StudyRules.MaxPointsPerTrip(researchSpeed));
-    }
-
     /// <summary>Points the given number of things pays into the project now.</summary>
     public static float PointsFor(int things, StudyWorth worth, ResearchProjectDef project) =>
         StudyRules.Points(things * worth.UnitsPerThing, PaidPerUnit(worth), Payable(project));
-}
-
-/// <summary>
-/// Hand-off for "study first, then recycle the remains at reduced value". Ticket 04 owns recycling yields; until it sets
-/// <see cref="Handler"/>, studied scrap leaves no remains. Arguments: the researcher, the tier, the remaining units.
-/// </summary>
-public static class StudyRemains
-{
-    public static Action<Pawn, ScrapTier, int> Handler;
-
-    public static void Produce(Pawn pawn, ScrapTier tier, int units)
-    {
-        if (units <= 0)
-            return;
-        if (Handler != null)
-            Handler(pawn, tier, units);
-        else if (Prefs.DevMode)
-            Log.Message($"[Loot Scavenging] {units} {tier} scrap units remain after study; recycling them needs ticket 04"); // not translated
-    }
 }

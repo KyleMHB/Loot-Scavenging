@@ -36,8 +36,7 @@ internal static class StudyDebugActions
         Log.Message($"[Loot Scavenging] colony era {EraReader.ColonyEra()}, project {project?.defName ?? "none"} ({project?.techLevel}), progress {progress}/{project?.Cost}, factor {ScrapStudy.ResearchFactor}"); // not translated
         foreach (ScrapTier tier in (ScrapTier[])Enum.GetValues(typeof(ScrapTier)))
         {
-            Thing probe = ThingMaker.MakeThing(ScrapDefs.For(tier)); // never spawned; only read for its worth
-            if (ScrapStudy.TryGetWorth(probe, out StudyWorth worth))
+            if (ScrapStudy.TryGetWorth(ScrapDefs.For(tier), out StudyWorth worth))
                 Log.Message($"[Loot Scavenging]   {tier}: {ScrapStudy.Verdict(worth, project)}, {ScrapStudy.PaidPerUnit(worth)} points per unit"); // not translated
         }
     }

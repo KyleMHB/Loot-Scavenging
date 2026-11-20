@@ -18,34 +18,78 @@
 
 ## Comments
 
-### 2026-11-21: implemented on ls/05
+### 2026-11-21: implemented on ls/05, reworked as bills
+
+The first version was a free-running work giver. It was reworked so that study is a bill with the usual bill controls (spec, "Requirements learned from Technology Blueprints") and "study first, then recycle" works. These notes describe the current code.
 
 Built:
-- `Source/Model/Study.cs` (plain C#, tested in `Tests/LootScavenging.Tests/StudyTests.cs`): `StudyEraLimit` (ColonyEraAndBelow default, AnyEra, None), `RecycleOrStudy` (OneOrTheOther default, StudyThenRecycle), `StudyVerdict`, `ProjectFacts`, and `StudyRules`: `Check` (eligibility), `Payable`, `PaidPerUnit`, `Points`, `UnitsToTake`, `StudyTicks`, `MaxPointsPerTrip`, `RemainsAfterStudy`. Seams tested: these functions.
-- `Source/Study/ScrapStudy.cs`: glue from the game into the rules. `StudyPoints` DefModExtension; `StudyWorth`; `ScrapStudy.TryGetWorth(Thing, out StudyWorth)` is the single "what is this worth" lookup and `ScrapStudy.Candidates(Map)` the candidate list; ticket 07 extends both for unfamiliar originals (`StudyWorth.UnitsPerThing` lets one item count as several scrap units). `StudyRemains.Handler` is the hand-off for StudyThenRecycle.
-- `Source/Study/WorkGiver_StudyScrap.cs`, `JobDriver_StudyScrap.cs`, `Defs/Study.xml`: work giver in the Research work type (priorityInType 110, above vanilla research's 100; the list is sorted descending) scanning research benches; the job reserves bench, seat and scrap, carries the scrap to the bench, keeps it in hand while studying, then uses it up and calls `ResearchManager.AddProgress`. Completion message names the points and the project; the game's own completion dialog shows when it finishes.
-- `Source/Study/CompStudyInfo.cs`: inspect lines on scrap (points per unit; can be studied now for X, or why not).
-- `Defs/ThingDefs/Scrap.xml`: `StudyPoints` per def (neolithic 10, medieval 20, industrial 30, spacer 50) and the inspect comp on `LS_ScrapBase`. Ticket 04's tier table and this extension can be consolidated later.
-- Settings `studyEras`, `recycleOrStudy`, `studyTechprintProjects` (default off), Scribe lines appended at the end. No UI (ticket 11).
-- Dev actions under "Loot Scavenging": "Study: spawn 20 scrap of each tier" (map tool), "Study: log eligibility per tier", "Study: cycle study eras", "Study: toggle recycle or study", "Study: toggle techprint projects", "Study: cycle storyteller research factor" (1 -> 0 -> 2.5 -> 1; this changes the save's difficulty, so cycle back to 1).
+- `Source/Model/Study.cs` (plain C#, tested in `Tests/LootScavenging.Tests/StudyTests.cs`):
+  - Settings enums: `StudyEraLimit` (ColonyEraAndBelow default, AnyEra, None) and `RecycleOrStudy` (OneOrTheOther default, StudyThenRecycle).
+  - `StudyVerdict` and `ProjectFacts`.
+  - `StudyRules` functions: `Check` (eligibility), `Payable`, `PaidPerUnit`, `Points`, `UnitsUsed`, `BatchUnits`, `WorkAmount`, `KeepsStudying` (keep-in-stock) and `StudiedScrapUnits`.
+  - `Source/Model/StudiedYield.cs`: `StudiedYield.Reduce` scales a tier's yield lines by the studied factor and keeps the expected amount exact.
+  - Seams tested: these functions.
+- `Source/Study/Building_StudyBench.cs`:
+  - Research benches are not bill givers in vanilla. In the implied-def pass, every def whose thingClass is exactly `Building_ResearchBench` gets `Building_StudyBench`, which subclasses it and adds `IBillGiver` with a saved `BillStack`. Research is unchanged.
+  - The game's bills tab casts to a work table, so the bench gets its own `ITab_StudyBills`: the bill list plus an add-bill menu, with no clipboard paste.
+  - Benches with their own subclass from another mod keep it and get no study bills.
+- `Source/Study/StudyRecipes.cs`:
+  - A postfix on `DefGenerator.GenerateImpliedDefs_PreResolve`, the same hook as ticket 04, converts the benches and generates one `LS_Study_<Tier>` RecipeDef per tier.
+  - Each recipe's ingredient is a batch of that tier's scrap. Work is `WorkAmount(batch, points)`, workSpeedStat is ResearchSpeed and workSkill is Intellectual. The Research work type is required.
+  - Recipes are attached through recipeUsers, and the bench list is written into `LS_DoBillsStudy`'s `fixedBillGiverDefs`.
+- `LS_DoBillsStudy` (`Defs/Study.xml`): a `WorkGiver_DoBill` in Research at priorityInType 110. The list is sorted descending, so it runs ahead of vanilla research at 100.
+- `RecipeWorker_Study`:
+  - The game's consume step is a no-op for this recipe. On completion it uses up only the units the project still needs (`UnitsUsed`) and leaves the rest at the bench.
+  - It pays the points through `ResearchManager.AddProgress` and shows a message with the points and the project. If the scrap is no longer eligible at completion (the project changed), nothing is used up.
+  - In StudyThenRecycle it places one unit of studied scrap per studied unit.
+- `StudyBillPatch`, a postfix on `Bill_Production.ShouldDoNow`:
+  - A study bill does not start with no project, a project above the scrap's era, the techprint setting off for a techprint project, a zero research factor, study switched off, or a bench that cannot research the project.
+  - The verdict is cached per tick and tier.
+- Keep-in-stock: `RecipeWorkerCounter_Study` counts that tier's scrap on the map. On a study bill, "Do until you have X" means keep X units in stock: an iteration starts only when a whole batch fits above X (`KeepsStudying`).
+  - The vanilla counter can only stop when the count rises to X. Study lowers the count, so the patch replaces the TargetCount test for study bills.
+  - The bill's pause and unpause thresholds and the include-from-stockpile option are not used.
+  - The shown count is the scrap on the map.
+- Studied scrap (`Defs/Study.xml`): `LS_StudiedScrap_<Tier>` items. They have no study points, so `TryGetWorth` is false and they are never studied.
+  - Ticket 04's `ScrapTierDef` gained `studiedScrap` and `studiedYieldFactor` (default 0.5), set in `Defs/ScrapTiers.xml`. `RecycleRecipes` generates `LS_RecycleStudied_<Tier>` for the same benches as the tier's scrap, so the bench gate holds.
+  - Fixed yield comes from `StudiedYield.Reduce` (a whole part plus a chance line for the fraction). `ScrapThing.SmeltProducts` rolls the reduced chances.
+  - Studied scrap keeps the base market value of 0.01; the scrap value setting applies only to fresh scrap.
+- `Source/Study/ScrapStudy.cs`: the `StudyPoints` DefModExtension and `StudyWorth`. Ticket 07 extends two lookups:
+  - `ScrapStudy.TryGetWorth` is the single "what is this worth" lookup. `StudyWorth.UnitsPerThing` lets one item count as several scrap units.
+  - `ScrapStudy.IngredientDefs(scrap)` is what each tier's bill filter allows. Ticket 07 adds unfamiliar items there, so the bill filter lets the player choose them.
+- `Source/Study/CompStudyInfo.cs`: inspect lines on scrap: points per unit, and either "can be studied now for X, with a study bill" or why not.
+- `Defs/ThingDefs/Scrap.xml`: `StudyPoints` per def (neolithic 10, medieval 20, industrial 30, spacer 50) and the inspect comp on `LS_ScrapBase`. These could later move into `ScrapTierDef`.
+- Settings `studyEras`, `recycleOrStudy` and `studyTechprintProjects` (default off). No UI yet (ticket 11).
+- Dev actions under "Loot Scavenging":
+  - "Study: spawn 20 scrap of each tier" (map tool)
+  - "Study: log eligibility per tier"
+  - "Study: cycle study eras"
+  - "Study: toggle recycle or study"
+  - "Study: toggle techprint projects"
+  - "Study: cycle storyteller research factor" (1, then 0, then 2.5, then 1). This changes the save's difficulty, so cycle back to 1.
 
 Decisions the spec left open:
-- Era comparison: each tier compares as its nominal era. Spacer scrap does not pay into Ultra or Archotech projects. Neolithic scrap counts as Animal for the colony check, so an Animal-era colony can study it. A project with no tech level takes any scrap.
-- Points: units x fixed points x the storyteller research factor, multiplied and never divided. A zero or invalid factor gives `NoGain` and no job starts, so no scrap is used up for nothing. Points are capped at the project's remaining cost. No tech-level cost factor is applied, because the era rules already gate study.
-- Time: 30 ticks per point at research speed 1, about four times faster than bench research (about 121 ticks per point). Research speed is pawn ResearchSpeed x bench ResearchSpeedFactor, floored at 0.05. One trip lasts at most 5000 ticks and takes no more units than the project needs. XP is 0.1 Intellectual per tick, as at the bench.
-- The bench must be able to research the current project (`CanBeResearchedAt`, power included), as in vanilla research.
-- Special sources that never receive points: Anomaly knowledge projects, projects with no research cost, projects whose analysed-item or grav-engine requirement is unmet. Unfinished prerequisites and finished projects are refused too.
-- Techprints: with the setting off, a project with unapplied techprints receives nothing. With it on, study pays in but stops one point short of finishing, because `FinishProject` would hand over the missing techprints for free. In vanilla the research tab only lets a project become current when its techprints are applied, so this mostly matters for mods that set the project another way, such as Semi Random Research.
-- Recycle or study: StudyThenRecycle passes ceil(units x 0.5) remaining units to `StudyRemains.Handler`. Until ticket 04 sets the handler, nothing remains (dev log line). Ticket 04 decides whether the remains become yields at once or a studied-scrap item.
+- **Era comparison.** Each tier compares as its nominal era, so spacer scrap does not pay into Ultra or Archotech projects. Neolithic scrap counts as Animal for the colony check. A project with no tech level takes any scrap.
+- **Points.** Units x fixed points x the storyteller research factor, multiplied and never divided. A zero or invalid factor stops the bill (`NoGain`). Points are capped at the project's remaining cost, and no tech-level cost factor is applied.
+- **Time.** Each iteration takes enough units for about 100 base points: neolithic 10, medieval 5, industrial 4, spacer 2. Work is 30 ticks per base point at research speed 1, about four times faster than bench research. The bill system spends work at the pawn's research speed and grants Intellectual XP at the end, like any bill.
+  - The game applies a bench speed stat only to work tables, so the bench's research speed factor does not apply.
+  - The storyteller factor changes the points, not the time, as at the bench.
+- **Bench.** The bench must be able to research the current project (`CanBeResearchedAt`, power included).
+- **Special sources** never receive points: Anomaly knowledge projects, projects with no research cost, and projects whose analysed-item or grav-engine requirement is unmet. Unfinished prerequisites and finished projects are refused too.
+- **Techprints.** With the setting off, a project with unapplied techprints receives nothing. With it on, study stops one point short of finishing, because `FinishProject` would hand over the missing techprints for free. In vanilla the current project always has its techprints, so this matters for mods such as Semi Random Research.
+- **Recycle or study.** The default mode produces nothing besides points. StudyThenRecycle gives one studied-scrap unit per studied unit, recycled at its tier's own bench at half yield.
+- **Saves.** Study bills are saved on the bench, like ticket 04's recycling bills. Removing the mod drops them, and the bench returns to the vanilla class.
 
-Open: StudyThenRecycle does nothing yet beyond the dev log line, so it behaves like OneOrTheOther. Wire it before ticket 11 shows the setting. Do not just spawn `ScrapTierTable.Yields(tier)` at the research bench, because that skips the rule that the recycling bench is the gate. With AnyEra, a tribal colony would get plasteel with no fabrication bench. The two options are:
-- the remains become a per-tier "studied scrap" item, recycled at that tier's bench at reduced yield;
-- yields appear at once, but only when the map has a bench that can recycle the tier.
+Tests: `dotnet test` 163 passed. Both builds 0 warnings, 0 errors; `rwtranslate check` passes.
 
-Either way, the remains must never come back as studyable scrap, because rounding up would let one unit be studied forever. The points in `StudyPoints` could also move into ticket 04's `ScrapTierDef`.
-
-Open (spec): study has no keep-in-stock count. At priority 110 researchers study every eligible stack, even scrap the player meant to recycle. The player's controls are forbidding stacks and the study-eras setting.
-
-Tests: `dotnet test` 150 passed after the merge. Both builds 0 warnings, 0 errors; `rwtranslate check` passes.
-
-In-game pending: studying same-era scrap advances the project and shows the message; finishing a project through study; higher-era scrap refused, with the inspect reason; no job with no project; research factor 0 (no job, inspect says why) and 2.5 (progress capped at the cost); techprint setting off with a techprint project; study time and Intellectual XP; a save and load during a study job.
+In-game pending:
+- A research bench shows a Bills tab offering the four study bills, and research still works at it.
+- A same-era study bill advances the project and shows the message, and can finish a project.
+- Higher-era scrap: the bill waits and the inspect text gives the reason.
+- No current project: no study.
+- Research factor 0: no study. Factor 2.5: progress is capped at the cost.
+- With the techprint setting off, a techprint project gets nothing.
+- Study time scales with the tier, and Intellectual XP is gained.
+- "Do until you have X" keeps X scrap.
+- StudyThenRecycle gives studied scrap, which only its tier's bench recycles, at half yield.
+- A modded bench keeps its own bills.
+- Save and load with study bills.

@@ -8,12 +8,15 @@
            <xpath>/Defs/LootScavenging.ScrapTierDef[defName="LS_ScrapTier_Spacer"]/benches</xpath>
            <value><li>MyBench</li></value>
          </Operation>
-       batchSize is the units a bill iteration uses up; workPerUnit the work for each. Starting values, to be tuned. -->
+       batchSize is the units a bill iteration uses up; workPerUnit the work for each. Starting values, to be tuned.
+       studiedScrap is what study leaves in "study first, then recycle" mode (ticket 05); it recycles at the same benches
+       at studiedYieldFactor (default 0.5) of the yield. -->
 
   <LootScavenging.ScrapTierDef>
     <defName>LS_ScrapTier_Neolithic</defName>
     <tier>Neolithic</tier>
     <scrap>LS_Scrap_Neolithic</scrap>
+    <studiedScrap>LS_StudiedScrap_Neolithic</studiedScrap>
     <benches>
       <li>CraftingSpot</li>
     </benches>
@@ -28,6 +31,7 @@
     <defName>LS_ScrapTier_Medieval</defName>
     <tier>Medieval</tier>
     <scrap>LS_Scrap_Medieval</scrap>
+    <studiedScrap>LS_StudiedScrap_Medieval</studiedScrap>
     <benches>
       <li>FueledSmithy</li>
       <li>ElectricSmithy</li>
@@ -43,6 +47,7 @@
     <defName>LS_ScrapTier_Industrial</defName>
     <tier>Industrial</tier>
     <scrap>LS_Scrap_Industrial</scrap>
+    <studiedScrap>LS_StudiedScrap_Industrial</studiedScrap>
     <benches>
       <li>TableMachining</li>
     </benches>
@@ -57,6 +62,7 @@
     <defName>LS_ScrapTier_Spacer</defName>
     <tier>Spacer</tier>
     <scrap>LS_Scrap_Spacer</scrap>
+    <studiedScrap>LS_StudiedScrap_Spacer</studiedScrap>
     <benches>
       <li>FabricationBench</li>
     </benches>

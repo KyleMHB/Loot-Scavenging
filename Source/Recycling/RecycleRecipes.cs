@@ -16,6 +16,7 @@ namespace LootScavenging;
 internal static class RecycleRecipes
 {
     public const string DefNamePrefix = "LS_Recycle_"; // not translated
+    public const string StudiedDefNamePrefix = "LS_RecycleStudied_"; // not translated
 
     private static void Postfix(bool hotReload)
     {
@@ -61,14 +62,18 @@ internal static class RecycleRecipes
             if (users.Count == 0)
                 continue;
 
-            yield return Build(def, defName, users);
+            yield return Build(def, def.scrap, ScrapTierTable.Yields(t), defName, users);
+
+            // Studied scrap (ticket 05) recycles at the same benches, at the tier's reduced studied yield.
+            string studiedName = StudiedDefNamePrefix + t;
+            if (def.studiedScrap != null && !(hotReload && DefDatabase<RecipeDef>.GetNamedSilentFail(studiedName) != null))
+                yield return Build(def, def.studiedScrap, ScrapTierTable.StudiedYields(t), studiedName, users);
         }
     }
 
-    private static RecipeDef Build(ScrapTierDef def, string defName, List<ThingDef> users)
+    private static RecipeDef Build(ScrapTierDef def, ThingDef scrap, List<YieldEntry<ThingDef>> entries, string defName,
+        List<ThingDef> users)
     {
-        ThingDef scrap = def.scrap;
-        List<YieldEntry<ThingDef>> entries = ScrapTierTable.Yields(def.tier);
 
         var recipe = new RecipeDef
         {
