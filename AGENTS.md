@@ -19,6 +19,7 @@ This mod is built from the spec and the game's own code. Looting Manager, Non un
 
 - Build 1.7: `dotnet build Source/LootScavenging.csproj -c Release`
 - Build 1.6: `dotnet build Source/LootScavenging.csproj -c Release -p:RimWorldVersion=1.6` (net472 against `Krafs.Rimworld.Ref` 1.6.4871; the installed game is 1.7, so 1.6 is compile-checked only)
+- Unit tests: `dotnet test` from the repo root. `Tests/LootScavenging.Tests` compiles `Source/Model/` directly, so code there must stay plain C# with no RimWorld references.
 - Translation check: runs after every build; by hand, `python ../RimWorldTranslate/rwtranslate.py --mod . check`
 - Deploy to `RimWorld/Mods/Loot Scavenging` (both builds): `powershell -ExecutionPolicy Bypass -File deploy.ps1`
 
