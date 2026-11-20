@@ -45,9 +45,8 @@ public static class EraDebugActions
 
     private static void LogReadout(ThingDef def)
     {
-        // not translated
         var sb = new System.Text.StringBuilder();
-        sb.AppendLine("[Loot Scavenging] Era readout for " + def.defName + " (colony era " + EraReader.ColonyEra()
+        sb.AppendLine("[Loot Scavenging] Era readout for " + def.defName + " (colony era " + EraReader.ColonyEra() // not translated
             + ", item tech level " + def.techLevel + ")");
         AppendLine(sb, "no carrier", EraReader.ItemEra(def, null));
         foreach (Faction faction in Find.FactionManager.AllFactionsListForReading)
@@ -64,6 +63,6 @@ public static class EraDebugActions
     private static void AppendLine(System.Text.StringBuilder sb, string label, EraResult r)
     {
         sb.AppendLine("  " + label + ": era " + r.Era + " from " + r.Source + ", out of reach: " + r.OutOfReach
-            + (r.BreakIntoComponents ? ", break into components" : ""));
+            + (r.BreakIntoComponents ? ", break into components" : "")); // not translated
     }
 }
