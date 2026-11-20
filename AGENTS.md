@@ -26,6 +26,10 @@ This mod is built from the spec and the game's own code. Looting Manager, Non un
 
 Player-facing C# text goes through `"LootScavenging_...".Translate()` with English in `Languages/English/Keyed/LootScavenging.xml`; mark developer-only literals `// not translated`.
 
+## Posts
+
+Development posts go to one thread in the Progression pack Discord's forum channel, as replies under the base post. Drafts live in `work/posts/<date>-<slug>/post.md`. Discord caps a message at 2,000 characters. Posts do not carry the AI disclosure (Kyle's choice, 2026-11-20).
+
 ## Agent skills
 
 ### Issue tracker
