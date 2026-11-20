@@ -12,6 +12,9 @@ public class LootScavengingSettings : ModSettings
     // Era fallback for gear with no research era and no tech level (spec: replaces the carrying faction's era).
     public EraFallback eraFallback = EraFallback.CarrierFaction;
 
+    // Which gear is labelled unfamiliar in original-item mode (ticket 06).
+    public UnfamiliarScope unfamiliarScope = UnfamiliarScope.AllOutOfReach;
+
     public override void ExposeData()
     {
         base.ExposeData();
@@ -27,5 +30,6 @@ public class LootScavengingSettings : ModSettings
         Scribe_Values.Look(ref rules.weapons.outcome, "weaponsOutcome", defaults.weapons.outcome);
         Scribe_Values.Look(ref rules.apparel.outcome, "apparelOutcome", defaults.apparel.outcome);
         Scribe_Values.Look(ref eraFallback, "eraFallback", EraFallback.CarrierFaction);
+        Scribe_Values.Look(ref unfamiliarScope, "unfamiliarScope", UnfamiliarScope.AllOutOfReach);
     }
 }
