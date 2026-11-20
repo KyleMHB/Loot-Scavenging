@@ -59,4 +59,10 @@ public sealed class DropCandidate
 
     /// <summary>Hit points over maximum, 0 to 1. Null when the item does not use hit points.</summary>
     public float? HitPointFraction;
+
+    /// <summary>
+    /// The item's era and whether it is out of reach, from EraReader (spec, "Out of reach"). The default value means no
+    /// era is known: within reach.
+    /// </summary>
+    public EraResult ItemEra;
 }

@@ -10,6 +10,10 @@ public enum DecisionReason
     MomentOff,
     NoCategoryRule,
     CategoryRule,
+    OutOfReachScrap,
+    ScrapEverything,
+    ComponentsFallback,
+    OutOfReachKept,
 }
 
 public readonly struct LootDecision
@@ -38,6 +42,7 @@ public static class LootEvaluator
         return CheckOwner(item, rules)
             ?? CheckPlace(item, rules)
             ?? CheckMoment(item, rules)
+            ?? ApplyDropMode(item, rules)
             ?? ApplyCategory(item, rules);
     }
 
@@ -67,6 +72,34 @@ public static class LootEvaluator
         if (item.Moment != Moment.Death && !rules.onDownedAndStrip)
             return LootDecision.Leave(DecisionReason.MomentOff);
         return null;
+    }
+
+    // Drop mode (spec, "Drop mode"): sits after protection (step 4) and before the category rule (step 5).
+    // Returns null to fall through to the category rule.
+    private static LootDecision? ApplyDropMode(DropCandidate item, LootRules rules)
+    {
+        EraResult era = item.ItemEra;
+        switch (rules.dropMode)
+        {
+            case DropMode.ScrapOutOfReach:
+                // "Break it straight into components" replaces the era for gear with none: it is not scrapped.
+                if (era.BreakIntoComponents)
+                    return new LootDecision(Outcome.Disassemble, DecisionReason.ComponentsFallback);
+                if (era.OutOfReach)
+                    return new LootDecision(Outcome.Scrap, DecisionReason.OutOfReachScrap);
+                return null;
+            case DropMode.ScrapEverything:
+                if (era.BreakIntoComponents)
+                    return new LootDecision(Outcome.Disassemble, DecisionReason.ComponentsFallback);
+                return new LootDecision(Outcome.Scrap, DecisionReason.ScrapEverything);
+            case DropMode.KeepOriginal:
+                // The unfamiliar label and equip block belong to ticket 06; here the gear just stays whole.
+                if (era.OutOfReach)
+                    return new LootDecision(Outcome.Keep, DecisionReason.OutOfReachKept);
+                return null;
+            default:
+                return null;
+        }
     }
 
     // Steps 5 and 8.
