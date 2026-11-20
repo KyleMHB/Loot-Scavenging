@@ -1,9 +1,23 @@
+using System.Collections.Generic;
+
 namespace LootScavenging.Model;
 
-/// <summary>One category's rule (spec, "Loot rules", steps 5 to 8). Conditions and chance arrive with later tickets.</summary>
+/// <summary>One category's rule (spec, "Loot rules", steps 5 to 8).</summary>
 public sealed class CategoryRule
 {
     public Outcome outcome;
+
+    // Conditions (step 6). The reach limit is a gate: when on, only items beyond the colony's reach qualify. The quality
+    // and hit-point limits are alternatives: when either is on, an item qualifies if it is below any limit that is on.
+    // An item without quality or hit points never meets that limit.
+    public bool onlyBeyondReach;
+    public bool limitQuality;
+    public ItemQuality belowQuality = ItemQuality.Normal;
+    public bool limitHitPoints;
+    public float belowHitPointFraction = 0.5f;
+
+    /// <summary>Step 7: chance, 0 to 1, that a qualifying item gets the outcome.</summary>
+    public float chance = 1f;
 
     public CategoryRule()
     {
@@ -39,6 +53,21 @@ public sealed class LootRules
     // Category rules (step 5).
     public CategoryRule weapons = new CategoryRule(Outcome.Delete);
     public CategoryRule apparel = new CategoryRule(Outcome.Keep);
+    public CategoryRule ammunition = new CategoryRule(Outcome.Keep);
+    public CategoryRule drugs = new CategoryRule(Outcome.Keep);
+    public CategoryRule medicine = new CategoryRule(Outcome.Keep);
+    public CategoryRule food = new CategoryRule(Outcome.Keep);
+    public CategoryRule other = new CategoryRule(Outcome.Keep);
+
+    // Protection (step 4). The four toggles default on; the keep list always wins over the remove list.
+    public bool protectQuestItems = true;
+    public bool protectUniqueWeapons = true;
+    public bool protectPersonaWeapons = true;
+    public bool protectRelics = true;
+
+    // Lists hold item def names, so a removed mod's entries do nothing and break nothing.
+    public List<string> keepList = new List<string>();
+    public List<string> removeList = new List<string>();
 
     public bool IsGroupOn(OwnerGroup group)
     {
@@ -52,6 +81,10 @@ public sealed class LootRules
         }
     }
 
+    public bool IsOnKeepList(string defName) => defName != null && keepList != null && keepList.Contains(defName);
+
+    public bool IsOnRemoveList(string defName) => defName != null && removeList != null && removeList.Contains(defName);
+
     /// <summary>The rule for a category, or null when the category has none yet.</summary>
     public CategoryRule RuleFor(ItemCategory category)
     {
@@ -59,6 +92,11 @@ public sealed class LootRules
         {
             case ItemCategory.Weapon: return weapons;
             case ItemCategory.Apparel: return apparel;
+            case ItemCategory.Ammunition: return ammunition;
+            case ItemCategory.Drugs: return drugs;
+            case ItemCategory.Medicine: return medicine;
+            case ItemCategory.Food: return food;
+            case ItemCategory.Other: return other;
             default: return null;
         }
     }

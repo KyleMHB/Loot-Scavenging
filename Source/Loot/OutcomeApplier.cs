@@ -12,6 +12,7 @@ internal static class OutcomeApplier
         switch (outcome)
         {
             case Outcome.Keep:
+                Unfamiliar.NotifyKept(pawn, thing);
                 return;
             case Outcome.Delete:
                 Delete(pawn, thing);

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <LootScavenging_UnfamiliarLabel>unfamiliar</LootScavenging_UnfamiliarLabel>
+  <LootScavenging_UnfamiliarInspect>Unfamiliar technology: cannot be equipped or worn until its research is finished.</LootScavenging_UnfamiliarInspect>
+  <LootScavenging_CannotEquipUnfamiliar>unfamiliar technology</LootScavenging_CannotEquipUnfamiliar>
+</LanguageData>

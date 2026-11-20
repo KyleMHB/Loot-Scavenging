@@ -130,12 +130,12 @@ public class LootEvaluatorTests
     }
 
     [Fact]
-    public void ItemsWithoutACategoryRuleAreKept()
+    public void InventoryGroupsAreKeptByDefault()
     {
         var decision = LootEvaluator.Evaluate(Drop(category: ItemCategory.Other), new LootRules());
 
         Assert.Equal(Outcome.Keep, decision.Outcome);
-        Assert.Equal(DecisionReason.NoCategoryRule, decision.Reason);
+        Assert.Equal(DecisionReason.CategoryRule, decision.Reason);
     }
 
     [Fact]

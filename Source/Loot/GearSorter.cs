@@ -42,7 +42,7 @@ internal static class GearSorter
         if (inventory && pawn.inventory != null)
         {
             foreach (Thing thing in pawn.inventory.innerContainer.ToList())
-                Judge(pawn, thing, owner, moment, mapKind, ItemCategory.Other, rules);
+                Judge(pawn, thing, owner, moment, mapKind, ItemClassifier.InventoryCategoryOf(thing), rules);
         }
     }
 
@@ -63,18 +63,22 @@ internal static class GearSorter
         if (ScrapDefs.IsScrap(thing.def))
             return;
 
+        EraResult era = EraReader.ItemEra(thing.def, pawn.Faction);
         var candidate = new DropCandidate
         {
-            // Era is only read when a drop mode uses it.
-            ItemEra = rules.dropMode == DropMode.Off ? default : EraReader.ItemEra(thing.def, pawn.Faction),
+            ItemEra = era,
             Owner = owner,
             Moment = moment,
             Map = mapKind,
             Category = category,
             Quality = thing.TryGetQuality(out QualityCategory quality) ? (ItemQuality)quality : null,
             HitPointFraction = thing.def.useHitPoints && thing.MaxHitPoints > 0 ? (float)thing.HitPoints / thing.MaxHitPoints : null,
+            OutOfReach = era.OutOfReach,
         };
+        ItemClassifier.DescribeProtection(thing, candidate);
 
+        // Every item is a whole thing here: the hooks run before the game drops anything, so a stack is judged and
+        // removed as one and a stack is never split by this mod.
         LootDecision decision = LootEvaluator.Evaluate(candidate, rules);
         if (Prefs.DevMode)
             Log.Message($"[Loot Scavenging] {moment} of {pawn} ({owner}, {mapKind} map): {thing} -> {decision.Outcome} ({decision.Reason})"); // not translated

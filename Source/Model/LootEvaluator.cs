@@ -1,3 +1,5 @@
+using System;
+
 namespace LootScavenging.Model;
 
 /// <summary>Why the evaluator chose its outcome. Written to the dev-mode log, one line per decision.</summary>
@@ -10,6 +12,10 @@ public enum DecisionReason
     MomentOff,
     NoCategoryRule,
     CategoryRule,
+    Protected,
+    RemoveList,
+    ConditionsNotMet,
+    ChanceFailed,
     OutOfReachScrap,
     ScrapEverything,
     ComponentsFallback,
@@ -37,13 +43,20 @@ public readonly struct LootDecision
 /// </summary>
 public static class LootEvaluator
 {
-    public static LootDecision Evaluate(DropCandidate item, LootRules rules)
+    private static readonly Random fallbackRandom = new Random();
+
+    /// <summary>
+    /// <paramref name="roll"/> returns a number in [0, 1) for the chance step; tests inject it. It is only called when a
+    /// category's chance is below 100%.
+    /// </summary>
+    public static LootDecision Evaluate(DropCandidate item, LootRules rules, Func<double> roll = null)
     {
         return CheckOwner(item, rules)
             ?? CheckPlace(item, rules)
             ?? CheckMoment(item, rules)
+            ?? CheckProtection(item, rules)
             ?? ApplyDropMode(item, rules)
-            ?? ApplyCategory(item, rules);
+            ?? ApplyCategory(item, rules, roll ?? fallbackRandom.NextDouble);
     }
 
     // Step 1.
@@ -102,12 +115,48 @@ public static class LootEvaluator
         }
     }
 
-    // Steps 5 and 8.
-    private static LootDecision ApplyCategory(DropCandidate item, LootRules rules)
+    // Step 4.
+    private static LootDecision? CheckProtection(DropCandidate item, LootRules rules)
+    {
+        bool protectedItem = (rules.protectQuestItems && item.QuestTagged)
+            || (rules.protectUniqueWeapons && item.UniqueWeapon)
+            || (rules.protectPersonaWeapons && item.PersonaWeapon)
+            || (rules.protectRelics && item.Relic)
+            || rules.IsOnKeepList(item.DefName);
+        return protectedItem ? LootDecision.Leave(DecisionReason.Protected) : (LootDecision?)null;
+    }
+
+    // Steps 5 to 8.
+    private static LootDecision ApplyCategory(DropCandidate item, LootRules rules, Func<double> roll)
     {
         CategoryRule rule = rules.RuleFor(item.Category);
+
+        // The remove list targets an item outright: conditions and chance are skipped. It uses the category's outcome,
+        // or Delete when the category keeps items, so "always remove" never does nothing.
+        if (rules.IsOnRemoveList(item.DefName))
+        {
+            Outcome targeted = rule != null && rule.outcome != Outcome.Keep ? rule.outcome : Outcome.Delete;
+            return new LootDecision(targeted, DecisionReason.RemoveList);
+        }
+
         if (rule == null)
             return LootDecision.Leave(DecisionReason.NoCategoryRule);
+        if (!MeetsConditions(item, rule))
+            return LootDecision.Leave(DecisionReason.ConditionsNotMet);
+        if (rule.chance < 1f && !(roll() < rule.chance))
+            return LootDecision.Leave(DecisionReason.ChanceFailed);
         return new LootDecision(rule.outcome, DecisionReason.CategoryRule);
+    }
+
+    // Step 6.
+    private static bool MeetsConditions(DropCandidate item, CategoryRule rule)
+    {
+        if (rule.onlyBeyondReach && !item.OutOfReach)
+            return false;
+        if (!rule.limitQuality && !rule.limitHitPoints)
+            return true;
+        bool belowQuality = rule.limitQuality && item.Quality.HasValue && item.Quality.Value < rule.belowQuality;
+        bool belowHitPoints = rule.limitHitPoints && item.HitPointFraction.HasValue && item.HitPointFraction.Value < rule.belowHitPointFraction;
+        return belowQuality || belowHitPoints;
     }
 }
