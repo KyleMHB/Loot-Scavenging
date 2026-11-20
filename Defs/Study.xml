@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Study (spec, "Study"): a researcher carries scrap to a research bench and uses it up for research points. -->
+
+  <JobDef>
+    <defName>LS_StudyScrap</defName>
+    <driverClass>LootScavenging.JobDriver_StudyScrap</driverClass>
+    <reportString>studying TargetB.</reportString>
+    <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+  </JobDef>
+
+  <!-- Above vanilla research (priorityInType 100, sorted descending), so a researcher studies waiting scrap first. -->
+  <WorkGiverDef>
+    <defName>LS_StudyScrap</defName>
+    <label>study scrap</label>
+    <giverClass>LootScavenging.WorkGiver_StudyScrap</giverClass>
+    <workType>Research</workType>
+    <verb>study</verb>
+    <gerund>studying</gerund>
+    <priorityInType>110</priorityInType>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+    <canBeDoneByMechs>false</canBeDoneByMechs>
+  </WorkGiverDef>
+
+</Defs>

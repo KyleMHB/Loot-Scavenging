@@ -3,4 +3,17 @@
   <LootScavenging_UnfamiliarLabel>unfamiliar</LootScavenging_UnfamiliarLabel>
   <LootScavenging_UnfamiliarInspect>Unfamiliar technology: cannot be equipped or worn until its research is finished.</LootScavenging_UnfamiliarInspect>
   <LootScavenging_CannotEquipUnfamiliar>unfamiliar technology</LootScavenging_CannotEquipUnfamiliar>
+  <!-- Study (ticket 05) -->
+  <LootScavenging_StudyPointsPerUnit>Study: {0} research points per unit.</LootScavenging_StudyPointsPerUnit>
+  <LootScavenging_StudyNow>Can be studied now for {0}.</LootScavenging_StudyNow>
+  <LootScavenging_StudyWhyOff>Cannot be studied: study is switched off in the mod settings.</LootScavenging_StudyWhyOff>
+  <LootScavenging_StudyWhyNoProject>Cannot be studied now: no research project is selected.</LootScavenging_StudyWhyNoProject>
+  <LootScavenging_StudyWhySpecialSource>Cannot be studied for {0}: that project is learned another way.</LootScavenging_StudyWhySpecialSource>
+  <LootScavenging_StudyWhyFinished>Cannot be studied now: {0} is already complete.</LootScavenging_StudyWhyFinished>
+  <LootScavenging_StudyWhyPrerequisites>Cannot be studied for {0}: its prerequisites are not finished.</LootScavenging_StudyWhyPrerequisites>
+  <LootScavenging_StudyWhyTechprints>Cannot be studied for {0}: its techprints have not all been applied.</LootScavenging_StudyWhyTechprints>
+  <LootScavenging_StudyWhyColonyEra>Cannot be studied yet: the colony has not reached the {0} era.</LootScavenging_StudyWhyColonyEra>
+  <LootScavenging_StudyWhyProjectEra>Cannot be studied for {0}: it is a {1} project, above {2} scrap.</LootScavenging_StudyWhyProjectEra>
+  <LootScavenging_StudyWhyNoGain>Cannot be studied now: the storyteller's research speed is zero.</LootScavenging_StudyWhyNoGain>
+  <LootScavenging_StudyDone>{0} studied {1} {2}: +{3} research points for {4}.</LootScavenging_StudyDone>
 </LanguageData>

@@ -26,6 +26,11 @@ public class LootScavengingSettings : ModSettings
     // Corpse removal and the butchering option (ticket 10). Code defaults: everything off.
     public CorpseRules corpses = new CorpseRules();
 
+    // Study (ticket 05): which scrap can be studied, recycle or study, and whether techprint projects receive points.
+    public StudyEraLimit studyEras = StudyEraLimit.ColonyEraAndBelow;
+    public RecycleOrStudy recycleOrStudy = RecycleOrStudy.OneOrTheOther;
+    public bool studyTechprintProjects = false;
+
     public override void ExposeData()
     {
         base.ExposeData();
@@ -68,6 +73,9 @@ public class LootScavengingSettings : ModSettings
         Scribe_Values.Look(ref scrapMarketValue, "scrapMarketValue", DefaultScrapMarketValue);
         Scribe_Values.Look(ref scrapOnGround, "scrapOnGround", true);
         Scribe_Values.Look(ref unfamiliarScope, "unfamiliarScope", UnfamiliarScope.AllOutOfReach);
+        Scribe_Values.Look(ref studyEras, "studyEras", StudyEraLimit.ColonyEraAndBelow);
+        Scribe_Values.Look(ref recycleOrStudy, "recycleOrStudy", RecycleOrStudy.OneOrTheOther);
+        Scribe_Values.Look(ref studyTechprintProjects, "studyTechprintProjects", false);
     }
 
     // The outcome keeps its original key ("weaponsOutcome"); the conditions and chance are new.

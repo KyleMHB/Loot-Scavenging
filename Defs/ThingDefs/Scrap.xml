@@ -35,6 +35,8 @@
     </statBases>
     <comps>
       <li Class="CompProperties_Forbiddable"/>
+      <!-- Study (ticket 05): the inspect line with points per unit and whether it can be studied now. -->
+      <li Class="LootScavenging.CompProperties_StudyInfo"/>
     </comps>
     <thingCategories>
       <li>LS_Scrap</li>
@@ -46,6 +48,12 @@
 
   <ThingDef ParentName="LS_ScrapBase">
     <defName>LS_Scrap_Neolithic</defName>
+    <!-- Fixed research points per unit when studied (ticket 05). Ticket 04's tier table may absorb these later. -->
+    <modExtensions>
+      <li Class="LootScavenging.StudyPoints">
+        <pointsPerUnit>10</pointsPerUnit>
+      </li>
+    </modExtensions>
     <label>neolithic scrap</label>
     <description>Broken stone, bone and wood gear, good for little until a colony knows how to work it. Recycle it at a bench or study it for research.</description>
     <graphicData>
@@ -57,6 +65,11 @@
 
   <ThingDef ParentName="LS_ScrapBase">
     <defName>LS_Scrap_Medieval</defName>
+    <modExtensions>
+      <li Class="LootScavenging.StudyPoints">
+        <pointsPerUnit>20</pointsPerUnit>
+      </li>
+    </modExtensions>
     <label>medieval scrap</label>
     <description>Bent blades and torn leather and mail. Recycle it at a bench or study it for research.</description>
     <graphicData>
@@ -68,6 +81,11 @@
 
   <ThingDef ParentName="LS_ScrapBase">
     <defName>LS_Scrap_Industrial</defName>
+    <modExtensions>
+      <li Class="LootScavenging.StudyPoints">
+        <pointsPerUnit>30</pointsPerUnit>
+      </li>
+    </modExtensions>
     <label>industrial scrap</label>
     <description>Wrecked firearms and armour. Recycle it at a bench or study it for research.</description>
     <graphicData>
@@ -79,6 +97,11 @@
 
   <ThingDef ParentName="LS_ScrapBase">
     <defName>LS_Scrap_Spacer</defName>
+    <modExtensions>
+      <li Class="LootScavenging.StudyPoints">
+        <pointsPerUnit>50</pointsPerUnit>
+      </li>
+    </modExtensions>
     <label>spacer scrap</label>
     <description>Fused, humming remains of advanced weapons and armour. Recycle it at a bench or study it for research.</description>
     <graphicData>
