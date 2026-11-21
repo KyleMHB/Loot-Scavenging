@@ -612,6 +612,7 @@ internal sealed class SettingsPage
         SetDisabled(locked);
         bool clicked = ls.ButtonTextLabeledPct(label, name(current), 0.6f);
         SetDisabled(false);
+        LockedNote(ls, locked);
         if (locked || !clicked)
             return;
         var menu = new List<FloatMenuOption>();
@@ -630,6 +631,7 @@ internal sealed class SettingsPage
         SetDisabled(locked);
         float picked = (float)Math.Round(ls.SliderLabeled(label, value, min, max), 2);
         SetDisabled(false);
+        LockedNote(ls, locked);
         return locked ? value : picked;
     }
 
