@@ -333,4 +333,4 @@ Stages 1 to 5 make a playable mod in the default mode. Stage 6 is the costliest 
 - Where the Progression pack stores the colony's era, and which benches and materials it has per era.
 - How the game treats points added to a project whose techprints are missing.
 - How Research Papers and Semi Random Research react to a project completed by study.
-- Whether any Workshop mod is already called Loot Scavenging. A web search found none, which is not a full check.
+- ~~Whether any Workshop mod is already called Loot Scavenging.~~ Checked 2026-11-21 on the RimWorld Workshop search: no item is called Loot Scavenging or Loot Scavenger. The nearest titles are "Scavenging" (Romyashi) and "Neolithic Scavenging" (Mythos, and Mlie's continuation).

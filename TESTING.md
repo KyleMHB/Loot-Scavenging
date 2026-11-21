@@ -63,6 +63,14 @@ Not covered: the settings page and bill-tab UI, the first-load dialog on screen,
 
 ## Result recording
 
+### 2026-11-21 - release-check for release prep
+
+- Version/environment: RimWorld 1.7, seed 1, `perf` mod set, after deploying `bfffcf5` plus the new `About/About.xml` description.
+- First check: failed only because the newest `perf.mod-tick` run (`20261121-110350-perf-s1-3094df1a`) measured the DLL from before `ee1977a` and `8d1fa4d`.
+- Runs: perf `20261121-120209-perf-s1-d1a2d5d2` (1/1), then `close-session` and `release-check`.
+- Observed: perf.mod-tick 0 ms/tick; no developer runner in the package; patch roots and preview size passed. Warning: the mod defines no targeted `perf.*` cases.
+- Status: Passed.
+
 ### 2026-11-21 - bench fixes: smoke, bench, saves, settings; bench with DLCs
 
 - Version/environment: RimWorld 1.7, seed 1. Default set in one launch; bench again with `--mods dlcs`.
