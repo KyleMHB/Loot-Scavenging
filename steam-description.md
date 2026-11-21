@@ -60,7 +60,7 @@ Modpacks can patch the scrap tiers, their benches and materials, and the default
 
 You can add Loot Scavenging to an existing save. Stockpiles you already have will not take scrap until you allow it in their filters.
 
-Removing it from a save has not been tested. Scrap and recycle bills would be lost when the save loads, with errors in the log, and research benches would lose their study bills. Use up or destroy your scrap and delete those bills first.
+You can remove it from a save. The save then loads without scrap, studied scrap, recycle bills and study bills, and logs errors for them. Research benches stay as normal research benches, and gear kept as unfamiliar items becomes usable. Use up or destroy your scrap and delete those bills first.
 
 [h2]Credits[/h2]
 

@@ -13,7 +13,8 @@ Updated through: `main` on 2026-11-21
 - Unit tests: `dotnet test` from the repo root (`Tests/LootScavenging.Tests`, plain C#, no game needed).
 - In-game batches: deploy with `powershell -ExecutionPolicy Bypass -File deploy.ps1`, build `dotnet build DevTests/LootScavenging.DevTests.csproj -c Release`, then `python tools/ls_test.py run run-all --seed 1 --timeout 3600` (or name batches), and `python tools/ls_test.py close-session` when finished. The launcher refuses to run until the deployed mod matches the working tree.
 - RimWorld 1.6 is checked by compiling only: the installed game is 1.7.
-- The default mod set is Harmony, Core and this mod. The unmapped `dlcs` set adds all five DLCs (`--mods dlcs`); the unmapped `perf` set adds Dubs Performance Analyzer for the shared `perf` batch (`run perf --mods perf`).
+- The default mod set is Harmony, Core and this mod. The unmapped `dlcs` set adds all five DLCs (`--mods dlcs`); the unmapped `perf` set adds Dubs Performance Analyzer for the shared `perf` batch (`run perf --mods perf`); the unmapped `progression` set adds Ideology, Vanilla Expanded Framework, VFE Tribals, Progression: Core, Node Research, Progression: Production, Research Papers and Semi Random Research: P-Fork Continued for `run lootscavenging-progression --mods progression`. On any other set that batch reports its cases as environment unavailable.
+- Loading a save without the mod: run the saves batch, then `python tools/removal-check/removal_check.py` (newest archived saves-batch save by default) with the install lease taken (`python tools/ls_test.py lease take`, then `lease release`). It installs a developer-only probe mod for one launch with Harmony and Core only, writes PASS/FAIL lines to `work/removal-check/report.txt` and exits 1 on any FAIL. Adapted from Spearfishing's `tools/removal-check`.
 
 ## The install lease
 
@@ -24,16 +25,18 @@ The game and `RimWorld/Mods/Loot Scavenging` are shared by every checkout and by
 | Tier | When | Runs |
 | --- | --- | --- |
 | Quick | Every code change, each ticket and fix-up | `dotnet test`, plus the batches for the changed area (table below) in one launch |
-| Full | Seams: branch to main, a game or Harmony update, a release | `dotnet test`, `run run-all`, the same six batches with `--mods dlcs`, then `run perf --mods perf` |
+| Full | Seams: branch to main, a game or Harmony update, a release | `dotnet test`, `run run-all`, `run run-all --mods dlcs`, `run lootscavenging-progression --mods progression`, the removal check, then `run perf --mods perf` |
 
 | Area | Batches |
 | --- | --- |
 | `Source/Loot` (hooks, outcomes, corpses) | smoke, outcomes, moments |
 | `Source/Recycling`, `Source/Study`, `BillWorkPatch.cs`, `Source/Unfamiliar` | smoke, bench, saves |
-| Settings, presets, locks, lists, picker | smoke, settings |
-| Saves, `CompUnfamiliar`, `StudyBenchSaveCompat` | saves |
+| Settings, presets, locks, lists, picker, `Source/SettingsUI` | smoke, settings, ui |
+| `Source/Era`, study eligibility, research hooks | smoke, outcomes, bench, and progression `--mods progression` |
+| `LootScavengingMod.cs` (startup, first-load message) | firstload |
+| Saves, `CompUnfamiliar`, `StudyBenchSaveCompat`, new saved things or bills | saves, then the removal check |
 
-The six batches take about 25 s of game time in one launch (2026-11-21); the run-all order is smoke, outcomes, moments, settings, bench, saves.
+Run-all's eight batches run in one launch; the order is firstload, smoke, outcomes, moments, settings, bench, saves, ui. Firstload goes first because the game's log keeps only the newest 1000 messages, and it reports not applicable when the log is already full.
 
 ## Smoke batch (`lootscavenging-smoke`)
 
@@ -58,12 +61,42 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 - `lootscavenging-settings`: through the calls the page makes, not the page. Presets and "(changed)", Vanilla in game, the first-load flag, locks (the pack's lock names applied to `Presets.Configure` directly; the pack's patch is not loaded), keep and remove lists, a missing-def list entry through a settings save and load, and the picker's search.
 - `lootscavenging-bench`: real bill jobs. Recycling and studied-scrap bills at a machining table, the study bench and its Bills tab, the study bill with no project, keep-X, work and XP, finishing a project, original items at the fabrication bench and research bench, and a techprint project (Royalty only).
 - `lootscavenging-saves`: a looted-only marked rifle, scrap, studied scrap and a study bill through the runner's save and reload, and the save file's contents.
+- `lootscavenging-ui`: the settings window opened through the window stack, and the machining table's and research bench's Bills tabs through the inspect pane, each drawn for a few frames while a `Widgets.Label` postfix records what was drawn and where. Checks the six sections, the preset line and buttons, one column top to bottom after each preset switch (the collapse fixed in `e7efc62`), the locked summary and a locked row's reason, both bills in their tabs, the study bench's add-bill options, and the first-load message box called directly. It draws and reads; it does not click.
+- `lootscavenging-firstload`: the first-load message on the real startup path. The launcher deletes every `Mod_*.xml` before a launch, so each harness launch starts with the flag unset; a developer-only `Mod` reads the settings file while mods are constructed to confirm it. Checks that startup set the flag and wrote the file, and that the whole in-memory log since startup has no error naming the mod (the runner's own count starts at the first batch).
+- `lootscavenging-progression` (`--mods progression`, outside run-all): the colony's era after Node Research's medieval emergence, study of medieval scrap for a medieval project, a paper from a project finished by study, a lost paper's retained progress and a second finish, Semi Random Research's picked offer, and every tier's recycling bench and pool material in the pack set. The pack mods are reached by reflection.
 - `lootscavenging-preview`: a showcase, outside run-all, that films the six scrap piles in front of their benches for `About/Preview.png`. Run it with `--record --frames 1 --quit-on-finish`, take a frame at 3.5 s from the run's `build.mp4` with the harness's ffmpeg, then run `python tools/preview_image.py <frame.png>`.
 - `lootscavenging-stacks`: a scene outside run-all for looking at the scrap art by hand. Each era gets piles of 1, 10 and 500 (the small, mid and full textures) and a full studied stack. Run it with `--keep-open`.
 
-Not covered: the settings page and bill-tab UI, the first-load dialog on screen, loading a save without the mod (the runner ships inside the mod; Spearfishing uses a separate probe for this), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
+Not covered: clicking in the settings page and bill tabs (the ui batch only draws them), a played raid with the Progression pack, Non uno Pinata, Progression: Ammunition and Progression: Hospitality (ticket 14), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
 
 ## Result recording
+
+### 2026-11-21 - Progression research mods, UI, first load and mod removal
+
+- Version/environment: RimWorld 1.7, seed 1; `dotnet test` 281 passed. Progression: Core, Node Research and VFE Tribals load their 1.6 folders on 1.7, as does Research Papers' 1.6 assembly.
+- Before the fix: progression `20261121-164448-lootscavenging-progression-s1-948320f2` failed the era case. After Node Research's medieval emergence the faction read Medieval and the colony era Neolithic, and medieval scrap for Complex Furniture was refused as above the colony's era. The Semi Random Research case failed on its own setup: the tracker's `SetCurrentProject` rejects a pick it is not applying, so the case now picks through `SetCurrentProjectByKey`, as the research window does.
+- After the fix: progression `20261121-164613-lootscavenging-progression-s1-06b61c2f` and `20261121-165226-lootscavenging-progression-s1-1aca51e4` (6/6). The era went Neolithic, then Medieval after the advance, and medieval scrap was eligible. Two medieval units finished Complex Furniture and left a paper 1.4 cells from the researcher. Destroying it left 225 of 300 (75%), and two more units finished it again with a new paper. One neolithic unit paid 10 to the picked offer VFET_Tribalwear and nothing to VFET_Agriculture.
+- First UI run (`20261121-164638-run-all-s1-4bdeaca1`) failed two steps:
+  - A locked drop mode row drew no reason. Choice rows and sliders now draw it, as toggles did.
+  - The add-bill check left out "study original items" (`LS_StudyOriginal`); the case filter now includes it.
+- First load: the first two runs passed on a settings-file write time, which also changes for other reasons. The batch now reads the flag while mods are constructed: it was unset at each launch, startup wrote it, and no error named the mod.
+- Removal check on saves `20261121-164805-lootscavenging-saves-s1-8344f069`: all PASS. The research bench loaded as a plain research bench; the machining table kept Make_ComponentIndustrial and lost its recycle bill; scrap and studied scrap were gone; the looted charge rifle stayed and could be equipped. The load logged 14 errors, all for the missing scrap things, the scrap def and the recycle recipe.
+- Full tier: run-all default `20261121-165127-run-all-s1-99cc4ad1` (65 pass, 1 skip: techprints need Royalty). Run-all `dlcs` `20261121-165153-run-all-s1-879218f5`: 65 pass, 1 fail. `outcomes.disassembly-era-typical` got no products, because a one-unit revolver's single pick can return nothing; that set does not load the changed era code. The rerun `20261121-165301-lootscavenging-outcomes-s1-728a3a15` passed 15/15. The case is flaky by chance and is left as it is. Perf `20261121-165319-perf-s1-de9e9614` 0 ms/tick; release-check passed with the usual no-`perf.*`-cases warning.
+- Study may pay for an era advance (Kyle, 2026-11-21). The era case now checks it: progression `20261121-170846-lootscavenging-progression-s1-05f8d324` (6/6). Neolithic scrap was refused for `BRM_Emergence_Medieval` until its seven prerequisites were finished, and was eligible after, with the colony still neolithic.
+- Status: Passed, with the flaky era-typical case noted.
+
+### 2026-11-21 - compatibility runs (ticket 14)
+
+- Version/environment: RimWorld 1.7, seed 1, at `cb5ad4e`. New unmapped sets in `DevTests/devtests.json`, each the `dlcs` set plus: `compat` (the four below together), `compat-papers` (Research Papers), `compat-srr` (Semi Random Research: P-Fork Continued), `compat-progression` (Progression: Ammunition and Hospitality), `compat-pinata` (Non uno Pinata, which declares 1.6 at most). Batches: smoke, outcomes, moments and bench on each; settings and saves on `compat`.
+- Runs, `compat`: smoke `20261121-162550-…-a62abec7`, outcomes `20261121-162555-…-2defb853`, moments `20261121-162558-…-80482726`, settings `20261121-162600-…-ce6ac179` (8/8), bench `20261121-162602-…-5f627841`, saves `20261121-162606-…-e774fff5` (3/3).
+- Runs, single mods: papers `20261121-162644` to `162707` (all pass); srr `20261121-162711` to `162732`; progression `20261121-162738` to `162800`; pinata `20261121-162804` to `162827`.
+- Observed:
+  - Research Papers: smoke, outcomes, moments and bench passed.
+  - Semi Random Research: every study step paid 0 points (smoke `study`; bench `original-study`, `techprint-project`, `study-bill`, `study-finishes-project`). Outcomes and moments passed. The cases set the project with `ResearchManager.SetCurrentProject`, which this mod may override with its own pick, so this is either setup drift or study never paying under it. Not yet told apart.
+  - Progression: Ammunition and Hospitality: smoke, outcomes and bench passed. Moments stopped at setup: "no clear 80x14 area near the map centre", so its cases did not run. On `compat`, a charge lance gave 6 spacer scrap instead of 5; it gave 5 on every single-mod set.
+  - Non uno Pinata: at death, downed and home-map-only, nothing reached the ground, scrap or whole items, including a colonist's revolver; bench passed. The cases look only on the ground, so whether the gear left on the body was sorted is not observed.
+  - No errors in any launch's startup log; the runner counted no mod errors.
+- Status: Partially passed. Ticket 14 stays `ready-for-human`.
 
 ### 2026-11-21 - full tier after the scrap art and on-body fix
 

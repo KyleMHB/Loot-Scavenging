@@ -19,6 +19,8 @@
 - Added patchable XML for the scrap tiers and default settings, with locks a modpack can set, and a preset patch in `packs/progression` for the Progression pack to copy into its own Patches folder.
 - Exempted medicine from the drop mode by default, with a setting to include it.
 - Added a choice of where loot lands at death: on the ground, scrap on the body, or everything on the body. Mechanoids and other pawns that cannot be stripped always drop on the ground.
+- With VFE Tribals or Node Research active, as in the Progression pack, the colony's era is the era those mods advance it to. Gear and scrap of a new era are within reach from the advance on.
+- Every setting a modpack locks shows a line saying so on the settings page.
 
 ## 0.1.0 - 2026-11-20
 
