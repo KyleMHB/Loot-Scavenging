@@ -4,12 +4,12 @@ using Verse;
 
 namespace LootScavenging.Loot;
 
-/// <summary>Carries out an outcome on an item still held by its pawn, before the game drops it.</summary>
+/// <summary>Carries out an outcome on an item still held by its pawn, before the game drops it. The one dispatch point.</summary>
 internal static class OutcomeApplier
 {
-    public static void Apply(Pawn pawn, Thing thing, Outcome outcome, EraResult era, DecisionReason reason)
+    public static void Apply(Pawn pawn, Thing thing, LootDecision decision, EraResult era, Moment moment)
     {
-        switch (outcome)
+        switch (decision.Outcome)
         {
             case Outcome.Keep:
                 Unfamiliar.NotifyKept(pawn, thing);
@@ -20,11 +20,14 @@ internal static class OutcomeApplier
             case Outcome.Degrade:
                 DisassembleApplier.Degrade(thing);
                 return;
+            case Outcome.Scrap:
+                ScrapApplier.Apply(pawn, thing, era, moment);
+                return;
             case Outcome.Disassemble:
-                DisassembleApplier.Disassemble(pawn, thing, era, reason);
+                DisassembleApplier.Disassemble(pawn, thing, era, decision.Reason);
                 return;
             default:
-                Log.Warning($"[Loot Scavenging] Outcome {outcome} is not handled here; keeping {thing}."); // not translated
+                Log.Warning($"[Loot Scavenging] Outcome {decision.Outcome} is not handled here; keeping {thing}."); // not translated
                 return;
         }
     }
