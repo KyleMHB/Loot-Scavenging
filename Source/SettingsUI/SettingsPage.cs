@@ -34,8 +34,6 @@ internal sealed class SettingsPage
     private LootScavengingSettings s;
     private Vector2 scroll;
     private float viewHeight = 4000f;
-    private string keepEntry = "";
-    private string removeEntry = "";
 
     public void Draw(Rect inRect, LootScavengingSettings settings)
     {
@@ -513,21 +511,20 @@ internal sealed class SettingsPage
         ls.Gap(6f);
         ls.Label("LootScavenging_KeepList".Translate());
         Explain(ls, "LootScavenging_KeepListExplain".Translate());
-        DrawItemList(ls, r.keepList, ref keepEntry);
+        DrawItemList(ls, r.keepList, "LootScavenging_KeepList".Translate());
 
         ls.Gap(6f);
         ls.Label("LootScavenging_RemoveList".Translate());
         Explain(ls, "LootScavenging_RemoveListExplain".Translate());
-        DrawItemList(ls, r.removeList, ref removeEntry);
+        DrawItemList(ls, r.removeList, "LootScavenging_RemoveList".Translate());
     }
 
-    // One list: its entries with a remove button each, then the control that adds to it. Ticket 12's item picker
-    // replaces only DrawAddByName.
-    private static void DrawItemList(Listing_Standard ls, List<string> list, ref string entry)
+    // One list: its entries with a remove button each, then the button that opens the item picker for it.
+    private static void DrawItemList(Listing_Standard ls, List<string> list, string title)
     {
         Indent(ls);
         DrawListEntries(ls, list);
-        DrawAddByName(ls, list, ref entry);
+        DrawAddButton(ls, list, title);
         Outdent(ls);
     }
 
@@ -551,18 +548,11 @@ internal sealed class SettingsPage
             list.RemoveAt(removeAt);
     }
 
-    private static void DrawAddByName(Listing_Standard ls, List<string> list, ref string entry)
+    private static void DrawAddButton(Listing_Standard ls, List<string> list, string title)
     {
         Rect row = ls.GetRect(28f);
-        var buttonRect = new Rect(row.xMax - 90f, row.y, 90f, 28f);
-        entry = Widgets.TextField(new Rect(row.x, row.y, row.width - 96f, row.height), entry ?? "");
-        string name = entry.Trim();
-        if (Widgets.ButtonText(buttonRect, "LootScavenging_ListAdd".Translate()) && name.Length > 0)
-        {
-            if (!list.Contains(name))
-                list.Add(name);
-            entry = "";
-        }
+        if (Widgets.ButtonText(new Rect(row.x, row.y, 200f, 28f), "LootScavenging_ListAddItem".Translate()))
+            Find.WindowStack.Add(new Dialog_ItemPicker(title, list));
         Explain(ls, "LootScavenging_ListAddExplain".Translate());
     }
 

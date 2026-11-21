@@ -11,5 +11,16 @@
 - [ ] Searching finds items by label, and picking one adds it to the chosen list.
 - [ ] An item added through the picker is kept or removed in game as the list says.
 - [ ] After removing the mod that added a listed item, the settings load without an error and the entry is kept for if the mod returns.
-- [ ] Picker text goes through translation keys and the translation check passes.
-- [ ] Both the 1.7 and 1.6 builds compile.
+- [x] Picker text goes through translation keys and the translation check passes.
+- [x] Both the 1.7 and 1.6 builds compile.
+
+## Comments
+
+### 2026-11-21: implemented on ls/12
+
+- `Source/Model/ItemSearch.cs`: label/defName search (every typed word must match, case-insensitive; label-start matches first, then alphabetical). 5 unit tests in `ItemSearchTests`.
+- `Source/SettingsUI/Dialog_ItemPicker.cs`: window with search box, count line, virtualised scroll list (first 200 matches shown), Add button per row or "On the list" if already present. Stays open so several items can be added. Item pool: `ThingCategory.Item` defs with a label, not corpses, and haulable, weapon or apparel; built once per session.
+- `SettingsPage.cs`: `DrawAddByName` replaced by an "Add item..." button opening the picker for that list; the unused text-entry fields are gone. Existing entry rows, Remove buttons and "(not loaded)" display are untouched, so entries of missing defs stay stored.
+- Keys added: `ListAddItem`, `PickerCount`, `PickerFirstShown`, `PickerOnList`; `ListAddExplain` reworded.
+- Tests: `dotnet test` 227 passed; both builds clean, `translations: passed`.
+- In-game pending: picker opens and searches by label; picked item is kept/removed per list; removing a mod leaves a "(not loaded)" entry and no error on load.
