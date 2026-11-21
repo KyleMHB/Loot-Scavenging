@@ -73,19 +73,18 @@ public class DropModeTests
     [Theory]
     [InlineData(DropMode.ScrapOutOfReach)]
     [InlineData(DropMode.ScrapEverything)]
-    public void ComponentsFallbackBreaksGearIntoComponentsInTheScrapModes(DropMode mode)
+    [InlineData(DropMode.KeepOriginal)]
+    public void ComponentsFallbackBreaksGearIntoComponentsWheneverEraHandlingIsOn(DropMode mode)
     {
         var d = LootEvaluator.Evaluate(Drop(Components), Rules(mode));
         Assert.Equal(Outcome.Disassemble, d.Outcome);
         Assert.Equal(DecisionReason.ComponentsFallback, d.Reason);
     }
 
-    [Theory]
-    [InlineData(DropMode.Off)]
-    [InlineData(DropMode.KeepOriginal)]
-    public void ComponentsFallbackIsIgnoredWhereScrapIsNotUsed(DropMode mode)
+    [Fact]
+    public void ComponentsFallbackIsIgnoredWhenTheDropModeIsOff()
     {
-        var d = LootEvaluator.Evaluate(Drop(Components), Rules(mode));
+        var d = LootEvaluator.Evaluate(Drop(Components), Rules(DropMode.Off));
         Assert.Equal(DecisionReason.CategoryRule, d.Reason);
     }
 

@@ -37,3 +37,6 @@ Tests: `dotnet test` 39 passed; both builds clean, 0 warnings; translation check
 
 In-game pending (dev actions under "Loot Scavenging": "Unfamiliar: toggle keep-original mode", "cycle scope", "log selected item", "mark selected item as looted"): tribal colony shows a spawned charge rifle labelled unfamiliar with the greyed equip option and apparel not auto-worn; finishing its research clears it; looted-only scope leaves an unmarked rifle equippable and the marker survives save and reload; default scope save has no `lootScavengingLootedEra`.
 
+### 2026-11-21: review fixes
+
+- The "break it into components" era fallback now applies in keep-original mode too: gear with no era of its own becomes components at the drop, as in the two scrap modes. Before, it fell through to its category rule and was kept whole and never unfamiliar. Only the Off mode still ignores the fallback. Test: `DropModeTests.ComponentsFallbackBreaksGearIntoComponentsWheneverEraHandlingIsOn`.

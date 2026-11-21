@@ -106,7 +106,10 @@ public static class LootEvaluator
                     return new LootDecision(Outcome.Disassemble, DecisionReason.ComponentsFallback);
                 return new LootDecision(Outcome.Scrap, DecisionReason.ScrapEverything);
             case DropMode.KeepOriginal:
-                // The unfamiliar label and equip block belong to ticket 06; here the gear just stays whole.
+                // Gear with no era cannot be judged unfamiliar later, so the components setting breaks it down here too
+                // (spec: "break it straight into components"). Out-of-reach gear stays whole for the unfamiliar label.
+                if (era.BreakIntoComponents)
+                    return new LootDecision(Outcome.Disassemble, DecisionReason.ComponentsFallback);
                 if (era.OutOfReach)
                     return new LootDecision(Outcome.Keep, DecisionReason.OutOfReachKept);
                 return null;
