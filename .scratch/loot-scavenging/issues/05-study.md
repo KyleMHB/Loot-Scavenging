@@ -98,3 +98,7 @@ In-game pending:
 - StudyThenRecycle gives studied scrap, which only its tier's bench recycles, at half yield.
 - A modded bench keeps its own bills.
 - Save and load with study bills.
+
+### 2026-11-21: review fixes
+
+- Special study sources: a project needing analysed items or the grav engine inspection now never takes study points, even once that requirement is met, as the spec says. Anomaly knowledge projects were already excluded. Glue only (`ScrapStudy.FactsOf`); the verdict rule was already tested.

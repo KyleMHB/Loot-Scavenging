@@ -96,10 +96,11 @@ public static class ScrapStudy
     {
         if (project == null)
             return ProjectFacts.None;
-        // Projects with a study source of their own never receive points from scrap.
+        // Spec: "Projects with a special study source never receive anything", whether or not that source's requirement is
+        // met yet: Anomaly knowledge, analysed items and the grav engine inspection.
         bool special = project.knowledgeCategory != null
-            || (project.RequiredAnalyzedThingCount > 0 && !project.AnalyzedThingsRequirementsMet)
-            || (project.requireGravEngineInspected && !project.InspectionRequirementsMet);
+            || project.RequiredAnalyzedThingCount > 0
+            || project.requireGravEngineInspected;
         float progress = project.baseCost > 0f ? Find.ResearchManager.GetProgress(project) : 0f;
         return new ProjectFacts(true, (Era)project.techLevel, project.baseCost, progress, !project.TechprintRequirementMet,
             special, project.PrerequisitesCompleted);
