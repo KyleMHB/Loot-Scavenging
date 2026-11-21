@@ -299,6 +299,7 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Game versions | 1.6 and 1.7. |
 | Scrap art | Made or commissioned by Kyle. Placeholder icons until then. |
 | Credit | An inspired-by line on the Workshop page naming Looting Manager and Non uno Pinata. |
+| Licence | GPLv3, as in `LICENSE`. Confirmed by Kyle 2026-11-21. |
 | Hooks | Simplest hook that reaches the right moment. Rewrite a method only where a plain hook cannot. |
 
 ## Build order
