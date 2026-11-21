@@ -38,10 +38,13 @@ public class ScrapTierDef : Def
 
     public float studiedYieldFactor = 0.5f;
 
-    /// <summary>Scrap units one bill iteration uses up. Leftovers below this stay unrecycled.</summary>
+    /// <summary>
+    /// The most scrap units one bill iteration uses. The bill takes a whole stack of any size, so fewer is fine and a lone
+    /// unit is recycled too; the rest of a larger stack stays at the bench for the next iteration.
+    /// </summary>
     public int batchSize = 5;
 
-    /// <summary>Work for one unit; a bill iteration takes batchSize times this.</summary>
+    /// <summary>Work for one unit; an iteration takes this times the units it uses.</summary>
     public float workPerUnit = 100f;
 
     public override IEnumerable<string> ConfigErrors()

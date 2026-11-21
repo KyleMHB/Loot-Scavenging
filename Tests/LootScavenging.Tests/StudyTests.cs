@@ -146,17 +146,59 @@ public class StudyTests
     [InlineData(500f, 1)]
     [InlineData(0f, 1)]
     [InlineData(float.NaN, 1)]
-    public void ABillIterationStudiesAboutAHundredPoints(float pointsPerUnit, int expectedUnits)
+    public void ABillIterationStudiesAtMostAboutAHundredPoints(float pointsPerUnit, int expectedUnits)
     {
         Assert.Equal(expectedUnits, StudyRules.BatchUnits(pointsPerUnit));
     }
 
+    // Spec: "scrap is normally recycled until it is gone". A stone knife makes one unit, and that unit can be studied.
     [Fact]
-    public void StudyWorkScalesWithThePointsPaid()
+    public void ALoneUnitIsStudied()
     {
-        Assert.Equal(100f * StudyRules.TicksPerPoint, StudyRules.WorkAmount(units: 5, pointsPerUnit: 20f));
-        Assert.Equal(2 * StudyRules.WorkAmount(5, 20f), StudyRules.WorkAmount(10, 20f));
-        Assert.Equal(StudyRules.TicksPerPoint, StudyRules.WorkAmount(5, float.NaN));
+        StudyPlan plan = StudyRules.Plan(things: 1, unitsPerThing: 1, maxThings: 5, paidPerUnit: 20f, payable: 1000f);
+        Assert.Equal(1, plan.Things);
+        Assert.Equal(20f, plan.Points);
+        Assert.Equal(20f * StudyRules.TicksPerPoint, plan.Work);
+    }
+
+    [Fact]
+    public void AnIterationTakesNoMoreThanItsBatch()
+    {
+        StudyPlan plan = StudyRules.Plan(things: 40, unitsPerThing: 1, maxThings: 5, paidPerUnit: 20f, payable: 1000f);
+        Assert.Equal(5, plan.Things);
+        Assert.Equal(100f, plan.Points);
+    }
+
+    // Spec: "Study time scales with the points paid": after the project's remaining-cost cap and the research factor.
+    [Fact]
+    public void StudyTimeFollowsThePointsActuallyPaid()
+    {
+        StudyPlan capped = StudyRules.Plan(things: 5, unitsPerThing: 1, maxThings: 5, paidPerUnit: 20f, payable: 45f);
+        Assert.Equal(3, capped.Things);
+        Assert.Equal(45f, capped.Points);
+        Assert.Equal(45f * StudyRules.TicksPerPoint, capped.Work);
+
+        // Research factor 200%: each unit pays 40, so the same five units pay and take twice as long.
+        StudyPlan doubled = StudyRules.Plan(things: 5, unitsPerThing: 1, maxThings: 5, paidPerUnit: 40f, payable: 1000f);
+        Assert.Equal(200f, doubled.Points);
+        Assert.Equal(200f * StudyRules.TicksPerPoint, doubled.Work);
+    }
+
+    [Fact]
+    public void AnOriginalItemCountsAsItsScrapUnits()
+    {
+        StudyPlan plan = StudyRules.Plan(things: 1, unitsPerThing: 4, maxThings: 1, paidPerUnit: 20f, payable: 1000f);
+        Assert.Equal(1, plan.Things);
+        Assert.Equal(80f, plan.Points);
+    }
+
+    [Fact]
+    public void NothingPayableUsesNothingAndTakesTheMinimumWork()
+    {
+        StudyPlan plan = StudyRules.Plan(things: 5, unitsPerThing: 1, maxThings: 5, paidPerUnit: 0f, payable: 1000f);
+        Assert.Equal(0, plan.Things);
+        Assert.Equal(0f, plan.Points);
+        Assert.Equal(StudyRules.TicksPerPoint, plan.Work);
     }
 
     [Fact]
@@ -166,15 +208,18 @@ public class StudyTests
         Assert.True(StudyRules.TicksPerPoint < 121);
     }
 
+    // "Do until you have X" keeps X units in stock. The count is taken when the work starts, while the whole stack still
+    // lies at the bench and counts as stock, and the iteration then uses no more than the stock above X.
     [Theory]
-    [InlineData(20, 10, 5, true)]
-    [InlineData(15, 10, 5, true)]    // studying a batch leaves exactly the kept amount
-    [InlineData(14, 10, 5, false)]   // a batch would dip below the kept amount
-    [InlineData(5, 0, 5, true)]
-    [InlineData(4, 0, 5, false)]     // not a whole batch in stock
-    public void KeepInStockLeavesAtLeastTheTargetUnstudied(int inStock, int keep, int batch, bool expected)
+    [InlineData(1, 0, true, 1)]      // a lone unit with nothing kept
+    [InlineData(11, 10, true, 1)]
+    [InlineData(20, 10, true, 10)]
+    [InlineData(10, 10, false, 0)]   // exactly the kept amount: wait
+    [InlineData(4, 10, false, 0)]
+    public void KeepInStockLeavesAtLeastTheTargetUnstudied(int inStock, int keep, bool studies, int allowance)
     {
-        Assert.Equal(expected, StudyRules.KeepsStudying(inStock, keep, batch));
+        Assert.Equal(studies, StudyRules.KeepsStudying(inStock, keep));
+        Assert.Equal(allowance, StudyRules.StockAllowance(inStock, keep));
     }
 
     [Theory]

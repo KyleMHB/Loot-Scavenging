@@ -11,7 +11,7 @@
   <LootScavenging_StudyNow>Can be studied now for {0}, with a study bill at a research bench.</LootScavenging_StudyNow>
   <LootScavenging_StudyLabel>study {0}</LootScavenging_StudyLabel>
   <LootScavenging_StudyJob>Studying {0}.</LootScavenging_StudyJob>
-  <LootScavenging_StudyDescription>Study {0} for research points toward the current project. Each bill uses up to {1} units, each worth {2} points. The bill waits when the project cannot take this scrap. "Do until you have X" keeps X units in stock.</LootScavenging_StudyDescription>
+  <LootScavenging_StudyDescription>Study {0} for research points toward the current project. Each bill uses up to {1} units, each worth {2} points, and takes longer the more points it pays. The bill waits when the project cannot take this scrap. "Do until you have X" keeps X units in stock.</LootScavenging_StudyDescription>
   <LootScavenging_StudyKeepInStock>{0} kept in stock</LootScavenging_StudyKeepInStock>
   <LootScavenging_StudyWhyOff>Cannot be studied: study is switched off in the mod settings.</LootScavenging_StudyWhyOff>
   <LootScavenging_StudyWhyNoProject>Cannot be studied now: no research project is selected.</LootScavenging_StudyWhyNoProject>

@@ -16,7 +16,8 @@
            <xpath>/Defs/LootScavenging.ScrapTierDef[defName="LS_ScrapTier_Spacer"]/pool</xpath>
            <value><li><thing>MyAlloy</thing><weight>10</weight></li></value>
          </Operation>
-       batchSize is the units a bill iteration uses up; workPerUnit the work for each. Starting values, to be tuned.
+       batchSize (default 5) is the most units a bill iteration uses; a bill takes a whole stack of any size, so a single
+       unit is recycled too. workPerUnit is the work for each unit used. Starting values, to be tuned.
        studiedScrap is what study leaves in "study first, then recycle" mode (ticket 05); it recycles at the same benches
        from the same pool, at studiedYieldFactor (default 0.5) of valuePerUnit. -->
 

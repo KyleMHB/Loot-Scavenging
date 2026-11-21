@@ -210,6 +210,25 @@ public class RecyclingTests
         Assert.InRange(value / units, 11 * share * 0.98 - 1e-9, 11 * share * 1.02 + 1e-9);
     }
 
+    // Spec: "A stone knife becomes one unit" and "scrap is normally recycled until it is gone": a bill takes whatever lies
+    // in a stack, up to its batch, and works for the units it took.
+    [Theory]
+    [InlineData(1, 5, 1)]
+    [InlineData(3, 5, 3)]
+    [InlineData(50, 5, 5)]
+    [InlineData(4, 0, 1)]   // a batch below one still takes a unit
+    public void AnIterationTakesUpToItsBatchAndAcceptsFewer(int available, int batch, int expected)
+    {
+        Assert.Equal(expected, RecycleBatch.Units(available, batch));
+    }
+
+    [Fact]
+    public void RecyclingWorkIsPerUnitTaken()
+    {
+        Assert.Equal(80f, RecycleBatch.Work(units: 1, workPerUnit: 80f));
+        Assert.Equal(400f, RecycleBatch.Work(units: 5, workPerUnit: 80f));
+    }
+
     [Fact]
     public void NoUnitsOrNoPoolYieldNothing()
     {

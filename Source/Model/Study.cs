@@ -67,6 +67,21 @@ public readonly struct ProjectFacts
     public float Remaining => BaseCost - Progress > 0f ? BaseCost - Progress : 0f;
 }
 
+/// <summary>One study iteration: the things it uses, the points they pay and the work it takes.</summary>
+public readonly struct StudyPlan
+{
+    public StudyPlan(int things, float points, float work)
+    {
+        Things = things;
+        Points = points;
+        Work = work;
+    }
+
+    public int Things { get; }
+    public float Points { get; }
+    public float Work { get; }
+}
+
 public static class StudyRules
 {
     /// <summary>
@@ -75,7 +90,7 @@ public static class StudyRules
     /// </summary>
     public const int TicksPerPoint = 30;
 
-    /// <summary>A study bill iteration takes enough units for about this many base points (about 3000 ticks of work).</summary>
+    /// <summary>A study bill iteration uses at most enough units for about this many base points (about 3000 ticks of work).</summary>
     public const float PointsPerBatch = 100f;
 
     /// <summary>
@@ -163,7 +178,10 @@ public static class StudyRules
         return (int)Math.Min(available, needed);
     }
 
-    /// <summary>Units one study bill iteration takes: about <see cref="PointsPerBatch"/> base points, at least one unit.</summary>
+    /// <summary>
+    /// The most units one study bill iteration uses: about <see cref="PointsPerBatch"/> base points, at least one unit. The
+    /// bill takes a whole stack, so fewer is fine: a lone unit is studied too.
+    /// </summary>
     public static int BatchUnits(float pointsPerUnit)
     {
         if (!IsUsable(pointsPerUnit))
@@ -172,22 +190,26 @@ public static class StudyRules
     }
 
     /// <summary>
-    /// Bill work for an iteration, from the tier's base points. The bill system spends work at the pawn's research speed,
-    /// so the time scales with the points and research speed applies. The storyteller factor changes the points paid, not
-    /// the time, as at the research bench.
+    /// What one iteration studies, worked out once when the work starts (for its time) and again at the finish (for the
+    /// payment): no more things than brought or than <paramref name="maxThings"/>, nor than the project still needs. Work is
+    /// the points actually paid, after the remaining-cost cap and the research factor, at <see cref="TicksPerPoint"/>; the
+    /// bill spends it at the pawn's research speed. Nothing payable still takes the minimum work, so the job ends normally.
     /// </summary>
-    public static float WorkAmount(int units, float pointsPerUnit)
+    public static StudyPlan Plan(int things, int unitsPerThing, int maxThings, float paidPerUnit, float payable)
     {
-        if (units <= 0 || !IsUsable(pointsPerUnit))
-            return TicksPerPoint;
-        return units * pointsPerUnit * TicksPerPoint;
+        int brought = Math.Min(things, Math.Max(1, maxThings));
+        int used = UnitsUsed(brought, paidPerUnit * Math.Max(1, unitsPerThing), payable);
+        float points = Points(used * Math.Max(1, unitsPerThing), paidPerUnit, payable);
+        return new StudyPlan(used, points, Math.Max(TicksPerPoint, points * TicksPerPoint));
     }
 
     /// <summary>
-    /// The "do until you have X" control on a study bill means "keep X in stock": an iteration starts only when a whole
-    /// batch can be studied without the stock dropping below X.
+    /// The "do until you have X" control on a study bill means "keep X in stock": an iteration starts only while more than X
+    /// is in stock, and uses no more than the stock above X (<see cref="StockAllowance"/>).
     /// </summary>
-    public static bool KeepsStudying(int inStock, int keep, int batch) => inStock - batch >= keep && inStock >= batch;
+    public static bool KeepsStudying(int inStock, int keep) => inStock > keep;
+
+    public static int StockAllowance(int inStock, int keep) => Math.Max(0, inStock - Math.Max(0, keep));
 
     /// <summary>Studied scrap made by an iteration: none by default, one unit per studied unit when studied first.</summary>
     public static int StudiedScrapUnits(int units, RecycleOrStudy mode)

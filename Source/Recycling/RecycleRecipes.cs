@@ -20,6 +20,15 @@ internal static class RecycleRecipes
     public const string DefNamePrefix = "LS_Recycle_"; // not translated
     public const string StudiedDefNamePrefix = "LS_RecycleStudied_"; // not translated
 
+    private static readonly Dictionary<RecipeDef, ScrapTierDef> tierOf = new Dictionary<RecipeDef, ScrapTierDef>();
+
+    /// <summary>The tier a scrap or studied-scrap recycling recipe is for; false for every other recipe.</summary>
+    public static bool TryGetTier(RecipeDef recipe, out ScrapTierDef tier)
+    {
+        tier = null;
+        return recipe != null && tierOf.TryGetValue(recipe, out tier);
+    }
+
     private static void Postfix(bool hotReload)
     {
         try
@@ -81,7 +90,10 @@ internal static class RecycleRecipes
             label = "LootScavenging_RecycleLabel".Translate(scrap.label),
             jobString = "LootScavenging_RecycleJob".Translate(scrap.label),
             description = "LootScavenging_RecycleDescription".Translate(scrap.label),
-            workAmount = def.workPerUnit * def.batchSize,
+            // Nominal, for the bill list: the real work is set per iteration from the units taken (BillWorkPatch).
+            workAmount = def.workPerUnit,
+            // The bill takes a whole stack of any size, so a lone unit is recycled too (vanilla "burn drugs" does the same).
+            ignoreIngredientCountTakeEntireStacks = true,
             workSpeedStat = DefDatabase<StatDef>.GetNamedSilentFail("SmeltingSpeed"),
             effectWorking = DefDatabase<EffecterDef>.GetNamedSilentFail("Smelt"),
             soundWorking = DefDatabase<SoundDef>.GetNamedSilentFail("Recipe_Smelt"),
@@ -92,8 +104,9 @@ internal static class RecycleRecipes
             defaultIngredientFilter = new ThingFilter(),
         };
 
+        tierOf[recipe] = def;
         var ingredient = new IngredientCount();
-        ingredient.SetBaseCount(def.batchSize);
+        ingredient.SetBaseCount(1f);
         ingredient.filter.SetAllow(scrap, true);
         recipe.ingredients.Add(ingredient);
         recipe.fixedIngredientFilter.SetAllow(scrap, true);

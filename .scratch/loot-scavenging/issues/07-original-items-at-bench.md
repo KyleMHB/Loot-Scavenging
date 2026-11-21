@@ -30,3 +30,7 @@ Decisions the spec left open:
 Tests: `dotnet test` 163 passed; both builds 0 warnings; translation check passes. No new unit tests (all new code is game glue; tier, units and yields reuse tested model code).
 
 In-game pending: a looted unfamiliar rifle ticked into a recycle bill at a smithy returns the yield of its scrap and is destroyed; ticked into a study bill it pays the same points as its scrap; an unticked unfamiliar item is never taken; a familiar item is never taken; a higher-tier item is refused at a lower bench; filter UI shows the gear tree with nothing ticked; work time scales with units.
+
+### 2026-11-21: review fixes
+
+- Work for original items is now set by the shared `BillWorkPatch` (was `OriginalWorkPatch`). Recycling still uses the item's units times the tier's work per unit. Study uses `StudyRules.Plan`, so the time follows the points the item actually pays after the project's remaining-cost cap and the research factor.

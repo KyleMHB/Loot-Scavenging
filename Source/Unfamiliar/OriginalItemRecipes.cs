@@ -59,7 +59,7 @@ internal static class OriginalItemRecipes
         recipe.label = "LootScavenging_RecycleOriginalLabel".Translate();
         recipe.jobString = "LootScavenging_RecycleOriginalJob".Translate();
         recipe.description = "LootScavenging_RecycleOriginalDescription".Translate();
-        recipe.workAmount = 500f; // nominal: the real work is set per item from its units (OriginalWorkPatch)
+        recipe.workAmount = 500f; // nominal: the real work is set per item from its units (BillWorkPatch)
         recipe.workSpeedStat = DefDatabase<StatDef>.GetNamedSilentFail("SmeltingSpeed");
         recipe.effectWorking = DefDatabase<EffecterDef>.GetNamedSilentFail("Smelt");
         recipe.soundWorking = DefDatabase<SoundDef>.GetNamedSilentFail("Recipe_Smelt");
@@ -193,45 +193,5 @@ internal static class OriginalIngredientPatch
             __result = false;
             Log.ErrorOnce($"[Loot Scavenging] Checking an original item for a bill failed: {e}", 0x4C5307); // not translated
         }
-    }
-}
-
-/// <summary>
-/// An original-item iteration takes one item, so its work is set from that item's units once the worker starts: the same work
-/// the equivalent scrap would take. The bill's own work amount is only a nominal value for the bill list.
-/// </summary>
-[HarmonyPatch(typeof(Toils_Recipe), nameof(Toils_Recipe.DoRecipeWork))]
-internal static class OriginalWorkPatch
-{
-    private static void Postfix(Toil __result)
-    {
-        Toil toil = __result;
-        Action original = toil.initAction;
-        toil.initAction = delegate
-        {
-            original();
-            try
-            {
-                Rescale(toil.actor);
-            }
-            catch (Exception e)
-            {
-                Log.ErrorOnce($"[Loot Scavenging] Setting the work for an original item failed: {e}", 0x4C5308); // not translated
-            }
-        };
-    }
-
-    private static void Rescale(Pawn actor)
-    {
-        Job job = actor?.jobs?.curJob;
-        RecipeDef recipe = job?.RecipeDef;
-        bool recycle = OriginalItemRecipes.IsRecycle(recipe);
-        if (!recycle && !OriginalItemRecipes.IsStudy(recipe))
-            return;
-        if (!(actor.jobs.curDriver is JobDriver_DoBill driver) || job.placedThings == null || job.placedThings.Count == 0)
-            return;
-        if (!ScrapEquivalent.TryGet(job.placedThings[0].thing, out ScrapTier tier, out int units))
-            return;
-        driver.workLeft = recycle ? ScrapEquivalent.RecycleWork(tier, units) : ScrapEquivalent.StudyWork(tier, units);
     }
 }

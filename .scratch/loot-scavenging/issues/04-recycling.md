@@ -32,3 +32,7 @@ Decisions:
 
 Tests: `dotnet test` 110 passed; both builds 0 warnings; translation check passes.
 In-game pending: dev action "Recycling: log recipes per bench" (Debug actions > Loot Scavenging) lists each named bench's recipes; check Machining table offers neolithic/medieval/industrial bills, smithy no industrial, a modded bench keeps its bills, a bill of 5 industrial scrap gives 20 steel and now and then a component, keep-in-stock option shows.
+
+### 2026-11-21: review fixes
+
+- A lone unit of scrap can now be recycled: recycling bills (scrap and studied scrap) take one whole stack of any size (`ignoreIngredientCountTakeEntireStacks`, as vanilla "burn drugs" does; the ingredient search returns after the first matching stack). Before, a bill needed a full batch of 5, so a stone knife's single unit could never be recycled. `batchSize` is now the most units one iteration uses: `BillWorkPatch` trims the placed count at work start, the game splits the stack down to that count at the finish, and the rest stays at the bench for the next iteration. Work is `workPerUnit` times the units used (`RecycleBatch`, tested). No XML sets `batchSize`, so Defs and the pack preset need no change. In-game: pending (a single unit recycles; a 40-unit stack runs as 8 iterations).

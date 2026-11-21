@@ -102,3 +102,8 @@ In-game pending:
 ### 2026-11-21: review fixes
 
 - Special study sources: a project needing analysed items or the grav engine inspection now never takes study points, even once that requirement is met, as the spec says. Anomaly knowledge projects were already excluded. Glue only (`ScrapStudy.FactsOf`); the verdict rule was already tested.
+
+- Study bills take one whole stack of any size, so a lone unit can be studied. Before, an iteration needed a full batch (`BatchUnits`), which is now only the most units one iteration uses.
+- Study time now follows the points the iteration actually pays (spec: "Study time scales with the points paid"), after the project's remaining-cost cap and the research factor: `StudyRules.Plan` gives the things used, the points and the work (points times `TicksPerPoint`, minimum `TicksPerPoint`). `BillWorkPatch` runs it when the work starts, sets the work and trims the placed count. `RecipeWorker_Study` runs it again at the finish to pay. `WorkAmount` is gone. Tests: `ALoneUnitIsStudied`, `StudyTimeFollowsThePointsActuallyPaid` and others in `StudyTests`.
+- Keep-in-stock ("do until you have X") now means: study while more than X is in stock, using no more than the stock above X (`KeepsStudying`, `StockAllowance`). The stock is counted at work start, while the whole stack still lies at the bench and counts. The finish applies only the project cap, so the count is never taken while the split-off piece is uncounted.
+- In-game: pending (a single unit studies; the work bar length follows the points; X=10 with 12 in stock studies 2).

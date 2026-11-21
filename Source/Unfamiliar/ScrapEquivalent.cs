@@ -52,14 +52,7 @@ internal static class ScrapEquivalent
     public static float RecycleWork(ScrapTier tier, int units)
     {
         ScrapTierDef def = ScrapTierTable.For(tier);
-        return units * (def?.workPerUnit ?? 100f);
-    }
-
-    /// <summary>Study work for one item: its units at the tier's points per unit, as the scrap would take.</summary>
-    public static float StudyWork(ScrapTier tier, int units)
-    {
-        float points = ScrapDefs.For(tier).GetModExtension<StudyPoints>()?.pointsPerUnit ?? 0f;
-        return StudyRules.WorkAmount(units, points);
+        return RecycleBatch.Work(units, def?.workPerUnit ?? 100f);
     }
 
     // Tier recycled at a bench: the same bench rule as scrap (a bench named for a tier recycles it and every tier below).

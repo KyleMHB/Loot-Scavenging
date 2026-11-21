@@ -101,7 +101,10 @@ internal static class StudyRecipes
             label = "LootScavenging_StudyLabel".Translate(scrap.label),
             jobString = "LootScavenging_StudyJob".Translate(scrap.label),
             description = "LootScavenging_StudyDescription".Translate(scrap.label, batch.ToString(), pointsPerUnit.ToString("0.#")),
-            workAmount = StudyRules.WorkAmount(batch, pointsPerUnit),
+            // Nominal, one unit's worth: the real work is set per iteration from the points it pays (BillWorkPatch).
+            workAmount = pointsPerUnit * StudyRules.TicksPerPoint,
+            // A whole stack of any size, so a lone unit is studied too; an iteration uses at most a batch of it.
+            ignoreIngredientCountTakeEntireStacks = true,
             // The bill system spends work at the pawn's research speed. It applies a bench speed stat only to work
             // tables, so the bench's research speed factor does not apply here.
             workSpeedStat = DefDatabase<StatDef>.GetNamedSilentFail("ResearchSpeed"),
@@ -118,7 +121,7 @@ internal static class StudyRecipes
         };
 
         var ingredient = new IngredientCount();
-        ingredient.SetBaseCount(batch);
+        ingredient.SetBaseCount(1f);
         foreach (ThingDef def in ScrapStudy.IngredientDefs(scrap))
         {
             ingredient.filter.SetAllow(def, true);
@@ -160,9 +163,11 @@ public class RecipeWorker_Study : RecipeWorker
 
     private static void Study(Pawn pawn, Thing ingredient, StudyWorth worth, ResearchProjectDef project)
     {
-        float paidPerThing = ScrapStudy.PaidPerUnit(worth) * worth.UnitsPerThing;
-        int used = StudyRules.UnitsUsed(ingredient.stackCount, paidPerThing, ScrapStudy.Payable(project));
-        float points = ScrapStudy.PointsFor(used, worth, project);
+        // The work start already trimmed the ingredient to the batch and the stock allowance (BillWorkPatch), so only the
+        // project's remaining cost can lower it now.
+        StudyPlan plan = ScrapStudy.Plan(worth, ingredient.stackCount, ingredient.stackCount, project);
+        int used = plan.Things;
+        float points = plan.Points;
         if (used <= 0 || points <= 0f)
             return;
 
@@ -267,8 +272,7 @@ internal static class StudyBillPatch
                 // The vanilla pause test treats reaching X as done; for study, being above X is the working state.
                 __instance.paused = false;
                 int inStock = __instance.recipe.WorkerCounter.CountProducts(__instance);
-                int batch = __instance.recipe.ingredients.Count > 0 ? (int)__instance.recipe.ingredients[0].GetBaseCount() : 1;
-                __result = StudyRules.KeepsStudying(inStock, __instance.targetCount, batch);
+                __result = StudyRules.KeepsStudying(inStock, __instance.targetCount);
             }
         }
         catch (Exception e)

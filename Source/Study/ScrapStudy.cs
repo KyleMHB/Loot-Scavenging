@@ -121,7 +121,7 @@ public static class ScrapStudy
     public static float Payable(ResearchProjectDef project) =>
         StudyRules.Payable(FactsOf(project), LootScavengingMod.Settings.studyTechprintProjects);
 
-    /// <summary>Points the given number of things pays into the project now.</summary>
-    public static float PointsFor(int things, StudyWorth worth, ResearchProjectDef project) =>
-        StudyRules.Points(things * worth.UnitsPerThing, PaidPerUnit(worth), Payable(project));
+    /// <summary>What an iteration with these things studies now: things used, points and work (see StudyRules.Plan).</summary>
+    public static StudyPlan Plan(StudyWorth worth, int things, int maxThings, ResearchProjectDef project) =>
+        StudyRules.Plan(things, worth.UnitsPerThing, maxThings, PaidPerUnit(worth), project == null ? 0f : Payable(project));
 }

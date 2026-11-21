@@ -145,6 +145,17 @@ public static class LootPool
     private static bool Usable<T>(PoolEntry<T> e, Func<T, float> marketValue) => e.Weight > 0f && marketValue(e.Item) > 0f;
 }
 
+/// <summary>
+/// How much one recycling bill iteration takes. The bill takes a whole stack, whatever its size, so a lone unit is recycled
+/// too; the iteration then uses at most a batch of it and leaves the rest at the bench for the next one.
+/// </summary>
+public static class RecycleBatch
+{
+    public static int Units(int available, int batchSize) => Math.Max(1, Math.Min(available, Math.Max(1, batchSize)));
+
+    public static float Work(int units, float workPerUnit) => units * workPerUnit;
+}
+
 public static class RecycleBenches
 {
     /// <summary>
