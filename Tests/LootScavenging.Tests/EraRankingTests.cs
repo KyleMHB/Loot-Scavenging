@@ -83,6 +83,15 @@ public class EraRankingTests
     }
 
     [Fact]
+    public void ColonyEraTakesTheFactionEraWhenItIsHigher()
+    {
+        Assert.Equal(Era.Medieval, EraRanking.ColonyEra(new[] { Era.Neolithic }, Era.Medieval));
+        Assert.Equal(Era.Neolithic, EraRanking.ColonyEra(new Era[0], Era.Neolithic));
+        Assert.Equal(Era.Industrial, EraRanking.ColonyEra(new[] { Era.Industrial }, Era.Medieval));
+        Assert.Equal(Era.Animal, EraRanking.ColonyEra(new Era[0], Era.Undefined));
+    }
+
+    [Fact]
     public void UnfinishedResearchIsOutOfReachEvenWithLowEra()
     {
         Assert.True(Rank(research: Era.Neolithic, unfinished: true, colony: Era.Spacer).OutOfReach);

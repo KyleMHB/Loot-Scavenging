@@ -67,6 +67,16 @@ public static class EraRanking
         return best;
     }
 
+    /// <summary>
+    /// The colony's era when another mod keeps it on the player faction (spec, "The Progression pack"): the higher of that
+    /// era and the research-based one, so an advance counts before any of the new era's research is finished.
+    /// </summary>
+    public static Era ColonyEra(System.Collections.Generic.IEnumerable<Era> finishedProjectEras, Era factionEra)
+    {
+        Era research = ColonyEra(finishedProjectEras);
+        return factionEra > research ? factionEra : research;
+    }
+
     /// <param name="researchEra">Tech level of the project that unlocks the item (Undefined if none).</param>
     /// <param name="researchUnfinished">The unlocking research exists and is not finished.</param>
     /// <param name="itemEra">The item's own tech level.</param>

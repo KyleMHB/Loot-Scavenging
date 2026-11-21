@@ -20,9 +20,11 @@ public static class EraReader
     public static Func<Era?> ColonyEraOverride;
 
     /// <summary>
-    /// The colony's current era. Vanilla has no such value (Faction.OfPlayer.def.techLevel is static), so it is computed:
-    /// the highest tech level among finished research projects (those with a research cost; Anomaly knowledge projects
-    /// are skipped), never below Animal. Computed per call; it is a dictionary lookup per project.
+    /// The colony's current era: the highest tech level among finished research projects (those with a research cost;
+    /// Anomaly knowledge projects are skipped), never below Animal. In vanilla the player faction's tech level is static
+    /// (a Crashlanded colony stays Industrial with its research reset), so it is not read. When a mod that moves it is
+    /// active (<see cref="FactionEraMods"/>), the colony's era is the higher of the two, as that mod and Visual Progression
+    /// read it. Computed per call; it is a dictionary lookup per project.
     /// </summary>
     public static Era ColonyEra()
     {
@@ -32,8 +34,23 @@ public static class EraReader
             return supplied.Value;
         }
 
+        if (FactionEraMoves && Faction.OfPlayerSilentFail?.def != null)
+        {
+            return EraRanking.ColonyEra(FinishedProjectEras(), (Era)Faction.OfPlayer.def.techLevel);
+        }
         return EraRanking.ColonyEra(FinishedProjectEras());
     }
+
+    /// <summary>
+    /// Mods that advance the colony by writing Faction.OfPlayer.def.techLevel (read from their code on 2026-11-21): VFE
+    /// Tribals' advancement, and Node Research's emergence projects in the Progression pack, whose Progression: Core
+    /// requires VFE Tribals.
+    /// </summary>
+    private static readonly string[] FactionEraMods = { "oskarpotocki.vfe.tribals", "ferny.noderesearch" };
+
+    private static bool? factionEraMoves;
+
+    private static bool FactionEraMoves => factionEraMoves ??= FactionEraMods.Any(ModsConfig.IsActive);
 
     /// <summary>
     /// An item's era and whether it is out of reach, using the settings' era fallback. The carrier is the faction of the
