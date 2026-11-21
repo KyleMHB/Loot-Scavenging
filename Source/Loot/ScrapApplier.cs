@@ -31,7 +31,10 @@ internal static class ScrapDefs
         return false;
     }
 
-    /// <summary>Writes the scrap value setting onto the scrap defs. Called again by the settings page when the value changes.</summary>
+    /// <summary>
+    /// Writes the scrap value setting onto the scrap defs. Called again whenever the value may have changed: once the settings
+    /// defaults load, when the page's slider, a preset or Reset changes it, and when the settings window closes.
+    /// </summary>
     public static void ApplyMarketValue()
     {
         float value = LootScavengingMod.Settings?.values.scrapMarketValue ?? SettingValues.DefaultScrapMarketValue;

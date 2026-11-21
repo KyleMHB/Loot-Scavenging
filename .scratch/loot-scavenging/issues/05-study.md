@@ -108,4 +108,4 @@ In-game pending:
 - Keep-in-stock ("do until you have X") now means: study while more than X is in stock, using no more than the stock above X (`KeepsStudying`, `StockAllowance`). The stock is counted at work start, while the whole stack still lies at the bench and counts. The finish applies only the project cap, so the count is never taken while the split-off piece is uncounted.
 - In-game: pending (a single unit studies; the work bar length follows the points; X=10 with 12 in stock studies 2).
 
-- Removed `StudyEraLimit.None` (study off). The spec names no such option and nothing depended on it. The verdict it returned, which the bench also gave for a scrap def with no study points, is now `NoStudyPoints`, with its own inspect line. A saved `studyEras` of `None` from a dev config loads as the default.
+- Removed `StudyEraLimit.None` (study off). The spec names no such option and nothing depended on it. The verdict it returned, which the bench also gave for a scrap def with no study points, is now `NoStudyPoints`, with its own inspect line. A dev config that saved `studyEras` as `None` logs one parse error and loads the default.

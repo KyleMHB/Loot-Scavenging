@@ -13,6 +13,8 @@ This mod is built from the spec and the game's own code. Looting Manager, Non un
 - `Source/`: the mod's C#. Intermediates go to `work/obj/<version>/`.
 - `1.6/Assemblies`, `1.7/Assemblies`: build output, selected by `LoadFolders.xml`. There is no root `Assemblies/`.
 - `Defs/`, `Patches/`, `Languages/English/Keyed/`, `Textures/`: created when first needed.
+- `Tests/LootScavenging.Tests`: xunit tests of `Source/Model/`, run by `dotnet test`.
+- `packs/`: preset patches for packs to copy into their own `Patches/`. The game never loads this folder.
 - `.scratch/<feature>/`: specs and tickets. `docs/agents/`: tracker conventions.
 
 ## Commands
