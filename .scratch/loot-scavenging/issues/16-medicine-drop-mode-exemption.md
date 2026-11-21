@@ -22,8 +22,8 @@ Out of scope: exempting other inventory groups (drugs, food), and any change to 
 
 ## Acceptance
 
-- [ ] With default settings at a tribal colony, a raider's industrial medicine drops untouched while his out-of-reach gun becomes scrap. (maths unit-tested; in-game: the smoke batch can add this to its tribal-colony case)
-- [ ] With "Drop mode includes medicine" on, the same medicine becomes scrap of its era.
+- [x] With default settings at a tribal colony, a raider's industrial medicine drops untouched while his out-of-reach gun becomes scrap. (maths unit-tested; in-game: the smoke batch can add this to its tribal-colony case)
+- [x] With "Drop mode includes medicine" on, the same medicine becomes scrap of its era.
 - [x] "Scrap everything" leaves medicine to its category rule unless the setting is on.
 - [x] The setting is off in all three presets, saved under its own key, lockable, and shown on the settings page with a sentence saying what will happen.
 - [x] Both the 1.7 and 1.6 builds compile, the unit tests pass and the translation check passes.
@@ -37,3 +37,7 @@ Out of scope: exempting other inventory groups (drugs, food), and any change to 
 - Decision: the field lives in `LootRules` beside `dropMode`, so the lock path is `rules.dropIncludesMedicine`.
 - Tests: new cases in `DropModeTests` and `PresetsTests`; key and lock-name lists updated. The old preset test that expected Progression to scrap out-of-reach medicine now asserts it is kept. 280 pass; 1.7 and 1.6 builds clean; translation check passed.
 - In-game pending: the first two acceptance lines (tribal colony medicine drops untouched; scrap with the setting on).
+
+### 2026-11-21: in-game
+
+- `lootscavenging-smoke` case `tribal-medicine` passed in run `20261121-102035-lootscavenging-smoke-s1-c93c7261` (seed 1, Core only): by default a pirate's 3 industrial medicine dropped whole while his revolver became 1 industrial scrap; with `rules.dropIncludesMedicine` on, a second pirate's 3 medicine became 3 industrial scrap. No errors logged.
