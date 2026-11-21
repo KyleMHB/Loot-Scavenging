@@ -59,10 +59,19 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 - `lootscavenging-bench`: real bill jobs. Recycling and studied-scrap bills at a machining table, the study bench and its Bills tab, the study bill with no project, keep-X, work and XP, finishing a project, original items at the fabrication bench and research bench, and a techprint project (Royalty only).
 - `lootscavenging-saves`: a looted-only marked rifle, scrap, studied scrap and a study bill through the runner's save and reload, and the save file's contents.
 - `lootscavenging-preview`: a showcase, outside run-all, that films the six scrap piles in front of their benches for `About/Preview.png`. Run it with `--record --frames 1 --quit-on-finish`, take a frame at 3.5 s from the run's `build.mp4` with the harness's ffmpeg, then run `python tools/preview_image.py <frame.png>`.
+- `lootscavenging-stacks`: a scene outside run-all for looking at the scrap art by hand. Each era gets piles of 1, 10 and 500 (the small, mid and full textures) and a full studied stack. Run it with `--keep-open`.
 
 Not covered: the settings page and bill-tab UI, the first-load dialog on screen, loading a save without the mod (the runner ships inside the mod; Spearfishing uses a separate probe for this), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
 
 ## Result recording
+
+### 2026-11-21 - scrap art
+
+- Version/environment: RimWorld 1.7, default mod set, seed 1.
+- Run: preview `20261121-144907-lootscavenging-preview-s1` (`--record --frames 1`), passed.
+- Observed: all six full stacks drew the new art untinted; the log had no texture, graphic or mod errors.
+- Observed by hand (Kyle): piles of 1, 10 and 500 of each era and full studied stacks in stacks `20261121-145653-lootscavenging-stacks-s1` (`--keep-open`): "looks good".
+- Status: Passed.
 
 ### 2026-11-21 - where loot lands at death
 

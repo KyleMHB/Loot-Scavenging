@@ -8,6 +8,7 @@
 
 - Added the loot rules: gear of non-colony pawns is sorted when they die and, optionally, when they are downed or stripped, by owner group, map, protection, item category, conditions and chance.
 - Added six scrap items, neolithic to archotech, sized by the value, quality and condition of the gear they came from.
+- Gave each scrap era its own art, with a bigger pile as the stack grows. Studied scrap uses the same art, darker.
 - Added recycle bills at the crafting spot, smithies, machining table and fabrication bench, which turn scrap into materials picked from a weighted pool for its era.
 - Added study bills at research benches, which pay a fixed number of points per unit into the current project and say on the scrap why it cannot be studied.
 - Added four drop modes: scrap out-of-reach gear, scrap everything, keep the original item as unfamiliar gear that cannot be used until researched, and off.
