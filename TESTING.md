@@ -66,7 +66,7 @@ Not covered: the settings page and bill-tab UI, the first-load dialog on screen,
 ### 2026-11-21 - bench fixes: smoke, bench, saves, settings; bench with DLCs
 
 - Version/environment: RimWorld 1.7, seed 1. Default set in one launch; bench again with `--mods dlcs`.
-- Runs: smoke `20261121-111405-lootscavenging-smoke-s1-0920bef4`, bench `20261121-111417-lootscavenging-bench-s1-356b2793`, saves `20261121-111421-lootscavenging-saves-s1-83df63a9`, settings `20261121-111424-lootscavenging-settings-s1-ed3fee1c`; `dlcs` bench `20261121-111438-lootscavenging-bench-s1-7c6eabd9`.
+- Runs: smoke `20261121-111405-lootscavenging-smoke-s1-0920bef4`, bench `20261121-111417-lootscavenging-bench-s1-356b2793`, saves `20261121-111421-lootscavenging-saves-s1-83df63a9`, settings `20261121-111424-lootscavenging-settings-s1-ed3fee1c`; `dlcs` bench `20261121-111438-lootscavenging-bench-s1-7c6eabd9`. After the fix, outcomes `20261121-111719-lootscavenging-outcomes-s1-0fa45aa8` (15/15) and moments `20261121-111733-lootscavenging-moments-s1-f5019141` (9/9).
 - Observed: all passed, no mod errors. Recycling 12 units ran 12>7>2>0 with at most 5 carried; with no project the study bill did not start; keep 3 of 8 studied 5 for 100 points at work 3000 with 105 Intellectual XP and 3 left; 30 points short it studied 2 units at work 900 and finished Complex Clothing; the techprint case passed with Royalty. No `ShowFirstLoadMessage` NullReferenceException at startup.
 - Case fixes: the study XP step now counts progress to the next level, and the original-item recycle bound allows the pool's random rounding (a 4-unit rifle can return one 200-silver advanced component).
 - Status: Passed.
