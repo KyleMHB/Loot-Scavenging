@@ -21,24 +21,27 @@ public sealed class ModHarness : HarnessSettings
     public override string[] RuntimeFolders => new[] { "About", "1.6", "1.7", "Defs", "Patches", "Languages", "Textures", "packs" };
     public override string[] RuntimeFiles => new[] { "LoadFolders.xml" };
 
-    public override IEnumerable<Batch> CreateBatches() => new Batch[] { new SmokeBatch() };
+    public override IEnumerable<Batch> CreateBatches() => new Batch[] { new SmokeBatch(), new OutcomesBatch(), new MomentsBatch(), new SettingsBatch(), new BenchBatch(), new SavesBatch() };
 
-    public override IEnumerable<string> RunAll => new[] { "lootscavenging-smoke" };
+    public override IEnumerable<string> RunAll => new[] { "lootscavenging-smoke", "lootscavenging-outcomes", "lootscavenging-moments", "lootscavenging-settings", "lootscavenging-bench", "lootscavenging-saves" };
 
     // Mod settings live in the process and outlive the colony, so a batch that changes them gets them back here, even when it
     // stops early. Nothing is written to the settings file.
     private static SettingValues savedValues;
     private static PresetId savedPreset;
+    private static PresetConfig savedConfig;
 
     public static void SaveSettings()
     {
         savedValues = LootScavengingMod.Settings.Capture().Clone();
         savedPreset = LootScavengingMod.Settings.activePreset;
+        savedConfig = Presets.Config;
     }
 
     public static void RestoreSettings()
     {
         if (savedValues == null) return;
+        Presets.Configure(savedConfig);
         LootScavengingMod.Settings.Apply(savedValues);
         LootScavengingMod.Settings.activePreset = savedPreset;
         Unfamiliar.ResetCache();
