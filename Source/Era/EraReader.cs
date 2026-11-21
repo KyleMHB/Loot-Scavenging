@@ -41,7 +41,7 @@ public static class EraReader
     /// </summary>
     public static EraResult ItemEra(ThingDef def, Faction carrier = null)
     {
-        return ItemEra(def, carrier, LootScavengingMod.Settings?.eraFallback ?? EraFallback.CarrierFaction);
+        return ItemEra(def, carrier, LootScavengingMod.Settings?.values.eraFallback ?? EraFallback.CarrierFaction);
     }
 
     public static EraResult ItemEra(ThingDef def, Faction carrier, EraFallback fallback)

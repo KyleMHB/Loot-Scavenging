@@ -13,7 +13,7 @@ internal static class OutcomeApplier
     {
         // Charges are read and the place noted before the item is destroyed, and the ammo is put on the ground rather than
         // in the inventory, where the inventory pass would judge it again as ammunition.
-        if (Disassembly.EjectsCharges(decision.Outcome, LootScavengingMod.Settings.rules.ejectCharges))
+        if (Disassembly.EjectsCharges(decision.Outcome, LootScavengingMod.Settings.values.rules.ejectCharges))
         {
             List<Thing> charges = DisassembleApplier.EjectedCharges(thing).ToList();
             Map map = pawn.MapHeld;

@@ -10,7 +10,7 @@ internal static class LootDebugActions
 {
     private const string Category = "Loot Scavenging"; // not translated
 
-    private static LootRules Rules => LootScavengingMod.Settings.rules;
+    private static LootRules Rules => LootScavengingMod.Settings.values.rules;
 
     [DebugAction(Category, "Log rules", allowedGameStates = AllowedGameStates.Playing)] // not translated
     private static void LogRules()

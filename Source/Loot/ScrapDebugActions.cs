@@ -13,7 +13,7 @@ internal static class ScrapDebugActions
     [DebugAction(Category, "Scrap: cycle drop mode", allowedGameStates = AllowedGameStates.Playing)] // not translated
     private static void CycleDropMode()
     {
-        LootRules rules = LootScavengingMod.Settings.rules;
+        LootRules rules = LootScavengingMod.Settings.values.rules;
         var modes = (DropMode[])Enum.GetValues(typeof(DropMode));
         rules.dropMode = modes[((int)rules.dropMode + 1) % modes.Length];
         Log.Message($"[Loot Scavenging] drop mode = {rules.dropMode}"); // not translated
@@ -23,16 +23,16 @@ internal static class ScrapDebugActions
     private static void ToggleScrapOnGround()
     {
         LootScavengingSettings s = LootScavengingMod.Settings;
-        s.scrapOnGround = !s.scrapOnGround;
-        Log.Message($"[Loot Scavenging] scrapOnGround = {s.scrapOnGround}"); // not translated
+        s.values.scrapOnGround = !s.values.scrapOnGround;
+        Log.Message($"[Loot Scavenging] scrapOnGround = {s.values.scrapOnGround}"); // not translated
     }
 
     [DebugAction(Category, "Scrap: cycle scrap market value", allowedGameStates = AllowedGameStates.Playing)] // not translated
     private static void CycleScrapValue()
     {
         LootScavengingSettings s = LootScavengingMod.Settings;
-        s.scrapMarketValue = s.scrapMarketValue < 0.5f ? 1f : LootScavengingSettings.DefaultScrapMarketValue;
+        s.values.scrapMarketValue = s.values.scrapMarketValue < 0.5f ? 1f : SettingValues.DefaultScrapMarketValue;
         ScrapDefs.ApplyMarketValue();
-        Log.Message($"[Loot Scavenging] scrap market value = {s.scrapMarketValue}"); // not translated
+        Log.Message($"[Loot Scavenging] scrap market value = {s.values.scrapMarketValue}"); // not translated
     }
 }

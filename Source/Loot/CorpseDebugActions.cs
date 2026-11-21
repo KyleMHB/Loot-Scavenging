@@ -8,7 +8,7 @@ internal static class CorpseDebugActions
 {
     private const string Category = "Loot Scavenging"; // not translated
 
-    private static LootScavenging.Model.CorpseRules Corpses => LootScavengingMod.Settings.corpses;
+    private static LootScavenging.Model.CorpseRules Corpses => LootScavengingMod.Settings.values.corpses;
 
     [DebugAction(Category, "Log corpse rules", allowedGameStates = AllowedGameStates.Playing)] // not translated
     private static void LogCorpseRules()

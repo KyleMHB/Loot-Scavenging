@@ -46,24 +46,24 @@ internal static class StudyDebugActions
     {
         LootScavengingSettings s = LootScavengingMod.Settings;
         var values = (StudyEraLimit[])Enum.GetValues(typeof(StudyEraLimit));
-        s.studyEras = values[((int)s.studyEras + 1) % values.Length];
-        Log.Message($"[Loot Scavenging] studyEras = {s.studyEras}"); // not translated
+        s.values.studyEras = values[((int)s.values.studyEras + 1) % values.Length];
+        Log.Message($"[Loot Scavenging] studyEras = {s.values.studyEras}"); // not translated
     }
 
     [DebugAction(Category, "Study: toggle recycle or study", allowedGameStates = AllowedGameStates.Playing)] // not translated
     private static void ToggleRecycleOrStudy()
     {
         LootScavengingSettings s = LootScavengingMod.Settings;
-        s.recycleOrStudy = s.recycleOrStudy == RecycleOrStudy.OneOrTheOther ? RecycleOrStudy.StudyThenRecycle : RecycleOrStudy.OneOrTheOther;
-        Log.Message($"[Loot Scavenging] recycleOrStudy = {s.recycleOrStudy}"); // not translated
+        s.values.recycleOrStudy = s.values.recycleOrStudy == RecycleOrStudy.OneOrTheOther ? RecycleOrStudy.StudyThenRecycle : RecycleOrStudy.OneOrTheOther;
+        Log.Message($"[Loot Scavenging] recycleOrStudy = {s.values.recycleOrStudy}"); // not translated
     }
 
     [DebugAction(Category, "Study: toggle techprint projects", allowedGameStates = AllowedGameStates.Playing)] // not translated
     private static void ToggleTechprints()
     {
         LootScavengingSettings s = LootScavengingMod.Settings;
-        s.studyTechprintProjects = !s.studyTechprintProjects;
-        Log.Message($"[Loot Scavenging] studyTechprintProjects = {s.studyTechprintProjects}"); // not translated
+        s.values.studyTechprintProjects = !s.values.studyTechprintProjects;
+        Log.Message($"[Loot Scavenging] studyTechprintProjects = {s.values.studyTechprintProjects}"); // not translated
     }
 
     [DebugAction(Category, "Study: cycle storyteller research factor", allowedGameStates = AllowedGameStates.Playing)] // not translated

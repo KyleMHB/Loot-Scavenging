@@ -34,7 +34,7 @@ internal static class ScrapDefs
     /// <summary>Writes the scrap value setting onto the scrap defs. Called again by the settings page when the value changes.</summary>
     public static void ApplyMarketValue()
     {
-        float value = LootScavengingMod.Settings?.scrapMarketValue ?? LootScavengingSettings.DefaultScrapMarketValue;
+        float value = LootScavengingMod.Settings?.values.scrapMarketValue ?? SettingValues.DefaultScrapMarketValue;
         for (int i = 0; i < byTier.Length; i++)
             byTier[i].SetStatBaseValue(StatDefOf.MarketValue, value);
     }
@@ -58,7 +58,7 @@ internal static class ScrapApplier
 
         OutcomeApplier.Delete(pawn, thing);
 
-        bool keepOnBody = moment == Moment.Death && !LootScavengingMod.Settings.scrapOnGround;
+        bool keepOnBody = moment == Moment.Death && !LootScavengingMod.Settings.values.scrapOnGround;
         foreach (int count in ScrapAmounts.SplitIntoStacks(units, scrapDef.stackLimit))
         {
             Thing scrap = ThingMaker.MakeThing(scrapDef);

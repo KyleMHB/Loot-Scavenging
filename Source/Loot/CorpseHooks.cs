@@ -51,7 +51,7 @@ internal static class CorpseRemovalHook
                 Map = corpse.Map.IsPlayerHome ? MapKind.Home : MapKind.Away,
                 Kind = KindOf(__instance),
             };
-            CorpseDecision decision = CorpseEvaluator.Evaluate(candidate, LootScavengingMod.Settings.rules, LootScavengingMod.Settings.corpses, Rand.Value);
+            CorpseDecision decision = CorpseEvaluator.Evaluate(candidate, LootScavengingMod.Settings.values.rules, LootScavengingMod.Settings.values.corpses, Rand.Value);
             if (Prefs.DevMode)
                 Log.Message($"[Loot Scavenging] Corpse of {__instance} ({candidate.Owner}, {candidate.Map} map, {candidate.Kind}) -> {decision}"); // not translated
             if (decision != CorpseDecision.Remove)
@@ -118,7 +118,7 @@ internal static class ButcherStripHook
             MapKind mapKind = map == null ? MapKind.None : map.IsPlayerHome ? MapKind.Home : MapKind.Away;
             OwnerGroup owner = GearSorter.OwnerOf(__instance);
             LootScavengingSettings settings = LootScavengingMod.Settings;
-            if (!CorpseEvaluator.RemovesApparelOnButchering(owner, mapKind, settings.rules, settings.corpses))
+            if (!CorpseEvaluator.RemovesApparelOnButchering(owner, mapKind, settings.values.rules, settings.values.corpses))
                 return;
             if (Prefs.DevMode)
                 Log.Message($"[Loot Scavenging] Butchering the corpse of {__instance} removes its worn apparel"); // not translated

@@ -112,14 +112,14 @@ public static class ScrapStudy
     public static StudyVerdict Verdict(StudyWorth worth, ResearchProjectDef project)
     {
         LootScavengingSettings s = LootScavengingMod.Settings;
-        return StudyRules.Check(worth.Tier, EraReader.ColonyEra(), FactsOf(project), s.studyEras, s.studyTechprintProjects,
+        return StudyRules.Check(worth.Tier, EraReader.ColonyEra(), FactsOf(project), s.values.studyEras, s.values.studyTechprintProjects,
             worth.PointsPerUnit, ResearchFactor);
     }
 
     public static float PaidPerUnit(StudyWorth worth) => StudyRules.PaidPerUnit(worth.PointsPerUnit, ResearchFactor);
 
     public static float Payable(ResearchProjectDef project) =>
-        StudyRules.Payable(FactsOf(project), LootScavengingMod.Settings.studyTechprintProjects);
+        StudyRules.Payable(FactsOf(project), LootScavengingMod.Settings.values.studyTechprintProjects);
 
     /// <summary>What an iteration with these things studies now: things used, points and work (see StudyRules.Plan).</summary>
     public static StudyPlan Plan(StudyWorth worth, int things, int maxThings, ResearchProjectDef project) =>

@@ -14,7 +14,7 @@ public static class EraDebugActions
     {
         // not translated
         Log.Message("[Loot Scavenging] Colony era: " + EraReader.ColonyEra() + ", fallback setting: "
-            + (LootScavengingMod.Settings?.eraFallback ?? EraFallback.CarrierFaction));
+            + (LootScavengingMod.Settings?.values.eraFallback ?? EraFallback.CarrierFaction));
     }
 
     // A quick switch beside the settings page, so the fallback's effect on the readout can be checked.
@@ -22,9 +22,9 @@ public static class EraDebugActions
     private static void CycleFallback()
     {
         LootScavengingSettings settings = LootScavengingMod.Settings;
-        settings.eraFallback = (EraFallback)(((int)settings.eraFallback + 1) % 3);
+        settings.values.eraFallback = (EraFallback)(((int)settings.values.eraFallback + 1) % 3);
         settings.Write();
-        Log.Message("[Loot Scavenging] Era fallback is now " + settings.eraFallback); // not translated
+        Log.Message("[Loot Scavenging] Era fallback is now " + settings.values.eraFallback); // not translated
     }
 
     [DebugAction("Loot Scavenging", "Era: readout for an item...", allowedGameStates = AllowedGameStates.Playing)]

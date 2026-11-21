@@ -12,19 +12,19 @@ public static class UnfamiliarDebugActions
     private static void ToggleMode()
     {
         LootScavengingSettings settings = LootScavengingMod.Settings;
-        settings.rules.dropMode = settings.rules.dropMode == DropMode.KeepOriginal ? DropMode.ScrapOutOfReach : DropMode.KeepOriginal;
+        settings.values.rules.dropMode = settings.values.rules.dropMode == DropMode.KeepOriginal ? DropMode.ScrapOutOfReach : DropMode.KeepOriginal;
         settings.Write();
         Unfamiliar.ResetCache();
-        Log.Message("[Loot Scavenging] Drop mode is now " + settings.rules.dropMode); // not translated
+        Log.Message("[Loot Scavenging] Drop mode is now " + settings.values.rules.dropMode); // not translated
     }
 
     [DebugAction("Loot Scavenging", "Unfamiliar: cycle scope", allowedGameStates = AllowedGameStates.Playing)]
     private static void CycleScope()
     {
         LootScavengingSettings settings = LootScavengingMod.Settings;
-        settings.unfamiliarScope = settings.unfamiliarScope == UnfamiliarScope.AllOutOfReach ? UnfamiliarScope.LootedOnly : UnfamiliarScope.AllOutOfReach;
+        settings.values.unfamiliarScope = settings.values.unfamiliarScope == UnfamiliarScope.AllOutOfReach ? UnfamiliarScope.LootedOnly : UnfamiliarScope.AllOutOfReach;
         settings.Write();
-        Log.Message("[Loot Scavenging] Unfamiliar scope is now " + settings.unfamiliarScope); // not translated
+        Log.Message("[Loot Scavenging] Unfamiliar scope is now " + settings.values.unfamiliarScope); // not translated
     }
 
     [DebugAction("Loot Scavenging", "Unfamiliar: log selected item", allowedGameStates = AllowedGameStates.Playing)]
@@ -40,7 +40,7 @@ public static class UnfamiliarDebugActions
         CompUnfamiliar comp = (thing as ThingWithComps)?.GetComp<CompUnfamiliar>();
         Log.Message("[Loot Scavenging] " + thing + ": unfamiliar " + Unfamiliar.IsUnfamiliar(thing) // not translated
             + ", looted marker " + (comp?.lootedEra ?? Era.Undefined)
-            + ", mode " + LootScavengingMod.Settings.rules.dropMode + ", scope " + LootScavengingMod.Settings.unfamiliarScope);
+            + ", mode " + LootScavengingMod.Settings.values.rules.dropMode + ", scope " + LootScavengingMod.Settings.values.unfamiliarScope);
     }
 
     [DebugAction("Loot Scavenging", "Unfamiliar: mark selected item as looted", allowedGameStates = AllowedGameStates.Playing)]

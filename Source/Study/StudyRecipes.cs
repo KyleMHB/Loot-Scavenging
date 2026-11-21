@@ -161,7 +161,7 @@ public class RecipeWorker_Study : RecipeWorker
         if (Prefs.DevMode)
             Log.Message($"[Loot Scavenging] {pawn} studied {used} {label}: +{points} to {project.defName}"); // not translated
 
-        int studied = StudyRules.StudiedScrapUnits(used * worth.UnitsPerThing, LootScavengingMod.Settings.recycleOrStudy);
+        int studied = StudyRules.StudiedScrapUnits(used * worth.UnitsPerThing, LootScavengingMod.Settings.values.recycleOrStudy);
         ThingDef studiedDef = ScrapTierTable.For(worth.Tier)?.studiedScrap;
         if (studied > 0 && studiedDef != null && pawn.Map != null)
         {

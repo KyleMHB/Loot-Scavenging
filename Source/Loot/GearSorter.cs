@@ -19,7 +19,7 @@ internal static class GearSorter
         if (map == null)
             return;
 
-        LootRules rules = LootScavengingMod.Settings.rules;
+        LootRules rules = LootScavengingMod.Settings.values.rules;
         OwnerGroup owner = OwnerOf(pawn);
         MapKind mapKind = map.IsPlayerHome ? MapKind.Home : MapKind.Away;
 

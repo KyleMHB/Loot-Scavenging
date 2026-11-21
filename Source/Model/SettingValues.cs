@@ -38,6 +38,67 @@ public sealed class SettingValues
 }
 
 /// <summary>
+/// The saved key of every setting, found by walking <see cref="SettingValues"/>, so a new field is saved with no extra code.
+/// Keys keep the names configs already use: a field's own name, a category rule's fields prefixed by the category
+/// ("weaponsOutcome"), and the corpse toggles prefixed "corpse" (butcherRemovesApparel kept its own name).
+/// </summary>
+public static class SettingKeys
+{
+    private static List<SettingKey> all;
+
+    /// <summary>Every saved leaf: plain values, strings and string lists.</summary>
+    public static IReadOnlyList<SettingKey> All => all ??= Build();
+
+    public static string KeyFor(string path)
+    {
+        string[] parts = path.Split('.');
+        string last = parts[parts.Length - 1];
+        if (parts.Length == 3 && parts[0] == "rules") // not translated
+            return parts[1] + Capitalised(last);
+        if (parts.Length == 2 && parts[0] == "corpses" && last != "butcherRemovesApparel") // not translated
+            return "corpse" + Capitalised(last); // not translated
+        return last;
+    }
+
+    internal static bool IsLeaf(Type type) => type.IsValueType || type == typeof(string) || type == typeof(List<string>);
+
+    private static List<SettingKey> Build()
+    {
+        var keys = new List<SettingKey>();
+        Walk(typeof(SettingValues), null, keys);
+        return keys;
+    }
+
+    private static void Walk(Type type, string prefix, List<SettingKey> into)
+    {
+        foreach (FieldInfo field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
+        {
+            string path = prefix == null ? field.Name : prefix + "." + field.Name;
+            if (IsLeaf(field.FieldType))
+                into.Add(new SettingKey(path, KeyFor(path)));
+            else
+                Walk(field.FieldType, path, into);
+        }
+    }
+
+    private static string Capitalised(string name) => char.ToUpperInvariant(name[0]) + name.Substring(1);
+}
+
+public readonly struct SettingKey
+{
+    public SettingKey(string path, string key)
+    {
+        Path = path;
+        Key = key;
+    }
+
+    /// <summary>The field path from <see cref="SettingValues"/>, as lock names use it.</summary>
+    public string Path { get; }
+
+    public string Key { get; }
+}
+
+/// <summary>
 /// Copies and compares the settings classes field by field, so the copy and the comparison cannot drift apart when a
 /// ticket adds a setting. Handles value types, strings, string lists and nested setting classes.
 /// </summary>
@@ -94,6 +155,16 @@ internal static class ValueWalk
         }
         FieldInfo last = Field(target, parts[parts.Length - 1]);
         last.SetValue(target, CopyObject(last.GetValue(source)));
+    }
+
+    /// <summary>The object holding the field at a dotted path, and that field.</summary>
+    public static FieldInfo Resolve(object root, string path, out object owner)
+    {
+        string[] parts = path.Split('.');
+        owner = root;
+        for (int i = 0; i < parts.Length - 1; i++)
+            owner = Field(owner, parts[i]).GetValue(owner);
+        return Field(owner, parts[parts.Length - 1]);
     }
 
     private static FieldInfo Field(object owner, string name) => owner.GetType().GetField(name, BindingFlags.Public | BindingFlags.Instance);

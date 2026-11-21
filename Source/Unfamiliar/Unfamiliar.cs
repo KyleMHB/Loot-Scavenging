@@ -37,7 +37,7 @@ public static class Unfamiliar
     public static bool IsUnfamiliar(Thing thing)
     {
         LootScavengingSettings settings = LootScavengingMod.Settings;
-        if (settings == null || settings.rules.dropMode != DropMode.KeepOriginal || thing == null
+        if (settings == null || settings.values.rules.dropMode != DropMode.KeepOriginal || thing == null
             || Current.ProgramState != ProgramState.Playing || !IsGear(thing.def))
         {
             return false;
@@ -46,11 +46,11 @@ public static class Unfamiliar
         Refresh(settings);
         EraResult reach = ReachOf(thing.def);
         Era marked = Era.Undefined;
-        if (settings.unfamiliarScope == UnfamiliarScope.LootedOnly && thing is ThingWithComps withComps)
+        if (settings.values.unfamiliarScope == UnfamiliarScope.LootedOnly && thing is ThingWithComps withComps)
         {
             marked = withComps.GetComp<CompUnfamiliar>()?.lootedEra ?? Era.Undefined;
         }
-        return UnfamiliarRule.IsUnfamiliar(settings.rules.dropMode, settings.unfamiliarScope, reach.OutOfReach, marked, colonyEra);
+        return UnfamiliarRule.IsUnfamiliar(settings.values.rules.dropMode, settings.values.unfamiliarScope, reach.OutOfReach, marked, colonyEra);
     }
 
     /// <summary>Whether the pawn is barred from equipping or wearing the item: a colony pawn and unfamiliar gear.</summary>
@@ -64,7 +64,7 @@ public static class Unfamiliar
     public static void NotifyKept(Pawn pawn, Thing thing)
     {
         LootScavengingSettings settings = LootScavengingMod.Settings;
-        if (settings == null || settings.rules.dropMode != DropMode.KeepOriginal || settings.unfamiliarScope != UnfamiliarScope.LootedOnly
+        if (settings == null || settings.values.rules.dropMode != DropMode.KeepOriginal || settings.values.unfamiliarScope != UnfamiliarScope.LootedOnly
             || !IsGear(thing.def) || !(thing is ThingWithComps withComps))
         {
             return;
@@ -76,7 +76,7 @@ public static class Unfamiliar
 
         OwnerGroup owner = Loot.GearSorter.OwnerOf(pawn);
         EraResult reach = EraReader.ItemEra(thing.def, pawn.Faction);
-        if (UnfamiliarRule.ShouldMark(settings.rules.dropMode, settings.unfamiliarScope, owner, reach.OutOfReach))
+        if (UnfamiliarRule.ShouldMark(settings.values.rules.dropMode, settings.values.unfamiliarScope, owner, reach.OutOfReach))
         {
             comp.lootedEra = UnfamiliarRule.MarkerEra(reach);
         }
@@ -93,13 +93,13 @@ public static class Unfamiliar
     private static void Refresh(LootScavengingSettings settings)
     {
         int stamp = Find.TickManager.TicksGame / 250;
-        if (stamp != cacheStamp || cacheGame != Current.Game || cacheFallback != settings.eraFallback)
+        if (stamp != cacheStamp || cacheGame != Current.Game || cacheFallback != settings.values.eraFallback)
         {
             reachCache.Clear();
             colonyEra = EraReader.ColonyEra();
             cacheStamp = stamp;
             cacheGame = Current.Game;
-            cacheFallback = settings.eraFallback;
+            cacheFallback = settings.values.eraFallback;
         }
     }
 

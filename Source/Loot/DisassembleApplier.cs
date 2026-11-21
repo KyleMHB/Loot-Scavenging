@@ -13,7 +13,7 @@ internal static class DisassembleApplier
 {
     public static void Degrade(Thing thing)
     {
-        LootRules rules = LootScavengingMod.Settings.rules;
+        LootRules rules = LootScavengingMod.Settings.values.rules;
         int before = thing.HitPoints;
         if (thing.def.useHitPoints && thing.MaxHitPoints > 0)
         {
@@ -37,7 +37,7 @@ internal static class DisassembleApplier
 
     public static void Disassemble(Pawn pawn, Thing thing, EraResult era, DecisionReason reason)
     {
-        LootRules rules = LootScavengingMod.Settings.rules;
+        LootRules rules = LootScavengingMod.Settings.values.rules;
         ScrapTier tier = ScrapTiers.TierFor(era.Era, EraReader.ColonyEra());
         int units = ScrapAmounts.Units(thing.MarketValue, thing.stackCount);
 

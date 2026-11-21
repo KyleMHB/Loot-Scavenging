@@ -32,7 +32,7 @@ internal sealed class SettingsPage
     public void Draw(Rect inRect, LootScavengingSettings settings)
     {
         s = settings;
-        float scrapValueBefore = s.scrapMarketValue;
+        float scrapValueBefore = s.values.scrapMarketValue;
 
         var view = new Rect(0f, 0f, inRect.width - 16f, viewHeight);
         Widgets.BeginScrollView(inRect, ref scroll, view);
@@ -49,7 +49,7 @@ internal sealed class SettingsPage
         Widgets.EndScrollView();
 
         EnforceLocks();
-        if (s.scrapMarketValue != scrapValueBefore)
+        if (s.values.scrapMarketValue != scrapValueBefore)
             ScrapDefs.ApplyMarketValue();
     }
 
@@ -132,7 +132,7 @@ internal sealed class SettingsPage
     private void DrawWhoAndWhere(Listing_Standard ls)
     {
         Section(ls, "LootScavenging_SectionWho".Translate());
-        LootRules r = s.rules;
+        LootRules r = s.values.rules;
         Toggle(ls, "LootScavenging_Hostile".Translate(), ref r.hostile,
             "LootScavenging_HostileOn".Translate(), "LootScavenging_HostileOff".Translate(), SettingNames.Hostile);
         Toggle(ls, "LootScavenging_NonHostile".Translate(), ref r.nonHostileFaction,
@@ -154,24 +154,24 @@ internal sealed class SettingsPage
     private void DrawItemRules(Listing_Standard ls)
     {
         Section(ls, "LootScavenging_SectionItems".Translate());
-        Explain(ls, DropModeNote(s.rules.dropMode));
+        Explain(ls, DropModeNote(s.values.rules.dropMode));
         foreach (CategoryInfo category in ItemCategories.All)
             DrawCategory(ls, category);
         ls.Gap(6f);
-        Toggle(ls, "LootScavenging_EjectCharges".Translate(), ref s.rules.ejectCharges,
+        Toggle(ls, "LootScavenging_EjectCharges".Translate(), ref s.values.rules.ejectCharges,
             "LootScavenging_EjectChargesOn".Translate(), "LootScavenging_EjectChargesOff".Translate(), SettingNames.EjectCharges);
     }
 
     private void DrawCategory(Listing_Standard ls, CategoryInfo info)
     {
         LootScavengingSettings settings = s;
-        LootRules r = s.rules;
+        LootRules r = s.values.rules;
         ItemCategory category = info.Category;
         CategoryRule rule = info.Rule(r);
         string lockName = SettingNames.Category(info);
         bool catLocked = IsLocked(lockName);
         ls.Gap(4f);
-        Choice(ls, info.LabelKey.Translate(), rule.outcome, Outcomes, OutcomeName, v => info.Rule(settings.rules).outcome = v, lockName);
+        Choice(ls, info.LabelKey.Translate(), rule.outcome, Outcomes, OutcomeName, v => info.Rule(settings.values.rules).outcome = v, lockName);
 
         Indent(ls);
         // Everything below belongs to the category, so a locked category disables it all. The shared degrade and
@@ -213,7 +213,7 @@ internal sealed class SettingsPage
             ls.CheckboxLabeled("LootScavenging_OnlyBeyondReach".Translate(), ref rule.onlyBeyondReach);
             ls.CheckboxLabeled("LootScavenging_LimitQuality".Translate(), ref rule.limitQuality);
             if (rule.limitQuality)
-                Choice(ls, "LootScavenging_BelowQuality".Translate(), rule.belowQuality, Qualities, QualityName, v => info.Rule(settings.rules).belowQuality = v, lockName);
+                Choice(ls, "LootScavenging_BelowQuality".Translate(), rule.belowQuality, Qualities, QualityName, v => info.Rule(settings.values.rules).belowQuality = v, lockName);
             ls.CheckboxLabeled("LootScavenging_LimitHitPoints".Translate(), ref rule.limitHitPoints);
             if (rule.limitHitPoints)
                 rule.belowHitPointFraction = Percent(ls, "LootScavenging_BelowHitPoints".Translate(rule.belowHitPointFraction.ToStringPercent()), rule.belowHitPointFraction, 0.05f, 1f);
@@ -255,7 +255,7 @@ internal sealed class SettingsPage
 
     private string OutcomeVerb(Outcome outcome)
     {
-        LootRules r = s.rules;
+        LootRules r = s.values.rules;
         switch (outcome)
         {
             case Outcome.Degrade:
@@ -304,54 +304,54 @@ internal sealed class SettingsPage
         Section(ls, "LootScavenging_SectionScrap".Translate());
         LootScavengingSettings settings = s;
 
-        Choice(ls, "LootScavenging_DropMode".Translate(), s.rules.dropMode,
+        Choice(ls, "LootScavenging_DropMode".Translate(), s.values.rules.dropMode,
             new[] { DropMode.ScrapOutOfReach, DropMode.ScrapEverything, DropMode.KeepOriginal, DropMode.Off }, DropModeName,
-            v => settings.rules.dropMode = v, SettingNames.DropMode);
-        Explain(ls, DropModeSentence(s.rules.dropMode));
+            v => settings.values.rules.dropMode = v, SettingNames.DropMode);
+        Explain(ls, DropModeSentence(s.values.rules.dropMode));
 
-        Choice(ls, "LootScavenging_StudyEras".Translate(), s.studyEras,
-            new[] { StudyEraLimit.ColonyEraAndBelow, StudyEraLimit.AnyEra }, StudyErasName, v => settings.studyEras = v, SettingNames.StudyEras);
-        Explain(ls, StudyErasSentence(s.studyEras));
+        Choice(ls, "LootScavenging_StudyEras".Translate(), s.values.studyEras,
+            new[] { StudyEraLimit.ColonyEraAndBelow, StudyEraLimit.AnyEra }, StudyErasName, v => settings.values.studyEras = v, SettingNames.StudyEras);
+        Explain(ls, StudyErasSentence(s.values.studyEras));
 
-        Choice(ls, "LootScavenging_RecycleOrStudy".Translate(), s.recycleOrStudy,
-            new[] { RecycleOrStudy.OneOrTheOther, RecycleOrStudy.StudyThenRecycle }, RecycleOrStudyName, v => settings.recycleOrStudy = v, SettingNames.RecycleOrStudy);
-        Explain(ls, s.recycleOrStudy == RecycleOrStudy.StudyThenRecycle
+        Choice(ls, "LootScavenging_RecycleOrStudy".Translate(), s.values.recycleOrStudy,
+            new[] { RecycleOrStudy.OneOrTheOther, RecycleOrStudy.StudyThenRecycle }, RecycleOrStudyName, v => settings.values.recycleOrStudy = v, SettingNames.RecycleOrStudy);
+        Explain(ls, s.values.recycleOrStudy == RecycleOrStudy.StudyThenRecycle
             ? "LootScavenging_StudyThenRecycleExplain".Translate()
             : "LootScavenging_OneOrTheOtherExplain".Translate());
 
         bool valueLocked = IsLocked(SettingNames.ScrapMarketValue);
         SetDisabled(valueLocked);
-        float value = ls.SliderLabeled("LootScavenging_ScrapValue".Translate(s.scrapMarketValue.ToString("0.##")), s.scrapMarketValue, 0.01f, 10f);
+        float value = ls.SliderLabeled("LootScavenging_ScrapValue".Translate(s.values.scrapMarketValue.ToString("0.##")), s.values.scrapMarketValue, 0.01f, 10f);
         SetDisabled(false);
         if (!valueLocked)
-            s.scrapMarketValue = Mathf.Max(0.01f, (float)Math.Round(value, 2));
+            s.values.scrapMarketValue = Mathf.Max(0.01f, (float)Math.Round(value, 2));
         LockedNote(ls, valueLocked);
-        Explain(ls, s.scrapMarketValue < 0.5f
+        Explain(ls, s.values.scrapMarketValue < 0.5f
             ? "LootScavenging_ScrapValueLow".Translate()
-            : "LootScavenging_ScrapValueHigh".Translate(s.scrapMarketValue.ToString("0.##")));
+            : "LootScavenging_ScrapValueHigh".Translate(s.values.scrapMarketValue.ToString("0.##")));
 
-        Toggle(ls, "LootScavenging_ScrapOnGround".Translate(), ref s.scrapOnGround,
+        Toggle(ls, "LootScavenging_ScrapOnGround".Translate(), ref s.values.scrapOnGround,
             "LootScavenging_ScrapOnGroundOn".Translate(), "LootScavenging_ScrapOnGroundOff".Translate(), SettingNames.ScrapOnGround);
 
-        Choice(ls, "LootScavenging_EraFallback".Translate(), s.eraFallback,
-            new[] { EraFallback.CarrierFaction, EraFallback.ColonyEra, EraFallback.Components }, EraFallbackName, v => settings.eraFallback = v, SettingNames.EraFallback);
-        Explain(ls, EraFallbackSentence(s.eraFallback));
+        Choice(ls, "LootScavenging_EraFallback".Translate(), s.values.eraFallback,
+            new[] { EraFallback.CarrierFaction, EraFallback.ColonyEra, EraFallback.Components }, EraFallbackName, v => settings.values.eraFallback = v, SettingNames.EraFallback);
+        Explain(ls, EraFallbackSentence(s.values.eraFallback));
 
-        Choice(ls, "LootScavenging_DisassemblyYield".Translate(), s.rules.disassemblyYield,
-            new[] { DisassemblyYield.EraTypical, DisassemblyYield.ItemBased }, DisassemblyYieldName, v => settings.rules.disassemblyYield = v, SettingNames.DisassemblyYield);
-        Explain(ls, s.rules.disassemblyYield == DisassemblyYield.ItemBased
+        Choice(ls, "LootScavenging_DisassemblyYield".Translate(), s.values.rules.disassemblyYield,
+            new[] { DisassemblyYield.EraTypical, DisassemblyYield.ItemBased }, DisassemblyYieldName, v => settings.values.rules.disassemblyYield = v, SettingNames.DisassemblyYield);
+        Explain(ls, s.values.rules.disassemblyYield == DisassemblyYield.ItemBased
             ? "LootScavenging_YieldItemExplain".Translate()
             : "LootScavenging_YieldEraExplain".Translate());
 
-        Toggle(ls, "LootScavenging_TechprintProjects".Translate(), ref s.studyTechprintProjects,
+        Toggle(ls, "LootScavenging_TechprintProjects".Translate(), ref s.values.studyTechprintProjects,
             "LootScavenging_TechprintProjectsOn".Translate(), "LootScavenging_TechprintProjectsOff".Translate(), SettingNames.StudyTechprintProjects);
 
-        Choice(ls, "LootScavenging_UnfamiliarScope".Translate(), s.unfamiliarScope,
-            new[] { UnfamiliarScope.AllOutOfReach, UnfamiliarScope.LootedOnly }, UnfamiliarScopeName, v => settings.unfamiliarScope = v, SettingNames.UnfamiliarScope);
-        string scope = s.unfamiliarScope == UnfamiliarScope.LootedOnly
+        Choice(ls, "LootScavenging_UnfamiliarScope".Translate(), s.values.unfamiliarScope,
+            new[] { UnfamiliarScope.AllOutOfReach, UnfamiliarScope.LootedOnly }, UnfamiliarScopeName, v => settings.values.unfamiliarScope = v, SettingNames.UnfamiliarScope);
+        string scope = s.values.unfamiliarScope == UnfamiliarScope.LootedOnly
             ? "LootScavenging_UnfamiliarLootedExplain".Translate()
             : "LootScavenging_UnfamiliarAllExplain".Translate();
-        if (s.rules.dropMode != DropMode.KeepOriginal)
+        if (s.values.rules.dropMode != DropMode.KeepOriginal)
             scope += " " + "LootScavenging_UnfamiliarUnused".Translate();
         Explain(ls, scope);
     }
@@ -442,7 +442,7 @@ internal sealed class SettingsPage
     private void DrawCorpses(Listing_Standard ls)
     {
         Section(ls, "LootScavenging_SectionCorpses".Translate());
-        CorpseRules c = s.corpses;
+        CorpseRules c = s.values.corpses;
         Toggle(ls, "LootScavenging_CorpseHumanlike".Translate(), ref c.humanlike,
             "LootScavenging_CorpseHumanlikeOn".Translate(), "LootScavenging_CorpseHumanlikeOff".Translate(), SettingNames.CorpseHumanlike);
         Toggle(ls, "LootScavenging_CorpseAnimal".Translate(), ref c.animal,
@@ -463,7 +463,7 @@ internal sealed class SettingsPage
     private void DrawLists(Listing_Standard ls)
     {
         Section(ls, "LootScavenging_SectionLists".Translate());
-        LootRules r = s.rules;
+        LootRules r = s.values.rules;
         Toggle(ls, "LootScavenging_ProtectQuest".Translate(), ref r.protectQuestItems,
             "LootScavenging_ProtectQuestOn".Translate(), "LootScavenging_ProtectQuestOff".Translate());
         Toggle(ls, "LootScavenging_ProtectUnique".Translate(), ref r.protectUniqueWeapons,

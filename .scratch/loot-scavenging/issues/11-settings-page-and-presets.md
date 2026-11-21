@@ -76,3 +76,9 @@ It also checks:
   - Vanilla: nothing changes.
 - **Changed marker.** After any edit the header reads "(changed)", and picking the preset again clears it.
 - **Layout.** The scrap value slider changes a scrap stack's market value. Outcome sliders appear only for Degrade and for Disassemble with item-based yield. Long sentences wrap inside the window.
+
+### 2026-11-21: review fixes
+
+- The settings now hold one `SettingValues` (`LootScavengingSettings.values`) instead of copying each field in and out by hand. `Capture` returns it and `Apply` replaces it with a copy. `ExposeData` walks it: every leaf is saved under the key `Model.SettingKeys` gives. The keys are unchanged (field name; `<category><Field>` for category rules, so `weaponsOutcome` stays; `corpse<Field>` for corpse toggles, except `butcherRemovesApparel`), so existing configs load. `SettingKeysTests` pins every old key verbatim. A new setting is now a field in `SettingValues` plus its page row. Code reads `Settings.values.<field>`. The duplicate `LootScavengingSettings.DefaultScrapMarketValue` is gone. In-game: pending (an existing config loads unchanged; a changed value survives a restart).
+- Item categories come from one table (`Model/ItemCategories.cs`: field, label key, rule), used by `LootRules.RuleFor`, the page and the save. Lockable names are constants in `SettingNames`, and `SettingLocks.Lockable` is built from them; `TheLockableNamesAreTheOnesPacksUse` pins the set.
+- Removed the "None" (study off) choice from "Which scrap can be studied"; see ticket 05.

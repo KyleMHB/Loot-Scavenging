@@ -11,7 +11,7 @@ internal static class InventoryDebugActions
 {
     private const string Category = "Loot Scavenging"; // not translated
 
-    private static LootRules Rules => LootScavengingMod.Settings.rules;
+    private static LootRules Rules => LootScavengingMod.Settings.values.rules;
 
     [DebugAction(Category, "Inventory groups: toggle delete", allowedGameStates = AllowedGameStates.Playing)] // not translated
     private static void ToggleInventoryDelete()
