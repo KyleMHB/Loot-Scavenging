@@ -1,17 +1,25 @@
 # Loot Scavenging
 
-A RimWorld mod that decides what enemy gear becomes when it drops. Gear beyond your colony's research turns into scrap, which you recycle for materials or study for research.
+A RimWorld mod that decides what non-colony pawns' gear becomes when they die, are downed or are stripped. By default, gear beyond your colony's research turns into scrap of its era, which you recycle for materials or study for research at benches you already have.
 
-The mod is in development. This repository holds the project setup and the design, and no gameplay yet.
+## Features
 
-## Planned features
+- **Scrap per era.** Six stackable scrap items, neolithic to archotech. The amount comes from the gear's value, quality and condition, so a stone knife gives one unit and a charge rifle several. Scrap is worth almost nothing by default, so a stockpile does not raise colony wealth.
+- **Recycling at existing benches.** A recycle bill at the crafting spot, smithy, machining table or fabrication bench turns scrap into materials of its era. Each bench handles its own tier and every tier below it.
+- **Study at research benches.** A study bill uses up scrap for a fixed number of research points per unit, from 10 for neolithic to 100 for archotech, paid into the current project if it is of the scrap's era or lower. The scrap's inspect text says when it can be studied and why not.
+- **Four drop modes.** Scrap out-of-reach gear, scrap everything, keep the original item but mark it unfamiliar until researched, or off. Medicine is exempt unless you include it.
+- **Rules per item category.** Weapons, apparel, ammunition, drugs, medicine, food and other inventory each get an outcome (keep, degrade, scrap, disassemble or delete), a chance, and optional limits by research, quality and hit points.
+- **Owner groups.** Hostile pawns, non-hostile factions, pawns with no faction and your prisoners each have their own toggle. Colonists are never affected.
+- **Protection and lists.** Quest items, unique weapons, persona weapons and relics are protected by default. Always-keep and always-remove lists are picked from a searchable item menu.
+- **Corpses.** Optional removal of humanlike, animal and mechanoid corpses with a chance, and an option to destroy worn apparel when a corpse is butchered.
+- **Presets.** Progression (the default), Cleanup and Vanilla. The settings page shows the active preset and whether you have changed it.
+- **Patchable tables.** The scrap tiers, their benches, value per unit and material pools, and the default settings are XML that a modpack can patch, with an option to lock chosen settings.
 
-- Rules per item category: keep, degrade, scrap, disassemble or delete, each with its own chance.
-- Scrap in one stackable item per tech era, sized by the value of the gear it came from.
-- Recycling as a bill at benches you already have. Later-era scrap needs a later-era bench.
-- Study as research work: a researcher uses up scrap at a research bench to advance the current project.
-- Presets for cleanup and for tech progression play.
-- Corpse cleanup with separate settings for people, animals and mechanoids.
+## Usage
+
+The mod starts on the Progression preset and shows a one-time message on first load. Change presets and rules under Options > Mod settings > Loot Scavenging.
+
+Add recycle and study bills to benches as you would any other bill. Study is Research work.
 
 ## Requirements
 
