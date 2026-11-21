@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using LootScavenging.Model;
 using RimWorld;
 using Verse;
@@ -8,6 +10,25 @@ namespace LootScavenging.Loot;
 internal static class OutcomeApplier
 {
     public static void Apply(Pawn pawn, Thing thing, LootDecision decision, EraResult era, Moment moment)
+    {
+        // Charges are read and the place noted before the item is destroyed, and the ammo is put on the ground rather than
+        // in the inventory, where the inventory pass would judge it again as ammunition.
+        if (Disassembly.EjectsCharges(decision.Outcome, LootScavengingMod.Settings.rules.ejectCharges))
+        {
+            List<Thing> charges = DisassembleApplier.EjectedCharges(thing).ToList();
+            Map map = pawn.MapHeld;
+            IntVec3 position = pawn.PositionHeld;
+            ApplyOutcome(pawn, thing, decision, era, moment);
+            foreach (Thing ammo in charges)
+                DisassembleApplier.Place(pawn, ammo, map, position);
+            if (Prefs.DevMode && charges.Count > 0)
+                Log.Message($"[Loot Scavenging] Ejected from {thing}: {string.Join(", ", charges.Select(t => t.LabelCap))}"); // not translated
+            return;
+        }
+        ApplyOutcome(pawn, thing, decision, era, moment);
+    }
+
+    private static void ApplyOutcome(Pawn pawn, Thing thing, LootDecision decision, EraResult era, Moment moment)
     {
         switch (decision.Outcome)
         {

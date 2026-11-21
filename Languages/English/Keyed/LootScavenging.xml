@@ -115,8 +115,8 @@
   <LootScavenging_VerbDisassembleItem>are broken on the spot into {0} of their own ingredients</LootScavenging_VerbDisassembleItem>
   <LootScavenging_VerbDelete>are deleted</LootScavenging_VerbDelete>
   <LootScavenging_EjectCharges>Eject loaded charges</LootScavenging_EjectCharges>
-  <LootScavenging_EjectChargesOn>Ammo loaded in reloadable gear drops beside it, so it survives whatever happens to the item.</LootScavenging_EjectChargesOn>
-  <LootScavenging_EjectChargesOff>Ammo loaded in reloadable gear goes with the item.</LootScavenging_EjectChargesOff>
+  <LootScavenging_EjectChargesOn>When reloadable gear is scrapped, disassembled or deleted, its loaded ammo drops beside it. Kept or degraded gear keeps its ammo loaded.</LootScavenging_EjectChargesOn>
+  <LootScavenging_EjectChargesOff>Loaded ammo goes with the item, so it is lost when the item is scrapped, disassembled or deleted.</LootScavenging_EjectChargesOff>
   <!-- Settings page: scrap and study -->
   <LootScavenging_SectionScrap>Scrap and study</LootScavenging_SectionScrap>
   <LootScavenging_DropMode>Drop mode</LootScavenging_DropMode>

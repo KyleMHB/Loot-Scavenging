@@ -63,4 +63,18 @@ public class DisassemblyTests
         Assert.Equal(6, Disassembly.EjectedAmmo(3, 5, 2, 0));
         Assert.Equal(7, Disassembly.EjectedAmmo(2, 3, 0, 10)); // ceil(10 * 2/3)
     }
+
+    // Spec: "Loaded charges in reloadable gear follow their own setting: eject, or go with the item." Ejecting matters for
+    // every outcome that destroys or replaces the item; a kept or degraded item keeps its charges loaded.
+    [Theory]
+    [InlineData(Outcome.Scrap, true)]
+    [InlineData(Outcome.Disassemble, true)]
+    [InlineData(Outcome.Delete, true)]
+    [InlineData(Outcome.Keep, false)]
+    [InlineData(Outcome.Degrade, false)]
+    public void ChargesAreEjectedWhenTheItemIsDestroyedOrReplaced(Outcome outcome, bool ejects)
+    {
+        Assert.Equal(ejects, Disassembly.EjectsCharges(outcome, ejectSetting: true));
+        Assert.False(Disassembly.EjectsCharges(outcome, ejectSetting: false));
+    }
 }

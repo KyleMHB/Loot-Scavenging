@@ -67,9 +67,6 @@ internal static class DisassembleApplier
             }
         }
 
-        if (rules.ejectCharges)
-            made.AddRange(EjectedCharges(thing));
-
         Map map = pawn.MapHeld;
         IntVec3 position = pawn.PositionHeld;
         OutcomeApplier.Delete(pawn, thing);
@@ -104,7 +101,7 @@ internal static class DisassembleApplier
     private static List<Thing> TierFor(IEnumerable<YieldAmount<ThingDef>> amounts) => ScrapTierTable.MakeThings(amounts).ToList();
 
     // Loaded ammo of reloadable gear, as things. Vanilla never does this, so it is the mod's own feature.
-    private static IEnumerable<Thing> EjectedCharges(Thing thing)
+    internal static IEnumerable<Thing> EjectedCharges(Thing thing)
     {
         if (!(thing is ThingWithComps withComps))
             yield break;
@@ -139,7 +136,7 @@ internal static class DisassembleApplier
     }
 
     // Near the pawn, forbidden like other enemy drops. Stacks were already split at the stack limit.
-    private static void Place(Pawn pawn, Thing thing, Map map, IntVec3 position)
+    internal static void Place(Pawn pawn, Thing thing, Map map, IntVec3 position)
     {
         thing.SetForbidden(true, false);
         if (map != null && position.IsValid && GenPlace.TryPlaceThing(thing, position, map, ThingPlaceMode.Near))

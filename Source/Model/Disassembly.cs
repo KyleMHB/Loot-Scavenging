@@ -72,6 +72,13 @@ public static class Disassembly
     /// </summary>
     public static int ComponentsFor(int scrapUnits) => Math.Max(1, scrapUnits / 2);
 
+    /// <summary>
+    /// Whether an outcome ejects the loaded charges first: with the setting on, every outcome that destroys or replaces the
+    /// item. Off, the charges go with the item.
+    /// </summary>
+    public static bool EjectsCharges(Outcome outcome, bool ejectSetting) =>
+        ejectSetting && (outcome == Outcome.Scrap || outcome == Outcome.Disassemble || outcome == Outcome.Delete);
+
     /// <summary>Ammo to eject for the charges left: whole charges, or a proportional share of a full refill.</summary>
     public static int EjectedAmmo(int remainingCharges, int maxCharges, int ammoCountPerCharge, int ammoCountToRefill)
     {
