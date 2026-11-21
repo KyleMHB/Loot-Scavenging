@@ -10,9 +10,9 @@ namespace LootScavenging;
 
 /// <summary>
 /// Sets each iteration's work for the mod's bills once the worker starts, from what the iteration actually takes. Scrap bills
-/// take a whole stack of any size (<c>ignoreIngredientCountTakeEntireStacks</c>), so the placed count is first trimmed to the
-/// batch, and for study to the stock above "do until you have X" and to what the project still needs; the rest stays at the
-/// bench, because the game splits a placed stack down to its count only at the finish. Recycling works per unit used; study
+/// take a whole stack of any size (<c>ignoreIngredientCountTakeEntireStacks</c>); <see cref="BillIngredientCapPatch"/> caps
+/// the haul to what one iteration uses, and the placed count is trimmed again here in case the project needs less by now (the
+/// game splits a placed stack down to its count only at the finish). Recycling works per unit used; study
 /// works for the points the iteration pays (spec: "Study time scales with the points paid"). The bills' own work amounts are
 /// nominal values for the bill list.
 /// </summary>
@@ -54,15 +54,10 @@ internal static class BillWorkPatch
         }
         else if (StudyRecipes.TryGetTier(recipe, out _))
         {
-            if (!ScrapStudy.TryGetWorth(first, out StudyWorth worth))
+            // The ingredient choice already capped the count (BillIngredientCapPatch); this only lowers it further when
+            // the project's remaining cost shrank since.
+            if (!TryPlanStudy(job.bill, first, Placed(job.placedThings), out StudyPlan plan))
                 return;
-            int max = StudyRules.BatchUnits(worth.PointsPerUnit);
-            if (job.bill is Bill_Production bill && bill.repeatMode == BillRepeatModeDefOf.TargetCount)
-            {
-                // Counted now, while the whole stack still lies at the bench and counts as stock.
-                max = Math.Min(max, StudyRules.StockAllowance(recipe.WorkerCounter.CountProducts(bill), bill.targetCount));
-            }
-            StudyPlan plan = ScrapStudy.Plan(worth, Placed(job.placedThings), max, ScrapStudy.CurrentProject);
             Trim(job.placedThings, Math.Max(1, plan.Things));
             driver.workLeft = plan.Work;
         }
@@ -76,6 +71,39 @@ internal static class BillWorkPatch
             if (ScrapStudy.TryGetWorth(first, out StudyWorth worth))
                 driver.workLeft = ScrapStudy.Plan(worth, 1, 1, ScrapStudy.CurrentProject).Work;
         }
+    }
+
+    /// <summary>
+    /// The most units of <paramref name="thing"/> one iteration of a scrap bill uses, or false for any other bill: the
+    /// recycling batch, or for study the batch, the stock above "do until you have X" and what the project still needs.
+    /// </summary>
+    internal static bool TryCap(Bill bill, Thing thing, int available, out int units)
+    {
+        units = 0;
+        if (RecycleRecipes.TryGetTier(bill.recipe, out ScrapTierDef tierDef))
+        {
+            units = RecycleBatch.Units(available, tierDef.batchSize);
+            return true;
+        }
+        if (StudyRecipes.TryGetTier(bill.recipe, out _) && TryPlanStudy(bill, thing, available, out StudyPlan plan))
+        {
+            units = Math.Max(1, plan.Things);
+            return true;
+        }
+        return false;
+    }
+
+    // The stock is counted wherever the scrap lies, in storage at the choice or at the bench at work start, and both count.
+    private static bool TryPlanStudy(Bill bill, Thing thing, int available, out StudyPlan plan)
+    {
+        plan = default;
+        if (!ScrapStudy.TryGetWorth(thing, out StudyWorth worth))
+            return false;
+        int max = StudyRules.BatchUnits(worth.PointsPerUnit);
+        if (bill is Bill_Production production && production.repeatMode == BillRepeatModeDefOf.TargetCount)
+            max = Math.Min(max, StudyRules.StockAllowance(bill.recipe.WorkerCounter.CountProducts(production), production.targetCount));
+        plan = ScrapStudy.Plan(worth, available, max, ScrapStudy.CurrentProject);
+        return true;
     }
 
     private static int Placed(List<ThingCountClass> placed)
@@ -103,5 +131,34 @@ internal static class BillWorkPatch
             left -= placed[i].Count;
         }
         return units - Math.Max(0, left);
+    }
+}
+
+/// <summary>
+/// Caps how much of a stack a scrap bill takes, when the ingredients are chosen. The bills take a whole stack of any size
+/// (so a lone unit is used too), but an iteration uses at most a batch. Hauling the whole pile would leave the rest on the
+/// bench, and the bill giver clears its ingredient cells before each job (<c>WorkGiverUtility.HaulStuffOffBillGiverJob</c>),
+/// so the pile would be carried off and back every iteration. Only the units the iteration uses are hauled.
+/// </summary>
+[HarmonyPatch(typeof(WorkGiver_DoBill), "TryFindBestBillIngredients")]
+internal static class BillIngredientCapPatch
+{
+    private static void Postfix(Bill bill, List<ThingCount> chosen, bool __result)
+    {
+        if (!__result || chosen == null || chosen.Count == 0 || bill?.recipe == null)
+            return;
+        try
+        {
+            for (int i = 0; i < chosen.Count; i++)
+            {
+                ThingCount pick = chosen[i];
+                if (pick.Thing != null && BillWorkPatch.TryCap(bill, pick.Thing, pick.Count, out int units) && units < pick.Count)
+                    chosen[i] = pick.WithCount(units);
+            }
+        }
+        catch (Exception e)
+        {
+            Log.ErrorOnce($"[Loot Scavenging] Capping a scrap bill's ingredients failed: {e}", 0x4C5309); // not translated
+        }
     }
 }

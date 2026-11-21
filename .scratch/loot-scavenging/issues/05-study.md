@@ -109,3 +109,5 @@ In-game pending:
 - In-game: pending (a single unit studies; the work bar length follows the points; X=10 with 12 in stock studies 2).
 
 - Removed `StudyEraLimit.None` (study off). The spec names no such option and nothing depended on it. The verdict it returned, which the bench also gave for a scrap def with no study points, is now `NoStudyPoints`, with its own inspect line. A dev config that saved `studyEras` as `None` logs one parse error and loads the default.
+
+- Follow-up: the batch cap now applies when the ingredients are chosen (`BillIngredientCapPatch`, a postfix on the private `WorkGiver_DoBill.TryFindBestBillIngredients`, same signature in 1.6 and 1.7), so only the units one iteration uses are hauled. A capped whole-stack haul would have left the rest of the pile on the bench, and the bill giver clears its ingredient cells before each job (`WorkGiverUtility.HaulStuffOffBillGiverJob`), so the pile would have been carried off and back every iteration. The work-start trim stays as a guard. In-game: pending (the patch applies, and a large pile is fetched 5 units at a time with nothing hauled off the bench).

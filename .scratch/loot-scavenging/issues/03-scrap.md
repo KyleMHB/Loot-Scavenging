@@ -37,3 +37,7 @@ Decisions the spec left open:
 Tests: `dotnet test` 61 passed. Both builds clean, 0 warnings; translation check passes.
 
 In-game pending (dev mode, Debug actions > "Loot Scavenging"): kill a pirate at a tribal-era colony and look for an industrial scrap stack (log `became N LS_Scrap_Industrial`); stone knife about 1 neolithic unit, charge rifle several spacer; cycle the drop mode to check scrap everything and Off; a big raid gives a few piles; the on-body toggle leaves scrap in the corpse and stripping drops it; the market value toggle changes a stack's value; save and load with scrap on the map.
+
+### 2026-11-21: review fixes
+
+- Scrap left on the body (see ticket 10's review note): the set-aside scrap is now placed before corpse removal, so removal drops it to the ground. A pawn with no inventory gets it on the ground instead of having it destroyed. After a cancelled death the pawn keeps the scrap in its inventory, and a finalizer clears the entry when Kill throws.

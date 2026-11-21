@@ -30,3 +30,7 @@ Built in `Source/Model` (plain C#, unit-tested) and thin glue in `Source/Loot`.
 - Mechanoid reward materials are not in the pawn's inventory container, so they are never visited.
 - Tests: `dotnet test` 52 passed (`InventoryRulesTests`, plus `ItemsWithoutACategoryRuleAreKept` became `InventoryGroupsAreKeptByDefault` because Other now has a rule). Both builds clean, translation check passed.
 - In-game pending: the first acceptance line (raider with medicine and a quest weapon) and a real keep/remove list pass. Dev actions under "Loot Scavenging": "Inventory groups: toggle delete", "Keep list: toggle an item", "Remove list: toggle an item". Log lines show `Protected`, `RemoveList`, `ConditionsNotMet`, `ChanceFailed`.
+
+### 2026-11-21: review fixes
+
+- The acceptance line "a raider carrying medicine ... drops both untouched" holds under the default rules only for herbal medicine, or once Medicine Production is finished. Industrial medicine is gated by that research, and the default drop mode scraps out-of-reach inventory too. This is an open spec question; see ticket 02's review note. Raw resources (silver, steel) no longer take the carrier's era, so they stay untouched.
