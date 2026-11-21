@@ -6,7 +6,7 @@
   "devBuild": "work/devtests/LootScavenging.DevTests.dll",
   "devProject": "DevTests/LootScavenging.DevTests.csproj",
   "evidenceFolder": "LootScavengingTests",
-  "runtimeFolders": ["About", "1.6", "1.7", "Defs", "Patches", "Languages", "Textures", "packs"],
+  "runtimeFolders": ["About", "1.6", "1.7", "Defs", "Patches", "Languages", "Textures", "packs", "Extras"],
   "runtimeFiles": ["LoadFolders.xml"],
   "modSets": {
     "default": ["brrainz.harmony", "ludeon.rimworld", "kylemhb.lootscavenging"],

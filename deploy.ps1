@@ -15,7 +15,7 @@ if ($LASTEXITCODE -ne 0) { throw "Another checkout holds the RimWorld install; s
 Invoke-RimWorldDotNetBuild -ProjectPath $project -BuildArguments @('/p:UseSharedCompilation=false', '/p:RimWorldVersion=1.6')
 
 # Runtime folders copied to the Mods folder. Keep this list equal to DevTests/devtests.json runtimeFolders.
-$folders = @("About", "1.6", "1.7", "Defs", "Patches", "Languages", "Textures", "packs") |
+$folders = @("About", "1.6", "1.7", "Defs", "Patches", "Languages", "Textures", "packs", "Extras") |
     Where-Object { Test-Path -LiteralPath (Join-Path $PSScriptRoot $_) }
 
 Invoke-RimWorldModDeploy `

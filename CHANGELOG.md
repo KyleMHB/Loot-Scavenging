@@ -2,6 +2,12 @@
 
 <!-- Agent read route: read only the newest relevant release; locate older versions by searching `^## ` headings. -->
 
+## Unreleased
+
+### Added
+
+- Added support for Auto Mod Config (Continued). An imported settings file is kept, keys it leaves out take the default settings, and locks still apply. An example preset is in `Extras/Loot-Scavenging-AutoConfig`.
+
 ## 0.2.0 - 2026-11-21
 
 ### Added

@@ -22,6 +22,10 @@ The mod starts on the Progression preset and shows a one-time message on first l
 
 Add recycle and study bills to benches as you would any other bill. Study is Research work.
 
+### Auto Mod Config
+
+A modlist curator can ship Loot Scavenging settings through [Auto Mod Config (Continued)](https://steamcommunity.com/sharedfiles/filedetails/?id=3586136174). This is optional, and the mod works without it. An example preset is in `Extras/Loot-Scavenging-AutoConfig`. Copy that folder into `RimWorld/Mods` as a separate mod and edit its settings file. The comment in that file lists every key and its values. Importing a preset replaces the player's saved Loot Scavenging settings, and a setting a modpack locks keeps the pack's value.
+
 ## Requirements
 
 - RimWorld 1.6 or 1.7

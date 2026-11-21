@@ -15,11 +15,14 @@ This mod is built from the spec and the game's own code. Looting Manager, Non un
 - `Defs/`, `Patches/`, `Languages/English/Keyed/`, `Textures/`: created when first needed.
 - `Tests/LootScavenging.Tests`: xunit tests of `Source/Model/`, run by `dotnet test`.
 - `packs/`: preset patches for packs to copy into their own `Patches/`. The game never loads this folder.
+- `Extras/Loot-Scavenging-AutoConfig/`: an example Auto Mod Config preset, a separate mod for a modlist curator to copy into `RimWorld/Mods`. It is deployed inside the main mod, and `LoadFolders.xml` does not name it, so the game never loads it from there. Its settings file lists every saved key and value.
 - `.scratch/<feature>/`: specs and tickets. `docs/agents/`: tracker conventions.
 
 ## Versioning
 
 The mod version lives in three places that change together: `About/About.xml` `<modVersion>`, the `[b]Mod version:[/b]` line in `steam-description.md`, and the newest `CHANGELOG.md` heading (`## <version> - <date>`). Bump the patch (0.2.1) for fixes and the minor (0.3.0) for features, once per Workshop upload. None of the three touches the DLL, so a bump keeps the release-check perf run valid.
+
+The example preset's `<version>` in `Extras/Loot-Scavenging-AutoConfig/Defs/Preset.xml` is a separate value. Set it to the mod version the preset was written for, and change it only when the preset's content changes, not with every upload: Auto Mod Config merges a changed version into the player's settings.
 
 ## Commands
 

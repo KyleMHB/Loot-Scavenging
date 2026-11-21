@@ -56,7 +56,7 @@ Loot Scavenging is not compatible with Looting Manager.
 
 The loot rules run only when a pawn dies, is downed or is stripped, not every tick.
 
-Modpacks can patch the scrap tiers, their benches and materials, and the default settings, which are all XML. A pack can also lock chosen settings.
+Modpacks can patch the scrap tiers, their benches and materials, and the default settings, which are all XML. A pack can also lock chosen settings. A modlist can ship its own settings through Auto Mod Config, which is optional. The mod's folder has an example preset.
 
 You can add Loot Scavenging to an existing save. Stockpiles you already have will not take scrap until you allow it in their filters.
 

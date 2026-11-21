@@ -23,6 +23,8 @@
        The keep and remove lists and the protection toggles can be defaulted here but not locked.
        The defaults seed a config that has none saved. A saved config, or a partial one another tool wrote, keeps its
        values; a key it lacks takes the value written here, and locked settings are put back.
+       Extras/Loot-Scavenging-AutoConfig/ holds an example Auto Mod Config preset. Its settings file lists every saved key
+       and its values.
        packs/progression/ holds the Progression pack's preset as a patch. -->
 
   <LootScavenging.SettingsDefaultsDef>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SettingsBlock>
+  <ModSettings Class="LootScavenging.LootScavengingSettings">
+    <activePreset>Progression</activePreset>
+
+    <!-- How this file works.
+         Auto Mod Config copies this file into the game's Config folder, replacing the player's saved Loot Scavenging settings.
+         The file name is Mod_<install folder>_LootScavengingMod.xml. This one is for a copy in a folder named "Loot Scavenging".
+         A key left out takes the default in the mod's Defs/SettingsDefaults.xml, which is the Progression preset unless a
+         modpack patched it. So a file may hold only the keys you change. A file that names the Cleanup preset and two keys
+         does not give Cleanup's rows: list those rows too, or write a full file.
+         A setting a modpack locks always ends at the pack's value, whatever this file says.
+         Optional: add <firstLoadMessageShown>true</firstLoadMessageShown> to skip the one-time first-load message.
+         Do not write defaultsSeeded. The mod sets it.
+         Booleans are true or false. Enum values are written exactly as listed. Fractions are 0 to 1.
+
+         activePreset: Progression, Cleanup, Vanilla. It only sets which preset the settings page names. The values below
+           decide what the mod does.
+         firstLoadMessageShown: true, false
+
+         Who and when
+           hostile, nonHostileFaction, noFaction, prisoners: true, false (which groups' gear is sorted)
+           homeMapOnly: true, false
+           onDownedAndStrip: true, false (also sort when a pawn is downed or stripped, not only at death)
+         What out-of-reach gear becomes
+           dropMode: ScrapOutOfReach, ScrapEverything, KeepOriginal, Off
+           dropIncludesMedicine: true, false
+           deathDrop: Ground, ScrapOnBody, AllOnBody
+           eraFallback: CarrierFaction, ColonyEra, Components
+         One rule per category. Replace <category> with weapons, apparel, ammunition, drugs, medicine, food or other,
+         which gives for example weaponsOutcome and apparelBelowQuality (49 keys in all).
+           <category>Outcome: Keep, Degrade, Scrap, Disassemble, Delete
+           <category>OnlyBeyondReach: true, false
+           <category>LimitQuality: true, false
+           <category>BelowQuality: Awful, Poor, Normal, Good, Excellent, Masterwork, Legendary
+           <category>LimitHitPoints: true, false
+           <category>BelowHitPointFraction: 0.05 to 1
+           <category>Chance: 0 to 1
+         Degrade, disassemble and charges
+           degradeMin, degradeMax: 0.01 to 1
+           degradeLowersQuality: true, false
+           disassemblyYield: EraTypical, ItemBased
+           disassemblyEfficiency: 0.05 to 1
+           ejectCharges: true, false
+         Protection and lists
+           protectQuestItems, protectUniqueWeapons, protectPersonaWeapons, protectRelics: true, false
+           keepList, removeList: item def names, as <keepList><li>Gun_Revolver</li></keepList>
+         Corpses
+           corpseHumanlike, corpseAnimal, corpseMechanoid: true, false
+           corpseChance: 0 to 1
+           butcherRemovesApparel: true, false
+         Scrap, study and recycling
+           scrapMarketValue: 0.01 to 10
+           unfamiliarScope: AllOutOfReach, LootedOnly
+           studyEras: ColonyEraAndBelow, AnyEra
+           recycleOrStudy: OneOrTheOther, StudyThenRecycle
+           studyTechprintProjects: true, false -->
+  </ModSettings>
+</SettingsBlock>
