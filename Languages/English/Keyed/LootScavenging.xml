@@ -202,6 +202,10 @@
   <LootScavenging_ListEmpty>(empty)</LootScavenging_ListEmpty>
   <LootScavenging_ListRemove>Remove</LootScavenging_ListRemove>
   <LootScavenging_ListAdd>Add</LootScavenging_ListAdd>
-  <LootScavenging_ListAddExplain>Type an item's def name, such as Gun_ChargeRifle, and press Add. Entries are kept by name, so an item from a removed mod stays listed.</LootScavenging_ListAddExplain>
+  <LootScavenging_ListAddItem>Add item...</LootScavenging_ListAddItem>
+  <LootScavenging_ListAddExplain>Opens a search over every loaded item. Entries are kept by name, so an item from a removed mod stays listed and works again if the mod returns.</LootScavenging_ListAddExplain>
+  <LootScavenging_PickerCount>{0} items</LootScavenging_PickerCount>
+  <LootScavenging_PickerFirstShown>Showing the first {0} of {1} items. Type more to narrow the search.</LootScavenging_PickerFirstShown>
+  <LootScavenging_PickerOnList>On the list</LootScavenging_PickerOnList>
   <LootScavenging_ListNotLoaded>{0} (not loaded)</LootScavenging_ListNotLoaded>
 </LanguageData>
