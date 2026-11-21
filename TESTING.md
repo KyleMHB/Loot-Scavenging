@@ -70,6 +70,7 @@ Not covered: the settings page and bill-tab UI, the first-load dialog on screen,
 - Runs: smoke, moments and settings in one launch (moments `20261121-132706-lootscavenging-moments-s1-b79e51d1`, settings `20261121-132709-lootscavenging-settings-s1-072bab76`), all passed; the moments cases now set `deathDrop` to ScrapOnBody.
 - Observed by hand (Kyle, with SimpleCameraSetting and all DLCs): "Everything stays on the body" kept a dead pawn's weapon and inventory on the corpse. No batch case covers that option yet.
 - Status: Passed.
+- Release-check after the commit: perf `20261121-141122-perf-s1-86e0a1a6` (0 ms/tick), then release-check passed all three lines, with the usual warning that the mod has no targeted `perf.*` cases.
 
 ### 2026-11-21 - release-check for release prep
 
