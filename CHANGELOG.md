@@ -17,6 +17,7 @@
 - Added the settings page with the Progression, Cleanup and Vanilla presets and a one-time message on first load.
 - Added patchable XML for the scrap tiers and default settings, with locks a modpack can set, and a preset patch in `packs/progression` for the Progression pack to copy into its own Patches folder.
 - Exempted medicine from the drop mode by default, with a setting to include it.
+- Added a choice of where loot lands at death: on the ground, scrap on the body, or everything on the body.
 
 ## 2026-11-20
 

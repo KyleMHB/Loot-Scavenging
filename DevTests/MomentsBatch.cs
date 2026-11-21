@@ -106,7 +106,7 @@ public sealed class MomentsBatch : Batch
         {
             var c = ctx.Begin(OnBody);
             ModHarness.RestoreSettings();
-            Settings.values.scrapOnGround = false;
+            Settings.values.deathDrop = DeathDrop.ScrapOnBody;
             var cell = sites.Dequeue();
             var p = Spawn(ctx, Mercenary, Pirates, cell);
             var gun = Arm(p, revolver, QualityCategory.Normal);
@@ -128,7 +128,7 @@ public sealed class MomentsBatch : Batch
         {
             var c = ctx.Begin(OnBodyRemoved);
             ModHarness.RestoreSettings();
-            Settings.values.scrapOnGround = false;
+            Settings.values.deathDrop = DeathDrop.ScrapOnBody;
             Settings.values.corpses.humanlike = true;
             var cell = sites.Dequeue();
             var p = Spawn(ctx, Mercenary, Pirates, cell);

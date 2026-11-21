@@ -339,8 +339,9 @@ internal sealed class SettingsPage
             ? "LootScavenging_ScrapValueLow".Translate()
             : "LootScavenging_ScrapValueHigh".Translate(s.values.scrapMarketValue.ToString("0.##")));
 
-        Toggle(ls, "LootScavenging_ScrapOnGround".Translate(), ref s.values.scrapOnGround,
-            "LootScavenging_ScrapOnGroundOn".Translate(), "LootScavenging_ScrapOnGroundOff".Translate(), SettingNames.ScrapOnGround);
+        Choice(ls, "LootScavenging_DeathDrop".Translate(), s.values.deathDrop,
+            new[] { DeathDrop.Ground, DeathDrop.ScrapOnBody, DeathDrop.AllOnBody }, DeathDropName, v => settings.values.deathDrop = v, SettingNames.DeathDrop);
+        Explain(ls, DeathDropSentence(s.values.deathDrop));
 
         Choice(ls, "LootScavenging_EraFallback".Translate(), s.values.eraFallback,
             new[] { EraFallback.CarrierFaction, EraFallback.ColonyEra, EraFallback.Components }, EraFallbackName, v => settings.values.eraFallback = v, SettingNames.EraFallback);
@@ -363,6 +364,26 @@ internal sealed class SettingsPage
         if (s.values.rules.dropMode != DropMode.KeepOriginal)
             scope += " " + "LootScavenging_UnfamiliarUnused".Translate();
         Explain(ls, scope);
+    }
+
+    private static string DeathDropName(DeathDrop drop)
+    {
+        switch (drop)
+        {
+            case DeathDrop.ScrapOnBody: return "LootScavenging_DeathDropScrapOnBody".Translate();
+            case DeathDrop.AllOnBody: return "LootScavenging_DeathDropAllOnBody".Translate();
+            default: return "LootScavenging_DeathDropGround".Translate();
+        }
+    }
+
+    private static string DeathDropSentence(DeathDrop drop)
+    {
+        switch (drop)
+        {
+            case DeathDrop.ScrapOnBody: return "LootScavenging_DeathDropScrapOnBodyExplain".Translate();
+            case DeathDrop.AllOnBody: return "LootScavenging_DeathDropAllOnBodyExplain".Translate();
+            default: return "LootScavenging_DeathDropGroundExplain".Translate();
+        }
     }
 
     private static string DropModeName(DropMode mode)

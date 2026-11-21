@@ -31,7 +31,7 @@ internal static class CorpseRemovalHook
 
     // By now the kill prefix has sorted the gear and the game has dropped equipment and inventory, so the corpse holds
     // only worn apparel. A pawn that left no corpse, or died off-map or in a caravan, has nothing spawned and is skipped.
-    // Runs after ScrapOnBodyHook, so scrap left on the body is in the inventory and the strip below drops it to the ground.
+    // Runs after BodyLootHook, so loot left on the body is in the inventory and the strip below drops it to the ground.
     [HarmonyPriority(Priority.Low)]
     private static void Postfix(Pawn __instance, OwnerGroup? __state)
     {

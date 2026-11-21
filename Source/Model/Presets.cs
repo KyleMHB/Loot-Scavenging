@@ -150,7 +150,7 @@ public static class Presets
 
         v.eraFallback = EraFallback.CarrierFaction;
         v.scrapMarketValue = SettingValues.DefaultScrapMarketValue;
-        v.scrapOnGround = true;
+        v.deathDrop = DeathDrop.Ground;
         v.unfamiliarScope = UnfamiliarScope.AllOutOfReach;
         v.studyEras = StudyEraLimit.ColonyEraAndBelow;
         v.recycleOrStudy = RecycleOrStudy.OneOrTheOther;

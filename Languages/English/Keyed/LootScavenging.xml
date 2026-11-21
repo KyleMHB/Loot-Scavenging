@@ -144,9 +144,13 @@
   <LootScavenging_ScrapValue>Scrap market value: {0} silver per unit</LootScavenging_ScrapValue>
   <LootScavenging_ScrapValueLow>Scrap is worth almost nothing, so a stockpile kept for later does not raise colony wealth or sell for silver.</LootScavenging_ScrapValueLow>
   <LootScavenging_ScrapValueHigh>Each unit of scrap is worth {0} silver: stockpiled scrap counts toward colony wealth and can be sold.</LootScavenging_ScrapValueHigh>
-  <LootScavenging_ScrapOnGround>Scrap lands on the ground</LootScavenging_ScrapOnGround>
-  <LootScavenging_ScrapOnGroundOn>Scrap drops on the ground beside the body, like other loot.</LootScavenging_ScrapOnGroundOn>
-  <LootScavenging_ScrapOnGroundOff>Scrap from the dead stays on the body, and drops when the corpse is stripped, butchered or cremated.</LootScavenging_ScrapOnGroundOff>
+  <LootScavenging_DeathDrop>Where loot lands at death</LootScavenging_DeathDrop>
+  <LootScavenging_DeathDropGround>On the ground</LootScavenging_DeathDropGround>
+  <LootScavenging_DeathDropScrapOnBody>Scrap stays on the body</LootScavenging_DeathDropScrapOnBody>
+  <LootScavenging_DeathDropAllOnBody>Everything stays on the body</LootScavenging_DeathDropAllOnBody>
+  <LootScavenging_DeathDropGroundExplain>The weapon, inventory and any scrap drop beside the body, as in the base game.</LootScavenging_DeathDropGroundExplain>
+  <LootScavenging_DeathDropScrapOnBodyExplain>Scrap from the dead stays on the body, and drops when the corpse is stripped, butchered or cremated. The weapon and inventory drop beside the body as usual.</LootScavenging_DeathDropScrapOnBodyExplain>
+  <LootScavenging_DeathDropAllOnBodyExplain>When a pawn these rules cover dies, nothing drops: its weapon, medicine, food, silver and scrap stay on the body until the corpse is stripped, butchered or cremated. Mechanoids whose gear the game destroys at death are unchanged.</LootScavenging_DeathDropAllOnBodyExplain>
   <LootScavenging_EraFallback>Gear with no era of its own</LootScavenging_EraFallback>
   <LootScavenging_EraFallbackCarrier>The carrier's faction era</LootScavenging_EraFallbackCarrier>
   <LootScavenging_EraFallbackColony>The colony's era</LootScavenging_EraFallbackColony>

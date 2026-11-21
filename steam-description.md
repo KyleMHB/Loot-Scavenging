@@ -14,6 +14,7 @@ If you play for cleanup instead, a preset deletes damaged and low-quality gear f
 [*][b]Study for research.[/b] Study bills at a research bench pay a fixed number of points per unit into the current project, from 10 for neolithic scrap to 100 for archotech. The scrap's inspect text says whether it can be studied now, and why not.
 [*][b]Four drop modes.[/b] Scrap out-of-reach gear, scrap everything, keep the original item but mark it unfamiliar until you research it, or off.
 [*][b]A rule per item category.[/b] Weapons, apparel, ammunition, drugs, medicine, food and other inventory each get an outcome (keep, degrade, scrap, disassemble or delete), a chance, and optional limits by research, quality and hit points.
+[*][b]Loot on the body.[/b] At death, loot can drop on the ground as usual, leave only the scrap on the body, or leave everything on the body (weapon, medicine, food, silver and scrap) until you strip or butcher the corpse.
 [*][b]Who it affects.[/b] Hostile pawns, non-hostile factions, pawns with no faction and your prisoners each have their own toggle. Your colonists are never affected.
 [*][b]Protection.[/b] Quest items are never touched by default, and neither are unique weapons (Odyssey), persona weapons (Royalty) or relics (Ideology). An always-keep list and an always-remove list are picked from a searchable item menu.
 [*][b]Corpse cleanup.[/b] Optional removal of humanlike, animal and mechanoid corpses, each with its own toggle and a shared chance. A separate option destroys worn apparel when a corpse is butchered.

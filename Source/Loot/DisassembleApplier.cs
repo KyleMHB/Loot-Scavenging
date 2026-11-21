@@ -135,9 +135,15 @@ internal static class DisassembleApplier
         }
     }
 
-    // Near the pawn, forbidden like other enemy drops. Stacks were already split at the stack limit.
+    // Near the pawn, forbidden like other enemy drops, or held for the body when everything stays on it. Stacks were
+    // already split at the stack limit.
     internal static void Place(Pawn pawn, Thing thing, Map map, IntVec3 position)
     {
+        if (BodyLoot.KeepsAll(pawn))
+        {
+            BodyLoot.Hold(pawn, thing);
+            return;
+        }
         thing.SetForbidden(true, false);
         if (map != null && position.IsValid && GenPlace.TryPlaceThing(thing, position, map, ThingPlaceMode.Near))
             return;

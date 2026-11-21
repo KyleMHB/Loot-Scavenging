@@ -19,12 +19,13 @@ internal static class ScrapDebugActions
         Log.Message($"[Loot Scavenging] drop mode = {rules.dropMode}"); // not translated
     }
 
-    [DebugAction(Category, "Scrap: toggle on ground or on body", allowedGameStates = AllowedGameStates.Playing)] // not translated
-    private static void ToggleScrapOnGround()
+    [DebugAction(Category, "Scrap: cycle where loot lands at death", allowedGameStates = AllowedGameStates.Playing)] // not translated
+    private static void CycleDeathDrop()
     {
         LootScavengingSettings s = LootScavengingMod.Settings;
-        s.values.scrapOnGround = !s.values.scrapOnGround;
-        Log.Message($"[Loot Scavenging] scrapOnGround = {s.values.scrapOnGround}"); // not translated
+        var modes = (DeathDrop[])Enum.GetValues(typeof(DeathDrop));
+        s.values.deathDrop = modes[((int)s.values.deathDrop + 1) % modes.Length];
+        Log.Message($"[Loot Scavenging] deathDrop = {s.values.deathDrop}"); // not translated
     }
 
     [DebugAction(Category, "Scrap: cycle scrap market value", allowedGameStates = AllowedGameStates.Playing)] // not translated

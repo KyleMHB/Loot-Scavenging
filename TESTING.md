@@ -64,6 +64,13 @@ Not covered: the settings page and bill-tab UI, the first-load dialog on screen,
 
 ## Result recording
 
+### 2026-11-21 - where loot lands at death
+
+- Version/environment: RimWorld 1.7, default mod set, seed 1; `dotnet test` 280 passed.
+- Runs: smoke, moments and settings in one launch (moments `20261121-132706-lootscavenging-moments-s1-b79e51d1`, settings `20261121-132709-lootscavenging-settings-s1-072bab76`), all passed; the moments cases now set `deathDrop` to ScrapOnBody.
+- Observed by hand (Kyle, with SimpleCameraSetting and all DLCs): "Everything stays on the body" kept a dead pawn's weapon and inventory on the corpse. No batch case covers that option yet.
+- Status: Passed.
+
 ### 2026-11-21 - release-check for release prep
 
 - Version/environment: RimWorld 1.7, seed 1, `perf` mod set, after deploying `bfffcf5` plus the new `About/About.xml` description.

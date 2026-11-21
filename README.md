@@ -9,6 +9,7 @@ A RimWorld mod that decides what non-colony pawns' gear becomes when they die, a
 - **Study at research benches.** A study bill uses up scrap for a fixed number of research points per unit, from 10 for neolithic to 100 for archotech, paid into the current project if it is of the scrap's era or lower. The scrap's inspect text says when it can be studied and why not.
 - **Four drop modes.** Scrap out-of-reach gear, scrap everything, keep the original item but mark it unfamiliar until researched, or off. Medicine is exempt unless you include it.
 - **Rules per item category.** Weapons, apparel, ammunition, drugs, medicine, food and other inventory each get an outcome (keep, degrade, scrap, disassemble or delete), a chance, and optional limits by research, quality and hit points.
+- **Loot on the body.** At death, loot can drop on the ground as usual, leave only the scrap on the body, or leave everything on the body (weapon, medicine, food, silver and scrap) until the corpse is stripped or butchered.
 - **Owner groups.** Hostile pawns, non-hostile factions, pawns with no faction and your prisoners each have their own toggle. Colonists are never affected.
 - **Protection and lists.** Quest items, unique weapons, persona weapons and relics are protected by default. Always-keep and always-remove lists are picked from a searchable item menu.
 - **Corpses.** Optional removal of humanlike, animal and mechanoid corpses with a chance, and an option to destroy worn apparel when a corpse is butchered.

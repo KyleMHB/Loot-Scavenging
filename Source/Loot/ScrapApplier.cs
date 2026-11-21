@@ -50,9 +50,6 @@ internal static class ScrapDefs
 /// </summary>
 internal static class ScrapApplier
 {
-    // Scrap waiting to be put back on a pawn after its death drop, for the "leave it on the body" setting.
-    private static readonly Dictionary<Pawn, List<Thing>> onBody = new Dictionary<Pawn, List<Thing>>();
-
     public static void Apply(Pawn pawn, Thing thing, EraResult era, Moment moment)
     {
         ScrapTier tier = ScrapTiers.TierFor(era.Era, EraReader.ColonyEra());
@@ -61,80 +58,18 @@ internal static class ScrapApplier
 
         OutcomeApplier.Delete(pawn, thing);
 
-        bool keepOnBody = moment == Moment.Death && !LootScavengingMod.Settings.values.scrapOnGround;
+        bool keepOnBody = moment == Moment.Death && LootScavengingMod.Settings.values.deathDrop != DeathDrop.Ground;
         foreach (int count in ScrapAmounts.SplitIntoStacks(units, scrapDef.stackLimit))
         {
             Thing scrap = ThingMaker.MakeThing(scrapDef);
             scrap.stackCount = count;
             if (keepOnBody)
-                Remember(pawn, scrap);
+                BodyLoot.Hold(pawn, scrap);
             else
-                Give(pawn, scrap);
+                BodyLoot.Give(pawn, scrap);
         }
 
         if (Prefs.DevMode)
             Log.Message($"[Loot Scavenging] {thing} became {units} {scrapDef.defName}{(keepOnBody ? " (kept on the body)" : "")}"); // not translated
-    }
-
-    private static void Remember(Pawn pawn, Thing scrap)
-    {
-        if (!onBody.TryGetValue(pawn, out List<Thing> list))
-            onBody[pawn] = list = new List<Thing>();
-        list.Add(scrap);
-    }
-
-    // Called after Pawn.Kill: the death drop has run, so scrap added now stays in the dead pawn's inventory, where stripping,
-    // butchering or cremating the corpse finds it. The entry is always used up: if the death was cancelled the pawn simply
-    // keeps the scrap in its inventory, as at any other moment.
-    public static void PlaceOnBody(Pawn pawn)
-    {
-        if (!onBody.TryGetValue(pawn, out List<Thing> list))
-            return;
-        onBody.Remove(pawn);
-        foreach (Thing scrap in list)
-            Give(pawn, scrap);
-    }
-
-    /// <summary>Drops a pawn's set-aside scrap when Kill threw, so the static list does not hold it forever.</summary>
-    public static void Forget(Pawn pawn) => onBody.Remove(pawn);
-
-    private static void Give(Pawn pawn, Thing scrap)
-    {
-        if (pawn.inventory != null && pawn.inventory.innerContainer.TryAdd(scrap, true))
-            return;
-
-        // No inventory (some mechanoids): put it on the ground where the pawn or its corpse lies.
-        Map map = pawn.MapHeld;
-        if (map != null && pawn.PositionHeld.IsValid)
-            GenPlace.TryPlaceThing(scrap, pawn.PositionHeld, map, ThingPlaceMode.Near);
-        else
-            scrap.Destroy();
-    }
-}
-
-// After the death drop, a dead pawn gets the scrap that was set aside for its body. Pawn.Kill has two postfixes from this
-// mod; they share one Harmony id, so only HarmonyPriority orders them. This one runs first: when CorpseRemovalHook then
-// removes the corpse, its strip drops the inventory, scrap included, to the ground instead of the scrap vanishing.
-[HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
-internal static class ScrapOnBodyHook
-{
-    [HarmonyPriority(Priority.High)]
-    private static void Postfix(Pawn __instance)
-    {
-        try
-        {
-            ScrapApplier.PlaceOnBody(__instance);
-        }
-        catch (System.Exception e)
-        {
-            Log.Error($"[Loot Scavenging] Leaving scrap on {__instance} failed: {e}"); // not translated
-        }
-    }
-
-    // Finalizers run after every postfix. When Kill (or a patch on it) threw, the postfix may not have used the entry.
-    private static void Finalizer(Pawn __instance, System.Exception __exception)
-    {
-        if (__exception != null)
-            ScrapApplier.Forget(__instance);
     }
 }

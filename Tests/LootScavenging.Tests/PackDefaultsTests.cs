@@ -79,15 +79,15 @@ public class PackDefaultsTests
     [Fact]
     public void EnforcingPutsALockedValueBackAndLeavesOthersAlone()
     {
-        PresetConfig pack = Pack(null, "rules.dropMode", "scrapOnGround", "rules.weapons");
+        PresetConfig pack = Pack(null, "rules.dropMode", "deathDrop", "rules.weapons");
         SettingValues edited = Presets.Defaults(pack);
         edited.rules.dropMode = DropMode.Off;
-        edited.scrapOnGround = false;
+        edited.deathDrop = DeathDrop.AllOnBody;
         edited.rules.weapons.outcome = Outcome.Delete;
         edited.rules.apparel.outcome = Outcome.Delete;
         pack.Locks.Enforce(edited, pack.Progression);
         Assert.Equal(DropMode.ScrapOutOfReach, edited.rules.dropMode);
-        Assert.True(edited.scrapOnGround);
+        Assert.Equal(DeathDrop.Ground, edited.deathDrop);
         Assert.Equal(Outcome.Keep, edited.rules.weapons.outcome);
         Assert.Equal(Outcome.Delete, edited.rules.apparel.outcome);
         Assert.NotSame(pack.Progression.rules.weapons, edited.rules.weapons);
@@ -131,7 +131,7 @@ public class PackDefaultsTests
             "rules.degradeMin", "rules.degradeMax", "rules.degradeLowersQuality",
             "rules.disassemblyYield", "rules.disassemblyEfficiency", "rules.ejectCharges",
             "corpses.humanlike", "corpses.animal", "corpses.mechanoid", "corpses.chance", "corpses.butcherRemovesApparel",
-            "eraFallback", "scrapMarketValue", "scrapOnGround", "unfamiliarScope", "studyEras", "recycleOrStudy",
+            "eraFallback", "scrapMarketValue", "deathDrop", "unfamiliarScope", "studyEras", "recycleOrStudy",
             "studyTechprintProjects",
         };
         Assert.Equal(expected.OrderBy(n => n), SettingLocks.Lockable.OrderBy(n => n));

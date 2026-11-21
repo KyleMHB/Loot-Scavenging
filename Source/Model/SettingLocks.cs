@@ -93,7 +93,7 @@ public static class SettingNames
     public const string ButcherRemovesApparel = "corpses.butcherRemovesApparel"; // not translated
     public const string EraFallback = "eraFallback"; // not translated
     public const string ScrapMarketValue = "scrapMarketValue"; // not translated
-    public const string ScrapOnGround = "scrapOnGround"; // not translated
+    public const string DeathDrop = "deathDrop"; // not translated
     public const string UnfamiliarScope = "unfamiliarScope"; // not translated
     public const string StudyEras = "studyEras"; // not translated
     public const string RecycleOrStudy = "recycleOrStudy"; // not translated

@@ -21,8 +21,8 @@ public sealed class SettingValues
     // Market value per scrap unit: near zero so stockpiled scrap does not raise wealth or sell for silver.
     public float scrapMarketValue = DefaultScrapMarketValue;
 
-    // Death-time scrap lands on the ground; false leaves it in the corpse's inventory.
-    public bool scrapOnGround = true;
+    // Where a covered pawn's weapon, inventory and scrap land when it dies.
+    public DeathDrop deathDrop = DeathDrop.Ground;
 
     public UnfamiliarScope unfamiliarScope = UnfamiliarScope.AllOutOfReach;
 

@@ -24,7 +24,9 @@ internal static class PawnKillHook
         {
             // Death drops equipment and inventory; apparel stays on the corpse, so this is its last sorting too.
             // Does not depend on stripping, so pawns that cannot be stripped are still sorted.
+            BodyLoot.BeginDeath(__instance);
             GearSorter.Sort(__instance, Moment.Death, equipment: true, apparel: true, inventory: true);
+            BodyLoot.HoldGear(__instance);
         }
         catch (Exception e)
         {

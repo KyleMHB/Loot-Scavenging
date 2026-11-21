@@ -59,6 +59,13 @@ public static class LootEvaluator
             ?? ApplyCategory(item, rules, roll ?? fallbackRandom.NextDouble);
     }
 
+    /// <summary>Whether the rules act on this pawn at all: steps 1 and 2, which depend only on the pawn and its map.</summary>
+    public static bool CoversPawn(OwnerGroup owner, MapKind map, LootRules rules)
+    {
+        var pawn = new DropCandidate { Owner = owner, Map = map };
+        return CheckOwner(pawn, rules) == null && CheckPlace(pawn, rules) == null;
+    }
+
     // Step 1.
     private static LootDecision? CheckOwner(DropCandidate item, LootRules rules)
     {

@@ -40,7 +40,7 @@ public class SettingKeysTests
             ["rules.removeList"] = "removeList",
             ["eraFallback"] = "eraFallback",
             ["scrapMarketValue"] = "scrapMarketValue",
-            ["scrapOnGround"] = "scrapOnGround",
+            ["deathDrop"] = "deathDrop",
             ["unfamiliarScope"] = "unfamiliarScope",
             ["studyEras"] = "studyEras",
             ["recycleOrStudy"] = "recycleOrStudy",

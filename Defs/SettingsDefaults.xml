@@ -19,7 +19,7 @@
        rules.ammunition, rules.drugs, rules.medicine, rules.food, rules.other, rules.degradeMin, rules.degradeMax,
        rules.degradeLowersQuality, rules.disassemblyYield, rules.disassemblyEfficiency, rules.ejectCharges,
        corpses.humanlike, corpses.animal, corpses.mechanoid, corpses.chance, corpses.butcherRemovesApparel, eraFallback,
-       scrapMarketValue, scrapOnGround, unfamiliarScope, studyEras, recycleOrStudy, studyTechprintProjects.
+       scrapMarketValue, deathDrop, unfamiliarScope, studyEras, recycleOrStudy, studyTechprintProjects.
        The keep and remove lists and the protection toggles can be defaulted here but not locked.
        The defaults seed a config that has none saved. A saved config keeps its values; only locked settings are put back.
        packs/progression/ holds the Progression pack's preset as a patch. -->
@@ -121,7 +121,7 @@
       </corpses>
       <eraFallback>CarrierFaction</eraFallback>
       <scrapMarketValue>0.01</scrapMarketValue>
-      <scrapOnGround>true</scrapOnGround>
+      <deathDrop>Ground</deathDrop>
       <unfamiliarScope>AllOutOfReach</unfamiliarScope>
       <studyEras>ColonyEraAndBelow</studyEras>
       <recycleOrStudy>OneOrTheOther</recycleOrStudy>
