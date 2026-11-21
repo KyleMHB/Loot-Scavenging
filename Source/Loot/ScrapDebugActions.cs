@@ -5,7 +5,7 @@ using Verse;
 
 namespace LootScavenging.Loot;
 
-// Dev-mode switches for checking scrap in game before the settings page exists (ticket 11). Not written to the settings file.
+// Dev-mode switches for checking scrap in game without opening the settings page. Not written to the settings file.
 internal static class ScrapDebugActions
 {
     private const string Category = "Loot Scavenging"; // not translated

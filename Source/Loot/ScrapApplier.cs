@@ -37,7 +37,7 @@ internal static class ScrapDefs
         return false;
     }
 
-    /// <summary>Writes the scrap value setting onto the scrap defs. Call again when the setting changes (ticket 11's page).</summary>
+    /// <summary>Writes the scrap value setting onto the scrap defs. Called again by the settings page when the value changes.</summary>
     public static void ApplyMarketValue()
     {
         float value = LootScavengingMod.Settings?.scrapMarketValue ?? LootScavengingSettings.DefaultScrapMarketValue;

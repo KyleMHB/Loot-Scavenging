@@ -7,7 +7,7 @@ using Verse;
 
 namespace LootScavenging;
 
-// Dev-mode helpers for the study checks before the settings page exists (ticket 11). Not written to the settings file,
+// Dev-mode helpers for the study checks without opening the settings page. Not written to the settings file,
 // except the storyteller factor, which is the game's own difficulty value (cycle it back to 1 after testing).
 internal static class StudyDebugActions
 {

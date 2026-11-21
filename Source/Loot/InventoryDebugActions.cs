@@ -5,7 +5,7 @@ using Verse;
 
 namespace LootScavenging.Loot;
 
-// Dev-mode switches for checking the inventory rules in game before the settings page exists (ticket 11). Changes last
+// Dev-mode switches for checking the inventory rules in game without opening the settings page. Changes last
 // until the game closes; they are not written to the settings file.
 internal static class InventoryDebugActions
 {

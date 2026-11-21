@@ -4,7 +4,7 @@ using Verse;
 
 namespace LootScavenging.Loot;
 
-// Dev-mode switches for checking the rules in game before the settings page exists (ticket 11). Changes last until
+// Dev-mode switches for checking the rules in game without opening the settings page. Changes last until
 // the game closes; they are not written to the settings file.
 internal static class LootDebugActions
 {

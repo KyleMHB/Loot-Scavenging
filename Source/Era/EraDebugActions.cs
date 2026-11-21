@@ -17,7 +17,7 @@ public static class EraDebugActions
             + (LootScavengingMod.Settings?.eraFallback ?? EraFallback.CarrierFaction));
     }
 
-    // Stands in for the settings page (ticket 11) so the fallback's effect on the readout can be checked.
+    // A quick switch beside the settings page, so the fallback's effect on the readout can be checked.
     [DebugAction("Loot Scavenging", "Era: cycle fallback setting", allowedGameStates = AllowedGameStates.Playing)]
     private static void CycleFallback()
     {

@@ -5,7 +5,7 @@ namespace LootScavenging.Tests;
 
 /// <summary>
 /// The rules the evaluator tests were written against, now that the code default is the Progression preset: the hostile
-/// group only, death only, weapons deleted and everything else kept, no era handling surprises within reach.
+/// group only, death only, weapons deleted and everything else kept.
 /// </summary>
 internal static class TestRules
 {

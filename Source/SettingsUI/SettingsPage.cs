@@ -1,0 +1,575 @@
+using System;
+using System.Collections.Generic;
+using LootScavenging.Loot;
+using LootScavenging.Model;
+using RimWorld;
+using UnityEngine;
+using Verse;
+
+namespace LootScavenging.SettingsUI;
+
+/// <summary>
+/// The mod settings page (spec, "Settings page"): six sections, each row followed by a sentence saying what will happen.
+/// It edits <see cref="LootScavengingSettings"/> in place; the rules read those fields directly, so a change applies at once.
+/// </summary>
+internal sealed class SettingsPage
+{
+    private const float IndentWidth = 24f;
+
+    private static readonly ItemCategory[] Categories =
+    {
+        ItemCategory.Weapon, ItemCategory.Apparel, ItemCategory.Ammunition, ItemCategory.Drugs, ItemCategory.Medicine,
+        ItemCategory.Food, ItemCategory.Other,
+    };
+
+    private static readonly Outcome[] Outcomes = { Outcome.Keep, Outcome.Degrade, Outcome.Scrap, Outcome.Disassemble, Outcome.Delete };
+
+    private static readonly ItemQuality[] Qualities =
+    {
+        ItemQuality.Poor, ItemQuality.Normal, ItemQuality.Good, ItemQuality.Excellent, ItemQuality.Masterwork, ItemQuality.Legendary,
+    };
+
+    private static readonly PresetId[] PresetOrder = { PresetId.Progression, PresetId.Cleanup, PresetId.Vanilla };
+
+    private LootScavengingSettings s;
+    private Vector2 scroll;
+    private float viewHeight = 4000f;
+    private string keepEntry = "";
+    private string removeEntry = "";
+
+    public void Draw(Rect inRect, LootScavengingSettings settings)
+    {
+        s = settings;
+        float scrapValueBefore = s.scrapMarketValue;
+
+        var view = new Rect(0f, 0f, inRect.width - 16f, viewHeight);
+        Widgets.BeginScrollView(inRect, ref scroll, view);
+        var ls = new Listing_Standard();
+        ls.Begin(view);
+        DrawPresets(ls);
+        DrawWhoAndWhere(ls);
+        DrawItemRules(ls);
+        DrawScrapAndStudy(ls);
+        DrawCorpses(ls);
+        DrawLists(ls);
+        viewHeight = ls.CurHeight + 24f;
+        ls.End();
+        Widgets.EndScrollView();
+
+        if (s.scrapMarketValue != scrapValueBefore)
+            ScrapDefs.ApplyMarketValue();
+    }
+
+    // Presets
+
+    private void DrawPresets(Listing_Standard ls)
+    {
+        Section(ls, "LootScavenging_SectionPresets".Translate());
+        string active = PresetName(s.activePreset);
+        bool changed = s.PresetChanged;
+        ls.Label(changed ? "LootScavenging_PresetActiveChanged".Translate(active) : "LootScavenging_PresetActive".Translate(active));
+        Explain(ls, changed ? "LootScavenging_PresetChangedExplain".Translate(active) : PresetSentence(s.activePreset));
+
+        Rect row = ls.GetRect(32f);
+        float width = (row.width - 3 * 8f) / 4f;
+        for (int i = 0; i < PresetOrder.Length; i++)
+        {
+            PresetId preset = PresetOrder[i];
+            var button = new Rect(row.x + i * (width + 8f), row.y, width, row.height);
+            TooltipHandler.TipRegion(button, PresetSentence(preset));
+            if (Widgets.ButtonText(button, PresetName(preset)))
+            {
+                s.Apply(Presets.Apply(preset, s.Capture()));
+                s.activePreset = preset;
+                ScrapDefs.ApplyMarketValue();
+            }
+        }
+        var reset = new Rect(row.x + 3 * (width + 8f), row.y, width, row.height);
+        if (Widgets.ButtonText(reset, "LootScavenging_PresetReset".Translate()))
+        {
+            LootScavengingSettings settings = s;
+            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("LootScavenging_ResetConfirm".Translate(), () =>
+            {
+                settings.Apply(Presets.Defaults());
+                settings.activePreset = PresetId.Progression;
+                ScrapDefs.ApplyMarketValue();
+            }, destructive: true));
+        }
+        ls.Gap(6f);
+    }
+
+    private static string PresetName(PresetId preset)
+    {
+        switch (preset)
+        {
+            case PresetId.Cleanup: return "LootScavenging_PresetCleanup".Translate();
+            case PresetId.Vanilla: return "LootScavenging_PresetVanilla".Translate();
+            default: return "LootScavenging_PresetProgression".Translate();
+        }
+    }
+
+    private static string PresetSentence(PresetId preset)
+    {
+        switch (preset)
+        {
+            case PresetId.Cleanup: return "LootScavenging_PresetCleanupExplain".Translate();
+            case PresetId.Vanilla: return "LootScavenging_PresetVanillaExplain".Translate();
+            default: return "LootScavenging_PresetProgressionExplain".Translate();
+        }
+    }
+
+    // Who and where
+
+    private void DrawWhoAndWhere(Listing_Standard ls)
+    {
+        Section(ls, "LootScavenging_SectionWho".Translate());
+        LootRules r = s.rules;
+        Toggle(ls, "LootScavenging_Hostile".Translate(), ref r.hostile,
+            "LootScavenging_HostileOn".Translate(), "LootScavenging_HostileOff".Translate());
+        Toggle(ls, "LootScavenging_NonHostile".Translate(), ref r.nonHostileFaction,
+            "LootScavenging_NonHostileOn".Translate(), "LootScavenging_NonHostileOff".Translate());
+        Toggle(ls, "LootScavenging_NoFaction".Translate(), ref r.noFaction,
+            "LootScavenging_NoFactionOn".Translate(), "LootScavenging_NoFactionOff".Translate());
+        Toggle(ls, "LootScavenging_Prisoners".Translate(), ref r.prisoners,
+            "LootScavenging_PrisonersOn".Translate(), "LootScavenging_PrisonersOff".Translate());
+        Toggle(ls, "LootScavenging_HomeMapOnly".Translate(), ref r.homeMapOnly,
+            "LootScavenging_HomeMapOnlyOn".Translate(), "LootScavenging_HomeMapOnlyOff".Translate());
+        Toggle(ls, "LootScavenging_DownedAndStrip".Translate(), ref r.onDownedAndStrip,
+            "LootScavenging_DownedAndStripOn".Translate(), "LootScavenging_DownedAndStripOff".Translate());
+        if (!r.hostile && !r.nonHostileFaction && !r.noFaction && !r.prisoners)
+            Explain(ls, "LootScavenging_NoGroupOn".Translate());
+    }
+
+    // Item rules
+
+    private void DrawItemRules(Listing_Standard ls)
+    {
+        Section(ls, "LootScavenging_SectionItems".Translate());
+        Explain(ls, DropModeNote(s.rules.dropMode));
+        foreach (ItemCategory category in Categories)
+            DrawCategory(ls, category);
+        ls.Gap(6f);
+        Toggle(ls, "LootScavenging_EjectCharges".Translate(), ref s.rules.ejectCharges,
+            "LootScavenging_EjectChargesOn".Translate(), "LootScavenging_EjectChargesOff".Translate());
+    }
+
+    private void DrawCategory(Listing_Standard ls, ItemCategory category)
+    {
+        LootScavengingSettings settings = s;
+        LootRules r = s.rules;
+        CategoryRule rule = r.RuleFor(category);
+        ls.Gap(4f);
+        Choice(ls, CategoryName(category), rule.outcome, Outcomes, OutcomeName, v => settings.rules.RuleFor(category).outcome = v);
+
+        Indent(ls);
+        // The outcome's own sliders sit beside it and only show while a rule uses that outcome. The values are shared by
+        // every category with the same outcome.
+        if (rule.outcome == Outcome.Degrade)
+        {
+            ls.Label("LootScavenging_DegradeRange".Translate(r.degradeMin.ToStringPercent(), r.degradeMax.ToStringPercent()));
+            var range = new FloatRange(r.degradeMin, r.degradeMax);
+            Widgets.FloatRange(ls.GetRect(28f), 0x15C0 + (int)category, ref range, 0.01f, 1f, null, ToStringStyle.PercentZero, 0.01f, GameFont.Small, null, 0.01f);
+            r.degradeMin = range.min;
+            r.degradeMax = range.max;
+            ls.CheckboxLabeled("LootScavenging_DegradeLowersQuality".Translate(), ref r.degradeLowersQuality);
+        }
+        if (rule.outcome == Outcome.Disassemble && r.disassemblyYield == DisassemblyYield.ItemBased)
+            r.disassemblyEfficiency = Percent(ls, "LootScavenging_DisassemblyEfficiency".Translate(r.disassemblyEfficiency.ToStringPercent()), r.disassemblyEfficiency, 0.05f, 1f);
+        if (rule.outcome != Outcome.Keep)
+        {
+            rule.chance = Percent(ls, "LootScavenging_Chance".Translate(rule.chance.ToStringPercent()), rule.chance, 0f, 1f);
+            ls.CheckboxLabeled("LootScavenging_OnlyBeyondReach".Translate(), ref rule.onlyBeyondReach);
+            ls.CheckboxLabeled("LootScavenging_LimitQuality".Translate(), ref rule.limitQuality);
+            if (rule.limitQuality)
+                Choice(ls, "LootScavenging_BelowQuality".Translate(), rule.belowQuality, Qualities, QualityName, v => settings.rules.RuleFor(category).belowQuality = v);
+            ls.CheckboxLabeled("LootScavenging_LimitHitPoints".Translate(), ref rule.limitHitPoints);
+            if (rule.limitHitPoints)
+                rule.belowHitPointFraction = Percent(ls, "LootScavenging_BelowHitPoints".Translate(rule.belowHitPointFraction.ToStringPercent()), rule.belowHitPointFraction, 0.05f, 1f);
+        }
+        Outdent(ls);
+        Explain(ls, RuleSentence(category, rule));
+    }
+
+    private string RuleSentence(ItemCategory category, CategoryRule rule)
+    {
+        string what = CategoryName(category);
+        if (rule.outcome == Outcome.Keep)
+            return "LootScavenging_RuleKeep".Translate(what);
+
+        string when = "";
+        string limits = null;
+        if (rule.limitQuality)
+            limits = "LootScavenging_CondQuality".Translate(QualityName(rule.belowQuality));
+        if (rule.limitHitPoints)
+        {
+            string hitPoints = "LootScavenging_CondHitPoints".Translate(rule.belowHitPointFraction.ToStringPercent());
+            limits = limits == null ? hitPoints : "LootScavenging_CondOr".Translate(limits, hitPoints).Resolve();
+        }
+        string condition = rule.onlyBeyondReach ? "LootScavenging_CondReach".Translate().Resolve() : null;
+        if (limits != null)
+            condition = condition == null ? limits : "LootScavenging_CondAnd".Translate(condition, limits).Resolve();
+        if (condition != null)
+            when = " " + "LootScavenging_CondWhen".Translate(condition);
+        string chance = rule.chance < 1f ? " " + "LootScavenging_RuleChance".Translate(rule.chance.ToStringPercent()) : "";
+
+        string sentence = "LootScavenging_RuleAct".Translate(what, OutcomeVerb(rule.outcome), when, chance);
+        if (when.Length > 0 || chance.Length > 0)
+            sentence += " " + "LootScavenging_RuleOtherwiseKept".Translate();
+        return sentence;
+    }
+
+    private string OutcomeVerb(Outcome outcome)
+    {
+        LootRules r = s.rules;
+        switch (outcome)
+        {
+            case Outcome.Degrade:
+                return r.degradeLowersQuality
+                    ? "LootScavenging_VerbDegradeQuality".Translate(r.degradeMin.ToStringPercent(), r.degradeMax.ToStringPercent())
+                    : "LootScavenging_VerbDegrade".Translate(r.degradeMin.ToStringPercent(), r.degradeMax.ToStringPercent());
+            case Outcome.Scrap: return "LootScavenging_VerbScrap".Translate();
+            case Outcome.Disassemble:
+                return r.disassemblyYield == DisassemblyYield.ItemBased
+                    ? "LootScavenging_VerbDisassembleItem".Translate(r.disassemblyEfficiency.ToStringPercent())
+                    : "LootScavenging_VerbDisassembleEra".Translate();
+            default: return "LootScavenging_VerbDelete".Translate();
+        }
+    }
+
+    private static string DropModeNote(DropMode mode)
+    {
+        switch (mode)
+        {
+            case DropMode.ScrapEverything: return "LootScavenging_ItemsNoteScrapEverything".Translate();
+            case DropMode.KeepOriginal: return "LootScavenging_ItemsNoteKeepOriginal".Translate();
+            case DropMode.Off: return "LootScavenging_ItemsNoteOff".Translate();
+            default: return "LootScavenging_ItemsNoteScrapOutOfReach".Translate();
+        }
+    }
+
+    private static string CategoryName(ItemCategory category)
+    {
+        switch (category)
+        {
+            case ItemCategory.Weapon: return "LootScavenging_CategoryWeapons".Translate();
+            case ItemCategory.Apparel: return "LootScavenging_CategoryApparel".Translate();
+            case ItemCategory.Ammunition: return "LootScavenging_CategoryAmmunition".Translate();
+            case ItemCategory.Drugs: return "LootScavenging_CategoryDrugs".Translate();
+            case ItemCategory.Medicine: return "LootScavenging_CategoryMedicine".Translate();
+            case ItemCategory.Food: return "LootScavenging_CategoryFood".Translate();
+            default: return "LootScavenging_CategoryOther".Translate();
+        }
+    }
+
+    private static string OutcomeName(Outcome outcome)
+    {
+        switch (outcome)
+        {
+            case Outcome.Degrade: return "LootScavenging_OutcomeDegrade".Translate();
+            case Outcome.Scrap: return "LootScavenging_OutcomeScrap".Translate();
+            case Outcome.Disassemble: return "LootScavenging_OutcomeDisassemble".Translate();
+            case Outcome.Delete: return "LootScavenging_OutcomeDelete".Translate();
+            default: return "LootScavenging_OutcomeKeep".Translate();
+        }
+    }
+
+    // ItemQuality mirrors the game's QualityCategory, so the game's own translated label is used.
+    private static string QualityName(ItemQuality quality) => ((QualityCategory)(byte)quality).GetLabel();
+
+    // Scrap and study
+
+    private void DrawScrapAndStudy(Listing_Standard ls)
+    {
+        Section(ls, "LootScavenging_SectionScrap".Translate());
+        LootScavengingSettings settings = s;
+
+        Choice(ls, "LootScavenging_DropMode".Translate(), s.rules.dropMode,
+            new[] { DropMode.ScrapOutOfReach, DropMode.ScrapEverything, DropMode.KeepOriginal, DropMode.Off }, DropModeName,
+            v => settings.rules.dropMode = v);
+        Explain(ls, DropModeSentence(s.rules.dropMode));
+
+        Choice(ls, "LootScavenging_StudyEras".Translate(), s.studyEras,
+            new[] { StudyEraLimit.ColonyEraAndBelow, StudyEraLimit.AnyEra, StudyEraLimit.None }, StudyErasName, v => settings.studyEras = v);
+        Explain(ls, StudyErasSentence(s.studyEras));
+
+        Choice(ls, "LootScavenging_RecycleOrStudy".Translate(), s.recycleOrStudy,
+            new[] { RecycleOrStudy.OneOrTheOther, RecycleOrStudy.StudyThenRecycle }, RecycleOrStudyName, v => settings.recycleOrStudy = v);
+        Explain(ls, s.recycleOrStudy == RecycleOrStudy.StudyThenRecycle
+            ? "LootScavenging_StudyThenRecycleExplain".Translate()
+            : "LootScavenging_OneOrTheOtherExplain".Translate());
+
+        float value = ls.SliderLabeled("LootScavenging_ScrapValue".Translate(s.scrapMarketValue.ToString("0.##")), s.scrapMarketValue, 0.01f, 10f);
+        s.scrapMarketValue = Mathf.Max(0.01f, (float)Math.Round(value, 2));
+        Explain(ls, s.scrapMarketValue < 0.5f
+            ? "LootScavenging_ScrapValueLow".Translate()
+            : "LootScavenging_ScrapValueHigh".Translate(s.scrapMarketValue.ToString("0.##")));
+
+        Toggle(ls, "LootScavenging_ScrapOnGround".Translate(), ref s.scrapOnGround,
+            "LootScavenging_ScrapOnGroundOn".Translate(), "LootScavenging_ScrapOnGroundOff".Translate());
+
+        Choice(ls, "LootScavenging_EraFallback".Translate(), s.eraFallback,
+            new[] { EraFallback.CarrierFaction, EraFallback.ColonyEra, EraFallback.Components }, EraFallbackName, v => settings.eraFallback = v);
+        Explain(ls, EraFallbackSentence(s.eraFallback));
+
+        Choice(ls, "LootScavenging_DisassemblyYield".Translate(), s.rules.disassemblyYield,
+            new[] { DisassemblyYield.EraTypical, DisassemblyYield.ItemBased }, DisassemblyYieldName, v => settings.rules.disassemblyYield = v);
+        Explain(ls, s.rules.disassemblyYield == DisassemblyYield.ItemBased
+            ? "LootScavenging_YieldItemExplain".Translate()
+            : "LootScavenging_YieldEraExplain".Translate());
+
+        Toggle(ls, "LootScavenging_TechprintProjects".Translate(), ref s.studyTechprintProjects,
+            "LootScavenging_TechprintProjectsOn".Translate(), "LootScavenging_TechprintProjectsOff".Translate());
+
+        Choice(ls, "LootScavenging_UnfamiliarScope".Translate(), s.unfamiliarScope,
+            new[] { UnfamiliarScope.AllOutOfReach, UnfamiliarScope.LootedOnly }, UnfamiliarScopeName, v => settings.unfamiliarScope = v);
+        string scope = s.unfamiliarScope == UnfamiliarScope.LootedOnly
+            ? "LootScavenging_UnfamiliarLootedExplain".Translate()
+            : "LootScavenging_UnfamiliarAllExplain".Translate();
+        if (s.rules.dropMode != DropMode.KeepOriginal)
+            scope += " " + "LootScavenging_UnfamiliarUnused".Translate();
+        Explain(ls, scope);
+    }
+
+    private static string DropModeName(DropMode mode)
+    {
+        switch (mode)
+        {
+            case DropMode.ScrapEverything: return "LootScavenging_DropModeScrapEverything".Translate();
+            case DropMode.KeepOriginal: return "LootScavenging_DropModeKeepOriginal".Translate();
+            case DropMode.Off: return "LootScavenging_DropModeOff".Translate();
+            default: return "LootScavenging_DropModeScrapOutOfReach".Translate();
+        }
+    }
+
+    private static string DropModeSentence(DropMode mode)
+    {
+        switch (mode)
+        {
+            case DropMode.ScrapEverything: return "LootScavenging_DropModeScrapEverythingExplain".Translate();
+            case DropMode.KeepOriginal: return "LootScavenging_DropModeKeepOriginalExplain".Translate();
+            case DropMode.Off: return "LootScavenging_DropModeOffExplain".Translate();
+            default: return "LootScavenging_DropModeScrapOutOfReachExplain".Translate();
+        }
+    }
+
+    private static string StudyErasName(StudyEraLimit limit)
+    {
+        switch (limit)
+        {
+            case StudyEraLimit.AnyEra: return "LootScavenging_StudyErasAny".Translate();
+            case StudyEraLimit.None: return "LootScavenging_StudyErasNone".Translate();
+            default: return "LootScavenging_StudyErasColony".Translate();
+        }
+    }
+
+    private static string StudyErasSentence(StudyEraLimit limit)
+    {
+        switch (limit)
+        {
+            case StudyEraLimit.AnyEra: return "LootScavenging_StudyErasAnyExplain".Translate();
+            case StudyEraLimit.None: return "LootScavenging_StudyErasNoneExplain".Translate();
+            default: return "LootScavenging_StudyErasColonyExplain".Translate();
+        }
+    }
+
+    private static string RecycleOrStudyName(RecycleOrStudy mode)
+    {
+        return mode == RecycleOrStudy.StudyThenRecycle
+            ? "LootScavenging_StudyThenRecycle".Translate()
+            : "LootScavenging_OneOrTheOther".Translate();
+    }
+
+    private static string EraFallbackName(EraFallback fallback)
+    {
+        switch (fallback)
+        {
+            case EraFallback.ColonyEra: return "LootScavenging_EraFallbackColony".Translate();
+            case EraFallback.Components: return "LootScavenging_EraFallbackComponents".Translate();
+            default: return "LootScavenging_EraFallbackCarrier".Translate();
+        }
+    }
+
+    private static string EraFallbackSentence(EraFallback fallback)
+    {
+        switch (fallback)
+        {
+            case EraFallback.ColonyEra: return "LootScavenging_EraFallbackColonyExplain".Translate();
+            case EraFallback.Components: return "LootScavenging_EraFallbackComponentsExplain".Translate();
+            default: return "LootScavenging_EraFallbackCarrierExplain".Translate();
+        }
+    }
+
+    private static string DisassemblyYieldName(DisassemblyYield yield)
+    {
+        return yield == DisassemblyYield.ItemBased
+            ? "LootScavenging_YieldItem".Translate()
+            : "LootScavenging_YieldEra".Translate();
+    }
+
+    private static string UnfamiliarScopeName(UnfamiliarScope scope)
+    {
+        return scope == UnfamiliarScope.LootedOnly
+            ? "LootScavenging_UnfamiliarLooted".Translate()
+            : "LootScavenging_UnfamiliarAll".Translate();
+    }
+
+    // Corpses
+
+    private void DrawCorpses(Listing_Standard ls)
+    {
+        Section(ls, "LootScavenging_SectionCorpses".Translate());
+        CorpseRules c = s.corpses;
+        Toggle(ls, "LootScavenging_CorpseHumanlike".Translate(), ref c.humanlike,
+            "LootScavenging_CorpseHumanlikeOn".Translate(), "LootScavenging_CorpseHumanlikeOff".Translate());
+        Toggle(ls, "LootScavenging_CorpseAnimal".Translate(), ref c.animal,
+            "LootScavenging_CorpseAnimalOn".Translate(), "LootScavenging_CorpseAnimalOff".Translate());
+        Toggle(ls, "LootScavenging_CorpseMechanoid".Translate(), ref c.mechanoid,
+            "LootScavenging_CorpseMechanoidOn".Translate(), "LootScavenging_CorpseMechanoidOff".Translate());
+        if (c.humanlike || c.animal || c.mechanoid)
+        {
+            c.chance = Percent(ls, "LootScavenging_CorpseChance".Translate(c.chance.ToStringPercent()), c.chance, 0f, 1f);
+            Explain(ls, "LootScavenging_CorpseChanceExplain".Translate(c.chance.ToStringPercent()));
+        }
+        Toggle(ls, "LootScavenging_ButcherApparel".Translate(), ref c.butcherRemovesApparel,
+            "LootScavenging_ButcherApparelOn".Translate(), "LootScavenging_ButcherApparelOff".Translate());
+    }
+
+    // Lists
+
+    private void DrawLists(Listing_Standard ls)
+    {
+        Section(ls, "LootScavenging_SectionLists".Translate());
+        LootRules r = s.rules;
+        Toggle(ls, "LootScavenging_ProtectQuest".Translate(), ref r.protectQuestItems,
+            "LootScavenging_ProtectQuestOn".Translate(), "LootScavenging_ProtectQuestOff".Translate());
+        Toggle(ls, "LootScavenging_ProtectUnique".Translate(), ref r.protectUniqueWeapons,
+            "LootScavenging_ProtectUniqueOn".Translate(), "LootScavenging_ProtectUniqueOff".Translate());
+        Toggle(ls, "LootScavenging_ProtectPersona".Translate(), ref r.protectPersonaWeapons,
+            "LootScavenging_ProtectPersonaOn".Translate(), "LootScavenging_ProtectPersonaOff".Translate());
+        Toggle(ls, "LootScavenging_ProtectRelics".Translate(), ref r.protectRelics,
+            "LootScavenging_ProtectRelicsOn".Translate(), "LootScavenging_ProtectRelicsOff".Translate());
+
+        ls.Gap(6f);
+        ls.Label("LootScavenging_KeepList".Translate());
+        Explain(ls, "LootScavenging_KeepListExplain".Translate());
+        DrawItemList(ls, r.keepList, ref keepEntry);
+
+        ls.Gap(6f);
+        ls.Label("LootScavenging_RemoveList".Translate());
+        Explain(ls, "LootScavenging_RemoveListExplain".Translate());
+        DrawItemList(ls, r.removeList, ref removeEntry);
+    }
+
+    // One list: its entries with a remove button each, then the control that adds to it. Ticket 12's item picker
+    // replaces only DrawAddByName.
+    private static void DrawItemList(Listing_Standard ls, List<string> list, ref string entry)
+    {
+        Indent(ls);
+        DrawListEntries(ls, list);
+        DrawAddByName(ls, list, ref entry);
+        Outdent(ls);
+    }
+
+    private static void DrawListEntries(Listing_Standard ls, List<string> list)
+    {
+        if (list.Count == 0)
+        {
+            ls.Label("LootScavenging_ListEmpty".Translate());
+            return;
+        }
+        int removeAt = -1;
+        for (int i = 0; i < list.Count; i++)
+        {
+            Rect row = ls.GetRect(26f);
+            var buttonRect = new Rect(row.xMax - 90f, row.y + 1f, 90f, 24f);
+            Widgets.Label(new Rect(row.x, row.y + 2f, row.width - 96f, row.height), EntryLabel(list[i]));
+            if (Widgets.ButtonText(buttonRect, "LootScavenging_ListRemove".Translate()))
+                removeAt = i;
+        }
+        if (removeAt >= 0)
+            list.RemoveAt(removeAt);
+    }
+
+    private static void DrawAddByName(Listing_Standard ls, List<string> list, ref string entry)
+    {
+        Rect row = ls.GetRect(28f);
+        var buttonRect = new Rect(row.xMax - 90f, row.y, 90f, 28f);
+        entry = Widgets.TextField(new Rect(row.x, row.y, row.width - 96f, row.height), entry ?? "");
+        string name = entry.Trim();
+        if (Widgets.ButtonText(buttonRect, "LootScavenging_ListAdd".Translate()) && name.Length > 0)
+        {
+            if (!list.Contains(name))
+                list.Add(name);
+            entry = "";
+        }
+        Explain(ls, "LootScavenging_ListAddExplain".Translate());
+    }
+
+    // Entries are def names; an item from a removed mod keeps its entry and shows as not loaded.
+    private static string EntryLabel(string defName)
+    {
+        ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(defName);
+        return def != null ? def.LabelCap + " (" + defName + ")" : "LootScavenging_ListNotLoaded".Translate(defName).Resolve();
+    }
+
+    // Widgets
+
+    private static void Section(Listing_Standard ls, string title)
+    {
+        ls.Gap(12f);
+        Text.Font = GameFont.Medium;
+        ls.Label(title);
+        Text.Font = GameFont.Small;
+        ls.GapLine(6f);
+    }
+
+    /// <summary>The "what will happen" sentence under a row.</summary>
+    private static void Explain(Listing_Standard ls, string sentence)
+    {
+        Indent(ls);
+        GUI.color = new Color(0.75f, 0.75f, 0.75f);
+        Text.Font = GameFont.Tiny;
+        ls.Label(sentence);
+        Text.Font = GameFont.Small;
+        GUI.color = Color.white;
+        Outdent(ls);
+        ls.Gap(4f);
+    }
+
+    private static void Toggle(Listing_Standard ls, string label, ref bool value, string onSentence, string offSentence)
+    {
+        ls.CheckboxLabeled(label, ref value);
+        Explain(ls, value ? onSentence : offSentence);
+    }
+
+    private static void Choice<T>(Listing_Standard ls, string label, T current, T[] options, Func<T, string> name, Action<T> set)
+    {
+        if (!ls.ButtonTextLabeledPct(label, name(current), 0.6f))
+            return;
+        var menu = new List<FloatMenuOption>();
+        foreach (T option in options)
+        {
+            T picked = option;
+            menu.Add(new FloatMenuOption(name(picked), () => set(picked)));
+        }
+        Find.WindowStack.Add(new FloatMenu(menu));
+    }
+
+    // Rounded to whole percent, so a slider set back by hand can match a preset again.
+    private static float Percent(Listing_Standard ls, string label, float value, float min, float max)
+    {
+        return (float)Math.Round(ls.SliderLabeled(label, value, min, max), 2);
+    }
+
+    private static void Indent(Listing_Standard ls)
+    {
+        ls.Indent(IndentWidth);
+        ls.ColumnWidth -= IndentWidth;
+    }
+
+    private static void Outdent(Listing_Standard ls)
+    {
+        ls.Outdent(IndentWidth);
+        ls.ColumnWidth += IndentWidth;
+    }
+}

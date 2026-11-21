@@ -4,7 +4,7 @@ using Verse;
 
 namespace LootScavenging;
 
-// Dev-mode actions standing in for the settings page (ticket 11) so original-item mode can be checked in game.
+// Dev-mode actions kept beside the settings page as quick switches, so original-item mode can be checked in game.
 // Developer-only text, so literals are not translated.
 public static class UnfamiliarDebugActions
 {
