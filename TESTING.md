@@ -58,6 +58,7 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 - `lootscavenging-settings`: through the calls the page makes, not the page. Presets and "(changed)", Vanilla in game, the first-load flag, locks (the pack's lock names applied to `Presets.Configure` directly; the pack's patch is not loaded), keep and remove lists, a missing-def list entry through a settings save and load, and the picker's search.
 - `lootscavenging-bench`: real bill jobs. Recycling and studied-scrap bills at a machining table, the study bench and its Bills tab, the study bill with no project, keep-X, work and XP, finishing a project, original items at the fabrication bench and research bench, and a techprint project (Royalty only).
 - `lootscavenging-saves`: a looted-only marked rifle, scrap, studied scrap and a study bill through the runner's save and reload, and the save file's contents.
+- `lootscavenging-preview`: a showcase, outside run-all, that films the six scrap piles in front of their benches for `About/Preview.png`. Run it with `--record --frames 1 --quit-on-finish`, take a frame at 3.5 s from the run's `build.mp4` with the harness's ffmpeg, then run `python tools/preview_image.py <frame.png>`.
 
 Not covered: the settings page and bill-tab UI, the first-load dialog on screen, loading a save without the mod (the runner ships inside the mod; Spearfishing uses a separate probe for this), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
 
@@ -70,6 +71,7 @@ Not covered: the settings page and bill-tab UI, the first-load dialog on screen,
 - Runs: perf `20261121-120209-perf-s1-d1a2d5d2` (1/1), then `close-session` and `release-check`.
 - Observed: perf.mod-tick 0 ms/tick; no developer runner in the package; patch roots and preview size passed. Warning: the mod defines no targeted `perf.*` cases.
 - Status: Passed.
+- Later the same day, after adding `About/Preview.png` (483 KB): release-check failed again on perf, because the build stamps the git commit into the DLL's informational version (`1.0.0+<sha>`), so the two docs commits changed its hash. Perf `20261121-121735-perf-s1` (0 ms/tick) and release-check then passed, preview size included. `Source/LootScavenging.csproj` now sets `IncludeSourceRevisionInInformationalVersion` to false, so the version reads `1.0.0` and a commit that leaves `Source/` alone keeps the DLL byte-identical. Perf `20261121-122640-perf-s1` (0 ms/tick) and release-check passed on that build.
 
 ### 2026-11-21 - bench fixes: smoke, bench, saves, settings; bench with DLCs
 
