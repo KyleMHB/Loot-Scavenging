@@ -15,6 +15,7 @@ namespace LootScavenging.SettingsUI;
 internal sealed class SettingsPage
 {
     private const float IndentWidth = 24f;
+    private const float UnboundedHeight = 100000f;
 
     private static readonly Outcome[] Outcomes = { Outcome.Keep, Outcome.Degrade, Outcome.Scrap, Outcome.Disassemble, Outcome.Delete };
 
@@ -37,7 +38,10 @@ internal sealed class SettingsPage
         var view = new Rect(0f, 0f, inRect.width - 16f, viewHeight);
         Widgets.BeginScrollView(inRect, ref scroll, view);
         var ls = new Listing_Standard();
-        ls.Begin(view);
+        // The listing gets no height limit: a Listing starts a new column when a row passes its rect's bottom, so sizing it
+        // from last frame's height wrapped the rows off to the right whenever the page grew (a preset switch adds rows),
+        // and the shrunken CurHeight then collapsed the page to its first rows.
+        ls.Begin(new Rect(view.x, view.y, view.width, UnboundedHeight));
         DrawPresets(ls);
         DrawWhoAndWhere(ls);
         DrawItemRules(ls);
