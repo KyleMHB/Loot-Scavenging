@@ -63,8 +63,14 @@ public static class EraReader
         }
 
         Era factionEra = carrier?.def != null ? (Era)carrier.def.techLevel : Era.Undefined;
-        return EraRanking.Resolve(researchEra, unfinished, (Era)def.techLevel, factionEra, fallback, ColonyEra());
+        return EraRanking.Resolve(researchEra, unfinished, (Era)def.techLevel, factionEra, IsGear(def), fallback, ColonyEra());
     }
+
+    /// <summary>
+    /// Weapons and apparel, judged by the def, so a sidearm carried in inventory still counts. The era fallbacks, the unfamiliar
+    /// label and the original-item bills cover gear only. This class has no startup constructor, so the implied-def pass can call it.
+    /// </summary>
+    public static bool IsGear(ThingDef def) => def != null && def.category == ThingCategory.Item && (def.IsWeapon || def.IsApparel);
 
     private static IEnumerable<Era> FinishedProjectEras()
     {

@@ -28,7 +28,7 @@ public static class Unfamiliar
         }
     }
 
-    public static bool IsGear(ThingDef def) => def.category == ThingCategory.Item && (def.IsWeapon || def.IsApparel);
+    private static bool IsGear(ThingDef def) => EraReader.IsGear(def);
 
     /// <summary>
     /// True when the drop mode keeps originals and this item is out of reach by the active scope. False outside a running game.

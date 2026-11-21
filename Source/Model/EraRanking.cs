@@ -71,7 +71,11 @@ public static class EraRanking
     /// <param name="researchUnfinished">The unlocking research exists and is not finished.</param>
     /// <param name="itemEra">The item's own tech level.</param>
     /// <param name="factionEra">Tech level of the faction that carried it (Undefined if none).</param>
-    public static EraResult Resolve(Era researchEra, bool researchUnfinished, Era itemEra, Era factionEra,
+    /// <param name="gear">
+    /// The item is a weapon or apparel. Step 3 and the two settings that replace it cover gear only (spec: "Step 3 covers
+    /// modded and uncraftable gear with no era of its own"), so silver, steel or food with no era of their own stay unknown.
+    /// </param>
+    public static EraResult Resolve(Era researchEra, bool researchUnfinished, Era itemEra, Era factionEra, bool gear,
         EraFallback fallback, Era colonyEra)
     {
         Era era;
@@ -85,6 +89,11 @@ public static class EraRanking
         {
             era = itemEra;
             source = EraSource.Item;
+        }
+        else if (!gear)
+        {
+            era = Era.Undefined;
+            source = EraSource.Unknown;
         }
         else if (fallback == EraFallback.ColonyEra)
         {

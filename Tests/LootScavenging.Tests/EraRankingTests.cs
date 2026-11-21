@@ -6,8 +6,9 @@ namespace LootScavenging.Tests;
 public class EraRankingTests
 {
     private static EraResult Rank(Era research = Era.Undefined, bool unfinished = false, Era item = Era.Undefined,
-        Era faction = Era.Undefined, EraFallback fallback = EraFallback.CarrierFaction, Era colony = Era.Industrial)
-        => EraRanking.Resolve(research, unfinished, item, faction, fallback, colony);
+        Era faction = Era.Undefined, EraFallback fallback = EraFallback.CarrierFaction, Era colony = Era.Industrial,
+        bool gear = true)
+        => EraRanking.Resolve(research, unfinished, item, faction, gear, fallback, colony);
 
     [Fact]
     public void ResearchEraWinsOverItemAndFaction()
@@ -86,5 +87,26 @@ public class EraRankingTests
     {
         Assert.True(Rank(research: Era.Neolithic, unfinished: true, colony: Era.Spacer).OutOfReach);
         Assert.True(Rank(unfinished: true, item: Era.Neolithic, colony: Era.Spacer).OutOfReach);
+    }
+
+    // Spec: "Step 3 covers modded and uncraftable gear with no era of its own." Silver, steel or raw food carried by a
+    // raider are not gear, so none of the three fallbacks gives them an era and they stay within reach.
+    [Theory]
+    [InlineData(EraFallback.CarrierFaction)]
+    [InlineData(EraFallback.ColonyEra)]
+    [InlineData(EraFallback.Components)]
+    public void FallbacksApplyOnlyToGear(EraFallback fallback)
+    {
+        var r = Rank(faction: Era.Spacer, fallback: fallback, colony: Era.Neolithic, gear: false);
+        Assert.Equal(EraSource.Unknown, r.Source);
+        Assert.False(r.OutOfReach);
+        Assert.False(r.BreakIntoComponents);
+    }
+
+    [Fact]
+    public void NonGearStillUsesItsResearchAndItemEra()
+    {
+        Assert.True(Rank(research: Era.Industrial, unfinished: true, gear: false, colony: Era.Neolithic).OutOfReach);
+        Assert.Equal(EraSource.Item, Rank(item: Era.Ultra, gear: false).Source);
     }
 }

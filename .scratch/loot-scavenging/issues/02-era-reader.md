@@ -33,3 +33,8 @@ Decisions the spec left open:
 Tests: `dotnet test` 11 passed; both builds clean, 0 warnings.
 
 In-game pending: readout for a vanilla researched weapon, an unresearched weapon, an uncraftable weapon and a modded item with no research; fallback cycling changes the readout.
+
+### 2026-11-21: review fixes
+
+- The era fallbacks (carrier faction, colony era, components) now apply to gear only: weapons and apparel, judged by the def (`EraReader.IsGear`), so a sidearm in inventory still counts. Silver, steel, raw food and other items with no research and no tech level stay Unknown, within reach. Before, a pirate's silver took the pirate's Industrial era and was scrapped on a tribal colony; with the Components fallback it became components. `EraRanking.Resolve` takes a `gear` flag; tests in `EraRankingTests`.
+- Checked in Core XML: herbal medicine is Neolithic; industrial medicine is Industrial and gated by Medicine Production; glitterworld medicine is Ultra. The drop mode acts on every category (the Progression row "Inventory groups: Keep within reach"), so on a colony without Medicine Production a raider's industrial medicine is scrapped by default. Stage 7's "drops medicine untouched" holds for herbal medicine, or once Medicine Production is done. Open spec question: should the drop mode cover inventory at all?
