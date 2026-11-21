@@ -10,20 +10,25 @@ namespace LootScavenging.Model;
 public sealed class SettingLocks
 {
     /// <summary>
-    /// Every name a pack can lock, one per row on the page. The keep and remove lists and the four protection toggles sit in
-    /// the page's Lists section and are not lockable yet.
+    /// Every name a pack can lock, one per row on the page: the constants in <see cref="SettingNames"/> plus one per item
+    /// category. The keep and remove lists and the four protection toggles sit in the page's Lists section and are not
+    /// lockable yet. A test checks each name is a real field path, so a misspelt constant fails there.
     /// </summary>
-    public static readonly string[] Lockable =
+    public static readonly string[] Lockable = BuildLockable();
+
+    private static string[] BuildLockable()
     {
-        "rules.hostile", "rules.nonHostileFaction", "rules.noFaction", "rules.prisoners", "rules.homeMapOnly",
-        "rules.onDownedAndStrip", "rules.dropMode",
-        "rules.weapons", "rules.apparel", "rules.ammunition", "rules.drugs", "rules.medicine", "rules.food", "rules.other",
-        "rules.degradeMin", "rules.degradeMax", "rules.degradeLowersQuality",
-        "rules.disassemblyYield", "rules.disassemblyEfficiency", "rules.ejectCharges",
-        "corpses.humanlike", "corpses.animal", "corpses.mechanoid", "corpses.chance", "corpses.butcherRemovesApparel",
-        "eraFallback", "scrapMarketValue", "scrapOnGround", "unfamiliarScope", "studyEras", "recycleOrStudy",
-        "studyTechprintProjects",
-    };
+        var all = new List<string>();
+        foreach (System.Reflection.FieldInfo field in typeof(SettingNames).GetFields(
+            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static))
+        {
+            if (field.IsLiteral && field.FieldType == typeof(string))
+                all.Add((string)field.GetRawConstantValue());
+        }
+        foreach (CategoryInfo category in ItemCategories.All)
+            all.Add(SettingNames.Category(category));
+        return all.ToArray();
+    }
 
     public static readonly SettingLocks None = new SettingLocks(null);
 
@@ -59,6 +64,42 @@ public sealed class SettingLocks
         foreach (string name in names)
             ValueWalk.CopyPath(target, source, name);
     }
+}
+
+/// <summary>
+/// The lockable setting names, as field paths into <see cref="SettingValues"/>. The page and the lock table both use these, so
+/// a name is spelt once. Item categories are named by <see cref="Category"/>.
+/// </summary>
+public static class SettingNames
+{
+    public const string Hostile = "rules.hostile"; // not translated
+    public const string NonHostileFaction = "rules.nonHostileFaction"; // not translated
+    public const string NoFaction = "rules.noFaction"; // not translated
+    public const string Prisoners = "rules.prisoners"; // not translated
+    public const string HomeMapOnly = "rules.homeMapOnly"; // not translated
+    public const string OnDownedAndStrip = "rules.onDownedAndStrip"; // not translated
+    public const string DropMode = "rules.dropMode"; // not translated
+    public const string DegradeMin = "rules.degradeMin"; // not translated
+    public const string DegradeMax = "rules.degradeMax"; // not translated
+    public const string DegradeLowersQuality = "rules.degradeLowersQuality"; // not translated
+    public const string DisassemblyYield = "rules.disassemblyYield"; // not translated
+    public const string DisassemblyEfficiency = "rules.disassemblyEfficiency"; // not translated
+    public const string EjectCharges = "rules.ejectCharges"; // not translated
+    public const string CorpseHumanlike = "corpses.humanlike"; // not translated
+    public const string CorpseAnimal = "corpses.animal"; // not translated
+    public const string CorpseMechanoid = "corpses.mechanoid"; // not translated
+    public const string CorpseChance = "corpses.chance"; // not translated
+    public const string ButcherRemovesApparel = "corpses.butcherRemovesApparel"; // not translated
+    public const string EraFallback = "eraFallback"; // not translated
+    public const string ScrapMarketValue = "scrapMarketValue"; // not translated
+    public const string ScrapOnGround = "scrapOnGround"; // not translated
+    public const string UnfamiliarScope = "unfamiliarScope"; // not translated
+    public const string StudyEras = "studyEras"; // not translated
+    public const string RecycleOrStudy = "recycleOrStudy"; // not translated
+    public const string StudyTechprintProjects = "studyTechprintProjects"; // not translated
+
+    /// <summary>A category's rule, locked as a whole: outcome, conditions and chance.</summary>
+    public static string Category(CategoryInfo category) => "rules." + category.Field; // not translated
 }
 
 /// <summary>What the presets are built from: the Progression defaults (from the pack's patchable Def) and the lock set.</summary>

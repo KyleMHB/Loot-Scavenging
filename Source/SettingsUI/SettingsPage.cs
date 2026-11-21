@@ -134,17 +134,17 @@ internal sealed class SettingsPage
         Section(ls, "LootScavenging_SectionWho".Translate());
         LootRules r = s.rules;
         Toggle(ls, "LootScavenging_Hostile".Translate(), ref r.hostile,
-            "LootScavenging_HostileOn".Translate(), "LootScavenging_HostileOff".Translate(), "rules.hostile");
+            "LootScavenging_HostileOn".Translate(), "LootScavenging_HostileOff".Translate(), SettingNames.Hostile);
         Toggle(ls, "LootScavenging_NonHostile".Translate(), ref r.nonHostileFaction,
-            "LootScavenging_NonHostileOn".Translate(), "LootScavenging_NonHostileOff".Translate(), "rules.nonHostileFaction");
+            "LootScavenging_NonHostileOn".Translate(), "LootScavenging_NonHostileOff".Translate(), SettingNames.NonHostileFaction);
         Toggle(ls, "LootScavenging_NoFaction".Translate(), ref r.noFaction,
-            "LootScavenging_NoFactionOn".Translate(), "LootScavenging_NoFactionOff".Translate(), "rules.noFaction");
+            "LootScavenging_NoFactionOn".Translate(), "LootScavenging_NoFactionOff".Translate(), SettingNames.NoFaction);
         Toggle(ls, "LootScavenging_Prisoners".Translate(), ref r.prisoners,
-            "LootScavenging_PrisonersOn".Translate(), "LootScavenging_PrisonersOff".Translate(), "rules.prisoners");
+            "LootScavenging_PrisonersOn".Translate(), "LootScavenging_PrisonersOff".Translate(), SettingNames.Prisoners);
         Toggle(ls, "LootScavenging_HomeMapOnly".Translate(), ref r.homeMapOnly,
-            "LootScavenging_HomeMapOnlyOn".Translate(), "LootScavenging_HomeMapOnlyOff".Translate(), "rules.homeMapOnly");
+            "LootScavenging_HomeMapOnlyOn".Translate(), "LootScavenging_HomeMapOnlyOff".Translate(), SettingNames.HomeMapOnly);
         Toggle(ls, "LootScavenging_DownedAndStrip".Translate(), ref r.onDownedAndStrip,
-            "LootScavenging_DownedAndStripOn".Translate(), "LootScavenging_DownedAndStripOff".Translate(), "rules.onDownedAndStrip");
+            "LootScavenging_DownedAndStripOn".Translate(), "LootScavenging_DownedAndStripOff".Translate(), SettingNames.OnDownedAndStrip);
         if (!r.hostile && !r.nonHostileFaction && !r.noFaction && !r.prisoners)
             Explain(ls, "LootScavenging_NoGroupOn".Translate());
     }
@@ -159,7 +159,7 @@ internal sealed class SettingsPage
             DrawCategory(ls, category);
         ls.Gap(6f);
         Toggle(ls, "LootScavenging_EjectCharges".Translate(), ref s.rules.ejectCharges,
-            "LootScavenging_EjectChargesOn".Translate(), "LootScavenging_EjectChargesOff".Translate(), "rules.ejectCharges");
+            "LootScavenging_EjectChargesOn".Translate(), "LootScavenging_EjectChargesOff".Translate(), SettingNames.EjectCharges);
     }
 
     private void DrawCategory(Listing_Standard ls, CategoryInfo info)
@@ -168,7 +168,7 @@ internal sealed class SettingsPage
         LootRules r = s.rules;
         ItemCategory category = info.Category;
         CategoryRule rule = info.Rule(r);
-        string lockName = "rules." + info.Field;
+        string lockName = SettingNames.Category(info);
         bool catLocked = IsLocked(lockName);
         ls.Gap(4f);
         Choice(ls, info.LabelKey.Translate(), rule.outcome, Outcomes, OutcomeName, v => info.Rule(settings.rules).outcome = v, lockName);
@@ -182,7 +182,7 @@ internal sealed class SettingsPage
         // every category with the same outcome.
         if (rule.outcome == Outcome.Degrade)
         {
-            bool rangeLocked = catLocked || IsLocked("rules.degradeMin") || IsLocked("rules.degradeMax");
+            bool rangeLocked = catLocked || IsLocked(SettingNames.DegradeMin) || IsLocked(SettingNames.DegradeMax);
             ls.Label("LootScavenging_DegradeRange".Translate(r.degradeMin.ToStringPercent(), r.degradeMax.ToStringPercent()));
             var range = new FloatRange(r.degradeMin, r.degradeMax);
             SetDisabled(rangeLocked);
@@ -193,14 +193,14 @@ internal sealed class SettingsPage
                 r.degradeMin = range.min;
                 r.degradeMax = range.max;
             }
-            bool qualityLocked = catLocked || IsLocked("rules.degradeLowersQuality");
+            bool qualityLocked = catLocked || IsLocked(SettingNames.DegradeLowersQuality);
             SetDisabled(qualityLocked);
             ls.CheckboxLabeled("LootScavenging_DegradeLowersQuality".Translate(), ref r.degradeLowersQuality);
             SetDisabled(false);
         }
         if (rule.outcome == Outcome.Disassemble && r.disassemblyYield == DisassemblyYield.ItemBased)
         {
-            bool efficiencyLocked = catLocked || IsLocked("rules.disassemblyEfficiency");
+            bool efficiencyLocked = catLocked || IsLocked(SettingNames.DisassemblyEfficiency);
             SetDisabled(efficiencyLocked);
             float efficiency = Percent(ls, "LootScavenging_DisassemblyEfficiency".Translate(r.disassemblyEfficiency.ToStringPercent()), r.disassemblyEfficiency, 0.05f, 1f);
             SetDisabled(false);
@@ -306,20 +306,20 @@ internal sealed class SettingsPage
 
         Choice(ls, "LootScavenging_DropMode".Translate(), s.rules.dropMode,
             new[] { DropMode.ScrapOutOfReach, DropMode.ScrapEverything, DropMode.KeepOriginal, DropMode.Off }, DropModeName,
-            v => settings.rules.dropMode = v, "rules.dropMode");
+            v => settings.rules.dropMode = v, SettingNames.DropMode);
         Explain(ls, DropModeSentence(s.rules.dropMode));
 
         Choice(ls, "LootScavenging_StudyEras".Translate(), s.studyEras,
-            new[] { StudyEraLimit.ColonyEraAndBelow, StudyEraLimit.AnyEra }, StudyErasName, v => settings.studyEras = v, "studyEras");
+            new[] { StudyEraLimit.ColonyEraAndBelow, StudyEraLimit.AnyEra }, StudyErasName, v => settings.studyEras = v, SettingNames.StudyEras);
         Explain(ls, StudyErasSentence(s.studyEras));
 
         Choice(ls, "LootScavenging_RecycleOrStudy".Translate(), s.recycleOrStudy,
-            new[] { RecycleOrStudy.OneOrTheOther, RecycleOrStudy.StudyThenRecycle }, RecycleOrStudyName, v => settings.recycleOrStudy = v, "recycleOrStudy");
+            new[] { RecycleOrStudy.OneOrTheOther, RecycleOrStudy.StudyThenRecycle }, RecycleOrStudyName, v => settings.recycleOrStudy = v, SettingNames.RecycleOrStudy);
         Explain(ls, s.recycleOrStudy == RecycleOrStudy.StudyThenRecycle
             ? "LootScavenging_StudyThenRecycleExplain".Translate()
             : "LootScavenging_OneOrTheOtherExplain".Translate());
 
-        bool valueLocked = IsLocked("scrapMarketValue");
+        bool valueLocked = IsLocked(SettingNames.ScrapMarketValue);
         SetDisabled(valueLocked);
         float value = ls.SliderLabeled("LootScavenging_ScrapValue".Translate(s.scrapMarketValue.ToString("0.##")), s.scrapMarketValue, 0.01f, 10f);
         SetDisabled(false);
@@ -331,23 +331,23 @@ internal sealed class SettingsPage
             : "LootScavenging_ScrapValueHigh".Translate(s.scrapMarketValue.ToString("0.##")));
 
         Toggle(ls, "LootScavenging_ScrapOnGround".Translate(), ref s.scrapOnGround,
-            "LootScavenging_ScrapOnGroundOn".Translate(), "LootScavenging_ScrapOnGroundOff".Translate(), "scrapOnGround");
+            "LootScavenging_ScrapOnGroundOn".Translate(), "LootScavenging_ScrapOnGroundOff".Translate(), SettingNames.ScrapOnGround);
 
         Choice(ls, "LootScavenging_EraFallback".Translate(), s.eraFallback,
-            new[] { EraFallback.CarrierFaction, EraFallback.ColonyEra, EraFallback.Components }, EraFallbackName, v => settings.eraFallback = v, "eraFallback");
+            new[] { EraFallback.CarrierFaction, EraFallback.ColonyEra, EraFallback.Components }, EraFallbackName, v => settings.eraFallback = v, SettingNames.EraFallback);
         Explain(ls, EraFallbackSentence(s.eraFallback));
 
         Choice(ls, "LootScavenging_DisassemblyYield".Translate(), s.rules.disassemblyYield,
-            new[] { DisassemblyYield.EraTypical, DisassemblyYield.ItemBased }, DisassemblyYieldName, v => settings.rules.disassemblyYield = v, "rules.disassemblyYield");
+            new[] { DisassemblyYield.EraTypical, DisassemblyYield.ItemBased }, DisassemblyYieldName, v => settings.rules.disassemblyYield = v, SettingNames.DisassemblyYield);
         Explain(ls, s.rules.disassemblyYield == DisassemblyYield.ItemBased
             ? "LootScavenging_YieldItemExplain".Translate()
             : "LootScavenging_YieldEraExplain".Translate());
 
         Toggle(ls, "LootScavenging_TechprintProjects".Translate(), ref s.studyTechprintProjects,
-            "LootScavenging_TechprintProjectsOn".Translate(), "LootScavenging_TechprintProjectsOff".Translate(), "studyTechprintProjects");
+            "LootScavenging_TechprintProjectsOn".Translate(), "LootScavenging_TechprintProjectsOff".Translate(), SettingNames.StudyTechprintProjects);
 
         Choice(ls, "LootScavenging_UnfamiliarScope".Translate(), s.unfamiliarScope,
-            new[] { UnfamiliarScope.AllOutOfReach, UnfamiliarScope.LootedOnly }, UnfamiliarScopeName, v => settings.unfamiliarScope = v, "unfamiliarScope");
+            new[] { UnfamiliarScope.AllOutOfReach, UnfamiliarScope.LootedOnly }, UnfamiliarScopeName, v => settings.unfamiliarScope = v, SettingNames.UnfamiliarScope);
         string scope = s.unfamiliarScope == UnfamiliarScope.LootedOnly
             ? "LootScavenging_UnfamiliarLootedExplain".Translate()
             : "LootScavenging_UnfamiliarAllExplain".Translate();
@@ -444,18 +444,18 @@ internal sealed class SettingsPage
         Section(ls, "LootScavenging_SectionCorpses".Translate());
         CorpseRules c = s.corpses;
         Toggle(ls, "LootScavenging_CorpseHumanlike".Translate(), ref c.humanlike,
-            "LootScavenging_CorpseHumanlikeOn".Translate(), "LootScavenging_CorpseHumanlikeOff".Translate(), "corpses.humanlike");
+            "LootScavenging_CorpseHumanlikeOn".Translate(), "LootScavenging_CorpseHumanlikeOff".Translate(), SettingNames.CorpseHumanlike);
         Toggle(ls, "LootScavenging_CorpseAnimal".Translate(), ref c.animal,
-            "LootScavenging_CorpseAnimalOn".Translate(), "LootScavenging_CorpseAnimalOff".Translate(), "corpses.animal");
+            "LootScavenging_CorpseAnimalOn".Translate(), "LootScavenging_CorpseAnimalOff".Translate(), SettingNames.CorpseAnimal);
         Toggle(ls, "LootScavenging_CorpseMechanoid".Translate(), ref c.mechanoid,
-            "LootScavenging_CorpseMechanoidOn".Translate(), "LootScavenging_CorpseMechanoidOff".Translate(), "corpses.mechanoid");
+            "LootScavenging_CorpseMechanoidOn".Translate(), "LootScavenging_CorpseMechanoidOff".Translate(), SettingNames.CorpseMechanoid);
         if (c.humanlike || c.animal || c.mechanoid)
         {
-            c.chance = Percent(ls, "LootScavenging_CorpseChance".Translate(c.chance.ToStringPercent()), c.chance, 0f, 1f, "corpses.chance");
+            c.chance = Percent(ls, "LootScavenging_CorpseChance".Translate(c.chance.ToStringPercent()), c.chance, 0f, 1f, SettingNames.CorpseChance);
             Explain(ls, "LootScavenging_CorpseChanceExplain".Translate(c.chance.ToStringPercent()));
         }
         Toggle(ls, "LootScavenging_ButcherApparel".Translate(), ref c.butcherRemovesApparel,
-            "LootScavenging_ButcherApparelOn".Translate(), "LootScavenging_ButcherApparelOff".Translate(), "corpses.butcherRemovesApparel");
+            "LootScavenging_ButcherApparelOn".Translate(), "LootScavenging_ButcherApparelOff".Translate(), SettingNames.ButcherRemovesApparel);
     }
 
     // Lists

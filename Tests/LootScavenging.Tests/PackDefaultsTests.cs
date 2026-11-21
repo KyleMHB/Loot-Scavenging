@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using LootScavenging.Model;
 using Xunit;
 
@@ -116,6 +117,24 @@ public class PackDefaultsTests
         var values = new SettingValues();
         foreach (string name in SettingLocks.Lockable)
             Assert.True(ValueWalk.PathExists(values, name), name);
+    }
+
+    // A pack's <locked> list names these, so the set must not change when the table is rebuilt.
+    [Fact]
+    public void TheLockableNamesAreTheOnesPacksUse()
+    {
+        string[] expected =
+        {
+            "rules.hostile", "rules.nonHostileFaction", "rules.noFaction", "rules.prisoners", "rules.homeMapOnly",
+            "rules.onDownedAndStrip", "rules.dropMode",
+            "rules.weapons", "rules.apparel", "rules.ammunition", "rules.drugs", "rules.medicine", "rules.food", "rules.other",
+            "rules.degradeMin", "rules.degradeMax", "rules.degradeLowersQuality",
+            "rules.disassemblyYield", "rules.disassemblyEfficiency", "rules.ejectCharges",
+            "corpses.humanlike", "corpses.animal", "corpses.mechanoid", "corpses.chance", "corpses.butcherRemovesApparel",
+            "eraFallback", "scrapMarketValue", "scrapOnGround", "unfamiliarScope", "studyEras", "recycleOrStudy",
+            "studyTechprintProjects",
+        };
+        Assert.Equal(expected.OrderBy(n => n), SettingLocks.Lockable.OrderBy(n => n));
     }
 
     [Fact]
