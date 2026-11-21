@@ -54,7 +54,7 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 ## Other batches
 
 - `lootscavenging-outcomes`: what an item becomes at death. Delete keeps apparel on the corpse, a mechanoid's weapon, era fallbacks and the components fallback, scrap amounts and the drop modes, a ten-pirate raid's piles, a quest-tagged weapon, animal corpse removal, degrade, item-based and era-typical disassembly, full stacks, ejected charges, a 200-unit recycling sample against `LootPool.Expected`, and the tier defs' config errors.
-- `lootscavenging-moments`: downed and strip with the option on and off, a living prisoner's strip, scrap on the body (kept and with corpse removal), a world pawn's death, butchering with a real bill job, and home-map-only on a generated camp map.
+- `lootscavenging-moments`: downed and strip with the option on and off, a living prisoner's strip, scrap on the body (kept and with corpse removal), everything on the body (scrap, ejected charges, inventory and disassembly products in the corpse; with corpse removal; a colonist's gear and a mechanoid's scrap under both on-body options dropping as usual), a world pawn's death, butchering with a real bill job, and home-map-only on a generated camp map.
 - `lootscavenging-settings`: through the calls the page makes, not the page. Presets and "(changed)", Vanilla in game, the first-load flag, locks (the pack's lock names applied to `Presets.Configure` directly; the pack's patch is not loaded), keep and remove lists, a missing-def list entry through a settings save and load, and the picker's search.
 - `lootscavenging-bench`: real bill jobs. Recycling and studied-scrap bills at a machining table, the study bench and its Bills tab, the study bill with no project, keep-X, work and XP, finishing a project, original items at the fabrication bench and research bench, and a techprint project (Royalty only).
 - `lootscavenging-saves`: a looted-only marked rifle, scrap, studied scrap and a study bill through the runner's save and reload, and the save file's contents.
@@ -64,6 +64,14 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 Not covered: the settings page and bill-tab UI, the first-load dialog on screen, loading a save without the mod (the runner ships inside the mod; Spearfishing uses a separate probe for this), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
 
 ## Result recording
+
+### 2026-11-21 - everything on the body
+
+- Version/environment: RimWorld 1.7, default mod set, seed 1; `dotnet test` 280 passed.
+- First run: moments `20261121-150605-lootscavenging-moments-s1-ebdb3cf5` failed the new `all-on-body-skips`: a lancer's 5 spacer scrap went into its wreck ("kept on the body"), which cannot be stripped. `ScrapApplier` kept scrap on the body under either on-body option without the mechanoid and no-strip skip that "everything on the body" applies; both now share `BodyLoot.CanHoldLoot`.
+- Runs after the fix: smoke `20261121-150723-lootscavenging-smoke-s1-33f31cfa` (9/9), outcomes `20261121-150734-lootscavenging-outcomes-s1-aadc1781` (15/15), moments `20261121-150753-lootscavenging-moments-s1-5d042b65` (13/13).
+- Observed: with everything on the body, a pirate's revolver and smokepop belt scrap, 10 ejected chemfuel and 50 silver were in the corpse with nothing on the ground, and stripping dropped all of it; a disassembled revolver's cost list was in the corpse; with corpse removal the scrap and silver lay on the ground; a colonist's revolver dropped whole; a lancer's scrap lay beside the wreck under both on-body options.
+- Status: Passed.
 
 ### 2026-11-21 - scrap art
 

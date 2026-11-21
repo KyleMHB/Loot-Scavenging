@@ -19,6 +19,8 @@ public sealed class MomentsBatch : Batch
     private const string P = "lootscavenging.moments.";
     private const string DownStripOn = P + "downed-and-strip-on", DownStripOff = P + "downed-and-strip-off", Prisoner = P + "prisoner-strip",
         OnBody = P + "scrap-on-body", OnBodyRemoved = P + "scrap-on-body-corpse-removed", OffMap = P + "off-map-death",
+        AllOnBody = P + "all-on-body", AllOnBodyDisassembled = P + "all-on-body-disassembled", AllOnBodyRemoved = P + "all-on-body-corpse-removed",
+        AllOnBodySkips = P + "all-on-body-skips",
         Butcher = P + "butchering-removes-apparel", HomeOnly = P + "home-map-only", NoErrors = P + "no-mod-errors";
 
     public override string Id => "lootscavenging-moments";
@@ -32,6 +34,10 @@ public sealed class MomentsBatch : Batch
         new PlannedCase(Prisoner, Levels.Mechanical, "stripping a living colony prisoner scraps out-of-reach apparel"),
         new PlannedCase(OnBody, Levels.Mechanical, "scrap left on the body is in the corpse; stripping it drops the scrap"),
         new PlannedCase(OnBodyRemoved, Levels.Mechanical, "with corpse removal on, scrap left on the body lands on the ground"),
+        new PlannedCase(AllOnBody, Levels.Mechanical, "everything on the body: scrap, ejected charges and inventory stay in the corpse; stripping drops them"),
+        new PlannedCase(AllOnBodyDisassembled, Levels.Mechanical, "everything on the body: disassembly products stay in the corpse"),
+        new PlannedCase(AllOnBodyRemoved, Levels.Mechanical, "everything on the body with corpse removal on: the loot lands on the ground"),
+        new PlannedCase(AllOnBodySkips, Levels.Mechanical, "everything on the body: a colonist's gear and a mechanoid's scrap drop as usual"),
         new PlannedCase(OffMap, Levels.Mechanical, "a world pawn's death (no map, no corpse) logs no error"),
         new PlannedCase(Butcher, Levels.PlayerWorkflow, "a butcher bill destroys worn apparel with the option on and drops it with the option off"),
         new PlannedCase(HomeOnly, Levels.Mechanical, "home-map-only leaves gear whole on an away map; off, it is scrapped there"),
@@ -42,12 +48,12 @@ public sealed class MomentsBatch : Batch
     {
         long modErrorsAtStart = CaseErrors.ModMark;
         ModHarness.SaveSettings();
-        var area = Kit.Area(ctx, 60, 14);
+        var area = Kit.Area(ctx, 80, 14);
         Kit.RemoveStartingColonists(ctx);
         yield return Wait.Ticks(1);
         var map = ctx.Map;
         MakeTribal(ctx);
-        var sites = new Queue<IntVec3>(Sites(area, 8, 7));
+        var sites = new Queue<IntVec3>(Sites(area, 11, 7));
         var revolver = Kit.Def("Gun_Revolver");
         var vest = Kit.Def("Apparel_FlakVest");
         var industrial = Scrap(ScrapTier.Industrial);
@@ -141,6 +147,128 @@ public sealed class MomentsBatch : Batch
             c.Step(p.Corpse == null || p.Corpse.Destroyed, "the corpse is removed");
             c.Step(onGround == expected, "the scrap it carried lies on the ground");
             c.Conclude();
+        }
+
+        // ---- 03/08/10: everything stays on the body ----------------------------------------------------------------------
+        var silver = ThingDefOf.Silver;
+        var chemfuel = ThingDefOf.Chemfuel;
+        int InCorpse(Pawn dead, ThingDef def) =>
+            dead.Corpse?.InnerPawn?.inventory?.innerContainer.Where(t => t.def == def).Sum(t => t.stackCount) ?? 0;
+        {
+            var c = ctx.Begin(AllOnBody);
+            ModHarness.RestoreSettings();
+            Settings.values.deathDrop = DeathDrop.AllOnBody;
+            Rules.ejectCharges = true;
+            var cell = sites.Dequeue();
+            var p = Spawn(ctx, Mercenary, Pirates, cell);
+            var gun = Arm(p, revolver, QualityCategory.Normal);
+            var belt = Dress(p, Kit.Def("Apparel_SmokepopBelt"));
+            p.inventory.innerContainer.TryAdd(Stack(silver, 50));
+            c.Subject(p);
+            int expectedScrap = ScrapAmounts.Units(gun.MarketValue, 1) + ScrapAmounts.Units(belt.MarketValue, 1);
+            var watched = AllScrap.Concat(new[] { silver, chemfuel }).ToList();
+            var before = watched.ToDictionary(d => d, d => Kit.StackIds(map, d));
+            int Ground() => watched.Sum(d => Units(NewNear(map, d, before[d], cell)));
+            p.Kill(null);
+            int scrapIn = AllScrap.Sum(d => InCorpse(p, d)), silverIn = InCorpse(p, silver), fuelIn = InCorpse(p, chemfuel);
+            int ground = Ground();
+            c.Expect("scrapInCorpse", expectedScrap).Observe("scrapInCorpse", scrapIn).Observe("silverInCorpse", silverIn)
+                .Observe("chemfuelInCorpse", fuelIn).Observe("onGroundAtDeath", ground);
+            c.Step(gun.Destroyed && belt.Destroyed, "the revolver and smokepop belt are scrapped");
+            c.Step(scrapIn == expectedScrap, $"their scrap ({scrapIn}, expected {expectedScrap}) is in the corpse's inventory");
+            c.Step(fuelIn == 10, $"the belt's ejected chemfuel ({fuelIn}) is in the corpse's inventory");
+            c.Step(silverIn == 50, $"the carried silver ({silverIn}) is in the corpse's inventory");
+            c.Step(ground == 0, "nothing lands on the ground at death");
+            before = watched.ToDictionary(d => d, d => Kit.StackIds(map, d));
+            p.Corpse?.Strip();
+            int dropped = Ground();
+            c.Observe("droppedByStrip", dropped);
+            c.Step(dropped == scrapIn + fuelIn + silverIn, $"stripping the corpse drops all of it ({dropped})");
+            c.Conclude();
+        }
+        {
+            var c = ctx.Begin(AllOnBodyDisassembled);
+            ModHarness.RestoreSettings();
+            Settings.values.deathDrop = DeathDrop.AllOnBody;
+            Rules.dropMode = DropMode.Off;
+            Rules.weapons = new CategoryRule(Outcome.Disassemble);
+            Rules.disassemblyYield = DisassemblyYield.ItemBased;
+            Rules.disassemblyEfficiency = 1f;
+            var costs = revolver.CostList.Where(x => x.count > 0).ToList();
+            var cell = sites.Dequeue();
+            var p = Spawn(ctx, Mercenary, Pirates, cell);
+            var gun = Arm(p, revolver, QualityCategory.Normal);
+            c.Subject(p);
+            var before = costs.ToDictionary(x => x.thingDef, x => Kit.StackIds(map, x.thingDef));
+            p.Kill(null);
+            c.Step(gun.Destroyed, "the revolver is disassembled");
+            foreach (var cost in costs)
+            {
+                int inside = InCorpse(p, cost.thingDef), ground = Units(NewNear(map, cost.thingDef, before[cost.thingDef], cell));
+                c.Expect(cost.thingDef.defName, cost.count).Observe(cost.thingDef.defName, inside).Observe(cost.thingDef.defName + "OnGround", ground);
+                c.Step(inside == cost.count && ground == 0, $"its {cost.count} {cost.thingDef.label} are in the corpse's inventory ({inside}), none on the ground");
+            }
+            c.Conclude();
+        }
+        {
+            var c = ctx.Begin(AllOnBodyRemoved);
+            ModHarness.RestoreSettings();
+            Settings.values.deathDrop = DeathDrop.AllOnBody;
+            Settings.values.corpses.humanlike = true;
+            var cell = sites.Dequeue();
+            var p = Spawn(ctx, Mercenary, Pirates, cell);
+            var gun = Arm(p, revolver, QualityCategory.Normal);
+            p.inventory.innerContainer.TryAdd(Stack(silver, 50));
+            c.Subject(p);
+            int expected = ScrapAmounts.Units(gun.MarketValue, 1);
+            var beforeScrap = Kit.StackIds(map, industrial);
+            var beforeSilver = Kit.StackIds(map, silver);
+            p.Kill(null);
+            int scrap = Units(NewNear(map, industrial, beforeScrap, cell)), silverOut = Units(NewNear(map, silver, beforeSilver, cell));
+            c.Expect("scrapOnGround", expected).Observe("scrapOnGround", scrap).Observe("silverOnGround", silverOut);
+            c.Step(p.Corpse == null || p.Corpse.Destroyed, "the corpse is removed");
+            c.Step(scrap == expected && silverOut == 50, $"its scrap ({scrap}) and silver ({silverOut}) lie on the ground");
+            c.Conclude();
+        }
+        {
+            var c = ctx.Begin(AllOnBodySkips);
+            ModHarness.RestoreSettings();
+            Settings.values.deathDrop = DeathDrop.AllOnBody;
+            var cell = sites.Dequeue();
+            var colonist = Spawn(ctx, PawnKindDefOf.Colonist, Faction.OfPlayer, cell);
+            var ownGun = Arm(colonist, revolver, QualityCategory.Normal);
+            colonist.Kill(null);
+            c.Step(!ownGun.Destroyed && ownGun.Spawned && InCorpse(colonist, revolver) == 0, "a colonist's revolver drops whole on the ground, not into the corpse");
+
+            // The wreck cannot be stripped, so scrap left in it would be stuck: both on-body options drop it as usual.
+            cell = sites.Dequeue();
+            bool ready = true;
+            foreach (var mode in new[] { DeathDrop.AllOnBody, DeathDrop.ScrapOnBody })
+            {
+                Settings.values.deathDrop = mode;
+                var mech = PawnGenerator.GeneratePawn(new PawnGenerationRequest(DefDatabase<PawnKindDef>.GetNamed("Mech_Lancer"), Faction.OfMechanoids, forceGenerateNewPawn: true));
+                GenSpawn.Spawn(mech, cell, map);
+                var weapon = mech.equipment?.Primary;
+                if (!Kit.Require(ctx, AllOnBodySkips, (weapon != null, "the lancer spawned with a weapon"),
+                    (mech.kindDef.destroyGearOnDrop && !mech.kindDef.canStrip, "the lancer's kind destroys its gear and cannot be stripped")))
+                {
+                    ready = false;
+                    break;
+                }
+                var tierDef = Scrap(ScrapTiers.TierFor(EraReader.ItemEra(weapon.def, mech.Faction).Era, EraReader.ColonyEra()));
+                int expected = ScrapAmounts.Units(weapon.MarketValue, 1);
+                // Totals near the cell, not new stacks: the second lancer's scrap merges into the first one's pile.
+                int Near() => map.listerThings.ThingsOfDef(tierDef).Where(t => t.Spawned && t.Position.DistanceTo(cell) <= 5f).Sum(t => t.stackCount);
+                int start = Near();
+                mech.Kill(null);
+                int made = Near() - start;
+                int inWreck = InCorpse(mech, tierDef);
+                c.Expect("mechScrap" + mode, expected).Observe("mechScrap" + mode, made).Observe("inWreck" + mode, inWreck);
+                c.Step(weapon.Destroyed && made == expected && inWreck == 0,
+                    $"{mode}: the lancer's weapon becomes {made} {tierDef.defName} beside the wreck (expected {expected}), {inWreck} inside it");
+                mech.Corpse?.Destroy();
+            }
+            if (ready) c.Conclude();
         }
 
         // ---- 10: death off the map ---------------------------------------------------------------------------------------

@@ -23,6 +23,9 @@ internal static class BodyLoot
 
     public static bool KeepsAll(Pawn pawn) => keepsAll.Contains(pawn);
 
+    // Both on-body options skip these pawns: loot left on a body the game strips of nothing (most mechanoids) would be stuck.
+    public static bool CanHoldLoot(Pawn pawn) => !pawn.kindDef.destroyGearOnDrop && pawn.kindDef.canStrip;
+
     public static void Hold(Pawn pawn, Thing thing)
     {
         if (!held.TryGetValue(pawn, out List<Thing> list))
@@ -37,8 +40,7 @@ internal static class BodyLoot
     /// </summary>
     public static void BeginDeath(Pawn pawn)
     {
-        if (LootScavengingMod.Settings.values.deathDrop != DeathDrop.AllOnBody || !pawn.Spawned
-            || pawn.kindDef.destroyGearOnDrop || !pawn.kindDef.canStrip)
+        if (LootScavengingMod.Settings.values.deathDrop != DeathDrop.AllOnBody || !pawn.Spawned || !CanHoldLoot(pawn))
             return;
         MapKind map = pawn.Map.IsPlayerHome ? MapKind.Home : MapKind.Away;
         if (LootEvaluator.CoversPawn(GearSorter.OwnerOf(pawn), map, LootScavengingMod.Settings.values.rules))

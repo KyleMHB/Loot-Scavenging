@@ -58,7 +58,7 @@ internal static class ScrapApplier
 
         OutcomeApplier.Delete(pawn, thing);
 
-        bool keepOnBody = moment == Moment.Death && LootScavengingMod.Settings.values.deathDrop != DeathDrop.Ground;
+        bool keepOnBody = moment == Moment.Death && LootScavengingMod.Settings.values.deathDrop != DeathDrop.Ground && BodyLoot.CanHoldLoot(pawn);
         foreach (int count in ScrapAmounts.SplitIntoStacks(units, scrapDef.stackLimit))
         {
             Thing scrap = ThingMaker.MakeThing(scrapDef);
