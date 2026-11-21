@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LootScavenging.Model;
 using RimWorld;
 using Verse;
@@ -62,7 +63,9 @@ public static class EraReader
             }
         }
 
-        Era factionEra = carrier?.def != null ? (Era)carrier.def.techLevel : Era.Undefined;
+        // No carrier (the default unfamiliar scope saves none, wild men have no faction): the era of the factions that
+        // typically carry it stands in. Only read by gear with no research and no tech level of its own.
+        Era factionEra = carrier?.def != null ? (Era)carrier.def.techLevel : TypicalCarrierEra(def);
         return EraRanking.Resolve(researchEra, unfinished, (Era)def.techLevel, factionEra, IsGear(def), fallback, ColonyEra());
     }
 
@@ -106,6 +109,49 @@ public static class EraReader
             BuildRecipeIndex();
         }
         return recipeIndex.TryGetValue(def, out List<ResearchProjectDef> found) ? found : None;
+    }
+
+    // Built once from the faction and pawn kind defs, which do not change after load.
+    private static CarrierEras carrierEras;
+
+    private static Era TypicalCarrierEra(ThingDef def)
+    {
+        if (!IsGear(def))
+            return Era.Undefined;
+        if (carrierEras == null)
+            carrierEras = BuildCarrierEras();
+        return carrierEras.For(def.weaponTags, def.apparel?.tags, def.defName);
+    }
+
+    private static CarrierEras BuildCarrierEras()
+    {
+        var eras = new CarrierEras();
+        foreach (FactionDef faction in DefDatabase<FactionDef>.AllDefsListForReading)
+        {
+            if (faction.isPlayer || faction.pawnGroupMakers == null)
+                continue;
+            var era = (Era)faction.techLevel;
+            foreach (PawnGroupMaker maker in faction.pawnGroupMakers)
+            {
+                AddKinds(eras, era, maker.options);
+                AddKinds(eras, era, maker.traders);
+                AddKinds(eras, era, maker.carriers);
+                AddKinds(eras, era, maker.guards);
+            }
+        }
+        return eras;
+    }
+
+    private static void AddKinds(CarrierEras eras, Era era, List<PawnGenOption> options)
+    {
+        if (options == null)
+            return;
+        foreach (PawnGenOption option in options)
+        {
+            PawnKindDef kind = option?.kind;
+            if (kind != null)
+                eras.AddKind(era, kind.weaponTags, kind.apparelTags, kind.apparelRequired?.Where(d => d != null).Select(d => d.defName));
+        }
     }
 
     private static void BuildRecipeIndex()

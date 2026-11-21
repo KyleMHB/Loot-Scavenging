@@ -107,7 +107,8 @@ public static class Unfamiliar
     {
         if (!reachCache.TryGetValue(def, out EraResult result))
         {
-            // No carrier: unfamiliarity is worked out from research, the item's own tech level and the fallback setting.
+            // No carrier: unfamiliarity is worked out from research, the item's own tech level and the fallback setting,
+            // where the carrier step uses the era of the factions that typically carry the item (EraReader).
             result = EraReader.ItemEra(def, null);
             reachCache[def] = result;
         }
