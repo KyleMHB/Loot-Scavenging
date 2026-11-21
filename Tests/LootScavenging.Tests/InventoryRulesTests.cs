@@ -20,7 +20,7 @@ public class InventoryRulesTests
 
     private static LootRules DeleteEverything()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.weapons.outcome = Outcome.Delete;
         rules.medicine.outcome = Outcome.Delete;
         rules.food.outcome = Outcome.Delete;
@@ -35,7 +35,7 @@ public class InventoryRulesTests
     [InlineData(ItemCategory.Other)]
     public void EachInventoryGroupFollowsItsOwnRule(ItemCategory category)
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.RuleFor(category).outcome = Outcome.Delete;
 
         Assert.Equal(Outcome.Delete, LootEvaluator.Evaluate(Item(category), rules).Outcome);
@@ -49,7 +49,7 @@ public class InventoryRulesTests
     [Fact]
     public void QuestWeaponAndMedicineDropUntouchedWithDefaultRules()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.medicine.outcome = Outcome.Delete;
 
         var questWeapon = Item(ItemCategory.Weapon, "Gun_BoltActionRifle");
@@ -109,7 +109,7 @@ public class InventoryRulesTests
     [Fact]
     public void RemoveListItemsAreActedOnEvenWhenTheirCategoryKeeps()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.removeList.Add("Silver");
 
         var decision = LootEvaluator.Evaluate(Item(ItemCategory.Other, "Silver"), rules);
@@ -121,7 +121,7 @@ public class InventoryRulesTests
     [Fact]
     public void RemoveListUsesTheCategoryOutcomeWhenItActs()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.food.outcome = Outcome.Scrap;
         rules.removeList.Add("MealSimple");
 
@@ -131,7 +131,7 @@ public class InventoryRulesTests
     [Fact]
     public void RemoveListSkipsConditionsAndChance()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.other.chance = 0f;
         rules.other.onlyBeyondReach = true;
         rules.removeList.Add("Silver");
@@ -142,7 +142,7 @@ public class InventoryRulesTests
     [Fact]
     public void RemoveListDoesNotOverrideTheOwnerCheck()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.removeList.Add("Silver");
         var colony = Item(ItemCategory.Other, "Silver");
         colony.Owner = OwnerGroup.Colony;
@@ -153,7 +153,7 @@ public class InventoryRulesTests
     [Fact]
     public void ListEntriesForItemsThatNoLongerExistAreIgnored()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.keepList.AddRange(new[] { "RemovedMod_Gizmo", "", "silver" });
         rules.removeList.Add("RemovedMod_Widget");
 
@@ -167,7 +167,7 @@ public class InventoryRulesTests
     [Fact]
     public void BeyondReachLimitOnlyActsOnOutOfReachItems()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.medicine.outcome = Outcome.Delete;
         rules.medicine.onlyBeyondReach = true;
         var within = Item();
@@ -184,7 +184,7 @@ public class InventoryRulesTests
     [Fact]
     public void QualityLimitActsOnlyBelowTheThreshold()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.weapons.limitQuality = true;
         rules.weapons.belowQuality = ItemQuality.Normal;
         var poor = Item(ItemCategory.Weapon, "Gun_X");
@@ -201,7 +201,7 @@ public class InventoryRulesTests
     [Fact]
     public void HitPointLimitActsOnlyBelowThePercentage()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.apparel.outcome = Outcome.Delete;
         rules.apparel.limitHitPoints = true;
         rules.apparel.belowHitPointFraction = 0.5f;
@@ -217,7 +217,7 @@ public class InventoryRulesTests
     [Fact]
     public void QualityAndHitPointLimitsAreAlternativesAndReachIsAGate()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.weapons.limitQuality = true;
         rules.weapons.limitHitPoints = true;
         rules.weapons.onlyBeyondReach = true;
@@ -234,7 +234,7 @@ public class InventoryRulesTests
     [Fact]
     public void EachCategoryRollsItsOwnChance()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.medicine.outcome = Outcome.Delete;
         rules.medicine.chance = 0.25f;
         rules.food.outcome = Outcome.Delete;
@@ -250,7 +250,7 @@ public class InventoryRulesTests
     [Fact]
     public void ChanceIsOnlyRolledWhenTheItemQualifiesAndTheChanceIsBelowAlways()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.medicine.outcome = Outcome.Delete;
         rules.medicine.chance = 0.5f;
         rules.medicine.onlyBeyondReach = true;
@@ -266,7 +266,7 @@ public class InventoryRulesTests
     [Fact]
     public void ZeroChanceNeverActs()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.medicine.outcome = Outcome.Delete;
         rules.medicine.chance = 0f;
 

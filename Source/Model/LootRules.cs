@@ -31,27 +31,27 @@ public sealed class CategoryRule
 
 /// <summary>
 /// The rule values the evaluator reads. Fields are public so the settings can Scribe them by reference.
-/// The code defaults are the ticket 01 test rules; ticket 11 replaces them with the Progression preset.
+/// The initialisers match the Progression preset (a test checks it); the settings themselves start from Presets.Defaults().
 /// </summary>
 public sealed class LootRules
 {
     // Owner groups (step 1). Colony pawns have no toggle: they are never affected.
     public bool hostile = true;
-    public bool nonHostileFaction;
-    public bool noFaction;
-    public bool prisoners;
+    public bool nonHostileFaction = true;
+    public bool noFaction = true;
+    public bool prisoners = true;
 
     // Place (step 2).
     public bool homeMapOnly;
 
     // Moment (step 3). Death always applies; this extends the rules to downed and strip.
-    public bool onDownedAndStrip;
+    public bool onDownedAndStrip = true;
 
     // What out-of-reach gear becomes. Ticket 03 adds the evaluator step that reads it.
     public DropMode dropMode = DropMode.ScrapOutOfReach;
 
     // Category rules (step 5).
-    public CategoryRule weapons = new CategoryRule(Outcome.Delete);
+    public CategoryRule weapons = new CategoryRule(Outcome.Keep);
     public CategoryRule apparel = new CategoryRule(Outcome.Keep);
     public CategoryRule ammunition = new CategoryRule(Outcome.Keep);
     public CategoryRule drugs = new CategoryRule(Outcome.Keep);
@@ -59,7 +59,7 @@ public sealed class LootRules
     public CategoryRule food = new CategoryRule(Outcome.Keep);
     public CategoryRule other = new CategoryRule(Outcome.Keep);
 
-    // Degrade and disassemble (ticket 08). Code defaults; ticket 11's presets set them.
+    // Degrade and disassemble (ticket 08).
     public float degradeMin = Disassembly.DefaultDegradeMin;
     public float degradeMax = Disassembly.DefaultDegradeMax;
     public bool degradeLowersQuality;

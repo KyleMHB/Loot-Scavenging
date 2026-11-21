@@ -5,7 +5,7 @@ namespace LootScavenging.Tests;
 
 public class CorpseEvaluatorTests
 {
-    private static LootRules Loot() => new LootRules { hostile = true };
+    private static LootRules Loot() => TestRules.Basic(r => { r.hostile = true; });
 
     private static CorpseRules Corpses() => new CorpseRules { humanlike = true, chance = 1f };
 

@@ -12,9 +12,9 @@ public class LootEvaluatorTests
     }
 
     [Fact]
-    public void DefaultRulesDeleteAHostileWeaponAndKeepItsApparelAtDeath()
+    public void WeaponDeleteRuleDeletesAHostileWeaponAndKeepsItsApparelAtDeath()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
 
         var weapon = LootEvaluator.Evaluate(Drop(category: ItemCategory.Weapon), rules);
         var apparel = LootEvaluator.Evaluate(Drop(category: ItemCategory.Apparel), rules);
@@ -28,7 +28,7 @@ public class LootEvaluatorTests
     [Fact]
     public void ColonyGearIsNeverTouchedEvenWithEveryGroupOn()
     {
-        var rules = new LootRules { hostile = true, nonHostileFaction = true, noFaction = true, prisoners = true };
+        var rules = TestRules.Basic(r => { r.hostile = true; r.nonHostileFaction = true; r.noFaction = true; r.prisoners = true; });
 
         var decision = LootEvaluator.Evaluate(Drop(owner: OwnerGroup.Colony), rules);
 
@@ -39,8 +39,8 @@ public class LootEvaluatorTests
     [Fact]
     public void WildAnimalGearIsLeftAloneWhileTheNoFactionGroupIsOff()
     {
-        var off = LootEvaluator.Evaluate(Drop(owner: OwnerGroup.NoFaction), new LootRules { noFaction = false });
-        var on = LootEvaluator.Evaluate(Drop(owner: OwnerGroup.NoFaction), new LootRules { noFaction = true });
+        var off = LootEvaluator.Evaluate(Drop(owner: OwnerGroup.NoFaction), TestRules.Basic(r => { r.noFaction = false; }));
+        var on = LootEvaluator.Evaluate(Drop(owner: OwnerGroup.NoFaction), TestRules.Basic(r => { r.noFaction = true; }));
 
         Assert.Equal(Outcome.Keep, off.Outcome);
         Assert.Equal(DecisionReason.OwnerGroupOff, off.Reason);
@@ -54,14 +54,14 @@ public class LootEvaluatorTests
     [InlineData(OwnerGroup.Prisoner)]
     public void EachOwnerGroupHasItsOwnToggle(OwnerGroup group)
     {
-        var allOff = new LootRules { hostile = false, nonHostileFaction = false, noFaction = false, prisoners = false };
-        var onlyThis = new LootRules
+        var allOff = TestRules.Basic(r => { r.hostile = false; r.nonHostileFaction = false; r.noFaction = false; r.prisoners = false; });
+        var onlyThis = TestRules.Basic(r =>
         {
-            hostile = group == OwnerGroup.Hostile,
-            nonHostileFaction = group == OwnerGroup.NonHostileFaction,
-            noFaction = group == OwnerGroup.NoFaction,
-            prisoners = group == OwnerGroup.Prisoner,
-        };
+            r.hostile = group == OwnerGroup.Hostile;
+            r.nonHostileFaction = group == OwnerGroup.NonHostileFaction;
+            r.noFaction = group == OwnerGroup.NoFaction;
+            r.prisoners = group == OwnerGroup.Prisoner;
+        });
 
         Assert.Equal(DecisionReason.OwnerGroupOff, LootEvaluator.Evaluate(Drop(owner: group), allOff).Reason);
         Assert.Equal(Outcome.Delete, LootEvaluator.Evaluate(Drop(owner: group), onlyThis).Outcome);
@@ -70,7 +70,7 @@ public class LootEvaluatorTests
     [Fact]
     public void HomeMapOnlyLeavesGearAloneAwayFromHome()
     {
-        var rules = new LootRules { homeMapOnly = true };
+        var rules = TestRules.Basic(r => { r.homeMapOnly = true; });
 
         var away = LootEvaluator.Evaluate(Drop(map: MapKind.Away), rules);
         var home = LootEvaluator.Evaluate(Drop(map: MapKind.Home), rules);
@@ -83,7 +83,7 @@ public class LootEvaluatorTests
     [Fact]
     public void AwayMapsFollowTheRulesWhenHomeMapOnlyIsOff()
     {
-        var decision = LootEvaluator.Evaluate(Drop(map: MapKind.Away), new LootRules { homeMapOnly = false });
+        var decision = LootEvaluator.Evaluate(Drop(map: MapKind.Away), TestRules.Basic(r => { r.homeMapOnly = false; }));
 
         Assert.Equal(Outcome.Delete, decision.Outcome);
     }
@@ -91,7 +91,7 @@ public class LootEvaluatorTests
     [Fact]
     public void GearWithNoMapIsAlwaysLeftAlone()
     {
-        var decision = LootEvaluator.Evaluate(Drop(map: MapKind.None), new LootRules { homeMapOnly = false });
+        var decision = LootEvaluator.Evaluate(Drop(map: MapKind.None), TestRules.Basic(r => { r.homeMapOnly = false; }));
 
         Assert.Equal(Outcome.Keep, decision.Outcome);
         Assert.Equal(DecisionReason.NoMap, decision.Reason);
@@ -102,8 +102,8 @@ public class LootEvaluatorTests
     [InlineData(Moment.Strip)]
     public void DownedAndStripFollowTheMomentSetting(Moment moment)
     {
-        var deathOnly = LootEvaluator.Evaluate(Drop(moment: moment), new LootRules { onDownedAndStrip = false });
-        var anyDrop = LootEvaluator.Evaluate(Drop(moment: moment), new LootRules { onDownedAndStrip = true });
+        var deathOnly = LootEvaluator.Evaluate(Drop(moment: moment), TestRules.Basic(r => { r.onDownedAndStrip = false; }));
+        var anyDrop = LootEvaluator.Evaluate(Drop(moment: moment), TestRules.Basic(r => { r.onDownedAndStrip = true; }));
 
         Assert.Equal(Outcome.Keep, deathOnly.Outcome);
         Assert.Equal(DecisionReason.MomentOff, deathOnly.Reason);
@@ -113,7 +113,7 @@ public class LootEvaluatorTests
     [Fact]
     public void DeathAlwaysAppliesWhateverTheMomentSetting()
     {
-        var decision = LootEvaluator.Evaluate(Drop(moment: Moment.Death), new LootRules { onDownedAndStrip = false });
+        var decision = LootEvaluator.Evaluate(Drop(moment: Moment.Death), TestRules.Basic(r => { r.onDownedAndStrip = false; }));
 
         Assert.Equal(Outcome.Delete, decision.Outcome);
     }
@@ -121,7 +121,7 @@ public class LootEvaluatorTests
     [Fact]
     public void EachCategoryFollowsItsOwnRule()
     {
-        var rules = new LootRules();
+        var rules = TestRules.Basic();
         rules.weapons.outcome = Outcome.Keep;
         rules.apparel.outcome = Outcome.Delete;
 
@@ -132,7 +132,7 @@ public class LootEvaluatorTests
     [Fact]
     public void InventoryGroupsAreKeptByDefault()
     {
-        var decision = LootEvaluator.Evaluate(Drop(category: ItemCategory.Other), new LootRules());
+        var decision = LootEvaluator.Evaluate(Drop(category: ItemCategory.Other), TestRules.Basic());
 
         Assert.Equal(Outcome.Keep, decision.Outcome);
         Assert.Equal(DecisionReason.CategoryRule, decision.Reason);
@@ -141,7 +141,7 @@ public class LootEvaluatorTests
     [Fact]
     public void TheOwnerCheckComesBeforeThePlaceAndMomentChecks()
     {
-        var rules = new LootRules { noFaction = false, homeMapOnly = true, onDownedAndStrip = false };
+        var rules = TestRules.Basic(r => { r.noFaction = false; r.homeMapOnly = true; r.onDownedAndStrip = false; });
 
         var decision = LootEvaluator.Evaluate(Drop(owner: OwnerGroup.NoFaction, map: MapKind.Away, moment: Moment.Strip), rules);
 

@@ -14,7 +14,7 @@ public class DropModeTests
     private static readonly EraResult InReach = new EraResult(Era.Neolithic, EraSource.Item, false);
     private static readonly EraResult Components = new EraResult(Era.Undefined, EraSource.Components, false);
 
-    private static LootRules Rules(DropMode mode) => new LootRules { dropMode = mode };
+    private static LootRules Rules(DropMode mode) => TestRules.Basic(r => { r.dropMode = mode; });
 
     [Fact]
     public void ScrapOutOfReachScrapsGearBeyondReach()
