@@ -2,7 +2,7 @@
 
 <!-- Agent read route: read only the newest relevant release; locate older versions by searching `^## ` headings. -->
 
-## 2026-11-21
+## 0.2.0 - 2026-11-21
 
 ### Added
 
@@ -19,7 +19,7 @@
 - Exempted medicine from the drop mode by default, with a setting to include it.
 - Added a choice of where loot lands at death: on the ground, scrap on the body, or everything on the body.
 
-## 2026-11-20
+## 0.1.0 - 2026-11-20
 
 ### Internal
 

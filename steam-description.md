@@ -4,7 +4,7 @@ When a raider, visitor or other non-colony pawn dies, is downed or is stripped, 
 
 If you play for cleanup instead, a preset deletes damaged and low-quality gear from the hostile dead and removes their corpses, with no era handling at all.
 
-[b]Mod version:[/b] 0.1.0
+[b]Mod version:[/b] 0.2.0
 
 [h2]Features[/h2]
 
@@ -57,6 +57,10 @@ Loot Scavenging is not compatible with Looting Manager.
 The loot rules run only when a pawn dies, is downed or is stripped, not every tick.
 
 Modpacks can patch the scrap tiers, their benches and materials, and the default settings, which are all XML. A pack can also lock chosen settings.
+
+You can add Loot Scavenging to an existing save. Stockpiles you already have will not take scrap until you allow it in their filters.
+
+Removing it from a save has not been tested. Scrap and recycle bills would be lost when the save loads, with errors in the log, and research benches would lose their study bills. Use up or destroy your scrap and delete those bills first.
 
 [h2]Credits[/h2]
 

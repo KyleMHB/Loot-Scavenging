@@ -17,6 +17,10 @@ This mod is built from the spec and the game's own code. Looting Manager, Non un
 - `packs/`: preset patches for packs to copy into their own `Patches/`. The game never loads this folder.
 - `.scratch/<feature>/`: specs and tickets. `docs/agents/`: tracker conventions.
 
+## Versioning
+
+The mod version lives in three places that change together: `About/About.xml` `<modVersion>`, the `[b]Mod version:[/b]` line in `steam-description.md`, and the newest `CHANGELOG.md` heading (`## <version> - <date>`). Bump the patch (0.2.1) for fixes and the minor (0.3.0) for features, once per Workshop upload. None of the three touches the DLL, so a bump keeps the release-check perf run valid.
+
 ## Commands
 
 - Build 1.7: `dotnet build Source/LootScavenging.csproj -c Release`
