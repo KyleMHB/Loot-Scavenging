@@ -1,6 +1,6 @@
 # Loot Scavenging Testing
 
-Updated through: the `loot-scavenging` branch on 2026-11-21
+Updated through: `main` on 2026-11-21
 
 ## Agent read route
 
@@ -35,6 +35,7 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 | `progression-defaults` | A fresh config holds the Progression preset and is not marked changed | 11 |
 | `tribal-fixture` | Canary: colony era Neolithic, revolver research unfinished, pirates hostile, no scrap | - |
 | `tribal-scrap` | A dead pirate's revolver becomes industrial scrap (`ScrapAmounts.Units`) beside the corpse; carried silver and steel drop untouched; a colonist's and a wild hare's deaths change nothing | 01, 03 |
+| `tribal-medicine` | A pirate's industrial medicine drops whole by default while his revolver becomes scrap; with `rules.dropIncludesMedicine` on, a second pirate's medicine becomes industrial scrap | 16 |
 | `cleanup-preset` | Poor weapon deleted, good weapon kept, corpse removed with its kept apparel on the ground | 01, 10, 11 |
 | `recycling` | Machining table recycles three tiers, smithy no industrial, vanilla bills kept; 20 single units through the recipe's product step give pool materials | 04 |
 | `study` | 5 medieval units pay 100 points at research factor 1; factor 0 and industrial scrap pay nothing | 05 |
@@ -44,6 +45,13 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 Not covered: real bill jobs (hauling, the batch cap, work time), the downed and strip moments, scrap left on the body, save and load, the settings page, DLC content and a performance (`perf`) run.
 
 ## Result recording
+
+### 2026-11-21 - lootscavenging-smoke with ticket 16's medicine case
+
+- Version/environment: RimWorld 1.7, default mod set, seed 1.
+- Observed: 9 of 9 cases passed, no errors logged. Industrial medicine read Industrial and out of reach at the tribal colony. By default 3 medicine dropped whole and the revolver gave 1 scrap unit; with the setting on, 3 medicine became 3 industrial scrap units.
+- Evidence: run `20261121-102035-lootscavenging-smoke-s1-c93c7261`.
+- Status: Passed.
 
 ### 2026-11-21 - lootscavenging-smoke
 
