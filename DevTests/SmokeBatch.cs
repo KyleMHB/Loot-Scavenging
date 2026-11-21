@@ -5,6 +5,7 @@ using LootScavenging.Model;
 using RimWorld;
 using RimWorldDevTests;
 using Verse;
+using static LootScavenging.DevTests.Fixtures;
 
 namespace LootScavenging.DevTests;
 
@@ -21,6 +22,7 @@ public sealed class SmokeBatch : Batch
 
     public override string Id => "lootscavenging-smoke";
     public override int SegmentCount => 1;
+    public override int MapSize => 100;
 
     public override IReadOnlyList<PlannedCase> Plan => new[]
     {
@@ -34,12 +36,6 @@ public sealed class SmokeBatch : Batch
         new PlannedCase(KeepOriginal, Levels.Mechanical, "out-of-reach charge rifle unfamiliar and not equippable until ChargedShot finishes"),
         new PlannedCase(NoErrors, Levels.Mechanical, "no error naming the mod logged during the batch"),
     };
-
-    private static ThingDef Scrap(ScrapTier tier) => DefDatabase<ThingDef>.GetNamed(ScrapTiers.DefName(tier));
-    private static IEnumerable<ThingDef> AllScrap => ((ScrapTier[])Enum.GetValues(typeof(ScrapTier))).Select(Scrap);
-    private static int ScrapOnMap(Map map) => AllScrap.Sum(d => Kit.CountOnMap(map, d));
-    private static ResearchProjectDef Project(string name) => DefDatabase<ResearchProjectDef>.GetNamed(name);
-    private static LootScavengingSettings Settings => LootScavengingMod.Settings;
 
     public override IEnumerable<Wait> Segment(int index, BatchContext ctx)
     {
@@ -66,14 +62,11 @@ public sealed class SmokeBatch : Batch
 
         // ---- Fixture: a tribal colony ----------------------------------------------------------------------------------------
         var map = ctx.Map;
-        var pirates = Find.FactionManager.FirstFactionOfDef(FactionDefOf.Pirate);
+        var pirates = Pirates;
         var revolver = Kit.Def("Gun_Revolver");
         var medicine = Kit.Def("MedicineIndustrial");
         {
-            Find.ResearchManager.ResetAllProgress();
-            Unfamiliar.ResetCache();
-            ctx.Setup("Developer reset all research progress (Crashlanded starts with industrial research)");
-            Kit.Research(ctx, "PsychoidBrewing");
+            MakeTribal(ctx);
             var c = ctx.Begin(Fixture);
             var era = EraReader.ItemEra(revolver, pirates);
             c.Observe("colonyEra", EraReader.ColonyEra()).Observe("revolverEra", era.Era).Observe("revolverOutOfReach", era.OutOfReach)
@@ -351,41 +344,5 @@ public sealed class SmokeBatch : Batch
             c.Step(modErrors == 0, "no error naming Loot Scavenging was logged during the batch");
             c.Conclude();
         }
-    }
-
-    private static Pawn Spawn(BatchContext ctx, PawnKindDef kind, Faction faction, IntVec3 cell)
-    {
-        var pawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind, faction, forceGenerateNewPawn: true,
-            canGeneratePawnRelations: false, mustBeCapableOfViolence: false, allowAddictions: false));
-        // Bare, so only the gear a case gives is sorted at death.
-        pawn.equipment?.DestroyAllEquipment();
-        pawn.apparel?.DestroyAll();
-        pawn.inventory?.DestroyAll();
-        GenSpawn.Spawn(pawn, cell, ctx.Map);
-        ctx.Setup($"Developer spawned {kind.defName} {pawn.LabelShort} ({faction?.Name ?? "no faction"}) at {cell} with all gear removed");
-        return pawn;
-    }
-
-    private static ThingWithComps Arm(Pawn pawn, ThingDef def, QualityCategory? quality)
-    {
-        var gun = (ThingWithComps)ThingMaker.MakeThing(def);
-        if (quality.HasValue) gun.TryGetComp<CompQuality>()?.SetQuality(quality.Value, ArtGenerationContext.Outsider);
-        gun.HitPoints = gun.MaxHitPoints;
-        pawn.equipment.AddEquipment(gun);
-        return gun;
-    }
-
-    private static Thing Stack(ThingDef def, int count)
-    {
-        var thing = ThingMaker.MakeThing(def);
-        thing.stackCount = count;
-        return thing;
-    }
-
-    private static Thing SpawnStack(Map map, ThingDef def, int count, IntVec3 near)
-    {
-        var thing = Stack(def, count);
-        GenPlace.TryPlaceThing(thing, near, map, ThingPlaceMode.Near, out Thing placed);
-        return placed ?? thing;
     }
 }
