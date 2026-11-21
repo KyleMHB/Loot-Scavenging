@@ -32,8 +32,7 @@ internal static class OriginalItemRecipes
     {
         try
         {
-            List<ThingDef> gear = DefDatabase<ThingDef>.AllDefsListForReading
-                .Where(d => d.category == ThingCategory.Item && (d.IsWeapon || d.IsApparel)).ToList();
+            List<ThingDef> gear = DefDatabase<ThingDef>.AllDefsListForReading.Where(EraReader.IsGear).ToList();
             if (gear.Count == 0)
                 return;
 
@@ -55,14 +54,13 @@ internal static class OriginalItemRecipes
         if (users.Count == 0)
             return null;
 
-        RecipeDef recipe = NewRecipe(RecycleDefName, gear, users);
+        // One item per iteration. The recipe may take any weapon or apparel def; the default filter allows none of them.
+        RecipeDef recipe = BillRecipes.New(RecycleDefName, users, gear, 1f, allowedByDefault: false);
         recipe.label = "LootScavenging_RecycleOriginalLabel".Translate();
         recipe.jobString = "LootScavenging_RecycleOriginalJob".Translate();
         recipe.description = "LootScavenging_RecycleOriginalDescription".Translate();
         recipe.workAmount = 500f; // nominal: the real work is set per item from its units (BillWorkPatch)
-        recipe.workSpeedStat = DefDatabase<StatDef>.GetNamedSilentFail("SmeltingSpeed");
-        recipe.effectWorking = DefDatabase<EffecterDef>.GetNamedSilentFail("Smelt");
-        recipe.soundWorking = DefDatabase<SoundDef>.GetNamedSilentFail("Recipe_Smelt");
+        BillRecipes.LikeSmelting(recipe);
         recipe.workerClass = typeof(RecipeWorker_RecycleOriginal);
         DefGenerator.AddImpliedDef(recipe, hotReload);
         return recipe;
@@ -76,40 +74,14 @@ internal static class OriginalItemRecipes
         if (users.Count == 0)
             return null;
 
-        RecipeDef recipe = NewRecipe(StudyDefName, gear, users);
+        RecipeDef recipe = BillRecipes.New(StudyDefName, users, gear, 1f, allowedByDefault: false);
         recipe.label = "LootScavenging_StudyOriginalLabel".Translate();
         recipe.jobString = "LootScavenging_StudyOriginalJob".Translate();
         recipe.description = "LootScavenging_StudyOriginalDescription".Translate();
         recipe.workAmount = 3000f; // nominal, as above
-        recipe.workSpeedStat = DefDatabase<StatDef>.GetNamedSilentFail("ResearchSpeed");
-        recipe.workSkill = DefDatabase<SkillDef>.GetNamedSilentFail("Intellectual");
-        recipe.effectWorking = DefDatabase<EffecterDef>.GetNamedSilentFail("Research");
-        recipe.requiredGiverWorkType = DefDatabase<WorkTypeDef>.GetNamedSilentFail("Research");
+        BillRecipes.LikeResearch(recipe);
         recipe.workerClass = typeof(RecipeWorker_Study);
         DefGenerator.AddImpliedDef(recipe, hotReload);
-        return recipe;
-    }
-
-    // One item per iteration. The recipe may take any weapon or apparel def; the default filter allows none of them.
-    private static RecipeDef NewRecipe(string defName, List<ThingDef> gear, List<ThingDef> users)
-    {
-        var recipe = new RecipeDef
-        {
-            defName = defName,
-            recipeUsers = users,
-            products = new List<ThingDefCountClass>(),
-            ingredients = new List<IngredientCount>(),
-            fixedIngredientFilter = new ThingFilter(),
-            defaultIngredientFilter = new ThingFilter(),
-        };
-        var ingredient = new IngredientCount();
-        ingredient.SetBaseCount(1f);
-        foreach (ThingDef def in gear)
-        {
-            ingredient.filter.SetAllow(def, true);
-            recipe.fixedIngredientFilter.SetAllow(def, true);
-        }
-        recipe.ingredients.Add(ingredient);
         return recipe;
     }
 

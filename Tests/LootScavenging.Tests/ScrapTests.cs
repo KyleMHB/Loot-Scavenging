@@ -57,4 +57,14 @@ public class ScrapTests
     {
         Assert.Equal(expected, ScrapAmounts.SplitIntoStacks(units, limit));
     }
+
+    // The names in Defs/ThingDefs/Scrap.xml.
+    [Theory]
+    [InlineData(ScrapTier.Neolithic, "LS_Scrap_Neolithic")]
+    [InlineData(ScrapTier.Ultra, "LS_Scrap_Ultra")]
+    [InlineData(ScrapTier.Archotech, "LS_Scrap_Archotech")]
+    public void EachTierNamesItsScrapDef(ScrapTier tier, string defName)
+    {
+        Assert.Equal(defName, ScrapTiers.DefName(tier));
+    }
 }

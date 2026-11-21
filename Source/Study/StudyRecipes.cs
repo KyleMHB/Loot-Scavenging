@@ -89,46 +89,23 @@ internal static class StudyRecipes
 
     private static RecipeDef Build(ScrapTier tier, string defName, List<ThingDef> benches)
     {
-        ThingDef scrap = ScrapTierTable.For(tier)?.scrap ?? DefDatabase<ThingDef>.GetNamedSilentFail("LS_Scrap_" + tier); // not translated
+        ThingDef scrap = ScrapTierTable.For(tier)?.scrap ?? DefDatabase<ThingDef>.GetNamedSilentFail(ScrapTiers.DefName(tier));
         float pointsPerUnit = scrap?.GetModExtension<StudyPoints>()?.pointsPerUnit ?? 0f;
         if (scrap == null || pointsPerUnit <= 0f)
             return null;
 
         int batch = StudyRules.BatchUnits(pointsPerUnit);
-        var recipe = new RecipeDef
-        {
-            defName = defName,
-            label = "LootScavenging_StudyLabel".Translate(scrap.label),
-            jobString = "LootScavenging_StudyJob".Translate(scrap.label),
-            description = "LootScavenging_StudyDescription".Translate(scrap.label, batch.ToString(), pointsPerUnit.ToString("0.#")),
-            // Nominal, one unit's worth: the real work is set per iteration from the points it pays (BillWorkPatch).
-            workAmount = pointsPerUnit * StudyRules.TicksPerPoint,
-            // A whole stack of any size, so a lone unit is studied too; an iteration uses at most a batch of it.
-            ignoreIngredientCountTakeEntireStacks = true,
-            // The bill system spends work at the pawn's research speed. It applies a bench speed stat only to work
-            // tables, so the bench's research speed factor does not apply here.
-            workSpeedStat = DefDatabase<StatDef>.GetNamedSilentFail("ResearchSpeed"),
-            workSkill = DefDatabase<SkillDef>.GetNamedSilentFail("Intellectual"),
-            effectWorking = DefDatabase<EffecterDef>.GetNamedSilentFail("Research"),
-            requiredGiverWorkType = DefDatabase<WorkTypeDef>.GetNamedSilentFail("Research"),
-            workerClass = typeof(RecipeWorker_Study),
-            workerCounterClass = typeof(RecipeWorkerCounter_Study),
-            recipeUsers = new List<ThingDef>(benches),
-            products = new List<ThingDefCountClass>(),
-            ingredients = new List<IngredientCount>(),
-            fixedIngredientFilter = new ThingFilter(),
-            defaultIngredientFilter = new ThingFilter(),
-        };
-
-        var ingredient = new IngredientCount();
-        ingredient.SetBaseCount(1f);
-        foreach (ThingDef def in ScrapStudy.IngredientDefs(scrap))
-        {
-            ingredient.filter.SetAllow(def, true);
-            recipe.fixedIngredientFilter.SetAllow(def, true);
-            recipe.defaultIngredientFilter.SetAllow(def, true);
-        }
-        recipe.ingredients.Add(ingredient);
+        RecipeDef recipe = BillRecipes.New(defName, new List<ThingDef>(benches), ScrapStudy.IngredientDefs(scrap), 1f, allowedByDefault: true);
+        recipe.label = "LootScavenging_StudyLabel".Translate(scrap.label);
+        recipe.jobString = "LootScavenging_StudyJob".Translate(scrap.label);
+        recipe.description = "LootScavenging_StudyDescription".Translate(scrap.label, batch.ToString(), pointsPerUnit.ToString("0.#"));
+        // Nominal, one unit's worth: the real work is set per iteration from the points it pays (BillWorkPatch).
+        recipe.workAmount = pointsPerUnit * StudyRules.TicksPerPoint;
+        // A whole stack of any size, so a lone unit is studied too; an iteration uses at most a batch of it.
+        recipe.ignoreIngredientCountTakeEntireStacks = true;
+        recipe.workerClass = typeof(RecipeWorker_Study);
+        recipe.workerCounterClass = typeof(RecipeWorkerCounter_Study);
+        BillRecipes.LikeResearch(recipe);
         return recipe;
     }
 }

@@ -17,6 +17,9 @@ public enum ScrapTier
 
 public static class ScrapTiers
 {
+    /// <summary>The scrap ThingDef's name for a tier (Defs/ThingDefs/Scrap.xml): the one place it is spelled.</summary>
+    public static string DefName(ScrapTier tier) => "LS_Scrap_" + tier; // not translated
+
     /// <summary>
     /// The scrap tier for an item era. Animal rounds up to Neolithic. Gear with no era (only reachable in "scrap
     /// everything", where within-reach gear is scrapped too) becomes scrap of the colony's era.

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
 using LootScavenging.Model;
 using RimWorld;
@@ -10,15 +11,8 @@ namespace LootScavenging.Loot;
 [StaticConstructorOnStartup]
 internal static class ScrapDefs
 {
-    private static readonly ThingDef[] byTier =
-    {
-        DefDatabase<ThingDef>.GetNamed("LS_Scrap_Neolithic"),
-        DefDatabase<ThingDef>.GetNamed("LS_Scrap_Medieval"),
-        DefDatabase<ThingDef>.GetNamed("LS_Scrap_Industrial"),
-        DefDatabase<ThingDef>.GetNamed("LS_Scrap_Spacer"),
-        DefDatabase<ThingDef>.GetNamed("LS_Scrap_Ultra"),
-        DefDatabase<ThingDef>.GetNamed("LS_Scrap_Archotech"),
-    };
+    private static readonly ThingDef[] byTier = ((ScrapTier[])System.Enum.GetValues(typeof(ScrapTier)))
+        .Select(t => DefDatabase<ThingDef>.GetNamed(ScrapTiers.DefName(t))).ToArray();
 
     static ScrapDefs()
     {

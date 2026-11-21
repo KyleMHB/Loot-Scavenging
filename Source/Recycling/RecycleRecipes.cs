@@ -84,33 +84,17 @@ internal static class RecycleRecipes
 
     private static RecipeDef Build(ScrapTierDef def, ThingDef scrap, string defName, List<ThingDef> users)
     {
-        var recipe = new RecipeDef
-        {
-            defName = defName,
-            label = "LootScavenging_RecycleLabel".Translate(scrap.label),
-            jobString = "LootScavenging_RecycleJob".Translate(scrap.label),
-            description = "LootScavenging_RecycleDescription".Translate(scrap.label),
-            // Nominal, for the bill list: the real work is set per iteration from the units taken (BillWorkPatch).
-            workAmount = def.workPerUnit,
-            // The bill takes a whole stack of any size, so a lone unit is recycled too (vanilla "burn drugs" does the same).
-            ignoreIngredientCountTakeEntireStacks = true,
-            workSpeedStat = DefDatabase<StatDef>.GetNamedSilentFail("SmeltingSpeed"),
-            effectWorking = DefDatabase<EffecterDef>.GetNamedSilentFail("Smelt"),
-            soundWorking = DefDatabase<SoundDef>.GetNamedSilentFail("Recipe_Smelt"),
-            specialProducts = new List<SpecialProductType> { SpecialProductType.Smelted },
-            recipeUsers = users,
-            ingredients = new List<IngredientCount>(),
-            fixedIngredientFilter = new ThingFilter(),
-            defaultIngredientFilter = new ThingFilter(),
-        };
-
+        RecipeDef recipe = BillRecipes.New(defName, users, new[] { scrap }, 1f, allowedByDefault: true);
+        recipe.label = "LootScavenging_RecycleLabel".Translate(scrap.label);
+        recipe.jobString = "LootScavenging_RecycleJob".Translate(scrap.label);
+        recipe.description = "LootScavenging_RecycleDescription".Translate(scrap.label);
+        // Nominal, for the bill list: the real work is set per iteration from the units taken (BillWorkPatch).
+        recipe.workAmount = def.workPerUnit;
+        // The bill takes a whole stack of any size, so a lone unit is recycled too (vanilla "burn drugs" does the same).
+        recipe.ignoreIngredientCountTakeEntireStacks = true;
+        recipe.specialProducts = new List<SpecialProductType> { SpecialProductType.Smelted };
+        BillRecipes.LikeSmelting(recipe);
         tierOf[recipe] = def;
-        var ingredient = new IngredientCount();
-        ingredient.SetBaseCount(1f);
-        ingredient.filter.SetAllow(scrap, true);
-        recipe.ingredients.Add(ingredient);
-        recipe.fixedIngredientFilter.SetAllow(scrap, true);
-        recipe.defaultIngredientFilter.SetAllow(scrap, true);
         return recipe;
     }
 }
