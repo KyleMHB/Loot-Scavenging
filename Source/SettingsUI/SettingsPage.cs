@@ -343,7 +343,7 @@ internal sealed class SettingsPage
         Explain(ls, DropModeSentence(s.rules.dropMode));
 
         Choice(ls, "LootScavenging_StudyEras".Translate(), s.studyEras,
-            new[] { StudyEraLimit.ColonyEraAndBelow, StudyEraLimit.AnyEra, StudyEraLimit.None }, StudyErasName, v => settings.studyEras = v, "studyEras");
+            new[] { StudyEraLimit.ColonyEraAndBelow, StudyEraLimit.AnyEra }, StudyErasName, v => settings.studyEras = v, "studyEras");
         Explain(ls, StudyErasSentence(s.studyEras));
 
         Choice(ls, "LootScavenging_RecycleOrStudy".Translate(), s.recycleOrStudy,
@@ -416,7 +416,6 @@ internal sealed class SettingsPage
         switch (limit)
         {
             case StudyEraLimit.AnyEra: return "LootScavenging_StudyErasAny".Translate();
-            case StudyEraLimit.None: return "LootScavenging_StudyErasNone".Translate();
             default: return "LootScavenging_StudyErasColony".Translate();
         }
     }
@@ -426,7 +425,6 @@ internal sealed class SettingsPage
         switch (limit)
         {
             case StudyEraLimit.AnyEra: return "LootScavenging_StudyErasAnyExplain".Translate();
-            case StudyEraLimit.None: return "LootScavenging_StudyErasNoneExplain".Translate();
             default: return "LootScavenging_StudyErasColonyExplain".Translate();
         }
     }

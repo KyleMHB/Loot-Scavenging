@@ -7,8 +7,6 @@ public enum StudyEraLimit
 {
     ColonyEraAndBelow,
     AnyEra,
-    /// <summary>Study is switched off; scrap is only recycled.</summary>
-    None,
 }
 
 /// <summary>Recycle or study (spec, "Study"). Default: each unit is used for one or the other.</summary>
@@ -23,7 +21,8 @@ public enum RecycleOrStudy
 public enum StudyVerdict
 {
     Eligible,
-    StudyOff,
+    /// <summary>The scrap def carries no study points (a pack's XML left them out).</summary>
+    NoStudyPoints,
     NoProject,
     /// <summary>A project with a study source of its own (Anomaly knowledge, analysed items, grav engine) or no research cost.</summary>
     SpecialSource,
@@ -112,8 +111,6 @@ public static class StudyRules
     public static StudyVerdict Check(ScrapTier tier, Era colonyEra, ProjectFacts project, StudyEraLimit eras,
         bool techprintProjects, float pointsPerUnit, float researchFactor)
     {
-        if (eras == StudyEraLimit.None)
-            return StudyVerdict.StudyOff;
         if (!project.Exists)
             return StudyVerdict.NoProject;
         if (project.SpecialSource || !(project.BaseCost > 0f))

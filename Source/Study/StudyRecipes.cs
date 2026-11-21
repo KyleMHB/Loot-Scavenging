@@ -305,7 +305,7 @@ internal static class StudyBillPatch
         {
             verdict = ScrapStudy.TryGetWorth(Loot.ScrapDefs.For(tier), out StudyWorth worth)
                 ? ScrapStudy.Verdict(worth, project)
-                : StudyVerdict.StudyOff;
+                : StudyVerdict.NoStudyPoints;
             cached[tier] = verdict;
         }
         return verdict;

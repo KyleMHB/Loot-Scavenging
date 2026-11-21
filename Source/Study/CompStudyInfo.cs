@@ -32,7 +32,7 @@ public class CompStudyInfo : ThingComp
         return verdict switch
         {
             StudyVerdict.Eligible => "LootScavenging_StudyNow".Translate(projectLabel).Resolve(),
-            StudyVerdict.StudyOff => "LootScavenging_StudyWhyOff".Translate().Resolve(),
+            StudyVerdict.NoStudyPoints => "LootScavenging_StudyWhyNoPoints".Translate().Resolve(),
             StudyVerdict.NoProject => "LootScavenging_StudyWhyNoProject".Translate().Resolve(),
             StudyVerdict.SpecialSource => "LootScavenging_StudyWhySpecialSource".Translate(projectLabel).Resolve(),
             StudyVerdict.ProjectFinished => "LootScavenging_StudyWhyFinished".Translate(projectLabel).Resolve(),

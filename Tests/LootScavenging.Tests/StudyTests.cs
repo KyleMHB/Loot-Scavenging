@@ -53,13 +53,6 @@ public class StudyTests
     }
 
     [Fact]
-    public void StudyOffRefusesEverything()
-    {
-        Assert.Equal(StudyVerdict.StudyOff,
-            Check(ScrapTier.Neolithic, Era.Industrial, Project(Era.Neolithic), StudyEraLimit.None));
-    }
-
-    [Fact]
     public void NoCurrentProjectIsANormalWait()
     {
         Assert.Equal(StudyVerdict.NoProject, Check(ScrapTier.Industrial, Era.Industrial, ProjectFacts.None));

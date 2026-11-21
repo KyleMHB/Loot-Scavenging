@@ -13,7 +13,7 @@
   <LootScavenging_StudyJob>Studying {0}.</LootScavenging_StudyJob>
   <LootScavenging_StudyDescription>Study {0} for research points toward the current project. Each bill uses up to {1} units, each worth {2} points, and takes longer the more points it pays. The bill waits when the project cannot take this scrap. "Do until you have X" keeps X units in stock.</LootScavenging_StudyDescription>
   <LootScavenging_StudyKeepInStock>{0} kept in stock</LootScavenging_StudyKeepInStock>
-  <LootScavenging_StudyWhyOff>Cannot be studied: study is switched off in the mod settings.</LootScavenging_StudyWhyOff>
+  <LootScavenging_StudyWhyNoPoints>Cannot be studied: this scrap is worth no research points.</LootScavenging_StudyWhyNoPoints>
   <LootScavenging_StudyWhyNoProject>Cannot be studied now: no research project is selected.</LootScavenging_StudyWhyNoProject>
   <LootScavenging_StudyWhySpecialSource>Cannot be studied for {0}: that project is learned another way.</LootScavenging_StudyWhySpecialSource>
   <LootScavenging_StudyWhyFinished>Cannot be studied now: {0} is already complete.</LootScavenging_StudyWhyFinished>
@@ -131,10 +131,8 @@
   <LootScavenging_StudyEras>Which scrap can be studied</LootScavenging_StudyEras>
   <LootScavenging_StudyErasColony>The colony's era and below</LootScavenging_StudyErasColony>
   <LootScavenging_StudyErasAny>Any era</LootScavenging_StudyErasAny>
-  <LootScavenging_StudyErasNone>None</LootScavenging_StudyErasNone>
   <LootScavenging_StudyErasColonyExplain>Scrap of the colony's era or lower can be studied. Higher scrap waits until the colony advances.</LootScavenging_StudyErasColonyExplain>
   <LootScavenging_StudyErasAnyExplain>Scrap of any era can be studied, as long as the current project is of its era or lower.</LootScavenging_StudyErasAnyExplain>
-  <LootScavenging_StudyErasNoneExplain>Study is switched off. Scrap can only be recycled.</LootScavenging_StudyErasNoneExplain>
   <LootScavenging_RecycleOrStudy>Recycle or study</LootScavenging_RecycleOrStudy>
   <LootScavenging_OneOrTheOther>One or the other</LootScavenging_OneOrTheOther>
   <LootScavenging_StudyThenRecycle>Study, then recycle</LootScavenging_StudyThenRecycle>
