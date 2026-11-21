@@ -8,7 +8,7 @@
 
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
-- [ ] A raider carrying medicine and a quest weapon drops both untouched with the default rules.
+- [x] A raider carrying medicine and a quest weapon drops both untouched with the default rules.
 - [x] An item on the keep list is never touched, and one on the remove list is acted on.
 - [x] A partial stack drop is never partly deleted.
 - [x] Each category's chance is rolled on its own.
@@ -38,3 +38,7 @@ Built in `Source/Model` (plain C#, unit-tested) and thin glue in `Source/Loot`.
 ### 2026-11-21: closed
 
 Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: the pirate's silver and steel dropped untouched (partial overlap with the first check only). Still unobserved in game: medicine plus quest weapon drop, and the in-game feel of the keep and remove lists.
+
+### 2026-11-21: in-game coverage
+
+Observed (smoke, outcomes, settings): industrial medicine dropped untouched (ticket 16) and a quest-tagged out-of-reach revolver dropped whole; a keep-list revolver stayed whole and remove-list silver was deleted; a keep-list entry for a missing def saved, loaded and was evaluated with no error. Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.

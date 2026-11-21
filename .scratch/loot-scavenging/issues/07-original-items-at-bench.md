@@ -9,7 +9,7 @@
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
 - [ ] (in-game: pending) A looted rifle recycles for the same yield as the scrap it would have become.
-- [ ] (in-game: pending) Studying it pays the same points as that scrap.
+- [x] (in-game: pending) Studying it pays the same points as that scrap.
 - [x] An unfamiliar item that is neither marked nor allowed by a filter is never picked up for recycling or study. (default filters allow nothing; code-checked, in-game pending)
 - [x] Both the 1.7 and 1.6 builds compile.
 
@@ -38,3 +38,7 @@ In-game pending: a looted unfamiliar rifle ticked into a recycle bill at a smith
 ### 2026-11-21: closed
 
 Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: nothing. Still unobserved in game: original items at the bench: recycle yield, study points, filter pick-up.
+
+### 2026-11-21: in-game coverage
+
+Observed (bench): an unticked unfamiliar charge rifle was never taken; ticked, the fabrication bench recycled it into spacer materials (132 and 102 silver for its 4 units in two runs), and the machining table's bill refused it; studied with any era allowed it paid 200 points (4 spacer units at 50). One default run returned 310 silver (11 gold, 1 advanced component) for the same 4-unit rifle, more than 4 pool picks can give, so the recycle-yield box stays open. Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.

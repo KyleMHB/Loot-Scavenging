@@ -9,12 +9,12 @@
 **Recommended model:** `opus` — Every later ticket builds on the hook choice, the call order found in the game code, and the evaluator and applier split.
 
 - [x] The signatures and call order of the death, downed and strip methods are confirmed against the 1.7 game code before any hook is written, and the result is recorded in the spec's Unverified list.
-- [ ] Killing a spawned raider removes its weapon and keeps its apparel, with the default test rules.
+- [x] Killing a spawned raider removes its weapon and keeps its apparel, with the default test rules.
 - [x] Killing a wild animal changes nothing while the "no faction" group is off.
 - [x] Colony pawns are never affected.
-- [ ] Rules run on downed and on strip only when the moment setting allows it.
-- [ ] The home-map-only setting leaves gear alone on caravan, quest and outpost maps.
-- [ ] A pawn whose gear cannot be stripped (for example a weapon-carrying mechanoid) is still sorted at death.
+- [x] Rules run on downed and on strip only when the moment setting allows it.
+- [x] The home-map-only setting leaves gear alone on caravan, quest and outpost maps.
+- [x] A pawn whose gear cannot be stripped (for example a weapon-carrying mechanoid) is still sorted at death.
 - [x] Both the 1.7 and 1.6 builds compile.
 
 ## Comments
@@ -62,3 +62,7 @@
 ### 2026-11-21: closed
 
 Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: colonist death dropped its revolver whole; a wild hare's death changed nothing. Still unobserved in game: raider weapon removed with apparel kept under the default test rules, downed and strip moments, home-map-only on non-home maps, mechanoid weapon at death.
+
+### 2026-11-21: in-game coverage
+
+Observed (outcomes, moments): weapon rule Delete with drop mode Off removed a raider's revolver and left his shirt on the corpse; downing scrapped an out-of-reach revolver and stripping scrapped a flak vest with the moment setting on, both dropped whole with it off; a living colony prisoner's strip scrapped his vest; home-map-only left a revolver whole on a generated camp map and scrapped it with the setting off (a camp map only, not caravan, quest or outpost maps); a hostile lancer's charge lance became 5 spacer scrap at death. Still unobserved: home-map-only on caravan, quest and outpost maps specifically. Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.

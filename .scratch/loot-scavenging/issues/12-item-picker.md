@@ -9,8 +9,8 @@
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
 - [ ] Searching finds items by label, and picking one adds it to the chosen list.
-- [ ] An item added through the picker is kept or removed in game as the list says.
-- [ ] After removing the mod that added a listed item, the settings load without an error and the entry is kept for if the mod returns.
+- [x] An item added through the picker is kept or removed in game as the list says.
+- [x] After removing the mod that added a listed item, the settings load without an error and the entry is kept for if the mod returns.
 - [x] Picker text goes through translation keys and the translation check passes.
 - [x] Both the 1.7 and 1.6 builds compile.
 
@@ -28,3 +28,7 @@
 ### 2026-11-21: closed
 
 Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: nothing. Still unobserved in game: the picker search and add, list effect in game, removed-mod entries.
+
+### 2026-11-21: in-game coverage
+
+Observed (settings): the picker's item list (by reflection) has silver and no buildings, and searching "revolver" finds Gun_Revolver; list entries act in game; a missing-def entry survives a settings save and load with no error. Still unobserved: picking an entry in the dialog. Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.

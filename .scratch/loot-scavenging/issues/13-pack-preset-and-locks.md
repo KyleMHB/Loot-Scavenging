@@ -42,3 +42,7 @@
 ### 2026-11-21: closed
 
 Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: nothing. Still unobserved in game: pack patch default on a fresh config, locked setting row and reason line.
+
+### 2026-11-21: in-game coverage
+
+Observed (settings, by configuring the presets with the pack's lock names directly; the pack's patch file is not loaded): every name the pack locks is lockable; with the drop mode locked, applying Cleanup set its other rows but kept the drop mode; a saved config holding other values returned to the locked values when the defaults loaded. Still unobserved: the page's disabled row and reason line, and the patch applied by the game. Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.

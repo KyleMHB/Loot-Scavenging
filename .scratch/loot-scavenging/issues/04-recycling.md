@@ -8,9 +8,9 @@
 
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
-- [ ] A machining table recycles industrial and medieval scrap. (rule unit-tested; in-game: pending)
+- [x] A machining table recycles industrial and medieval scrap. (rule unit-tested; in-game: pending)
 - [x] A smithy refuses industrial scrap. (rule unit-tested; in-game: pending)
-- [ ] Each unit returns the materials the tier table lists. (yield maths unit-tested; in-game: pending)
+- [x] Each unit returns the materials the tier table lists. (yield maths unit-tested; in-game: pending)
 - [x] Recycling bills are added only to the named benches, and a bench from another mod still shows all its own bills. (in-game: pending)
 - [x] Both the 1.7 and 1.6 builds compile.
 
@@ -42,3 +42,7 @@ In-game pending: dev action "Recycling: log recipes per bench" (Debug actions > 
 ### 2026-11-21: closed
 
 Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: the machining table lists industrial, medieval and neolithic recycle recipes, the smithy has no industrial one, vanilla bills kept. Still unobserved in game: real recycle bill jobs (yields per unit, components and chemfuel), the machining table box (no actual bill was run), keep-in-stock in the UI.
+
+### 2026-11-21: in-game coverage
+
+Observed (bench, outcomes): a machining-table bill recycled 12 industrial units into pool materials; 200 seeded units returned 2287 silver of materials against 2200 expected (unseeded 2161), components and chemfuel included. FAILED on both mod sets: the bill hauled all 12 units and used them in one iteration (expected 5, 5, 2 with at most 5 carried), so the haul cap and batch size did not apply. Still unobserved: keep-in-stock in the bill UI (the counter reports none). Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.

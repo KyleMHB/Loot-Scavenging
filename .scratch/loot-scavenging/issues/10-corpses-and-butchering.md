@@ -9,9 +9,9 @@
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
 - [x] With humanlike removal on, a dead raider's corpse is removed after its gear has gone through the loot rules.
-- [ ] A wild animal's corpse stays unless the "no faction" group is on.
-- [ ] A pawn that dies without leaving a corpse, or is killed off-map, is skipped with no error.
-- [ ] With the butchering option on, butchering a corpse leaves no worn apparel behind, while gear dropped at death is unaffected.
+- [x] A wild animal's corpse stays unless the "no faction" group is on.
+- [x] A pawn that dies without leaving a corpse, or is killed off-map, is skipped with no error.
+- [x] With the butchering option on, butchering a corpse leaves no worn apparel behind, while gear dropped at death is unaffected.
 - [x] Both the 1.7 and 1.6 builds compile.
 
 ## Comments
@@ -41,3 +41,7 @@
 ### 2026-11-21: closed
 
 Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: humanlike corpses were removed on the Cleanup preset with kept apparel left on the ground. Still unobserved in game: wild animal corpse behaviour with removal on, no-corpse and off-map deaths, butchering option.
+
+### 2026-11-21: in-game coverage
+
+Observed (smoke, outcomes, moments): a wild hare's corpse stayed under Progression and was removed with animal corpse removal on; a world pawn's death left no corpse and logged no error; a real butcher bill destroyed the corpse's shirt with the option on and left it on the ground with it off; scrap left on the body stayed in the corpse until stripped, and with corpse removal on it landed on the ground. Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.

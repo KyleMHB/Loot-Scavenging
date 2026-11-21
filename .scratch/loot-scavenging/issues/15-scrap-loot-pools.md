@@ -27,7 +27,7 @@ Out of scope: the Progression pack's materials (ticket 13), colony-aware pools, 
 - [x] Each unit of scrap returns exactly one pool material, and its average value matches the tier's value per unit. (maths unit-tested)
 - [x] A material's long-run share of value matches its weight. (maths unit-tested)
 - [x] A material worth more than the value per unit drops as a single item with the matching chance, for example a component at 11 silver per unit about a third of the time. (maths unit-tested)
-- [ ] A bill of 5 industrial scrap at a machining table returns a mix of pool materials. (in-game: pending)
+- [x] A bill of 5 industrial scrap at a machining table returns a mix of pool materials. (in-game: pending)
 - [ ] The recycling bill offers no keep-in-stock option, and its description names no materials or amounts. (in-game: pending)
 - [ ] Instant disassembly with the era-typical yield returns pool materials scaled by the item's scrap units. (in-game: pending)
 - [ ] A `MayRequire` pool entry for an inactive DLC is skipped without errors. (in-game: pending)
@@ -49,3 +49,7 @@ Out of scope: the Progression pack's materials (ticket 13), colony-aware pools, 
 ### 2026-11-21: closed
 
 Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: single-unit recipe products all came from the tier pool (20 seeded rolls). Still unobserved in game: a real 5-unit bill, components and chemfuel appearing, keep-in-stock absence and description in the UI, instant disassembly, MayRequire entry for an inactive DLC.
+
+### 2026-11-21: in-game coverage
+
+Observed (bench, outcomes): a 12-unit machining-table bill returned a mix of pool materials; the bill's counter offers no keep-in-stock; era-typical disassembly returned only pool materials; every tier def loads with no config errors. Still unobserved: the bill description in the UI, era-typical amounts scaled by scrap units, and a `MayRequire` entry (none exists yet). Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.

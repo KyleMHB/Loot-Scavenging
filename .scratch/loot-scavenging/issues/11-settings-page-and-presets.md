@@ -8,7 +8,7 @@
 
 **Recommended model:** `opus` — The largest ticket: it draws on every earlier rule, and the presets must match the table exactly.
 
-- [ ] Each preset produces the behaviour the presets table states, checked in game for each one.
+- [x] Each preset produces the behaviour the presets table states, checked in game for each one.
 - [x] Changing any setting after picking a preset marks the preset as changed.
 - [ ] The first-load message appears once and not again after a reload.
 - [x] The translation check passes with no missing keys.
@@ -86,3 +86,7 @@ It also checks:
 ### 2026-11-21: closed
 
 Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: fresh config is the Progression preset and not marked changed; Cleanup preset behaved as stated (two presets only). Still unobserved in game: each preset in game, first-load message once, settings page UI.
+
+### 2026-11-21: in-game coverage
+
+Observed (smoke, settings): Progression, Cleanup and Vanilla each applied unchanged and editing a value marked them changed; Vanilla left a pirate's revolver whole and his corpse in place; Reset returned to Progression. FAILED: every launch logs a NullReferenceException in `LootScavengingMod.ShowFirstLoadMessage` at startup (the flag is still saved as shown). Still unobserved: the settings page UI and the message on screen. Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.

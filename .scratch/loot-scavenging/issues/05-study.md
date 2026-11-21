@@ -12,7 +12,7 @@
 - [ ] Higher-era scrap is refused, and the inspect text says why.
 - [ ] With no current project the job does not start.
 - [ ] A storyteller research factor of zero, and one above 100%, write no invalid value into project progress.
-- [ ] With the techprint setting off, projects that need techprints receive nothing.
+- [x] With the techprint setting off, projects that need techprints receive nothing.
 - [ ] Study time scales with the points paid, research speed applies, and the researcher gains Intellectual experience.
 - [x] Both the 1.7 and 1.6 builds compile.
 
@@ -115,3 +115,7 @@ In-game pending:
 ### 2026-11-21: closed
 
 Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: 5 medieval units with Complex Clothing current added exactly 100 points, research factor 0 wrote nothing and no NaN, industrial scrap was refused above colony era. Still unobserved in game: bill UI, inspect text for the refusal, no-project job refusal, factor above 100%, techprint setting, job time and XP, finishing a project.
+
+### 2026-11-21: in-game coverage
+
+Observed (bench): a study bench has the Bills tab; with Royalty, CataphractArmor received nothing with the techprint setting off and stopped one point short with it on. FAILED on both mod sets: with no current project the researcher started the study bill; with Complex Clothing current and "keep 3" of 8 medieval units, one iteration used all 8 for 160 points (expected 5 for 100), its work was the nominal 600 (expected 3000) and Intellectual XP gained 0. Still unobserved: finishing a project through a bill (no scrap was left after the failure), the refusal's inspect text, a research factor above 100%, the completion message. Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.

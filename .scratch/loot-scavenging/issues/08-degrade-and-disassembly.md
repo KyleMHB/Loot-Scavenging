@@ -8,11 +8,11 @@
 
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
-- [ ] A degraded item lands inside the set range, and the quality option lowers its quality one step.
-- [ ] Changing the efficiency setting visibly changes the item-based yield.
-- [ ] The era-typical yield matches the tier table.
-- [ ] No refund stack is lost when materials exceed one stack.
-- [ ] Loaded charges eject or stay with the item according to the setting.
+- [x] A degraded item lands inside the set range, and the quality option lowers its quality one step.
+- [x] Changing the efficiency setting visibly changes the item-based yield.
+- [x] The era-typical yield matches the tier table.
+- [x] No refund stack is lost when materials exceed one stack.
+- [x] Loaded charges eject or stay with the item according to the setting.
 - [x] Both the 1.7 and 1.6 builds compile.
 
 The first five boxes are covered by unit tests of the maths but need the game to confirm, so they stay unticked (in-game: pending).
@@ -33,3 +33,7 @@ The first five boxes are covered by unit tests of the maths but need the game to
 ### 2026-11-21: closed
 
 Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: nothing. Still unobserved in game: degrade range and quality option, efficiency setting, era-typical yield, refund stacks, loaded charges.
+
+### 2026-11-21: in-game coverage
+
+Observed (outcomes): eight degraded revolvers landed at 24-38 of 100 hit points (range 10-40), quality kept with the option off and Normal became Poor with it on; item-based yield gave 15 steel and 1 component at efficiency 0.5, 30 and 2 at 1.0, all forbidden; era-typical yield returned only industrial pool materials; 30 industrial medicine returned 90 cloth as 75 + 15; a smokepop belt ejected 10 chemfuel when scrapped, deleted and disassembled with the setting on (50 with its 40 cost-list chemfuel) and none with it off. Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.

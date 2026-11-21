@@ -9,9 +9,9 @@
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
 - [x] A tribal colony that kills a pirate gets a stack of industrial scrap, sized by the gear.
-- [ ] A stone knife becomes about one unit of neolithic scrap, and a charge rifle becomes several units of spacer scrap.
-- [ ] "Scrap everything" turns all dropped gear into scrap, and "Off" leaves out-of-reach gear to its category rule.
-- [ ] Scrap from a large raid lands in a few piles, not one per item.
+- [x] A stone knife becomes about one unit of neolithic scrap, and a charge rifle becomes several units of spacer scrap.
+- [x] "Scrap everything" turns all dropped gear into scrap, and "Off" leaves out-of-reach gear to its category rule.
+- [x] Scrap from a large raid lands in a few piles, not one per item.
 - [x] The scrap modes save nothing in the game file and add no data to items. (by construction; in-game save check pending)
 - [x] Both the 1.7 and 1.6 builds compile.
 
@@ -45,3 +45,7 @@ In-game pending (dev mode, Debug actions > "Loot Scavenging"): kill a pirate at 
 ### 2026-11-21: closed
 
 Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: a tribal colony's pirate revolver became 1 industrial scrap 1 cell from the corpse, matching ScrapAmounts.Units, with his silver and steel untouched. Still unobserved in game: stone knife and charge rifle amounts, scrap everything and Off modes, large-raid piles, scrap on body, save and load.
+
+### 2026-11-21: in-game coverage
+
+Observed (outcomes, saves): a stone knife became 1 neolithic unit under scrap everything and a charge rifle 4 spacer units, both matching `ScrapAmounts.Units`; Off left an out-of-reach charge rifle whole; ten pirates killed in a cluster left 10 units in 5 piles; scrap survived save and reload. Scrap on body is covered in ticket 10's comment. Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.

@@ -10,8 +10,8 @@
 
 - [x] A looted charge rifle in a tribal colony shows as unfamiliar and cannot be equipped.
 - [x] Once its research finishes, the same rifle can be equipped.
-- [ ] With the looted-only scope, an out-of-reach item that was not looted can be equipped, and the marker survives a save and reload.
-- [ ] The default scope adds nothing to the save file. (By design: the comp saves only when a marker is set; save check in game pending.)
+- [x] With the looted-only scope, an out-of-reach item that was not looted can be equipped, and the marker survives a save and reload.
+- [x] The default scope adds nothing to the save file. (By design: the comp saves only when a marker is set; save check in game pending.)
 - [x] Both the 1.7 and 1.6 builds compile.
 
 ## Comments
@@ -46,3 +46,7 @@ In-game pending (dev actions under "Loot Scavenging": "Unfamiliar: toggle keep-o
 ### 2026-11-21: closed
 
 Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: the charge rifle was labelled "(unfamiliar)", CanEquip was false with reason "unfamiliar technology", and it was equippable after Charged Shot finished. Still unobserved in game: looted-only scope and marker surviving save and reload, default scope save check.
+
+### 2026-11-21: in-game coverage
+
+Observed (saves): in looted-only scope a pirate's charge rifle carried a Spacer marker and was unfamiliar while an unlooted one was equippable; after save and reload the marker and unfamiliarity held, and the save held exactly one `lootScavengingLootedEra` (an unmarked item writes nothing). Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.

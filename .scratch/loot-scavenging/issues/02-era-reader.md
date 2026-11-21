@@ -10,7 +10,7 @@
 
 - [ ] The dev readout names the right era and out-of-reach result for a vanilla researched weapon, a vanilla unresearched weapon, an uncraftable weapon and a modded item with no research.
 - [x] The colony's era is read through a single function, so a later pack integration can supply the value.
-- [ ] The fallback settings change the result the readout shows. (Ranking verified by unit tests; readout in-game pending.)
+- [x] The fallback settings change the result the readout shows. (Ranking verified by unit tests; readout in-game pending.)
 - [x] Both the 1.7 and 1.6 builds compile.
 
 ## Comments
@@ -42,3 +42,7 @@ In-game pending: readout for a vanilla researched weapon, an unresearched weapon
 ### 2026-11-21: closed
 
 Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: nothing in the era readout directly (era results seen indirectly through ticket 03 scrap tiers). Still unobserved in game: the dev readout for the four item cases and the fallback settings changing it.
+
+### 2026-11-21: in-game coverage
+
+Observed (outcomes, through `EraReader.ItemEra`, not the dev readout): for `Gun_MiniTurretMech` (no research, no tech level) the colony fallback gave the colony's era, the components fallback marked it for components and broke a pirate's copy into 1 component, the carrier fallback gave the pirates' era. Still unobserved: the dev readout itself for the four item cases. Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.
