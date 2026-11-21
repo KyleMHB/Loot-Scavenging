@@ -25,6 +25,9 @@ internal static class BillRecipes
             fixedIngredientFilter = new ThingFilter(),
             defaultIngredientFilter = new ThingFilter(),
         };
+        // A Def hashes by defNameHash, which AddImpliedDef sets only later. The recipe is a dictionary key before then
+        // (RecycleRecipes, StudyRecipes), and keyed with a hash of 0 it is never found again.
+        recipe.ResolveDefNameHash();
         var ingredient = new IngredientCount();
         ingredient.SetBaseCount(count);
         foreach (ThingDef def in allowed)
