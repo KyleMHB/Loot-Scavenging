@@ -60,6 +60,7 @@ internal static class ValueWalk
         Type type = a.GetType();
         if (type.IsValueType || a is string)
             return a.Equals(b);
+        RequireSupported(type);
         foreach (FieldInfo field in Fields(type))
         {
             if (!Equal(field.GetValue(a), field.GetValue(b)))
@@ -77,6 +78,7 @@ internal static class ValueWalk
             return source;
         if (source is List<string> list)
             return new List<string>(list);
+        RequireSupported(type);
         object copy = Activator.CreateInstance(type);
         foreach (FieldInfo field in Fields(type))
             field.SetValue(copy, CopyObject(field.GetValue(source)));
@@ -93,6 +95,13 @@ internal static class ValueWalk
                 return false;
         }
         return true;
+    }
+
+    // Any other collection has no public fields, so the walk would copy it empty and always call it equal.
+    private static void RequireSupported(Type type)
+    {
+        if (typeof(System.Collections.IEnumerable).IsAssignableFrom(type))
+            throw new NotSupportedException("SettingValues cannot copy or compare a " + type.Name + "; only List<string> is supported."); // not translated
     }
 
     private static FieldInfo[] Fields(Type type) => type.GetFields(BindingFlags.Public | BindingFlags.Instance);
