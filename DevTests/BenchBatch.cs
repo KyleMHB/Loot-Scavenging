@@ -55,15 +55,22 @@ public sealed class BenchBatch : Batch
             {
                 Started = true;
                 P0 = Project == null ? 0f : Find.ResearchManager.GetProgress(Project);
-                Xp0 = Pawn.skills.GetSkill(SkillDefOf.Intellectual).XpTotalEarned;
+                Xp0 = Xp();
             }
             if (inJob && Pawn.jobs.curDriver is JobDriver_DoBill d) MaxWork = Math.Max(MaxWork, d.workLeft);
             if (Started && !inJob && !Ended)
             {
                 Ended = true;
                 P1 = Project == null ? 0f : Find.ResearchManager.GetProgress(Project);
-                Xp1 = Pawn.skills.GetSkill(SkillDefOf.Intellectual).XpTotalEarned;
+                Xp1 = Xp();
             }
+        }
+
+        // XpTotalEarned sums whole levels only, so the XP towards the next level is added.
+        private float Xp()
+        {
+            var skill = Pawn.skills.GetSkill(SkillDefOf.Intellectual);
+            return skill.XpTotalEarned + skill.xpSinceLastLevel;
         }
     }
 
