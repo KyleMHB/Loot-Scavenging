@@ -12,13 +12,15 @@ namespace LootScavenging.Loot;
 [HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
 internal static class CorpseRemovalHook
 {
-    // The owner is read before the death: a colony prisoner's status may not survive Kill.
-    private static void Prefix(Pawn __instance, out OwnerGroup? __state)
+    // The owner is read before the death: a colony prisoner's status may not survive Kill. Last, like the gear sort, so a
+    // mod that cancels the death runs first and this sees it.
+    [HarmonyPriority(Priority.Last)]
+    private static void Prefix(Pawn __instance, bool __runOriginal, out OwnerGroup? __state)
     {
         __state = null;
         try
         {
-            if (Current.ProgramState == ProgramState.Playing && !__instance.Dead && !__instance.Destroyed)
+            if (__runOriginal && Current.ProgramState == ProgramState.Playing && !__instance.Dead && !__instance.Destroyed)
                 __state = GearSorter.OwnerOf(__instance);
         }
         catch (Exception e)
@@ -29,6 +31,8 @@ internal static class CorpseRemovalHook
 
     // By now the kill prefix has sorted the gear and the game has dropped equipment and inventory, so the corpse holds
     // only worn apparel. A pawn that left no corpse, or died off-map or in a caravan, has nothing spawned and is skipped.
+    // Runs after ScrapOnBodyHook, so scrap left on the body is in the inventory and the strip below drops it to the ground.
+    [HarmonyPriority(Priority.Low)]
     private static void Postfix(Pawn __instance, OwnerGroup? __state)
     {
         if (__state == null || !__instance.Dead)
@@ -103,9 +107,10 @@ internal static class ButcherIngredientsHook
 [HarmonyPatch(typeof(Pawn), nameof(Pawn.Strip))]
 internal static class ButcherStripHook
 {
-    private static void Prefix(Pawn __instance)
+    [HarmonyPriority(Priority.Last)]
+    private static void Prefix(Pawn __instance, bool __runOriginal)
     {
-        if (ButcherIngredientsHook.Depth <= 0 || !__instance.Dead || __instance.apparel == null)
+        if (!__runOriginal || ButcherIngredientsHook.Depth <= 0 || !__instance.Dead || __instance.apparel == null)
             return;
         try
         {

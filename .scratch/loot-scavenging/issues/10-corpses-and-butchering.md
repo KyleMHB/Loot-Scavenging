@@ -33,3 +33,7 @@
 - Wild animal: kill one with animal on; the log shows `OwnerGroupOff` and the corpse stays. After "Toggle no-faction group" it is removed.
 - Kill a pawn with no corpse (off-map or caravan): no error.
 - Butchering on: butcher a raider corpse (humanlike removal off); no apparel is left, and the weapon dropped at death is still there.
+
+### 2026-11-21: review fixes
+
+- The two `Pawn.Kill` postfixes now run in a fixed order through `HarmonyPriority` (they share one Harmony id, so `HarmonyBefore`/`After` cannot order them): `ScrapOnBodyHook` (High) puts set-aside scrap in the dead pawn's inventory first, then `CorpseRemovalHook` (Low) strips and removes the corpse, and the strip drops that scrap to the ground. Before, the order was undefined, and scrap added after the corpse was destroyed was lost. The set-aside entry is now always used up: if the death was cancelled the pawn keeps the scrap in its inventory, and a pawn with no inventory gets it on the ground rather than destroyed. A finalizer forgets the entry when Kill throws. `CorpseRemovalHook`'s prefix and `ButcherStripHook` now check `__runOriginal` (at `Priority.Last`). Glue only; in-game: pending (scrap-on-body plus Cleanup corpse removal leaves the scrap on the ground).
