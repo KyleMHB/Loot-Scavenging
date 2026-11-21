@@ -15,6 +15,7 @@ public sealed class SmokeBatch : Batch
 {
     private const string P = "lootscavenging.smoke.";
     private const string Defaults = P + "progression-defaults", Fixture = P + "tribal-fixture", TribalScrap = P + "tribal-scrap",
+        TribalMedicine = P + "tribal-medicine",
         Cleanup = P + "cleanup-preset", Recycling = P + "recycling", Study = P + "study", KeepOriginal = P + "keep-original",
         NoErrors = P + "no-mod-errors";
 
@@ -26,6 +27,7 @@ public sealed class SmokeBatch : Batch
         new PlannedCase(Defaults, Levels.Mechanical, "a fresh config holds the Progression preset, not marked changed"),
         new PlannedCase(Fixture, Levels.Mechanical, "colony era Neolithic, revolver research unfinished, hostile pirates, no scrap"),
         new PlannedCase(TribalScrap, Levels.Mechanical, "a dead pirate's revolver becomes industrial scrap by ScrapAmounts.Units; colony and wild deaths change nothing"),
+        new PlannedCase(TribalMedicine, Levels.Mechanical, "ticket 16: industrial medicine drops whole by default; scrap of its era with dropIncludesMedicine on"),
         new PlannedCase(Cleanup, Levels.Mechanical, "poor weapon deleted, good weapon kept, corpse removed, kept apparel on the ground"),
         new PlannedCase(Recycling, Levels.Mechanical, "machining table recycles three tiers, smithy no industrial, vanilla bills kept, products from the pool"),
         new PlannedCase(Study, Levels.Mechanical, "5 medieval units pay 100 points at factor 1; factor 0 and industrial scrap pay nothing"),
@@ -43,11 +45,11 @@ public sealed class SmokeBatch : Batch
     {
         long modErrorsAtStart = CaseErrors.ModMark, errorsAtStart = CaseErrors.Mark;
         ModHarness.SaveSettings();
-        var area = Kit.Area(ctx, 40, 12);
+        var area = Kit.Area(ctx, 50, 12);
         yield return Wait.Ticks(1);
 
         // Cells along the area, far enough apart that one death's drops never land near another's.
-        var sites = Enumerable.Range(0, 6).Select(i => new IntVec3(area.minX + 3 + i * 6, 0, area.CenterCell.z)).ToList();
+        var sites = Enumerable.Range(0, 8).Select(i => new IntVec3(area.minX + 3 + i * 6, 0, area.CenterCell.z)).ToList();
 
         // ---- 1. Progression defaults ---------------------------------------------------------------------------------------
         {
@@ -66,6 +68,7 @@ public sealed class SmokeBatch : Batch
         var map = ctx.Map;
         var pirates = Find.FactionManager.FirstFactionOfDef(FactionDefOf.Pirate);
         var revolver = Kit.Def("Gun_Revolver");
+        var medicine = Kit.Def("MedicineIndustrial");
         {
             Find.ResearchManager.ResetAllProgress();
             Unfamiliar.ResetCache();
@@ -79,6 +82,9 @@ public sealed class SmokeBatch : Batch
             c.Step(!Project("Gunsmithing").IsFinished, "gunsmithing is not researched");
             c.Step(pirates != null && pirates.HostileTo(Faction.OfPlayer), "a pirate faction exists and is hostile");
             c.Step(era.Era == Era.Industrial && era.OutOfReach, "a pirate's revolver is industrial and out of reach");
+            var medEra = EraReader.ItemEra(medicine, pirates);
+            c.Observe("medicineEra", medEra.Era).Observe("medicineOutOfReach", medEra.OutOfReach);
+            c.Step(medEra.Era == Era.Industrial && medEra.OutOfReach, "a pirate's industrial medicine is industrial and out of reach");
             c.Step(ScrapOnMap(map) == 0, "no scrap is on the map yet");
             c.Conclude();
         }
@@ -125,6 +131,51 @@ public sealed class SmokeBatch : Batch
             scrapBefore = ScrapOnMap(map);
             hare.Kill(null);
             c.Step(hare.Corpse != null && hare.Corpse.Spawned && ScrapOnMap(map) == scrapBefore, "a wild hare dies: its corpse stays and no scrap appears");
+            c.Conclude();
+        }
+
+        // ---- 2b. Medicine and the drop mode (ticket 16) ----------------------------------------------------------------------
+        if (!ctx.SkipUnlessPassed(TribalMedicine, Fixture, Defaults))
+        {
+            var c = ctx.Begin(TribalMedicine);
+            var industrial = Scrap(ScrapTier.Industrial);
+            var mercenary = DefDatabase<PawnKindDef>.GetNamed("Mercenary_Gunner");
+            c.Step(!Settings.values.rules.dropIncludesMedicine, "by default the drop mode leaves medicine out");
+
+            var medic = Spawn(ctx, mercenary, pirates, sites[6]);
+            var gun = Arm(medic, revolver, null);
+            var kit = Stack(medicine, 3);
+            medic.inventory.innerContainer.TryAdd(kit);
+            c.Subject(medic);
+            int expectedGun = ScrapAmounts.Units(gun.MarketValue, 1);
+            int medsBefore = Kit.CountOnMap(map, medicine);
+            var before = Kit.StackIds(map, industrial);
+            c.Note("A pirate with a revolver and 3 industrial medicine dies (default settings)");
+            medic.Kill(null);
+            int gunScrap = Kit.NewStacks(map, industrial, before).Sum(t => t.stackCount);
+            int medsAfter = Kit.CountOnMap(map, medicine);
+            c.Expect("medicineAfter", medsBefore).Observe("medicineAfter", medsAfter)
+                .Expect("scrapDefault", expectedGun).Observe("scrapDefault", gunScrap);
+            c.Step(gun.Destroyed && gunScrap == expectedGun, $"the revolver becomes {gunScrap} industrial scrap (expected {expectedGun})");
+            c.Step(medsAfter == medsBefore && medsBefore >= 3, "the 3 industrial medicine drop whole");
+
+            Settings.values.rules.dropIncludesMedicine = true;
+            c.Note("The player turns on \"drop mode includes medicine\"");
+            var medic2 = Spawn(ctx, mercenary, pirates, sites[7]);
+            var kit2 = Stack(medicine, 3);
+            float medValue = kit2.MarketValue;
+            medic2.inventory.innerContainer.TryAdd(kit2);
+            c.Subject(medic2);
+            int expectedMed = ScrapAmounts.Units(medValue, 3);
+            medsBefore = Kit.CountOnMap(map, medicine);
+            before = Kit.StackIds(map, industrial);
+            medic2.Kill(null);
+            int medScrap = Kit.NewStacks(map, industrial, before).Sum(t => t.stackCount);
+            medsAfter = Kit.CountOnMap(map, medicine);
+            c.Expect("scrapIncluded", expectedMed).Observe("scrapIncluded", medScrap).Observe("medicineLost", medsBefore - medsAfter);
+            c.Step(medsBefore - medsAfter == 3, "a second pirate's 3 industrial medicine are gone");
+            c.Step(medScrap == expectedMed, $"they become {medScrap} industrial scrap (expected {expectedMed})");
+            ModHarness.RestoreSettings();
             c.Conclude();
         }
 
