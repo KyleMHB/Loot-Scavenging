@@ -17,6 +17,9 @@
     <DebugSymbols>false</DebugSymbols>
     <GenerateDependencyFile>false</GenerateDependencyFile>
     <Deterministic>true</Deterministic>
+    <!-- Keep the git commit out of the informational version, so a docs-only commit leaves the DLL byte-identical and
+         the harness's perf run for release-check stays valid. -->
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <HarmonyPath Condition="'$(HarmonyPath)' == ''">E:\Steam\steamapps\workshop\content\294100\2009463077\$(RimWorldVersion)\Assemblies\0Harmony.dll</HarmonyPath>
     <TranslateTool Condition="'$(TranslateTool)' == ''">$(MSBuildThisFileDirectory)..\..\RimWorldTranslate\rwtranslate.py</TranslateTool>
   </PropertyGroup>
