@@ -1,0 +1,15 @@
+{
+  "name": "Loot Scavenging",
+  "argPrefix": "loot",
+  "modDir": "E:/Steam/steamapps/common/RimWorld/Mods/Loot Scavenging",
+  "productionDll": "1.7/Assemblies/LootScavenging.dll",
+  "devBuild": "work/devtests/LootScavenging.DevTests.dll",
+  "devProject": "DevTests/LootScavenging.DevTests.csproj",
+  "evidenceFolder": "LootScavengingTests",
+  "runtimeFolders": ["About", "1.6", "1.7", "Defs", "Patches", "Languages", "Textures", "packs"],
+  "runtimeFiles": ["LoadFolders.xml"],
+  "modSets": {
+    "default": ["brrainz.harmony", "ludeon.rimworld", "kylemhb.lootscavenging"],
+    "dlcs": ["brrainz.harmony", "ludeon.rimworld", "ludeon.rimworld.royalty", "ludeon.rimworld.ideology", "ludeon.rimworld.biotech", "ludeon.rimworld.anomaly", "ludeon.rimworld.odyssey", "kylemhb.lootscavenging"]
+  }
+}

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Developer-only in-game tests (TESTING.md). Builds to work/devtests, outside the runtime package. -->
+  <PropertyGroup>
+    <AssemblyName>LootScavenging.DevTests</AssemblyName>
+    <RootNamespace>LootScavenging.DevTests</RootNamespace>
+    <OutputPath>..\work\devtests\</OutputPath>
+    <DevTestsProductionDll>..\1.7\Assemblies\LootScavenging.dll</DevTestsProductionDll>
+    <RimWorldDevTestsProps Condition="'$(RimWorldDevTestsProps)' == ''">..\..\RimWorldDevTests\RimWorldDevTests.props</RimWorldDevTestsProps>
+  </PropertyGroup>
+  <Import Project="$(RimWorldDevTestsProps)" />
+</Project>
