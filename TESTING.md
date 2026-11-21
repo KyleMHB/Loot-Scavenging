@@ -65,6 +65,13 @@ Not covered: the settings page and bill-tab UI, the first-load dialog on screen,
 
 ## Result recording
 
+### 2026-11-21 - full tier after the scrap art and on-body fix
+
+- Version/environment: RimWorld 1.7, seed 1, at `64b73e4`; `dotnet test` 280 passed.
+- Runs: run-all default `20261121-152459-run-all-s1-b5121bf9` (57 pass, 1 skip), run-all `dlcs` `20261121-152528-run-all-s1-924f755f` (58 pass), perf `20261121-152603-perf-s1-6935b3ca` (1/1).
+- Observed: no failures on either set. The default set's skip is the techprint project, which needs Royalty; it passed with the DLCs. Perf: 0 ms/tick for the mod over 1800 ticks.
+- Status: Passed.
+
 ### 2026-11-21 - everything on the body
 
 - Version/environment: RimWorld 1.7, default mod set, seed 1; `dotnet test` 280 passed.
