@@ -46,3 +46,7 @@ Merged on `loot-scavenging`. 270 unit tests, both builds and the translation che
 ### 2026-11-21: in-game coverage
 
 Observed (bench, outcomes): a machining-table bill recycled 12 industrial units into pool materials; 200 seeded units returned 2287 silver of materials against 2200 expected (unseeded 2161), components and chemfuel included. FAILED on both mod sets: the bill hauled all 12 units and used them in one iteration (expected 5, 5, 2 with at most 5 carried), so the haul cap and batch size did not apply. Still unobserved: keep-in-stock in the bill UI (the counter reports none). Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.
+
+### 2026-11-21: bench fixes
+
+Fixed in `ee1977a`: the generated recipes were stored in `tierOf` before `AddImpliedDef` set their `defNameHash`, which `Def.GetHashCode` returns, so every `TryGetTier` lookup missed; `BillRecipes.New` now resolves the hash first. The 12-unit bill now runs 12>7>2>0 with at most 5 carried on both mod sets (129 and 109 silver of materials against 132). Runs (RimWorld 1.7, seed 1): default set bench `20261121-111417-lootscavenging-bench-s1-356b2793` (smoke `20261121-111405-…-0920bef4`, saves `20261121-111421-…-83df63a9`, settings `20261121-111424-…-ed3fee1c`, all passed); `dlcs` bench `20261121-111438-lootscavenging-bench-s1-7c6eabd9` (passed).

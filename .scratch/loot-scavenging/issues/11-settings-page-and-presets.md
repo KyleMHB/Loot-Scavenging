@@ -90,3 +90,7 @@ Merged on `loot-scavenging`. 270 unit tests, both builds and the translation che
 ### 2026-11-21: in-game coverage
 
 Observed (smoke, settings): Progression, Cleanup and Vanilla each applied unchanged and editing a value marked them changed; Vanilla left a pirate's revolver whole and his corpse in place; Reset returned to Progression. FAILED: every launch logs a NullReferenceException in `LootScavengingMod.ShowFirstLoadMessage` at startup (the flag is still saved as shown). Still unobserved: the settings page UI and the message on screen. Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.
+
+### 2026-11-21: bench fixes
+
+Fixed in `8d1fa4d`: `ExecuteWhenFinished` from the Mod constructor runs before Root's interface event creates the window stack, so `Find.WindowStack` was null. The message is now queued as a long event behind that event, and the flag is written only after the message is added. No NullReferenceException in the new runs' Player.log, and the flag was saved at launch after the message was added. Still unobserved: the message on screen and its buttons. Runs (RimWorld 1.7, seed 1): default set bench `20261121-111417-lootscavenging-bench-s1-356b2793` (smoke `20261121-111405-…-0920bef4`, saves `20261121-111421-…-83df63a9`, settings `20261121-111424-…-ed3fee1c`, all passed); `dlcs` bench `20261121-111438-lootscavenging-bench-s1-7c6eabd9` (passed).

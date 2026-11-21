@@ -8,7 +8,7 @@
 
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
-- [ ] (in-game: pending) A looted rifle recycles for the same yield as the scrap it would have become.
+- [x] (in-game: pending) A looted rifle recycles for the same yield as the scrap it would have become.
 - [x] (in-game: pending) Studying it pays the same points as that scrap.
 - [x] An unfamiliar item that is neither marked nor allowed by a filter is never picked up for recycling or study. (default filters allow nothing; code-checked, in-game pending)
 - [x] Both the 1.7 and 1.6 builds compile.
@@ -42,3 +42,7 @@ Merged on `loot-scavenging`. 270 unit tests, both builds and the translation che
 ### 2026-11-21: in-game coverage
 
 Observed (bench): an unticked unfamiliar charge rifle was never taken; ticked, the fabrication bench recycled it into spacer materials (132 and 102 silver for its 4 units in two runs), and the machining table's bill refused it; studied with any era allowed it paid 200 points (4 spacer units at 50). One default run returned 310 silver (11 gold, 1 advanced component) for the same 4-unit rifle, more than 4 pool picks can give, so the recycle-yield box stays open. Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.
+
+### 2026-11-21: bench fixes
+
+The 310-silver result was not double counting: 4 picks at 33 silver, three of gold (11) and one advanced component (200 silver, about a 1-in-6 chance per pick), which the spec's random rounding allows. The case's 0.4-1.6x band was wrong; it now bounds the value by each pick's largest whole-item amount (`e20425b`). The ticked rifle recycled into 136 and 126 silver of spacer pool materials. Runs (RimWorld 1.7, seed 1): default set bench `20261121-111417-lootscavenging-bench-s1-356b2793` (smoke `20261121-111405-…-0920bef4`, saves `20261121-111421-…-83df63a9`, settings `20261121-111424-…-ed3fee1c`, all passed); `dlcs` bench `20261121-111438-lootscavenging-bench-s1-7c6eabd9` (passed).

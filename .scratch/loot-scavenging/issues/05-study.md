@@ -10,7 +10,7 @@
 
 - [ ] Studying same-era scrap advances the current project, and finishing a study shows the gain and the project.
 - [ ] Higher-era scrap is refused, and the inspect text says why.
-- [ ] With no current project the job does not start.
+- [x] With no current project the job does not start.
 - [ ] A storyteller research factor of zero, and one above 100%, write no invalid value into project progress.
 - [x] With the techprint setting off, projects that need techprints receive nothing.
 - [ ] Study time scales with the points paid, research speed applies, and the researcher gains Intellectual experience.
@@ -119,3 +119,7 @@ Merged on `loot-scavenging`. 270 unit tests, both builds and the translation che
 ### 2026-11-21: in-game coverage
 
 Observed (bench): a study bench has the Bills tab; with Royalty, CataphractArmor received nothing with the techprint setting off and stopped one point short with it on. FAILED on both mod sets: with no current project the researcher started the study bill; with Complex Clothing current and "keep 3" of 8 medieval units, one iteration used all 8 for 160 points (expected 5 for 100), its work was the nominal 600 (expected 3000) and Intellectual XP gained 0. Still unobserved: finishing a project through a bill (no scrap was left after the failure), the refusal's inspect text, a research factor above 100%, the completion message. Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.
+
+### 2026-11-21: bench fixes
+
+Fixed in `ee1977a`: the generated recipes were stored in `tierOf` before `AddImpliedDef` set their `defNameHash`, which `Def.GetHashCode` returns, so every `TryGetTier` lookup missed; `BillRecipes.New` now resolves the hash first. With that, the no-project gate, the keep-in-stock allowance and the study plan apply. Observed on both sets: no job with no current project; keep 3 of 8 studied 5 units for 100 points, work 3000, 3 left; 30 points short, the bill studied 2 units, work 900, and finished Complex Clothing. The XP step was a case error (`XpTotalEarned` counts whole levels only); measured with progress to the next level the researcher gained 105 and 243 XP (`2aaf01f`). Still unobserved: the completion message, research speed on its own, a research factor above 100%, the refusal's inspect text. Runs (RimWorld 1.7, seed 1): default set bench `20261121-111417-lootscavenging-bench-s1-356b2793` (smoke `20261121-111405-…-0920bef4`, saves `20261121-111421-…-83df63a9`, settings `20261121-111424-…-ed3fee1c`, all passed); `dlcs` bench `20261121-111438-lootscavenging-bench-s1-7c6eabd9` (passed).

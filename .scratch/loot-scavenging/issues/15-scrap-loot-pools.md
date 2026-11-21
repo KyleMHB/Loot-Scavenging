@@ -53,3 +53,7 @@ Merged on `loot-scavenging`. 270 unit tests, both builds and the translation che
 ### 2026-11-21: in-game coverage
 
 Observed (bench, outcomes): a 12-unit machining-table bill returned a mix of pool materials; the bill's counter offers no keep-in-stock; era-typical disassembly returned only pool materials; every tier def loads with no config errors. Still unobserved: the bill description in the UI, era-typical amounts scaled by scrap units, and a `MayRequire` entry (none exists yet). Runs (RimWorld 1.7, seed 1): default set `20261121-110125`…`110245` and `20261121-105946`/`105948`/`105952`; `dlcs` set `20261121-110142`…`110301`; full ids in TESTING.md.
+
+### 2026-11-21: bench fixes
+
+Fixed in `ee1977a`: the generated recipes were stored in `tierOf` before `AddImpliedDef` set their `defNameHash`, which `Def.GetHashCode` returns, so every `TryGetTier` lookup missed; `BillRecipes.New` now resolves the hash first. The recycling haul cap and per-unit work now apply (12>7>2>0, at most 5 carried); the bill still offers no keep-in-stock. Still unobserved: the bill description in the UI. Runs (RimWorld 1.7, seed 1): default set bench `20261121-111417-lootscavenging-bench-s1-356b2793` (smoke `20261121-111405-…-0920bef4`, saves `20261121-111421-…-83df63a9`, settings `20261121-111424-…-ed3fee1c`, all passed); `dlcs` bench `20261121-111438-lootscavenging-bench-s1-7c6eabd9` (passed).
