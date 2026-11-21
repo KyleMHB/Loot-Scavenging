@@ -50,6 +50,9 @@ public sealed class LootRules
     // What out-of-reach gear becomes. Ticket 03 adds the evaluator step that reads it.
     public DropMode dropMode = DropMode.ScrapOutOfReach;
 
+    // Medicine is exempt from the drop mode and follows its own category rule unless this is on.
+    public bool dropIncludesMedicine;
+
     // Category rules (step 5).
     public CategoryRule weapons = new CategoryRule(Outcome.Keep);
     public CategoryRule apparel = new CategoryRule(Outcome.Keep);

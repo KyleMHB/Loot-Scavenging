@@ -91,6 +91,9 @@ public static class LootEvaluator
     // Returns null to fall through to the category rule.
     private static LootDecision? ApplyDropMode(DropCandidate item, LootRules rules)
     {
+        // Medicine is not out-of-reach gear to scrap by default; its own category rule decides.
+        if (item.Category == ItemCategory.Medicine && !rules.dropIncludesMedicine)
+            return null;
         EraResult era = item.ItemEra;
         switch (rules.dropMode)
         {

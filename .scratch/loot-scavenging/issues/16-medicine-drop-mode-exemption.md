@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Recommended model:** `sonnet`: a small, contained change to one evaluator step plus one setting.
 
@@ -24,8 +24,16 @@ Out of scope: exempting other inventory groups (drugs, food), and any change to 
 
 - [ ] With default settings at a tribal colony, a raider's industrial medicine drops untouched while his out-of-reach gun becomes scrap. (maths unit-tested; in-game: the smoke batch can add this to its tribal-colony case)
 - [ ] With "Drop mode includes medicine" on, the same medicine becomes scrap of its era.
-- [ ] "Scrap everything" leaves medicine to its category rule unless the setting is on.
-- [ ] The setting is off in all three presets, saved under its own key, lockable, and shown on the settings page with a sentence saying what will happen.
-- [ ] Both the 1.7 and 1.6 builds compile, the unit tests pass and the translation check passes.
+- [x] "Scrap everything" leaves medicine to its category rule unless the setting is on.
+- [x] The setting is off in all three presets, saved under its own key, lockable, and shown on the settings page with a sentence saying what will happen.
+- [x] Both the 1.7 and 1.6 builds compile, the unit tests pass and the translation check passes.
 
 ## Comments
+
+### 2026-11-21: implemented on ls/16
+
+- `LootEvaluator.ApplyDropMode` returns null for `ItemCategory.Medicine` unless the new `rules.dropIncludesMedicine` is on (field in `LootRules`, saved key `dropIncludesMedicine`, lock name `SettingNames.DropIncludesMedicine`). Off in `Presets` (Common and ResetBehaviour) and `Defs/SettingsDefaults.xml`.
+- Settings page: a toggle under the drop mode in Scrap and study, with on/off sentences; hidden while the drop mode is Off; lockable.
+- Decision: the field lives in `LootRules` beside `dropMode`, so the lock path is `rules.dropIncludesMedicine`.
+- Tests: new cases in `DropModeTests` and `PresetsTests`; key and lock-name lists updated. The old preset test that expected Progression to scrap out-of-reach medicine now asserts it is kept. 280 pass; 1.7 and 1.6 builds clean; translation check passed.
+- In-game pending: the first two acceptance lines (tribal colony medicine drops untouched; scrap with the setting on).

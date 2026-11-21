@@ -309,6 +309,11 @@ internal sealed class SettingsPage
             v => settings.values.rules.dropMode = v, SettingNames.DropMode);
         Explain(ls, DropModeSentence(s.values.rules.dropMode));
 
+        // Only the drop mode reads it, so it is hidden while the drop mode is Off.
+        if (s.values.rules.dropMode != DropMode.Off)
+            Toggle(ls, "LootScavenging_DropIncludesMedicine".Translate(), ref s.values.rules.dropIncludesMedicine,
+                "LootScavenging_DropIncludesMedicineOn".Translate(), "LootScavenging_DropIncludesMedicineOff".Translate(), SettingNames.DropIncludesMedicine);
+
         Choice(ls, "LootScavenging_StudyEras".Translate(), s.values.studyEras,
             new[] { StudyEraLimit.ColonyEraAndBelow, StudyEraLimit.AnyEra }, StudyErasName, v => settings.values.studyEras = v, SettingNames.StudyEras);
         Explain(ls, StudyErasSentence(s.values.studyEras));

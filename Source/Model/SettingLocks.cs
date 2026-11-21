@@ -79,6 +79,7 @@ public static class SettingNames
     public const string HomeMapOnly = "rules.homeMapOnly"; // not translated
     public const string OnDownedAndStrip = "rules.onDownedAndStrip"; // not translated
     public const string DropMode = "rules.dropMode"; // not translated
+    public const string DropIncludesMedicine = "rules.dropIncludesMedicine"; // not translated
     public const string DegradeMin = "rules.degradeMin"; // not translated
     public const string DegradeMax = "rules.degradeMax"; // not translated
     public const string DegradeLowersQuality = "rules.degradeLowersQuality"; // not translated

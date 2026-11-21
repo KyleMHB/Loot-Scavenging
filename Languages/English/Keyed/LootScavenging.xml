@@ -127,6 +127,9 @@
   <LootScavenging_DropModeScrapOutOfReachExplain>Gear beyond the colony's research or era becomes scrap of its era. Gear within reach follows its item rule.</LootScavenging_DropModeScrapOutOfReachExplain>
   <LootScavenging_DropModeScrapEverythingExplain>All gear affected pawns drop becomes scrap. The most cleanup, and no usable loot.</LootScavenging_DropModeScrapEverythingExplain>
   <LootScavenging_DropModeKeepOriginalExplain>Gear beyond reach drops whole, labelled unfamiliar, and cannot be used until its research is finished. It can be recycled or studied like scrap.</LootScavenging_DropModeKeepOriginalExplain>
+  <LootScavenging_DropIncludesMedicine>Drop mode includes medicine</LootScavenging_DropIncludesMedicine>
+  <LootScavenging_DropIncludesMedicineOn>Medicine beyond reach is handled by the drop mode like any other item.</LootScavenging_DropIncludesMedicineOn>
+  <LootScavenging_DropIncludesMedicineOff>Medicine drops untouched unless its own item rule says otherwise, even when it is beyond reach.</LootScavenging_DropIncludesMedicineOff>
   <LootScavenging_DropModeOffExplain>No era handling: gear beyond reach follows its item rule like any other gear.</LootScavenging_DropModeOffExplain>
   <LootScavenging_StudyEras>Which scrap can be studied</LootScavenging_StudyEras>
   <LootScavenging_StudyErasColony>The colony's era and below</LootScavenging_StudyErasColony>

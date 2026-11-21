@@ -16,6 +16,53 @@ public class DropModeTests
 
     private static LootRules Rules(DropMode mode) => TestRules.Basic(r => { r.dropMode = mode; });
 
+    [Theory]
+    [InlineData(DropMode.ScrapOutOfReach)]
+    [InlineData(DropMode.ScrapEverything)]
+    public void MedicineFallsToItsCategoryRuleWhileTheSettingIsOff(DropMode mode)
+    {
+        var d = LootEvaluator.Evaluate(Drop(OutOfReach, ItemCategory.Medicine), Rules(mode));
+        Assert.Equal(DecisionReason.CategoryRule, d.Reason);
+        Assert.Equal(Outcome.Keep, d.Outcome);
+    }
+
+    [Fact]
+    public void MedicineStillFollowsItsOwnScrapRuleWhileTheSettingIsOff()
+    {
+        LootRules rules = TestRules.Basic(r => { r.dropMode = DropMode.ScrapOutOfReach; r.medicine = new CategoryRule(Outcome.Scrap); });
+        var d = LootEvaluator.Evaluate(Drop(OutOfReach, ItemCategory.Medicine), rules);
+        Assert.Equal(Outcome.Scrap, d.Outcome);
+        Assert.Equal(DecisionReason.CategoryRule, d.Reason);
+    }
+
+    [Fact]
+    public void MedicineBeyondReachIsScrappedWhenTheSettingIsOn()
+    {
+        LootRules rules = TestRules.Basic(r => { r.dropMode = DropMode.ScrapOutOfReach; r.dropIncludesMedicine = true; });
+        var d = LootEvaluator.Evaluate(Drop(OutOfReach, ItemCategory.Medicine), rules);
+        Assert.Equal(Outcome.Scrap, d.Outcome);
+        Assert.Equal(DecisionReason.OutOfReachScrap, d.Reason);
+    }
+
+    [Fact]
+    public void ScrapEverythingScrapsMedicineWhenTheSettingIsOn()
+    {
+        LootRules rules = TestRules.Basic(r => { r.dropMode = DropMode.ScrapEverything; r.dropIncludesMedicine = true; });
+        var d = LootEvaluator.Evaluate(Drop(InReach, ItemCategory.Medicine), rules);
+        Assert.Equal(Outcome.Scrap, d.Outcome);
+        Assert.Equal(DecisionReason.ScrapEverything, d.Reason);
+    }
+
+    [Fact]
+    public void TheMedicineSettingDoesNotChangeOtherInventory()
+    {
+        foreach (ItemCategory category in new[] { ItemCategory.Weapon, ItemCategory.Apparel, ItemCategory.Drugs, ItemCategory.Food })
+        {
+            var d = LootEvaluator.Evaluate(Drop(OutOfReach, category), Rules(DropMode.ScrapOutOfReach));
+            Assert.Equal(Outcome.Scrap, d.Outcome);
+        }
+    }
+
     [Fact]
     public void ScrapOutOfReachScrapsGearBeyondReach()
     {

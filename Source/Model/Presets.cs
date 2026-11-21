@@ -88,6 +88,7 @@ public static class Presets
         r.medicine = Keep();
         r.food = Keep();
         r.other = Keep();
+        r.dropIncludesMedicine = false;
         v.corpses.humanlike = false;
         v.corpses.animal = false;
         v.corpses.mechanoid = false;
@@ -124,6 +125,7 @@ public static class Presets
         var v = new SettingValues();
         LootRules r = v.rules;
         r.homeMapOnly = false;
+        r.dropIncludesMedicine = false;
         r.weapons = Keep();
         r.apparel = Keep();
         r.ammunition = Keep();

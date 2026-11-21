@@ -25,6 +25,7 @@ public class SettingKeysTests
             ["rules.homeMapOnly"] = "homeMapOnly",
             ["rules.onDownedAndStrip"] = "onDownedAndStrip",
             ["rules.dropMode"] = "dropMode",
+            ["rules.dropIncludesMedicine"] = "dropIncludesMedicine",
             ["rules.degradeMin"] = "degradeMin",
             ["rules.degradeMax"] = "degradeMax",
             ["rules.degradeLowersQuality"] = "degradeLowersQuality",

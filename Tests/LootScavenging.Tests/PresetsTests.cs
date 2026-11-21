@@ -64,11 +64,26 @@ public class PresetsTests
     [Fact]
     public void ProgressionScrapsOutOfReachGearAndKeepsGearWithinReach()
     {
-        foreach (ItemCategory category in new[] { ItemCategory.Weapon, ItemCategory.Apparel, ItemCategory.Medicine })
+        foreach (ItemCategory category in new[] { ItemCategory.Weapon, ItemCategory.Apparel })
         {
             Assert.Equal(Outcome.Scrap, Judge(PresetId.Progression, Drop(category, outOfReach: true)));
             Assert.Equal(Outcome.Keep, Judge(PresetId.Progression, Drop(category, quality: ItemQuality.Awful, hitPoints: 0.1f)));
         }
+    }
+
+    [Fact]
+    public void ProgressionKeepsMedicineBeyondReach()
+    {
+        Assert.Equal(Outcome.Keep, Judge(PresetId.Progression, Drop(ItemCategory.Medicine, outOfReach: true)));
+    }
+
+    [Theory]
+    [InlineData(PresetId.Progression)]
+    [InlineData(PresetId.Cleanup)]
+    [InlineData(PresetId.Vanilla)]
+    public void NoPresetIncludesMedicineInTheDropMode(PresetId preset)
+    {
+        Assert.False(Presets.Build(preset).rules.dropIncludesMedicine);
     }
 
     [Fact]
