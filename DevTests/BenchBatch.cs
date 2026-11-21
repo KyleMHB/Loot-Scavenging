@@ -288,14 +288,20 @@ public sealed class BenchBatch : Batch
             var done = Wait.Until(() => rifle.Destroyed, 12000, rest);
             yield return done;
             float value = GainedValue(before, out string desc);
+            int products = before.Count(kv => Kit.CountOnMap(map, kv.Key) != kv.Value);
             c.Expect("value", units * spacer.valuePerUnit).Observe("value", value).Observe("products", desc).Observe("units", units);
             if (done.TimedOut)
                 c.WorkflowInconclusive("the crafter did not recycle the rifle in 12000 ticks", (crafter.Spawned && !crafter.Dead, "the crafter is alive"),
                     (((Building_WorkTable)fab).CurrentlyUsableForBills(), "the fabrication bench is usable"));
             else
             {
-                c.Step(value >= 0.4f * units * spacer.valuePerUnit && value <= 1.6f * units * spacer.valuePerUnit,
-                    $"the rifle recycles as {units} spacer scrap units: {value:0} silver of spacer materials");
+                // One pick per unit, each amount rounded up or down at random (spec: "can come out lumpy"): a pick of a
+                // 200-silver advanced component at 33 a unit is one component or none, so a 4-unit sample can land far from
+                // its average. Bound it by what the picks can give: each at most its value rounded up to one whole item.
+                float maxPerPick = spacer.pool.Where(e => e.thing != null).Max(e => (float)Math.Ceiling(spacer.valuePerUnit / e.thing.BaseMarketValue) * e.thing.BaseMarketValue);
+                c.Observe("maxValue", units * maxPerPick);
+                c.Step(value > 0f && value <= units * maxPerPick && products <= units,
+                    $"the rifle recycles as {units} spacer scrap units: {value:0} silver of spacer materials from {products} materials");
                 c.Conclude();
             }
             bill.suspended = true;
