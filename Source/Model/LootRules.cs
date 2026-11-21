@@ -96,18 +96,5 @@ public sealed class LootRules
     public bool IsOnRemoveList(string defName) => defName != null && removeList != null && removeList.Contains(defName);
 
     /// <summary>The rule for a category, or null when the category has none yet.</summary>
-    public CategoryRule RuleFor(ItemCategory category)
-    {
-        switch (category)
-        {
-            case ItemCategory.Weapon: return weapons;
-            case ItemCategory.Apparel: return apparel;
-            case ItemCategory.Ammunition: return ammunition;
-            case ItemCategory.Drugs: return drugs;
-            case ItemCategory.Medicine: return medicine;
-            case ItemCategory.Food: return food;
-            case ItemCategory.Other: return other;
-            default: return null;
-        }
-    }
+    public CategoryRule RuleFor(ItemCategory category) => ItemCategories.Of(category)?.Rule(this);
 }

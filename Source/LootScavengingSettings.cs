@@ -129,13 +129,8 @@ public class LootScavengingSettings : ModSettings
         Scribe_Values.Look(ref rules.homeMapOnly, "homeMapOnly", defaults.homeMapOnly);
         Scribe_Values.Look(ref rules.onDownedAndStrip, "onDownedAndStrip", defaults.onDownedAndStrip);
         Scribe_Values.Look(ref rules.dropMode, "dropMode", defaults.dropMode);
-        ScribeRule(rules.weapons, "weapons", defaults.weapons);
-        ScribeRule(rules.apparel, "apparel", defaults.apparel);
-        ScribeRule(rules.ammunition, "ammunition", defaults.ammunition);
-        ScribeRule(rules.drugs, "drugs", defaults.drugs);
-        ScribeRule(rules.medicine, "medicine", defaults.medicine);
-        ScribeRule(rules.food, "food", defaults.food);
-        ScribeRule(rules.other, "other", defaults.other);
+        foreach (CategoryInfo category in ItemCategories.All)
+            ScribeRule(category.Rule(rules), category.Field, category.Rule(defaults));
         Scribe_Values.Look(ref rules.degradeMin, "degradeMin", defaults.degradeMin);
         Scribe_Values.Look(ref rules.degradeMax, "degradeMax", defaults.degradeMax);
         Scribe_Values.Look(ref rules.degradeLowersQuality, "degradeLowersQuality", defaults.degradeLowersQuality);

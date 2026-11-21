@@ -16,12 +16,6 @@ internal sealed class SettingsPage
 {
     private const float IndentWidth = 24f;
 
-    private static readonly ItemCategory[] Categories =
-    {
-        ItemCategory.Weapon, ItemCategory.Apparel, ItemCategory.Ammunition, ItemCategory.Drugs, ItemCategory.Medicine,
-        ItemCategory.Food, ItemCategory.Other,
-    };
-
     private static readonly Outcome[] Outcomes = { Outcome.Keep, Outcome.Degrade, Outcome.Scrap, Outcome.Disassemble, Outcome.Delete };
 
     private static readonly ItemQuality[] Qualities =
@@ -161,22 +155,23 @@ internal sealed class SettingsPage
     {
         Section(ls, "LootScavenging_SectionItems".Translate());
         Explain(ls, DropModeNote(s.rules.dropMode));
-        foreach (ItemCategory category in Categories)
+        foreach (CategoryInfo category in ItemCategories.All)
             DrawCategory(ls, category);
         ls.Gap(6f);
         Toggle(ls, "LootScavenging_EjectCharges".Translate(), ref s.rules.ejectCharges,
             "LootScavenging_EjectChargesOn".Translate(), "LootScavenging_EjectChargesOff".Translate(), "rules.ejectCharges");
     }
 
-    private void DrawCategory(Listing_Standard ls, ItemCategory category)
+    private void DrawCategory(Listing_Standard ls, CategoryInfo info)
     {
         LootScavengingSettings settings = s;
         LootRules r = s.rules;
-        CategoryRule rule = r.RuleFor(category);
-        string lockName = "rules." + CategoryField(category);
+        ItemCategory category = info.Category;
+        CategoryRule rule = info.Rule(r);
+        string lockName = "rules." + info.Field;
         bool catLocked = IsLocked(lockName);
         ls.Gap(4f);
-        Choice(ls, CategoryName(category), rule.outcome, Outcomes, OutcomeName, v => settings.rules.RuleFor(category).outcome = v, lockName);
+        Choice(ls, info.LabelKey.Translate(), rule.outcome, Outcomes, OutcomeName, v => info.Rule(settings.rules).outcome = v, lockName);
 
         Indent(ls);
         // Everything below belongs to the category, so a locked category disables it all. The shared degrade and
@@ -218,7 +213,7 @@ internal sealed class SettingsPage
             ls.CheckboxLabeled("LootScavenging_OnlyBeyondReach".Translate(), ref rule.onlyBeyondReach);
             ls.CheckboxLabeled("LootScavenging_LimitQuality".Translate(), ref rule.limitQuality);
             if (rule.limitQuality)
-                Choice(ls, "LootScavenging_BelowQuality".Translate(), rule.belowQuality, Qualities, QualityName, v => settings.rules.RuleFor(category).belowQuality = v, lockName);
+                Choice(ls, "LootScavenging_BelowQuality".Translate(), rule.belowQuality, Qualities, QualityName, v => info.Rule(settings.rules).belowQuality = v, lockName);
             ls.CheckboxLabeled("LootScavenging_LimitHitPoints".Translate(), ref rule.limitHitPoints);
             if (rule.limitHitPoints)
                 rule.belowHitPointFraction = Percent(ls, "LootScavenging_BelowHitPoints".Translate(rule.belowHitPointFraction.ToStringPercent()), rule.belowHitPointFraction, 0.05f, 1f);
@@ -226,27 +221,13 @@ internal sealed class SettingsPage
         ambientDisabled = false;
         SetDisabled(false);
         Outdent(ls);
-        Explain(ls, RuleSentence(category, rule));
+        Explain(ls, RuleSentence(info, rule));
         LockedNote(ls, catLocked);
     }
 
-    private static string CategoryField(ItemCategory category)
+    private string RuleSentence(CategoryInfo info, CategoryRule rule)
     {
-        switch (category)
-        {
-            case ItemCategory.Weapon: return "weapons";
-            case ItemCategory.Apparel: return "apparel";
-            case ItemCategory.Ammunition: return "ammunition";
-            case ItemCategory.Drugs: return "drugs";
-            case ItemCategory.Medicine: return "medicine";
-            case ItemCategory.Food: return "food";
-            default: return "other";
-        }
-    }
-
-    private string RuleSentence(ItemCategory category, CategoryRule rule)
-    {
-        string what = CategoryName(category);
+        string what = info.LabelKey.Translate();
         if (rule.outcome == Outcome.Keep)
             return "LootScavenging_RuleKeep".Translate(what);
 
@@ -298,20 +279,6 @@ internal sealed class SettingsPage
             case DropMode.KeepOriginal: return "LootScavenging_ItemsNoteKeepOriginal".Translate();
             case DropMode.Off: return "LootScavenging_ItemsNoteOff".Translate();
             default: return "LootScavenging_ItemsNoteScrapOutOfReach".Translate();
-        }
-    }
-
-    private static string CategoryName(ItemCategory category)
-    {
-        switch (category)
-        {
-            case ItemCategory.Weapon: return "LootScavenging_CategoryWeapons".Translate();
-            case ItemCategory.Apparel: return "LootScavenging_CategoryApparel".Translate();
-            case ItemCategory.Ammunition: return "LootScavenging_CategoryAmmunition".Translate();
-            case ItemCategory.Drugs: return "LootScavenging_CategoryDrugs".Translate();
-            case ItemCategory.Medicine: return "LootScavenging_CategoryMedicine".Translate();
-            case ItemCategory.Food: return "LootScavenging_CategoryFood".Translate();
-            default: return "LootScavenging_CategoryOther".Translate();
         }
     }
 
