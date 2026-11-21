@@ -11,6 +11,12 @@
   "modSets": {
     "default": ["brrainz.harmony", "ludeon.rimworld", "kylemhb.lootscavenging"],
     "dlcs": ["brrainz.harmony", "ludeon.rimworld", "ludeon.rimworld.royalty", "ludeon.rimworld.ideology", "ludeon.rimworld.biotech", "ludeon.rimworld.anomaly", "ludeon.rimworld.odyssey", "kylemhb.lootscavenging"],
-    "perf": ["brrainz.harmony", "dubwise.dubsperformanceanalyzer.steam", "ludeon.rimworld", "kylemhb.lootscavenging"]
+    "compat": ["brrainz.harmony", "ludeon.rimworld", "ludeon.rimworld.royalty", "ludeon.rimworld.ideology", "ludeon.rimworld.biotech", "ludeon.rimworld.anomaly", "ludeon.rimworld.odyssey", "chaoticenrico.researchpapers", "cruesoe.semirandompfork.continued", "ferny.progressionammunition", "ferny.progressionhospitality", "kylemhb.lootscavenging"],
+    "compat-papers": ["brrainz.harmony", "ludeon.rimworld", "ludeon.rimworld.royalty", "ludeon.rimworld.ideology", "ludeon.rimworld.biotech", "ludeon.rimworld.anomaly", "ludeon.rimworld.odyssey", "chaoticenrico.researchpapers", "kylemhb.lootscavenging"],
+    "compat-srr": ["brrainz.harmony", "ludeon.rimworld", "ludeon.rimworld.royalty", "ludeon.rimworld.ideology", "ludeon.rimworld.biotech", "ludeon.rimworld.anomaly", "ludeon.rimworld.odyssey", "cruesoe.semirandompfork.continued", "kylemhb.lootscavenging"],
+    "compat-progression": ["brrainz.harmony", "ludeon.rimworld", "ludeon.rimworld.royalty", "ludeon.rimworld.ideology", "ludeon.rimworld.biotech", "ludeon.rimworld.anomaly", "ludeon.rimworld.odyssey", "ferny.progressionammunition", "ferny.progressionhospitality", "kylemhb.lootscavenging"],
+    "compat-pinata": ["brrainz.harmony", "ludeon.rimworld", "ludeon.rimworld.royalty", "ludeon.rimworld.ideology", "ludeon.rimworld.biotech", "ludeon.rimworld.anomaly", "ludeon.rimworld.odyssey", "avilmask.nonunopinata", "kylemhb.lootscavenging"],
+    "perf": ["brrainz.harmony", "dubwise.dubsperformanceanalyzer.steam", "ludeon.rimworld", "kylemhb.lootscavenging"],
+    "progression": ["brrainz.harmony", "ludeon.rimworld", "ludeon.rimworld.ideology", "oskarpotocki.vanillafactionsexpanded.core", "oskarpotocki.vfe.tribals", "ferny.progressioncore", "ferny.noderesearch", "ferny.progressionproduction", "chaoticenrico.researchpapers", "cruesoe.semirandompfork.continued", "kylemhb.lootscavenging"]
   }
 }

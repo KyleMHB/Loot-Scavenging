@@ -13,7 +13,7 @@ namespace LootScavenging.DevTests;
 
 // Save and reload (tickets 03, 05, 06): scrap, studied scrap, a study bill and a looted charge rifle carrying the looted-only
 // marker survive the runner's save and load. The save file is then read for what names the mod. Loading the save without
-// the mod is not possible here: the runner ships inside the mod.
+// the mod is not possible here: the runner ships inside the mod; tools/removal-check loads the archived save without it.
 public sealed class SavesBatch : Batch
 {
     private const string P = "lootscavenging.saves.";
@@ -65,6 +65,10 @@ public sealed class SavesBatch : Batch
             bill.repeatMode = BillRepeatModeDefOf.TargetCount;
             bill.targetCount = 7;
             ((IBillGiver)bench).BillStack.AddBill(bill);
+            // For tools/removal-check: a vanilla bill and a recycle bill on one bench, to see which survive without the mod.
+            var table = Kit.Place(ctx, "TableMachining", sites[3] + new IntVec3(0, 0, -5));
+            ((IBillGiver)table).BillStack.AddBill(DefDatabase<RecipeDef>.GetNamed("Make_ComponentIndustrial").MakeNewBill());
+            ((IBillGiver)table).BillStack.AddBill(DefDatabase<RecipeDef>.GetNamed("LS_Recycle_Industrial").MakeNewBill());
             ctx.Remember("looted", looted.thingIDNumber.ToString());
             ctx.Remember("unlooted", unlooted.thingIDNumber.ToString());
             ctx.Remember("scrap", scrap.thingIDNumber.ToString());

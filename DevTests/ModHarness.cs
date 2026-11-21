@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using LootScavenging.Model;
+using RimWorld;
 using RimWorldDevTests;
+using Verse;
 
 namespace LootScavenging.DevTests;
 
@@ -21,9 +23,10 @@ public sealed class ModHarness : HarnessSettings
     public override string[] RuntimeFolders => new[] { "About", "1.6", "1.7", "Defs", "Patches", "Languages", "Textures", "packs" };
     public override string[] RuntimeFiles => new[] { "LoadFolders.xml" };
 
-    public override IEnumerable<Batch> CreateBatches() => new Batch[] { new SmokeBatch(), new OutcomesBatch(), new MomentsBatch(), new SettingsBatch(), new BenchBatch(), new SavesBatch(), new PreviewBatch(), new MilestoneBatch(), new StacksBatch() };
+    public override IEnumerable<Batch> CreateBatches() => new Batch[] { new SmokeBatch(), new OutcomesBatch(), new MomentsBatch(), new SettingsBatch(), new BenchBatch(), new SavesBatch(), new PreviewBatch(), new MilestoneBatch(), new StacksBatch(), new ProgressionBatch(), new UiBatch(), new FirstLoadBatch() };
 
-    public override IEnumerable<string> RunAll => new[] { "lootscavenging-smoke", "lootscavenging-outcomes", "lootscavenging-moments", "lootscavenging-settings", "lootscavenging-bench", "lootscavenging-saves" };
+    // firstload first: it reads startup from the game's log, which keeps only the newest 1000 messages.
+    public override IEnumerable<string> RunAll => new[] { "lootscavenging-firstload", "lootscavenging-smoke", "lootscavenging-outcomes", "lootscavenging-moments", "lootscavenging-settings", "lootscavenging-bench", "lootscavenging-saves", "lootscavenging-ui" };
 
     // Mod settings live in the process and outlive the colony, so a batch that changes them gets them back here, even when it
     // stops early. Nothing is written to the settings file.
@@ -47,9 +50,20 @@ public sealed class ModHarness : HarnessSettings
         Unfamiliar.ResetCache();
     }
 
+    // The player faction's tech level lives on its def, which outlives the colony; the progression batch changes it.
+    private static TechLevel? savedPlayerTechLevel;
+
+    public static void SavePlayerTechLevel() => savedPlayerTechLevel = Faction.OfPlayer.def.techLevel;
+
+    public const string HarmonyIdUi = "kylemhb.lootscavenging.devtests.ui";
+
     public override void OnBatchEnd()
     {
+        UiBatch.Unpatch();
         RestoreSettings();
         savedValues = null;
+        if (savedPlayerTechLevel.HasValue && Current.Game != null)
+            ProgressionBatch.SetPlayerTechLevel(savedPlayerTechLevel.Value);
+        savedPlayerTechLevel = null;
     }
 }
