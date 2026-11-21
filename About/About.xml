@@ -17,6 +17,7 @@
   </modDependencies>
   <loadAfter>
     <li>brrainz.harmony</li>
+    <li>Garethp.ModlistConfigurator</li>
   </loadAfter>
   <incompatibleWith>
     <li>CarnySenpai.LootingManager</li>

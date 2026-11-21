@@ -21,7 +21,8 @@
        corpses.humanlike, corpses.animal, corpses.mechanoid, corpses.chance, corpses.butcherRemovesApparel, eraFallback,
        scrapMarketValue, deathDrop, unfamiliarScope, studyEras, recycleOrStudy, studyTechprintProjects.
        The keep and remove lists and the protection toggles can be defaulted here but not locked.
-       The defaults seed a config that has none saved. A saved config keeps its values; only locked settings are put back.
+       The defaults seed a config that has none saved. A saved config, or a partial one another tool wrote, keeps its
+       values; a key it lacks takes the value written here, and locked settings are put back.
        packs/progression/ holds the Progression pack's preset as a patch. -->
 
   <LootScavenging.SettingsDefaultsDef>

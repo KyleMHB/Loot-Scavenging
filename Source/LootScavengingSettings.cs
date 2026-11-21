@@ -9,7 +9,9 @@ namespace LootScavenging;
 // Global settings. The mod loads them once (GetSettings in the mod constructor) and keeps the instance in
 // LootScavengingMod.Settings; the evaluator, hooks and benches read its values directly, so that instance is the cache and
 // there is nothing to rebuild when a value changes. The default values come from Defs/SettingsDefaults.xml (a pack can patch
-// it), read in SettingsDefaultsDef.cs once the defs are loaded; Model/Presets.cs holds the compiled-in fallback.
+// it), read in SettingsDefaultsDef.cs once the defs are loaded; Model/Presets.cs holds the compiled-in fallback, used only
+// until then. A key the file lacks is filled from the Def's Progression once it loads (Model/SettingsLoad.cs), so a file
+// another tool wrote with only some keys, such as an Auto Mod Config preset, gets the pack's defaults for the rest.
 // Every setting lives in SettingValues: a new one is a field there plus its page row. It is saved under the key from
 // SettingKeys, which keeps the names existing configs use.
 public class LootScavengingSettings : ModSettings
@@ -22,9 +24,13 @@ public class LootScavengingSettings : ModSettings
     // The one-time first-load message has been shown.
     public bool firstLoadMessageShown;
 
-    // The settings defaults Def has been applied to this config. A config with no saved value starts false, so the Def's
-    // values (which a pack may have patched) seed it once the defs are loaded.
+    // The settings defaults Def has been applied to this config. A file without it still counts as seeded when it holds any
+    // saved key (SettingsLoad.IsSeeded); only a config with nothing saved takes the Def's values once the defs are loaded.
     private bool defaultsSeeded;
+
+    // The keys the settings file held, recorded while it loads and used once by OnDefaultsLoaded. Null when no file was read
+    // since then, so a later call only enforces the locks.
+    private HashSet<string> loadedKeys;
 
     public LootScavengingSettings()
     {
@@ -32,23 +38,17 @@ public class LootScavengingSettings : ModSettings
     }
 
     /// <summary>
-    /// Called once the defs are loaded, since the mod constructor runs before them. A fresh config takes the Def's defaults;
-    /// a saved one keeps its values except locked settings, which return to the pack's value.
+    /// Called once the defs are loaded, since the mod constructor runs before them. A config with nothing saved takes the
+    /// Def's defaults; a saved one keeps its values, fills the keys its file lacked from the Def's Progression, and puts locked
+    /// settings back to the pack's value.
     /// </summary>
     public void OnDefaultsLoaded()
     {
-        if (!defaultsSeeded)
-        {
-            Apply(Presets.Defaults());
+        Apply(SettingsLoad.Resolve(Capture(), defaultsSeeded, loadedKeys, Presets.Config, out bool kept));
+        if (!kept)
             activePreset = PresetId.Progression;
-            defaultsSeeded = true;
-        }
-        else
-        {
-            SettingValues current = Capture();
-            Presets.Config.Locks.Enforce(current, Presets.Config.Progression);
-            Apply(current);
-        }
+        defaultsSeeded = true;
+        loadedKeys = null;
         ScrapDefs.ApplyMarketValue();
     }
 
@@ -66,12 +66,15 @@ public class LootScavengingSettings : ModSettings
     public override void ExposeData()
     {
         base.ExposeData();
-        Scribe_Values.Look(ref activePreset, "activePreset", PresetId.Progression);
-        Scribe_Values.Look(ref firstLoadMessageShown, "firstLoadMessageShown", false);
-        Scribe_Values.Look(ref defaultsSeeded, "defaultsSeeded", false);
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
+            RecordLoadedKeys();
+        Scribe_Values.Look(ref activePreset, SettingsLoad.ActivePresetKey, PresetId.Progression);
+        Scribe_Values.Look(ref firstLoadMessageShown, SettingsLoad.FirstLoadKey, false);
+        Scribe_Values.Look(ref defaultsSeeded, SettingsLoad.SeededKey, false);
 
-        // Missing keys load as the default preset's values.
-        SettingValues defaults = Presets.Defaults();
+        // The save leaves out a value equal to this default. A missing key loads as it too, but the settings load before the
+        // defs, so that is the compiled-in value until OnDefaultsLoaded fills it from the Def's Progression.
+        SettingValues defaults = SettingsLoad.Baseline(Presets.Config);
         foreach (SettingKey key in SettingKeys.All)
         {
             FieldInfo field = ValueWalk.Resolve(values, key.Path, out object owner);
@@ -90,6 +93,26 @@ public class LootScavengingSettings : ModSettings
             }
         }
     }
+
+    // Only the loading pass reads the file's own node; the loader's later passes do not. The game's System.Xml reference
+    // marks the indexer Windows-only; Scribe_Values reads the file the same way on every platform.
+#pragma warning disable CA1416
+    private void RecordLoadedKeys()
+    {
+        loadedKeys = new HashSet<string>();
+        var node = Scribe.loader.curXmlParent;
+        foreach (string key in new[] { SettingsLoad.ActivePresetKey, SettingsLoad.FirstLoadKey, SettingsLoad.SeededKey })
+        {
+            if (node[key] != null)
+                loadedKeys.Add(key);
+        }
+        foreach (SettingKey key in SettingKeys.All)
+        {
+            if (node[key.Key] != null)
+                loadedKeys.Add(key.Key);
+        }
+    }
+#pragma warning restore CA1416
 
     private static readonly MethodInfo LookValue = typeof(LootScavengingSettings).GetMethod(nameof(Look), BindingFlags.NonPublic | BindingFlags.Static);
 

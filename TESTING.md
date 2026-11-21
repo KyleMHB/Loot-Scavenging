@@ -1,6 +1,6 @@
 # Loot Scavenging Testing
 
-Updated through: `main` on 2026-11-21
+Updated through: `main` on 2026-11-22
 
 ## Agent read route
 
@@ -58,7 +58,7 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 
 - `lootscavenging-outcomes`: what an item becomes at death. Delete keeps apparel on the corpse, a mechanoid's weapon, era fallbacks and the components fallback, scrap amounts and the drop modes, a ten-pirate raid's piles, a quest-tagged weapon, animal corpse removal, degrade, item-based and era-typical disassembly, full stacks, ejected charges, a 200-unit recycling sample against `LootPool.Expected`, and the tier defs' config errors.
 - `lootscavenging-moments`: downed and strip with the option on and off, a living prisoner's strip, scrap on the body (kept and with corpse removal), everything on the body (scrap, ejected charges, inventory and disassembly products in the corpse; with corpse removal; a colonist's gear and a mechanoid's scrap under both on-body options dropping as usual), a world pawn's death, butchering with a real bill job, and home-map-only on a generated camp map.
-- `lootscavenging-settings`: through the calls the page makes, not the page. Presets and "(changed)", Vanilla in game, the first-load flag, locks (the pack's lock names applied to `Presets.Configure` directly; the pack's patch is not loaded), keep and remove lists, a missing-def list entry through a settings save and load, and the picker's search.
+- `lootscavenging-settings`: through the calls the page makes, not the page. Presets and "(changed)", Vanilla in game, the first-load flag, locks (the pack's lock names applied to `Presets.Configure` directly; the pack's patch is not loaded), keep and remove lists, a missing-def list entry through a settings save and load, and the picker's search. Two cases go through `LoadedModManager.WriteModSettings`/`ReadModSettings`, reading under the compiled-in config as at startup and running the defaults step under a patched one. `imported-partial-file` reads a hand-written file (`activePreset` Cleanup, two setting keys and a locked drop mode, no `defaultsSeeded`), as an Auto Mod Config preset could leave it: the two keys are kept, a missing key takes the patched Def default, the locked key ends at the pack value and the seeded flag is set. `cleanup-round-trip` saves a Cleanup config with the drop mode at Progression's value: the file leaves it out, and after reading back and the defaults step every value matches.
 - `lootscavenging-bench`: real bill jobs. Recycling and studied-scrap bills at a machining table, the study bench and its Bills tab, the study bill with no project, keep-X, work and XP, finishing a project, original items at the fabrication bench and research bench, and a techprint project (Royalty only).
 - `lootscavenging-saves`: a looted-only marked rifle, scrap, studied scrap and a study bill through the runner's save and reload, and the save file's contents.
 - `lootscavenging-ui`: the settings window opened through the window stack, and the machining table's and research bench's Bills tabs through the inspect pane, each drawn for a few frames while a `Widgets.Label` postfix records what was drawn and where. Checks the six sections, the preset line and buttons, one column top to bottom after each preset switch (the collapse fixed in `e7efc62`), the locked summary and a locked row's reason, both bills in their tabs, the study bench's add-bill options, and the first-load message box called directly. It draws and reads; it does not click.
@@ -71,6 +71,13 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 Not covered: clicking in the settings page and bill tabs (the ui batch only draws them), a played raid with the Progression pack, Non uno Pinata, Progression: Ammunition and Progression: Hospitality (ticket 14), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
 
 ## Result recording
+
+### 2026-11-22 - Imported settings files (auto-config ticket 01)
+
+- Version/environment: RimWorld 1.7.5014 rev1195, default mod set, seed 1; `dotnet test` 291 passed.
+- Runs, one launch: firstload `20261122-014550-lootscavenging-firstload-s1-f54ad1a8`, smoke `20261122-014602-lootscavenging-smoke-s1-6e34987e`, settings `20261122-014604-lootscavenging-settings-s1-321efb97` (10/10), ui `20261122-014606-lootscavenging-ui-s1-1adc1563` (6/6).
+- Observed: the partial file kept Cleanup, corpse chance 0.25 and all-on-body, filled the scrap value from the patched default (0.5), ended the locked drop mode at the pack value and set the seeded flag. The Cleanup round trip's file had no `<dropMode>` (equal to its default) and read back unchanged.
+- Status: Passed.
 
 ### 2026-11-21 - Workshop preview image
 

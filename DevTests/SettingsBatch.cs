@@ -20,7 +20,9 @@ public sealed class SettingsBatch : Batch
     private const string P = "lootscavenging.settings.";
     private const string PresetsCase = P + "presets-and-changed", Vanilla = P + "vanilla-preset-in-game", FirstLoad = P + "first-load-flag",
         Locks = P + "locked-setting", Lists = P + "keep-and-remove-lists", RoundTrip = P + "missing-def-list-entry", Picker = P + "item-picker-search",
-        NoErrors = P + "no-mod-errors";
+        Partial = P + "imported-partial-file", CleanupTrip = P + "cleanup-round-trip", NoErrors = P + "no-mod-errors";
+
+    private const string DevMod = "lootscavenging-devtest"; // not translated
 
     public override string Id => "lootscavenging-settings";
     public override int SegmentCount => 1;
@@ -34,8 +36,19 @@ public sealed class SettingsBatch : Batch
         new PlannedCase(Lists, Levels.Mechanical, "a keep-list revolver stays whole out of reach; remove-list silver is deleted"),
         new PlannedCase(RoundTrip, Levels.Mechanical, "a list entry for a missing def saves, loads and is evaluated with no error"),
         new PlannedCase(Picker, Levels.Mechanical, "the item picker's search finds the revolver and skips buildings"),
+        new PlannedCase(Partial, Levels.Mechanical, "a hand-written partial file with no seeded flag keeps its keys, fills the rest from a patched Def default and ends a locked key at the pack value"),
+        new PlannedCase(CleanupTrip, Levels.Mechanical, "a Cleanup config with one key at Progression's value saves without that key, reads back and keeps it"),
         new PlannedCase(NoErrors, Levels.Mechanical, "no error naming the mod logged during the batch"),
     };
+
+    // The Def's Progression as a pack might patch it: two defaults that differ from the compiled-in ones.
+    private static SettingValues PatchedProgression()
+    {
+        var v = Presets.Config.Progression.Clone();
+        v.scrapMarketValue = 0.5f;
+        v.rules.dropMode = DropMode.KeepOriginal;
+        return v;
+    }
 
     public override IEnumerable<Wait> Segment(int index, BatchContext ctx)
     {
@@ -170,6 +183,82 @@ public sealed class SettingsBatch : Batch
             c.Step(gun.Destroyed, "with only the missing entry on the keep list, a pirate's revolver is still scrapped");
             c.Observe("errors", CaseErrors.Mark - all);
             c.Step(CaseErrors.ModMark == mark && CaseErrors.Mark == all, "no error is logged");
+            ModHarness.RestoreSettings();
+            c.Conclude();
+        }
+
+        // ---- auto-config 01: a partial file another tool wrote ----------------------------------------------------------
+        // The read runs under the compiled-in config, as at startup, and the defaults step under a patched one, so a fill
+        // that did nothing would leave the compiled-in values and fail.
+        {
+            var c = ctx.Begin(Partial);
+            var pack = new PresetConfig(PatchedProgression(), new SettingLocks(new[] { SettingNames.DropMode }));
+
+            // The envelope comes from a real write; its body is replaced with what an Auto Mod Config preset could hold.
+            LoadedModManager.WriteModSettings(DevMod, "Partial", new LootScavengingSettings());
+            var file = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_Partial*.xml").FirstOrDefault();
+            if (file == null) c.SetupFailed("WriteModSettings left no file to edit");
+            else
+            {
+                var doc = XDocument.Load(file);
+                var body = doc.Root.Element("ModSettings");
+                body.RemoveNodes();
+                body.Add(new XElement("activePreset", "Cleanup"), new XElement("corpseChance", "0.25"),
+                    new XElement("deathDrop", "AllOnBody"), new XElement("dropMode", "Off"));
+                doc.Save(file);
+                c.Observe("file", body.ToString(SaveOptions.DisableFormatting));
+
+                Presets.Configure(PresetConfig.Code());
+                var read = LoadedModManager.ReadModSettings<LootScavengingSettings>(DevMod, "Partial");
+                Presets.Configure(pack);
+                read.OnDefaultsLoaded();
+                var v = read.values;
+                bool seeded = (bool)typeof(LootScavengingSettings).GetField("defaultsSeeded", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(read);
+                c.Observe("activePreset", read.activePreset).Observe("corpseChance", v.corpses.chance).Observe("deathDrop", v.deathDrop)
+                    .Observe("dropMode", v.rules.dropMode).Observe("scrapMarketValue", v.scrapMarketValue).Observe("defaultsSeeded", seeded);
+                c.Step(read.activePreset == PresetId.Cleanup && Math.Abs(v.corpses.chance - 0.25f) < 0.0001f && v.deathDrop == DeathDrop.AllOnBody,
+                    "the file's preset and two setting keys are kept although it has no seeded flag");
+                c.Step(Math.Abs(v.scrapMarketValue - 0.5f) < 0.0001f, "a key the file lacks takes the patched Def default, not the compiled-in one");
+                var expected = Presets.Defaults();
+                expected.corpses.chance = 0.25f;
+                expected.deathDrop = DeathDrop.AllOnBody;
+                c.Step(v.SameAs(expected), "every other key holds the Def's Progression value");
+                c.Step(v.rules.dropMode == DropMode.KeepOriginal && Presets.Config.Locks.IsLocked(SettingNames.DropMode),
+                    "the locked drop mode the file set ends at the pack's value, and the page's lock set names it");
+                c.Step(seeded, "the seeded flag is set after the defaults step");
+            }
+            foreach (var f in Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_*")) File.Delete(f);
+            ModHarness.RestoreSettings();
+            c.Conclude();
+        }
+
+        // ---- auto-config 01: Cleanup round trip ----------------------------------------------------------------------------
+        // The save leaves out a value equal to its default (the Def's Progression), so the fill must give that value back.
+        {
+            var c = ctx.Begin(CleanupTrip);
+            var pack = new PresetConfig(PatchedProgression(), SettingLocks.None);
+
+            Presets.Configure(pack);
+            var written = new LootScavengingSettings();
+            written.OnDefaultsLoaded();
+            written.Apply(Presets.Apply(PresetId.Cleanup, written.Capture()));
+            written.activePreset = PresetId.Cleanup;
+            written.values.rules.dropMode = pack.Progression.rules.dropMode; // Cleanup sets Off
+            LoadedModManager.WriteModSettings(DevMod, "Cleanup", written);
+            var file = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_Cleanup*.xml").FirstOrDefault();
+            string text = file != null ? File.ReadAllText(file) : "";
+
+            Presets.Configure(PresetConfig.Code());
+            var read = LoadedModManager.ReadModSettings<LootScavengingSettings>(DevMod, "Cleanup");
+            Presets.Configure(pack);
+            read.OnDefaultsLoaded();
+            c.Observe("dropModeSaved", text.Contains("<dropMode>")).Observe("dropModeRead", read.values.rules.dropMode)
+                .Observe("activePreset", read.activePreset).Observe("corpseHumanlike", read.values.corpses.humanlike);
+            c.Step(file != null && !text.Contains("<dropMode>") && text.Contains("<activePreset>Cleanup</activePreset>"),
+                "the save leaves out the drop mode, which equals its default, and keeps the Cleanup preset");
+            c.Step(read.activePreset == PresetId.Cleanup && read.values.SameAs(written.values),
+                "read back and through the defaults step, every value matches what was saved, the drop mode included");
+            foreach (var f in Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_*")) File.Delete(f);
             ModHarness.RestoreSettings();
             c.Conclude();
         }
