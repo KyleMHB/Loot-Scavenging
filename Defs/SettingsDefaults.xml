@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- The default settings (spec, "The Progression pack"): the Progression preset, which a fresh config starts with and
+       Reset returns to. Cleanup and Vanilla are built from it and set the rows the presets table names, so a patched
+       default carries into them. A pack changes a default with a patch on the matching node, e.g.
+         <Operation Class="PatchOperationReplace">
+           <xpath>/Defs/LootScavenging.SettingsDefaultsDef[defName="LS_SettingsDefaults"]/values/rules/dropMode</xpath>
+           <value><dropMode>KeepOriginal</dropMode></value>
+         </Operation>
+       and locks a setting by adding its name to the locked list:
+         <Operation Class="PatchOperationAdd">
+           <xpath>/Defs/LootScavenging.SettingsDefaultsDef[defName="LS_SettingsDefaults"]/locked</xpath>
+           <value><li>rules.dropMode</li></value>
+         </Operation>
+       A locked setting always holds the value written here: the page shows it disabled with a reason, and presets, Reset
+       and a saved value cannot change it. Lockable names: rules.hostile, rules.nonHostileFaction, rules.noFaction,
+       rules.prisoners, rules.homeMapOnly, rules.onDownedAndStrip, rules.dropMode, rules.weapons, rules.apparel,
+       rules.ammunition, rules.drugs, rules.medicine, rules.food, rules.other, rules.degradeMin, rules.degradeMax,
+       rules.degradeLowersQuality, rules.disassemblyYield, rules.disassemblyEfficiency, rules.ejectCharges,
+       corpses.humanlike, corpses.animal, corpses.mechanoid, corpses.chance, corpses.butcherRemovesApparel, eraFallback,
+       scrapMarketValue, scrapOnGround, unfamiliarScope, studyEras, recycleOrStudy, studyTechprintProjects.
+       The keep and remove lists and the protection toggles can be defaulted here but not locked.
+       The defaults seed a config that has none saved. A saved config keeps its values; only locked settings are put back.
+       packs/progression/ holds the Progression pack's preset as a patch. -->
+
+  <LootScavenging.SettingsDefaultsDef>
+    <defName>LS_SettingsDefaults</defName>
+    <values>
+      <rules>
+        <hostile>true</hostile>
+        <nonHostileFaction>true</nonHostileFaction>
+        <noFaction>true</noFaction>
+        <prisoners>true</prisoners>
+        <homeMapOnly>false</homeMapOnly>
+        <onDownedAndStrip>true</onDownedAndStrip>
+        <dropMode>ScrapOutOfReach</dropMode>
+      <weapons>
+        <outcome>Keep</outcome>
+        <onlyBeyondReach>false</onlyBeyondReach>
+        <limitQuality>false</limitQuality>
+        <belowQuality>Normal</belowQuality>
+        <limitHitPoints>false</limitHitPoints>
+        <belowHitPointFraction>0.5</belowHitPointFraction>
+        <chance>1</chance>
+      </weapons>
+      <apparel>
+        <outcome>Keep</outcome>
+        <onlyBeyondReach>false</onlyBeyondReach>
+        <limitQuality>false</limitQuality>
+        <belowQuality>Normal</belowQuality>
+        <limitHitPoints>false</limitHitPoints>
+        <belowHitPointFraction>0.5</belowHitPointFraction>
+        <chance>1</chance>
+      </apparel>
+      <ammunition>
+        <outcome>Keep</outcome>
+        <onlyBeyondReach>false</onlyBeyondReach>
+        <limitQuality>false</limitQuality>
+        <belowQuality>Normal</belowQuality>
+        <limitHitPoints>false</limitHitPoints>
+        <belowHitPointFraction>0.5</belowHitPointFraction>
+        <chance>1</chance>
+      </ammunition>
+      <drugs>
+        <outcome>Keep</outcome>
+        <onlyBeyondReach>false</onlyBeyondReach>
+        <limitQuality>false</limitQuality>
+        <belowQuality>Normal</belowQuality>
+        <limitHitPoints>false</limitHitPoints>
+        <belowHitPointFraction>0.5</belowHitPointFraction>
+        <chance>1</chance>
+      </drugs>
+      <medicine>
+        <outcome>Keep</outcome>
+        <onlyBeyondReach>false</onlyBeyondReach>
+        <limitQuality>false</limitQuality>
+        <belowQuality>Normal</belowQuality>
+        <limitHitPoints>false</limitHitPoints>
+        <belowHitPointFraction>0.5</belowHitPointFraction>
+        <chance>1</chance>
+      </medicine>
+      <food>
+        <outcome>Keep</outcome>
+        <onlyBeyondReach>false</onlyBeyondReach>
+        <limitQuality>false</limitQuality>
+        <belowQuality>Normal</belowQuality>
+        <limitHitPoints>false</limitHitPoints>
+        <belowHitPointFraction>0.5</belowHitPointFraction>
+        <chance>1</chance>
+      </food>
+      <other>
+        <outcome>Keep</outcome>
+        <onlyBeyondReach>false</onlyBeyondReach>
+        <limitQuality>false</limitQuality>
+        <belowQuality>Normal</belowQuality>
+        <limitHitPoints>false</limitHitPoints>
+        <belowHitPointFraction>0.5</belowHitPointFraction>
+        <chance>1</chance>
+      </other>
+        <degradeMin>0.1</degradeMin>
+        <degradeMax>0.4</degradeMax>
+        <degradeLowersQuality>false</degradeLowersQuality>
+        <disassemblyYield>EraTypical</disassemblyYield>
+        <disassemblyEfficiency>0.5</disassemblyEfficiency>
+        <ejectCharges>true</ejectCharges>
+        <protectQuestItems>true</protectQuestItems>
+        <protectUniqueWeapons>true</protectUniqueWeapons>
+        <protectPersonaWeapons>true</protectPersonaWeapons>
+        <protectRelics>true</protectRelics>
+        <keepList />
+        <removeList />
+      </rules>
+      <corpses>
+        <humanlike>false</humanlike>
+        <animal>false</animal>
+        <mechanoid>false</mechanoid>
+        <chance>1</chance>
+        <butcherRemovesApparel>false</butcherRemovesApparel>
+      </corpses>
+      <eraFallback>CarrierFaction</eraFallback>
+      <scrapMarketValue>0.01</scrapMarketValue>
+      <scrapOnGround>true</scrapOnGround>
+      <unfamiliarScope>AllOutOfReach</unfamiliarScope>
+      <studyEras>ColonyEraAndBelow</studyEras>
+      <recycleOrStudy>OneOrTheOther</recycleOrStudy>
+      <studyTechprintProjects>false</studyTechprintProjects>
+    </values>
+    <locked />
+  </LootScavenging.SettingsDefaultsDef>
+
+</Defs>

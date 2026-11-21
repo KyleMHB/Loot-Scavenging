@@ -69,6 +69,35 @@ internal static class ValueWalk
         return true;
     }
 
+    /// <summary>Whether a dotted field path ("rules.dropMode") names a field of <paramref name="root"/>.</summary>
+    public static bool PathExists(object root, string path)
+    {
+        Type type = root.GetType();
+        foreach (string part in path.Split('.'))
+        {
+            FieldInfo field = type.GetField(part, BindingFlags.Public | BindingFlags.Instance);
+            if (field == null)
+                return false;
+            type = field.FieldType;
+        }
+        return true;
+    }
+
+    /// <summary>Sets the field at a dotted path on <paramref name="target"/> to a copy of the same field on <paramref name="source"/>.</summary>
+    public static void CopyPath(object target, object source, string path)
+    {
+        string[] parts = path.Split('.');
+        for (int i = 0; i < parts.Length - 1; i++)
+        {
+            target = Field(target, parts[i]).GetValue(target);
+            source = Field(source, parts[i]).GetValue(source);
+        }
+        FieldInfo last = Field(target, parts[parts.Length - 1]);
+        last.SetValue(target, CopyObject(last.GetValue(source)));
+    }
+
+    private static FieldInfo Field(object owner, string name) => owner.GetType().GetField(name, BindingFlags.Public | BindingFlags.Instance);
+
     private static object CopyObject(object source)
     {
         if (source == null)

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Progression pack's preset for Loot Scavenging (spec, "The Progression pack").
+
+     NOT ACTIVE BY DEFAULT. This folder is outside Defs/ and Patches/, so the game never loads it. The pack's author copies
+     this file into the pack's own Patches/ folder (it needs nothing else; it patches only Loot Scavenging's defaults def).
+
+     What it does: the Progression defaults stay as they are (out-of-reach gear becomes scrap from every non-colony group,
+     on death, downed and strip, with prisoners on), and instant disassembly returns era-typical yields. The item-based
+     yield would hand a tribal colony plasteel on the battlefield with no bench, so the yield is also locked: the page
+     shows it disabled with a reason and nothing else can switch it.
+
+     Not yet verified against the pack: the pack's own benches and materials per era, and where Progression: Core stores
+     the colony's era (spec, "Open questions"). The spec table is drawn from the Workshop descriptions only. Until those
+     are checked, this file patches no tier table entries; when they are, add the pack's benches and materials here as
+     patches on LS_ScrapTier_* (see Defs/ScrapTiers.xml for the form). -->
+<Patch>
+
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/LootScavenging.SettingsDefaultsDef[defName="LS_SettingsDefaults"]/values/rules/disassemblyYield</xpath>
+    <value>
+      <disassemblyYield>EraTypical</disassemblyYield>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LootScavenging.SettingsDefaultsDef[defName="LS_SettingsDefaults"]/locked</xpath>
+    <value>
+      <li>rules.disassemblyYield</li>
+    </value>
+  </Operation>
+
+</Patch>

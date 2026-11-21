@@ -10,7 +10,7 @@ $project = Join-Path $PSScriptRoot "Source\LootScavenging.csproj"
 Invoke-RimWorldDotNetBuild -ProjectPath $project -BuildArguments @('/p:UseSharedCompilation=false', '/p:RimWorldVersion=1.6')
 
 # Runtime folders copied to the Mods folder.
-$folders = @("About", "1.6", "1.7", "Defs", "Patches", "Languages", "Textures") |
+$folders = @("About", "1.6", "1.7", "Defs", "Patches", "Languages", "Textures", "packs") |
     Where-Object { Test-Path -LiteralPath (Join-Path $PSScriptRoot $_) }
 
 Invoke-RimWorldModDeploy `

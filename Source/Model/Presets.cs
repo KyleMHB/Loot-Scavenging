@@ -11,41 +11,63 @@ public enum PresetId
 }
 
 /// <summary>
-/// The preset values, all in this one file (ticket 13 moves them to a patchable Def). Each preset sets every setting; the
-/// keep and remove lists are the player's own picks, so applying a preset leaves them as they are and the "changed"
-/// comparison ignores them. Reset to defaults clears them too.
+/// The presets. Progression is the pack's patchable defaults (<see cref="PresetConfig.Progression"/>, read from the settings
+/// defaults Def at startup); Cleanup and Vanilla start from it and set the rows the spec's presets table names. Each preset
+/// sets every setting; the keep and remove lists are the player's own picks, so applying a preset leaves them as they are
+/// and the "changed" comparison ignores them. Locked settings always hold the Progression value, whichever preset is applied.
+/// Every method also takes a <see cref="PresetConfig"/> so tests need no shared state; without one it uses <see cref="Config"/>.
 /// </summary>
 public static class Presets
 {
-    /// <summary>The code default: the Progression preset with empty lists.</summary>
-    public static SettingValues Defaults() => Build(PresetId.Progression);
+    /// <summary>What the presets are built from now. The mod replaces it once the Def is loaded.</summary>
+    public static PresetConfig Config { get; private set; } = PresetConfig.Code();
 
-    /// <summary>A fresh copy of a preset's values, with empty lists.</summary>
-    public static SettingValues Build(PresetId preset)
+    public static void Configure(PresetConfig config)
     {
+        Config = config ?? PresetConfig.Code();
+    }
+
+    /// <summary>The Progression preset with its default lists.</summary>
+    public static SettingValues Defaults() => Defaults(Config);
+
+    public static SettingValues Defaults(PresetConfig config) => Build(PresetId.Progression, config);
+
+    /// <summary>A fresh copy of a preset's values.</summary>
+    public static SettingValues Build(PresetId preset) => Build(preset, Config);
+
+    public static SettingValues Build(PresetId preset, PresetConfig config)
+    {
+        SettingValues v = config.Progression.Clone();
         switch (preset)
         {
-            case PresetId.Cleanup: return Cleanup();
-            case PresetId.Vanilla: return Vanilla();
-            default: return Progression();
+            case PresetId.Cleanup: Cleanup(v); break;
+            case PresetId.Vanilla: Vanilla(v); break;
         }
+        config.Locks.Enforce(v, config.Progression);
+        return v;
     }
 
     /// <summary>The preset's values with the current keep and remove lists carried over.</summary>
-    public static SettingValues Apply(PresetId preset, SettingValues current)
+    public static SettingValues Apply(PresetId preset, SettingValues current) => Apply(preset, current, Config);
+
+    public static SettingValues Apply(PresetId preset, SettingValues current, PresetConfig config)
     {
-        SettingValues values = Build(preset);
+        SettingValues values = Build(preset, config);
         values.rules.keepList = new List<string>(current.rules.keepList ?? new List<string>());
         values.rules.removeList = new List<string>(current.rules.removeList ?? new List<string>());
         return values;
     }
 
     /// <summary>Whether any setting differs from the preset. The lists do not count, since no preset sets them.</summary>
-    public static bool IsChanged(PresetId preset, SettingValues current) => !Apply(preset, current).SameAs(current);
+    public static bool IsChanged(PresetId preset, SettingValues current) => IsChanged(preset, current, Config);
 
-    // Progression: out-of-reach gear becomes scrap at death, downed and strip, from every non-colony group including
-    // prisoners. Gear within reach is kept. Corpses are left alone.
-    private static SettingValues Progression()
+    public static bool IsChanged(PresetId preset, SettingValues current, PresetConfig config) => !Apply(preset, current, config).SameAs(current);
+
+    /// <summary>
+    /// The values compiled into the mod: the Progression preset with empty lists. The settings defaults Def mirrors them, and
+    /// is used instead once it loads.
+    /// </summary>
+    public static SettingValues CodeProgression()
     {
         var v = Common();
         v.rules.dropMode = DropMode.ScrapOutOfReach;
@@ -54,11 +76,30 @@ public static class Presets
         return v;
     }
 
+    // Everything the presets table names is set here, so a pack that patches the Progression defaults cannot leak into
+    // Cleanup or Vanilla through the rows they do not mention.
+    private static void ResetBehaviour(SettingValues v)
+    {
+        LootRules r = v.rules;
+        r.weapons = Keep();
+        r.apparel = Keep();
+        r.ammunition = Keep();
+        r.drugs = Keep();
+        r.medicine = Keep();
+        r.food = Keep();
+        r.other = Keep();
+        v.corpses.humanlike = false;
+        v.corpses.animal = false;
+        v.corpses.mechanoid = false;
+        v.corpses.chance = 1f;
+        v.corpses.butcherRemovesApparel = false;
+    }
+
     // Cleanup: no era handling, hostile dead only. Weapons below Normal, apparel below Good, and either below 50% hit
     // points are deleted; everything else is kept. Every hostile humanlike corpse is removed.
-    private static SettingValues Cleanup()
+    private static void Cleanup(SettingValues v)
     {
-        var v = Common();
+        ResetBehaviour(v);
         v.rules.dropMode = DropMode.Off;
         v.rules.onDownedAndStrip = false;
         SetGroups(v.rules, hostile: true, nonHostileFaction: false, noFaction: false, prisoners: false);
@@ -66,21 +107,18 @@ public static class Presets
         v.rules.apparel = DeleteBelow(ItemQuality.Good, 0.5f);
         v.corpses.humanlike = true;
         v.corpses.chance = 1f;
-        return v;
     }
 
     // Vanilla: no group is affected, so nothing changes. The moment is unused; it is left at death only.
-    private static SettingValues Vanilla()
+    private static void Vanilla(SettingValues v)
     {
-        var v = Common();
+        ResetBehaviour(v);
         v.rules.dropMode = DropMode.Off;
         v.rules.onDownedAndStrip = false;
         SetGroups(v.rules, hostile: false, nonHostileFaction: false, noFaction: false, prisoners: false);
-        return v;
     }
 
-    // Values every preset shares: everything the table does not name, written out so a preset never depends on class
-    // initialisers.
+    // The compiled-in defaults: everything the table does not name, written out so they never depend on class initialisers.
     private static SettingValues Common()
     {
         var v = new SettingValues();

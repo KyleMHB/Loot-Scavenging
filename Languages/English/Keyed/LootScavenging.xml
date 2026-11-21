@@ -43,6 +43,8 @@
   <LootScavenging_PresetProgression>Progression</LootScavenging_PresetProgression>
   <LootScavenging_PresetCleanup>Cleanup</LootScavenging_PresetCleanup>
   <LootScavenging_PresetVanilla>Vanilla</LootScavenging_PresetVanilla>
+  <LootScavenging_LockedReason>Locked by the modpack: this setting always uses the pack's value, so it cannot be changed here.</LootScavenging_LockedReason>
+  <LootScavenging_LockedSummary>Some settings are locked by the modpack. They stay at the pack's values whichever preset you pick.</LootScavenging_LockedSummary>
   <LootScavenging_PresetReset>Reset to defaults</LootScavenging_PresetReset>
   <LootScavenging_PresetProgressionExplain>Gear beyond your colony's research becomes scrap when any non-colony pawn dies, is downed or is stripped, prisoners included. Gear within reach drops as normal, and corpses are left.</LootScavenging_PresetProgressionExplain>
   <LootScavenging_PresetCleanupExplain>No era handling. From hostile dead only, weapons below normal quality, apparel below good quality and either one below 50% hit points are deleted; the rest drops as normal. Every hostile humanlike corpse is removed.</LootScavenging_PresetCleanupExplain>

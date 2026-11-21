@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using LootScavenging.Loot;
 using LootScavenging.Model;
 using Verse;
 
@@ -6,7 +7,8 @@ namespace LootScavenging;
 
 // Global settings. The mod loads them once (GetSettings in the mod constructor) and keeps the instance in
 // LootScavengingMod.Settings; the evaluator, hooks and benches read its fields directly, so that instance is the cache and
-// there is nothing to rebuild when a value changes. The values themselves are defined in Model/Presets.cs.
+// there is nothing to rebuild when a value changes. The default values come from Defs/SettingsDefaults.xml (a pack can patch
+// it), read in SettingsDefaultsDef.cs once the defs are loaded; Model/Presets.cs holds the compiled-in fallback.
 public class LootScavengingSettings : ModSettings
 {
     public LootRules rules;
@@ -38,9 +40,34 @@ public class LootScavengingSettings : ModSettings
     // The one-time first-load message has been shown.
     public bool firstLoadMessageShown;
 
+    // The settings defaults Def has been applied to this config. A config with no saved value starts false, so the Def's
+    // values (which a pack may have patched) seed it once the defs are loaded.
+    private bool defaultsSeeded;
+
     public LootScavengingSettings()
     {
         Apply(Presets.Defaults());
+    }
+
+    /// <summary>
+    /// Called once the defs are loaded, since the mod constructor runs before them. A fresh config takes the Def's defaults;
+    /// a saved one keeps its values except locked settings, which return to the pack's value.
+    /// </summary>
+    public void OnDefaultsLoaded()
+    {
+        if (!defaultsSeeded)
+        {
+            Apply(Presets.Defaults());
+            activePreset = PresetId.Progression;
+            defaultsSeeded = true;
+        }
+        else
+        {
+            SettingValues current = Capture();
+            Presets.Config.Locks.Enforce(current, Presets.Config.Progression);
+            Apply(current);
+        }
+        ScrapDefs.ApplyMarketValue();
     }
 
     /// <summary>The current values. Shares the live rule objects, so read it, do not keep it.</summary>
@@ -85,6 +112,7 @@ public class LootScavengingSettings : ModSettings
         SettingValues d = Presets.Defaults();
         Scribe_Values.Look(ref activePreset, "activePreset", PresetId.Progression);
         Scribe_Values.Look(ref firstLoadMessageShown, "firstLoadMessageShown", false);
+        Scribe_Values.Look(ref defaultsSeeded, "defaultsSeeded", false);
 
         CorpseRules corpseDefaults = d.corpses;
         Scribe_Values.Look(ref corpses.humanlike, "corpseHumanlike", corpseDefaults.humanlike);
