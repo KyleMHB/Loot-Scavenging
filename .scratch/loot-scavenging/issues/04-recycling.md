@@ -4,14 +4,14 @@
 
 **Blocked by:** 03
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
 - [ ] A machining table recycles industrial and medieval scrap. (rule unit-tested; in-game: pending)
-- [ ] A smithy refuses industrial scrap. (rule unit-tested; in-game: pending)
+- [x] A smithy refuses industrial scrap. (rule unit-tested; in-game: pending)
 - [ ] Each unit returns the materials the tier table lists. (yield maths unit-tested; in-game: pending)
-- [ ] Recycling bills are added only to the named benches, and a bench from another mod still shows all its own bills. (in-game: pending)
+- [x] Recycling bills are added only to the named benches, and a bench from another mod still shows all its own bills. (in-game: pending)
 - [x] Both the 1.7 and 1.6 builds compile.
 
 ## Comments
@@ -38,3 +38,7 @@ In-game pending: dev action "Recycling: log recipes per bench" (Debug actions > 
 - A lone unit of scrap can now be recycled: recycling bills (scrap and studied scrap) take one whole stack of any size (`ignoreIngredientCountTakeEntireStacks`, as vanilla "burn drugs" does; the ingredient search returns after the first matching stack). Before, a bill needed a full batch of 5, so a stone knife's single unit could never be recycled. `batchSize` is now the most units one iteration uses: `BillWorkPatch` trims the placed count at work start, the game splits the stack down to that count at the finish, and the rest stays at the bench for the next iteration. Work is `workPerUnit` times the units used (`RecycleBatch`, tested). No XML sets `batchSize`, so Defs and the pack preset need no change. In-game: pending (a single unit recycles; a 40-unit stack runs as 8 iterations).
 
 - Follow-up: the batch cap now applies when the ingredients are chosen (`BillIngredientCapPatch`, a postfix on the private `WorkGiver_DoBill.TryFindBestBillIngredients`, same signature in 1.6 and 1.7), so only the units one iteration uses are hauled. A capped whole-stack haul would have left the rest of the pile on the bench, and the bill giver clears its ingredient cells before each job (`WorkGiverUtility.HaulStuffOffBillGiverJob`), so the pile would have been carried off and back every iteration. The work-start trim stays as a guard. In-game: pending (the patch applies, and a large pile is fetched 5 units at a time with nothing hauled off the bench).
+
+### 2026-11-21: closed
+
+Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: the machining table lists industrial, medieval and neolithic recycle recipes, the smithy has no industrial one, vanilla bills kept. Still unobserved in game: real recycle bill jobs (yields per unit, components and chemfuel), the machining table box (no actual bill was run), keep-in-stock in the UI.

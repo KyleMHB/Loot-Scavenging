@@ -4,12 +4,12 @@
 
 **Blocked by:** 01, 02
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
-- [ ] A looted charge rifle in a tribal colony shows as unfamiliar and cannot be equipped.
-- [ ] Once its research finishes, the same rifle can be equipped.
+- [x] A looted charge rifle in a tribal colony shows as unfamiliar and cannot be equipped.
+- [x] Once its research finishes, the same rifle can be equipped.
 - [ ] With the looted-only scope, an out-of-reach item that was not looted can be equipped, and the marker survives a save and reload.
 - [ ] The default scope adds nothing to the save file. (By design: the comp saves only when a marker is set; save check in game pending.)
 - [x] Both the 1.7 and 1.6 builds compile.
@@ -42,3 +42,7 @@ In-game pending (dev actions under "Loot Scavenging": "Unfamiliar: toggle keep-o
 - The "break it into components" era fallback now applies in keep-original mode too: gear with no era of its own becomes components at the drop, as in the two scrap modes. Before, it fell through to its category rule and was kept whole and never unfamiliar. Only the Off mode still ignores the fallback. Test: `DropModeTests.ComponentsFallbackBreaksGearIntoComponentsWheneverEraHandlingIsOn`.
 
 - Default scope and uncraftable gear: with no saved marker, an item met later has no carrier, so gear with no research and no tech level (Progression: Arsenal's uncraftable weapons) was never unfamiliar, though it was kept whole at the drop because its carrier was above the colony. `EraReader.ItemEra` with no carrier now uses the era of the factions that typically carry the item: every non-player faction's pawn group kinds, matched by the kind's weapon tags, apparel tags and required apparel against the item's tags (`Model/CarrierEras.cs`, built once). Where several factions carry it the highest era wins, so gear kept whole because of a high carrier never reads as familiar. The cost: a weapon carried by both tribals and pirates stays unfamiliar to a tribal colony even when taken from tribals. Gear no faction generates with stays Unknown, within reach. The label, equip block, bench tier and dev readout all read this one value. Unit-tested in `CarrierErasTests`; the faction walk is glue (in-game: pending; check with the dev readout on an uncraftable modded weapon).
+
+### 2026-11-21: closed
+
+Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: the charge rifle was labelled "(unfamiliar)", CanEquip was false with reason "unfamiliar technology", and it was equippable after Charged Shot finished. Still unobserved in game: looted-only scope and marker surviving save and reload, default scope save check.

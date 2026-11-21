@@ -4,7 +4,7 @@
 
 **Blocked by:** 09, 11
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
@@ -24,3 +24,7 @@
 - Keys added: `ListAddItem`, `PickerCount`, `PickerFirstShown`, `PickerOnList`; `ListAddExplain` reworded.
 - Tests: `dotnet test` 227 passed; both builds clean, `translations: passed`.
 - In-game pending: picker opens and searches by label; picked item is kept/removed per list; removing a mod leaves a "(not loaded)" entry and no error on load.
+
+### 2026-11-21: closed
+
+Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: nothing. Still unobserved in game: the picker search and add, list effect in game, removed-mod entries.

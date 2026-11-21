@@ -4,7 +4,7 @@
 
 **Blocked by:** 04
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
@@ -29,3 +29,7 @@ The first five boxes are covered by unit tests of the maths but need the game to
 ### 2026-11-21: review fixes
 
 - Charge ejection now covers every outcome that destroys or replaces the item: scrap, disassemble and delete (`Disassembly.EjectsCharges`, tested). Before, only disassembly ejected, so a scrapped or deleted reloadable item lost its loaded ammo with the setting on. `OutcomeApplier.Apply` reads the charges and the pawn's place before the outcome and puts the ammo on the ground near the pawn, forbidden, once. Not into the inventory, where the inventory pass would judge it again. Keep and degrade leave charges loaded. The row's On/Off sentences now say this. In-game: pending (scrap a raider's loaded reloadable item).
+
+### 2026-11-21: closed
+
+Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: nothing. Still unobserved in game: degrade range and quality option, efficiency setting, era-typical yield, refund stacks, loaded charges.

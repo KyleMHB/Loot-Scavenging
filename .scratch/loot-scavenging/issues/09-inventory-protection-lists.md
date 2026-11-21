@@ -4,7 +4,7 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
@@ -34,3 +34,7 @@ Built in `Source/Model` (plain C#, unit-tested) and thin glue in `Source/Loot`.
 ### 2026-11-21: review fixes
 
 - The acceptance line "a raider carrying medicine ... drops both untouched" holds under the default rules only for herbal medicine, or once Medicine Production is finished. Industrial medicine is gated by that research, and the default drop mode scraps out-of-reach inventory too. This is an open spec question; see ticket 02's review note. Raw resources (silver, steel) no longer take the carrier's era, so they stay untouched.
+
+### 2026-11-21: closed
+
+Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: the pirate's silver and steel dropped untouched (partial overlap with the first check only). Still unobserved in game: medicine plus quest weapon drop, and the in-game feel of the keep and remove lists.

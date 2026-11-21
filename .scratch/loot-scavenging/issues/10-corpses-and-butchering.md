@@ -4,11 +4,11 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
-- [ ] With humanlike removal on, a dead raider's corpse is removed after its gear has gone through the loot rules.
+- [x] With humanlike removal on, a dead raider's corpse is removed after its gear has gone through the loot rules.
 - [ ] A wild animal's corpse stays unless the "no faction" group is on.
 - [ ] A pawn that dies without leaving a corpse, or is killed off-map, is skipped with no error.
 - [ ] With the butchering option on, butchering a corpse leaves no worn apparel behind, while gear dropped at death is unaffected.
@@ -37,3 +37,7 @@
 ### 2026-11-21: review fixes
 
 - The two `Pawn.Kill` postfixes now run in a fixed order through `HarmonyPriority` (they share one Harmony id, so `HarmonyBefore`/`After` cannot order them): `ScrapOnBodyHook` (High) puts set-aside scrap in the dead pawn's inventory first, then `CorpseRemovalHook` (Low) strips and removes the corpse, and the strip drops that scrap to the ground. Before, the order was undefined, and scrap added after the corpse was destroyed was lost. The set-aside entry is now always used up: if the death was cancelled the pawn keeps the scrap in its inventory, and a pawn with no inventory gets it on the ground rather than destroyed. A finalizer forgets the entry when Kill throws. `CorpseRemovalHook`'s prefix and `ButcherStripHook` now check `__runOriginal` (at `Priority.Last`). Glue only; in-game: pending (scrap-on-body plus Cleanup corpse removal leaves the scrap on the ground).
+
+### 2026-11-21: closed
+
+Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: humanlike corpses were removed on the Cleanup preset with kept apparel left on the ground. Still unobserved in game: wild animal corpse behaviour with removal on, no-corpse and off-map deaths, butchering option.

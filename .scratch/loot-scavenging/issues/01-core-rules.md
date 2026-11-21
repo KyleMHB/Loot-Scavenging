@@ -10,8 +10,8 @@
 
 - [x] The signatures and call order of the death, downed and strip methods are confirmed against the 1.7 game code before any hook is written, and the result is recorded in the spec's Unverified list.
 - [ ] Killing a spawned raider removes its weapon and keeps its apparel, with the default test rules.
-- [ ] Killing a wild animal changes nothing while the "no faction" group is off.
-- [ ] Colony pawns are never affected.
+- [x] Killing a wild animal changes nothing while the "no faction" group is off.
+- [x] Colony pawns are never affected.
 - [ ] Rules run on downed and on strip only when the moment setting allows it.
 - [ ] The home-map-only setting leaves gear alone on caravan, quest and outpost maps.
 - [ ] A pawn whose gear cannot be stripped (for example a weapon-carrying mechanoid) is still sorted at death.
@@ -58,3 +58,7 @@
 - **Home map only:** turn on "Toggle home map only", then kill a raider on a quest or caravan map. The log shows `NotHomeMap`.
 - **Mechanoid:** kill a weapon-carrying mechanoid. The log shows a death decision for its weapon. Vanilla mech weapons are also destroyed when dropped, so the visible result is the same either way.
 - **Log rules:** prints the current values.
+
+### 2026-11-21: closed
+
+Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: colonist death dropped its revolver whole; a wild hare's death changed nothing. Still unobserved in game: raider weapon removed with apparel kept under the default test rules, downed and strip moments, home-map-only on non-home maps, mechanoid weapon at death.

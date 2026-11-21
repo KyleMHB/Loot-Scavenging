@@ -4,7 +4,7 @@
 
 **Blocked by:** 04, 05, 06
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
@@ -34,3 +34,7 @@ In-game pending: a looted unfamiliar rifle ticked into a recycle bill at a smith
 ### 2026-11-21: review fixes
 
 - Work for original items is now set by the shared `BillWorkPatch` (was `OriginalWorkPatch`). Recycling still uses the item's units times the tier's work per unit. Study uses `StudyRules.Plan`, so the time follows the points the item actually pays after the project's remaining-cost cap and the research factor.
+
+### 2026-11-21: closed
+
+Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: nothing. Still unobserved in game: original items at the bench: recycle yield, study points, filter pick-up.

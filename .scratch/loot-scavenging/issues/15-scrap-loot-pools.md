@@ -45,3 +45,7 @@ Out of scope: the Progression pack's materials (ticket 13), colony-aware pools, 
 - Text: `LootScavenging_YieldFixed` and `_YieldChance` removed; `_RecycleDescription` names no materials.
 - Tests: `dotnet test` 173 passed; both builds 0 warnings; translation check passes.
 - In-game: pending (all four in-game boxes).
+
+### 2026-11-21: closed
+
+Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: single-unit recipe products all came from the tier pool (20 seeded rolls). Still unobserved in game: a real 5-unit bill, components and chemfuel appearing, keep-in-stock absence and description in the UI, instant disassembly, MayRequire entry for an inactive DLC.

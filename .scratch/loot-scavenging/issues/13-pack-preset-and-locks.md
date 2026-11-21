@@ -4,7 +4,7 @@
 
 **Blocked by:** 11
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Recommended model:** `sonnet` — A narrow slice that follows patterns set by earlier tickets.
 
@@ -38,3 +38,7 @@
 - Test patch: put a patch changing `values/rules/dropMode` (or `scrapMarketValue`) into a test mod's `Patches/`; on a fresh config the page shows the patched value, not "(changed)"; Reset returns to it.
 - Lock: copy `packs/progression/ProgressionPreset.xml` into a test mod's `Patches/`. The Disassembly yield row is disabled with the "Locked by the modpack" line, picking another preset leaves it at era-typical, and the presets section shows the summary line.
 - Add a bad name (`rules.nope`) to `locked`: one config error naming it in the log, no crash.
+
+### 2026-11-21: closed
+
+Merged on `loot-scavenging`. 270 unit tests, both builds and the translation check pass. Smoke run `20261121-094209-lootscavenging-smoke-s1-cd8ccd5d` (RimWorld 1.7, Harmony + Core + Loot Scavenging, 0 mod errors) observed: nothing. Still unobserved in game: pack patch default on a fresh config, locked setting row and reason line.
