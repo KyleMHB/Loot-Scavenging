@@ -64,12 +64,20 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 - `lootscavenging-ui`: the settings window opened through the window stack, and the machining table's and research bench's Bills tabs through the inspect pane, each drawn for a few frames while a `Widgets.Label` postfix records what was drawn and where. Checks the six sections, the preset line and buttons, one column top to bottom after each preset switch (the collapse fixed in `e7efc62`), the locked summary and a locked row's reason, both bills in their tabs, the study bench's add-bill options, and the first-load message box called directly. It draws and reads; it does not click.
 - `lootscavenging-firstload`: the first-load message on the real startup path. The launcher deletes every `Mod_*.xml` before a launch, so each harness launch starts with the flag unset; a developer-only `Mod` reads the settings file while mods are constructed to confirm it. Checks that startup set the flag and wrote the file, and that the whole in-memory log since startup has no error naming the mod (the runner's own count starts at the first batch).
 - `lootscavenging-progression` (`--mods progression`, outside run-all): the colony's era after Node Research's medieval emergence, study of medieval scrap for a medieval project, a paper from a project finished by study, a lost paper's retained progress and a second finish, Semi Random Research's picked offer, and every tier's recycling bench and pool material in the pack set. The pack mods are reached by reflection.
-- `lootscavenging-preview`: a showcase, outside run-all, that films the six scrap piles in front of their benches for `About/Preview.png`. Run it with `--record --frames 1 --quit-on-finish`, take a frame at 3.5 s from the run's `build.mp4` with the harness's ffmpeg, then run `python tools/preview_image.py <frame.png>`.
+- `lootscavenging-preview-story`: a showcase, outside run-all, that films the stills for `About/Preview.png` with the game paused. A downed pirate is shown with his rifle, vest and helmet on the ground (downed handling off), then with scrap in their place, then dead with "everything stays on the body" and nothing on the ground. A workshop shows scrap at a research bench and a machining table. It also films a story scene and a raid aftermath. The case fails if a raider leaves no scrap, or if scrap lands on the ground under everything on the body. Run it with `--record --frames 1 --quit-on-finish`, then `python tools/preview_story.py <run folder>`. That writes the candidates to `work/preview`; `split.png` is the one copied to `About/Preview.png`. Text uses RimWordFont from `Configurable Quality/artifacts/steam-page-mockup`.
+- `lootscavenging-preview`: the earlier showcase of the six scrap piles in front of their benches, filmed for the first preview image (`tools/preview_image.py`). No longer used for `About/Preview.png`.
 - `lootscavenging-stacks`: a scene outside run-all for looking at the scrap art by hand. Each era gets piles of 1, 10 and 500 (the small, mid and full textures) and a full studied stack. Run it with `--keep-open`.
 
 Not covered: clicking in the settings page and bill tabs (the ui batch only draws them), a played raid with the Progression pack, Non uno Pinata, Progression: Ammunition and Progression: Hospitality (ticket 14), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
 
 ## Result recording
+
+### 2026-11-21 - Workshop preview image
+
+- Version/environment: RimWorld 1.7, default mod set, seed 1.
+- Run: preview-story `20261121-184244-lootscavenging-preview-story-s1` (`--record --frames 1`), passed: every raider left scrap, and none landed on the ground when the pirate died with everything on the body.
+- Observed: `About/Preview.png` (1280x720, 734 KB) composed from that run's drop and workshop shots. Chosen by Kyle from the story, aftermath, panels and split layouts.
+- Status: Passed.
 
 ### 2026-11-21 - Progression research mods, UI, first load and mod removal
 
