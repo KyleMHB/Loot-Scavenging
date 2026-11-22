@@ -2,7 +2,7 @@
 
 Read and follow `E:\Coding\Templates\AGENTS.md`. For RimWorld game knowledge read `E:\Coding\Rimworld\AGENTS.md` and its `GAME.md`.
 
-Loot Scavenging (packageId `kylemhb.lootscavenging`, Workshop title "Loot Scavenging (scrap, recycle, study)") is a RimWorld mod for 1.6 and 1.7. Harmony is the only hard dependency. The spec is `.scratch/loot-scavenging/spec.md`. No gameplay code exists yet.
+Loot Scavenging (packageId `kylemhb.lootscavenging`, Workshop title "Loot Scavenging") is a RimWorld mod for 1.6 and 1.7. Harmony is the only hard dependency. The spec is `.scratch/loot-scavenging/spec.md`. No gameplay code exists yet.
 
 ## Originality
 

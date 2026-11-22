@@ -10,7 +10,7 @@
   <modDependencies>
     <li>
       <packageId>kylemhb.lootscavenging</packageId>
-      <displayName>Loot Scavenging (scrap, recycle, study)</displayName>
+      <displayName>Loot Scavenging</displayName>
     </li>
     <li>
       <packageId>Garethp.ModlistConfigurator</packageId>

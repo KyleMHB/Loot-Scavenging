@@ -274,7 +274,7 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 
 | Decision | Outcome |
 | --- | --- |
-| Workshop title | Loot Scavenging (scrap, recycle, study) |
+| Workshop title | Loot Scavenging |
 | Package id | `kylemhb.lootscavenging` |
 | Originality | Built from this spec and the game's code only. |
 | Drop mode | A setting with four modes, defaulting to scrap for out-of-reach gear. "Off" was added so Cleanup and Vanilla can run without era handling. All four ship first. |

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-  <name>Loot Scavenging (scrap, recycle, study)</name>
+  <name>Loot Scavenging</name>
   <author>KyleMHB</author>
   <packageId>kylemhb.lootscavenging</packageId>
   <supportedVersions>
