@@ -38,3 +38,11 @@
 - Both builds and `dotnet test`.
 - The Full tier and `release-check` (TESTING.md).
 - `rwtranslate status`.
+
+## Comments
+
+2026-11-22, agent: Release copy and version done; status stays ready-for-agent because the in-game gates are not run.
+
+- Done: `steam-description.md` has one Languages line and a machine-translation note with an invitation to correct, in the AI section. The About.xml description has the same Languages line. CHANGELOG `## Unreleased` is now `## 0.3.0 - 2026-11-22` with the translations entry above the auto-config entry. The three version locations read 0.3.0, and the AutoConfig example preset already carried 0.3.0.
+- Checks run: both Release builds pass (the 1.7 build ran the translation check, passed), `status` shows 0 untranslated and 0 outdated for ChineseSimplified and Russian, `dotnet test` 291 passed.
+- Not run, for Kyle: the Full tier's in-game runs (`run run-all`, `run run-all --mods dlcs`, `run lootscavenging-progression --mods progression`, the removal check, `run perf --mods perf`) and then `release-check`, all on the deployed DLL from tickets 01 and 02. Nothing was uploaded.

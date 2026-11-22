@@ -2,10 +2,11 @@
 
 <!-- Agent read route: read only the newest relevant release; locate older versions by searching `^## ` headings. -->
 
-## Unreleased
+## 0.3.0 - 2026-11-22
 
 ### Added
 
+- Added Simplified Chinese and Russian translations of all in-game text. They are machine translations, and corrections are welcome.
 - Added support for Auto Mod Config (Continued). An imported settings file is kept, keys it leaves out take the default settings, and locks still apply. An example preset is in `Extras/Loot-Scavenging-AutoConfig`.
 
 ## 0.2.0 - 2026-11-21

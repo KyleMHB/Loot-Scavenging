@@ -4,7 +4,9 @@ When a raider, visitor or other non-colony pawn dies, is downed or is stripped, 
 
 If you play for cleanup instead, a preset deletes damaged and low-quality gear from the hostile dead and removes their corpses, with no era handling at all.
 
-[b]Mod version:[/b] 0.2.0
+[b]Mod version:[/b] 0.3.0
+
+[b]Languages:[/b] English, 简体中文 (Simplified Chinese), Русский (Russian).
 
 [h2]Features[/h2]
 
@@ -74,6 +76,8 @@ Released under the GNU General Public License v3.0. Commercial use is allowed. D
 
 Do I use AI to build my mods? [b]Yes.[/b]
 Am I obsessive about how I use it and the quality of the results? [b]Also yes.[/b]
+
+The Chinese and Russian text is machine-translated. If a line reads wrong, tell me and I will fix it.
 
 I understand the scepticism.
 I've seen the flood of AI-generated mods that look like someone typed a prompt, uploaded whatever came out, and called it done.

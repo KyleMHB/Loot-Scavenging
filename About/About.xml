@@ -7,7 +7,7 @@
     <li>1.6</li>
     <li>1.7</li>
   </supportedVersions>
-  <modVersion>0.2.0</modVersion>
+  <modVersion>0.3.0</modVersion>
   <modDependencies>
     <li>
       <packageId>brrainz.harmony</packageId>
@@ -25,6 +25,8 @@
   <description>Loot Scavenging decides what happens to the gear of raiders, visitors and other non-colony pawns when they die, are downed or are stripped. By default, gear beyond your colony's research turns into scrap of its era. Recycle the scrap at benches you already have for materials of that era, or study it at a research bench for points toward your current project.
 
 Each item category has its own rule: keep, degrade, scrap, disassemble or delete, with a chance and optional quality, hit point and research limits. Presets cover progression play, raid cleanup and vanilla behaviour. Quest items, unique weapons, persona weapons and relics are protected, and corpses can be removed after a fight.
+
+Languages: English, 简体中文 (Simplified Chinese), Русский (Russian).
 
 Requires Harmony. Not compatible with Looting Manager.</description>
 </ModMetaData>
