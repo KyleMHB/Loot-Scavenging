@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+	<LS_Scrap_Neolithic.label>石器时代废料</LS_Scrap_Neolithic.label>
+	<LS_Scrap_Neolithic.description>破损的石器、骨器和木制装备，在殖民地掌握加工方法之前几乎毫无用处。可在工作台回收，或调查以获取研究点数。</LS_Scrap_Neolithic.description>
+	<LS_Scrap_Medieval.label>中世纪废料</LS_Scrap_Medieval.label>
+	<LS_Scrap_Medieval.description>弯折的刀刃和破损的皮甲与锁子甲。可在工作台回收，或调查以获取研究点数。</LS_Scrap_Medieval.description>
+	<LS_Scrap_Industrial.label>工业时代废料</LS_Scrap_Industrial.label>
+	<LS_Scrap_Industrial.description>损毁的枪械和护甲。可在工作台回收，或调查以获取研究点数。</LS_Scrap_Industrial.description>
+	<LS_Scrap_Spacer.label>太空时代废料</LS_Scrap_Spacer.label>
+	<LS_Scrap_Spacer.description>熔融且仍嗡嗡作响的先进武器和护甲残骸。可在工作台回收，或调查以获取研究点数。</LS_Scrap_Spacer.description>
+	<LS_Scrap_Ultra.label>极致时代废料</LS_Scrap_Ultra.label>
+	<LS_Scrap_Ultra.description>粉碎的极致时代装备，其运作原理仍难以探究。可在工作台回收，或调查以获取研究点数。</LS_Scrap_Ultra.description>
+	<LS_Scrap_Archotech.label>超凡时代废料</LS_Scrap_Archotech.label>
+	<LS_Scrap_Archotech.description>超凡造物的碎片，冰冷且异常沉重。可在工作台回收，或调查以获取研究点数。</LS_Scrap_Archotech.description>
+</LanguageData>

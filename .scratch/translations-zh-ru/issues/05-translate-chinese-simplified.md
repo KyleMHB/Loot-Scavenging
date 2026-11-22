@@ -4,7 +4,7 @@
 
 **Blocked by:** 01, 02, 04
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 **Recommended model:** `opus`: quality of the translation and keeping placeholders intact. The skill dispatches one subagent per chunk.
 
@@ -26,3 +26,14 @@
 
 - `rwtranslate status`, `check`, and both builds.
 - A spot check of ten texts against the glossary, including a rule sentence with every condition and a "cannot be studied" reason.
+
+## Comments
+
+2026-11-22, translation agent: translated all 242 texts (214 Keyed, 28 DefInjected) in three chunks and imported them. Written: `Languages/ChineseSimplified/Keyed/LootScavenging.xml`, `DefInjected/{ThingDef/Scrap.xml, ThingDef/Study.xml, ThingCategoryDef/Scrap.xml, WorkGiverDef/Study.xml}` and `translation/record/ChineseSimplified.json`. Not committed, so Status stays open until the language files and record are committed together.
+
+- `status`: ChineseSimplified 0 untranslated, 0 outdated. `check` passes. The 1.7 and 1.6 Release builds pass.
+- Era words in the 12 scrap labels and descriptions use vanilla's `TechLevel` labels (石器时代, 中世纪, 工业时代, 太空时代, 极致时代, 超凡时代). The study description quotes 「维持 X 个」 exactly.
+- Spot check against the glossary: `UnfamiliarLabel` `{0}（陌生）`; `StudyDone` keeps `{PAWN_labelShort}` and `{1}`–`{4}`; `RuleActReachQualityOrHitPointsChance` keeps `{0}`–`{4}`; `StudyWhyProjectEra`, `StudyWhyColonyEra` (达到{0}, no trailing 时代); `FirstLoadText` keeps the literal `\n\n` and 选项 > Mod 设置; WorkGiver label/verb/gerund follow vanilla's `DoBills*` pattern (调查于). No text holds `TargetA`.
+- Terms used that the glossary lacks (vanilla Chinese): ammunition 弹药 (`TabShells`), OK 确定 (`OK`), caravan 远行队 (`Caravan`), outpost 哨所 (`Outpost.label`), plasteel 玻璃钢 (`Plasteel.label`), tainted apparel 死者衣物 (`IncludeTainted`), butcher table 屠宰台 (`TableButcher.label`). The glossary was not edited.
+
+2026-11-22, orchestrator: committed the language files and record together; Status resolved.

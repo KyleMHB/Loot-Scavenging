@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+	<LS_StudiedScrap_Neolithic.label>已调查的石器时代废料</LS_StudiedScrap_Neolithic.label>
+	<LS_StudiedScrap_Neolithic.description>已被调查过的石器时代废料。只能回收，产出少于未调查的废料。</LS_StudiedScrap_Neolithic.description>
+	<LS_StudiedScrap_Medieval.label>已调查的中世纪废料</LS_StudiedScrap_Medieval.label>
+	<LS_StudiedScrap_Medieval.description>已被调查过的中世纪废料。只能回收，产出少于未调查的废料。</LS_StudiedScrap_Medieval.description>
+	<LS_StudiedScrap_Industrial.label>已调查的工业时代废料</LS_StudiedScrap_Industrial.label>
+	<LS_StudiedScrap_Industrial.description>已被调查过的工业时代废料。只能回收，产出少于未调查的废料。</LS_StudiedScrap_Industrial.description>
+	<LS_StudiedScrap_Spacer.label>已调查的太空时代废料</LS_StudiedScrap_Spacer.label>
+	<LS_StudiedScrap_Spacer.description>已被调查过的太空时代废料。只能回收，产出少于未调查的废料。</LS_StudiedScrap_Spacer.description>
+	<LS_StudiedScrap_Ultra.label>已调查的极致时代废料</LS_StudiedScrap_Ultra.label>
+	<LS_StudiedScrap_Ultra.description>已被调查过的极致时代废料。只能回收，产出少于未调查的废料。</LS_StudiedScrap_Ultra.description>
+	<LS_StudiedScrap_Archotech.label>已调查的超凡时代废料</LS_StudiedScrap_Archotech.label>
+	<LS_StudiedScrap_Archotech.description>已被调查过的超凡时代废料。只能回收，产出少于未调查的废料。</LS_StudiedScrap_Archotech.description>
+</LanguageData>
