@@ -226,9 +226,11 @@ def render_card(name, source, seconds):
     run = run_folder(run_id)
     start = max(0.0, mark_times(run)[mark] + offset)
     out = PARTS / f"{name}.mp4"
+    # The video's first frame is its preview on Steam, Discord and YouTube, so the title opens on its text, not black.
+    fade_in = "" if source == "title" else f"fade=t=in:st=0:d={FADE},"
     chain = (f"[0:v]crop={cw}:{ch}:{cx}:{cy},scale={W}:{H}:flags=lanczos,setsar=1,fps={FPS},gblur=sigma=14[v];"
              f"[v][1:v]overlay=0:0:format=auto,format=yuv420p,"
-             f"fade=t=in:st=0:d={FADE},fade=t=out:st={seconds - FADE:.3f}:d={FADE}[out]")
+             f"{fade_in}fade=t=out:st={seconds - FADE:.3f}:d={FADE}[out]")
     subprocess.run([tool("ffmpeg"), "-v", "error", "-y", "-ss", f"{start:.3f}", "-t", f"{seconds:.3f}",
                     "-i", str(run / "build.mp4"), "-i", str(overlay), "-filter_complex", chain, "-map", "[out]",
                     "-t", f"{seconds:.3f}", *ENCODE, str(out)], check=True)
