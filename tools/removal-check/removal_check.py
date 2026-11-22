@@ -44,6 +44,17 @@ def known_expansions():
     return [i for i in ids if i.startswith("ludeon.rimworld.")]
 
 
+def needs_more_than_core(save):
+    """Whether the save's header lists a mod or expansion the probe's Harmony + Core launch lacks."""
+    with open(save, encoding="utf-8", errors="ignore") as f:
+        head = f.read(4000)
+    start, end = head.find("<modIds>"), head.find("</modIds>")
+    if start < 0 or end < 0:
+        return False
+    ids = [li.split("</li>")[0].strip().lower() for li in head[start:end].split("<li>")[1:]]
+    return any(i not in ("brrainz.harmony", "ludeon.rimworld", "kylemhb.lootscavenging") for i in ids)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("save", type=Path, nargs="?")
@@ -52,6 +63,9 @@ def main():
     if args.save is None:
         saves = sorted((HARNESS_USERDATA / "LootScavengingTests").rglob("*.rws"), key=lambda f: f.stat().st_mtime)
         saves = [f for f in saves if "lootscavenging-saves" in str(f)] or saves
+        # The probe runs Core only, so a save from a `--mods dlcs` run never finishes loading. The Full tier runs that set
+        # after the default one, which would make it the newest.
+        saves = [f for f in saves if not needs_more_than_core(f)] or saves
         if not saves:
             sys.exit("no archived save found; run the lootscavenging-saves batch first")
         args.save = saves[-1]
