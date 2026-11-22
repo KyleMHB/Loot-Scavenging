@@ -7,7 +7,8 @@ Usage:
 Footage comes from the `lootscavenging-workshop-clips` batch (2560x1440 `build.mp4` with `shots.json` and
 `recording.json` beside it). Each GIF is one or two short segments around named marks, cropped tight to the subject
 and joined with a hard cut. Footage runs at normal game speed and is never sped up: a bill job longer than a GIF is
-cut to its start and its end, not accelerated. Set LOOT_CLIPS_RUN to a run folder to render from another run.
+cut to its start and its end, not accelerated. A GIF named in RUNS uses that run; the rest use RUN_NAME. Set
+LOOT_CLIPS_RUN to a run folder to render every GIF from that run instead.
 """
 import json
 import os
@@ -24,6 +25,10 @@ HARNESS_CANDIDATES = [
     Path("E:/Coding/Rimworld/RimWorldDevTests"),
 ]
 RUN_NAME = "20261121-223036-lootscavenging-workshop-clips-s1"
+# GIFs refilmed in a later run of the same batch.
+RUNS = {
+    "loot-scavenging-on-body": "20261123-000545-lootscavenging-workshop-clips-s1",
+}
 WIDTH, FPS = 560, 12
 
 # name: [(mark, start offset, end offset, crop width, crop height, crop left, crop top), ...]
@@ -48,10 +53,13 @@ GIFS = {
         ("study-work", 10.3, 12.8, 1260, 860, 200, 0),
         ("study-done", -1.2, 2.0, 1260, 860, 200, 0),
     ],
-    # Nothing lands at the pirate's death; stripping the corpse spills the loot.
+    # Nothing lands at the pirate's death; his corpse's Gear tab shows the loot still on him; stripping the corpse spills it
+    # and the colonist steps off the pile. The gear crop takes the tab (bottom left) and the corpse; the others are tighter on
+    # the corpse, at the same aspect so the segments join without stretching.
     "loot-scavenging-on-body": [
-        ("on-body-death", -0.05, 2.2, 1100, 619, 1050, 410),
-        ("on-body-stripped", -1.7, 0.9, 1100, 619, 1050, 410),
+        ("on-body-death", 0.1, 1.2, 900, 630, 540, 470),
+        ("on-body-gear", 0.6, 2.4, 1180, 826, 0, 400),
+        ("on-body-stripped", -0.5, 3.4, 900, 630, 680, 470),
     ],
 }
 
@@ -70,15 +78,15 @@ def ffmpeg():
     sys.exit("ffmpeg not found (PATH, work/ffmpeg or the shared harness's work/ffmpeg)")
 
 
-def run_folder():
+def run_folder(name):
     override = os.environ.get("LOOT_CLIPS_RUN")
     if override:
         return Path(override)
-    return harness() / "work/userdata/loot/LootScavengingTests" / RUN_NAME
+    return harness() / "work/userdata/loot/LootScavengingTests" / RUNS.get(name, RUN_NAME)
 
 
 def render(name, segments):
-    run = run_folder()
+    run = run_folder(name)
     clip = run / "build.mp4"
     if not clip.is_file():
         print(f"{name}: no footage at {clip}; skipped")

@@ -69,7 +69,7 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 - `lootscavenging-workshop-clips`: a showcase, outside run-all, that films the Workshop description GIFs and gallery stills (`.scratch/workshop-media`) on the Progression preset at a tribal colony, at normal speed. It films:
   - a pirate and a tribal warrior attacking a sandbag line, where the pirate's autopistol becomes industrial scrap and the club drops whole;
   - one recycle bill at a crafting spot and one study bill at a research bench;
-  - a pirate who dies with everything on the body, then is stripped by a colonist;
+  - a pirate who dies with everything on the body, his corpse selected with its Gear tab open, then stripped by a colonist who steps away from the loot;
   - paused stills of a tribal warrior (club, autopistol in his pack) killed under each of the four drop modes;
   - paused stills of neolithic and spacer scrap selected.
 
@@ -80,6 +80,13 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 Not covered: clicking in the settings page and bill tabs (the ui batch only draws them), a played raid with the Progression pack, Non uno Pinata, Progression: Ammunition and Progression: Hospitality (ticket 14), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
 
 ## Result recording
+
+### 2026-11-23 - On-body clip refilmed (workshop-media ticket 02)
+
+- Version/environment: RimWorld 1.7, default mod set, English, seed 1. `deploy.ps1` first, then `python tools/ls_test.py run lootscavenging-workshop-clips --seed 1 --record --show-ui --frames 12 --quit-on-finish`.
+- Runs: `20261123-000121-lootscavenging-workshop-clips-s1` did not film: FFmpeg captured no frame within 20 s on the first attempt, and the batch ended early. The rerun `20261123-000545-lootscavenging-workshop-clips-s1` passed 1 of 1 with every beat, including the new gear-tab check.
+- Observed: the on-body beat now opens the corpse's Gear tab after the death (mark `on-body-gear`). The tab listed cloth tribalwear, 3 industrial scrap, 3 medicine and 40 silver; the autopistol and flak vest were already scrap, so no weapon shows. The stripper, spawned drafted 2 cells east after the death, stripped the corpse 1.5 s after the order, then walked a few cells off. Tribalwear, scrap, medicine and silver lay around the corpse. Only `loot-scavenging-on-body.gif` uses this run.
+- Status: Passed.
 
 ### 2026-11-22 - Settings still for the Workshop gallery (workshop-media ticket 05)
 

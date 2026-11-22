@@ -21,7 +21,8 @@ namespace LootScavenging.DevTests;
 //             becomes industrial scrap where it falls, the club drops whole
 //   recycle   a crafter works one recycle bill on neolithic scrap at the crafting spot
 //   study     a researcher works one study bill on neolithic scrap at a research bench (Recurve Bow current)
-//   on-body   "everything stays on the body": a pirate dies and nothing lands; a colonist strips him and the loot spills out
+//   on-body   "everything stays on the body": a pirate dies and nothing lands; his corpse's Gear tab shows the loot still on him;
+//             a colonist strips him, steps away, and the loot lies on the ground
 //   drop-*    paused stills: the same tribal warrior (club, an autopistol in his pack) killed under each drop mode
 //   inspect-* paused stills: neolithic scrap that can be studied now and spacer scrap that cannot, each selected
 // Writes shots.json (marks on the game's monotonic clock, the recorder's video origin clock) and layout.json (each shot's camera)
@@ -35,7 +36,7 @@ public sealed class WorkshopClipsBatch : Batch
     public override TimeSpan WallLimit => TimeSpan.FromMinutes(12);
     public override IReadOnlyList<PlannedCase> Plan { get; } = new[] { new PlannedCase("workshop-clips.filmed", Levels.Evidence) };
 
-    private const float ClipZoom = 6f, StillZoom = 4f;
+    private const float ClipZoom = 6f, OnBodyZoom = 5f, StillZoom = 4f;
     private const double StillSeconds = 3.0;
 
     private readonly List<(string name, double t)> marks = new();
@@ -198,7 +199,7 @@ public sealed class WorkshopClipsBatch : Batch
         }
         var keep = Kit.All(Camera, Tidy);
 
-        bool pirateScrapped = false, clubWhole = false, recycled = false, studied = false, nothingOnGround = false, stripped = false;
+        bool pirateScrapped = false, clubWhole = false, recycled = false, studied = false, nothingOnGround = false, gearTabOpen = false, stripped = false;
         int dropShots = 0, inspectShots = 0;
         float progress0 = 0, progress1 = 0;
         try
@@ -307,7 +308,6 @@ public sealed class WorkshopClipsBatch : Batch
             Gone(researcher);
 
             // ----- On the body -----
-            var stripper = Colonist(new IntVec3(bodyArea.minX + 2, 0, bodyCell.z), WorkTypeDefOf.Hauling, null, null);
             Settings.values.deathDrop = DeathDrop.AllOnBody;
             ctx.Setup("Developer set loot at death to everything stays on the body");
             // Spawned now: a hostile pawn standing there through the earlier shots would go for the colonist.
@@ -319,19 +319,37 @@ public sealed class WorkshopClipsBatch : Batch
             victim.inventory.innerContainer.TryAdd(Stack(ThingDefOf.Silver, 40));
             victim.Rotation = Rot4.West;
             ctx.Setup("Developer spawned a pirate in tribalwear and a flak vest with an autopistol, 3 industrial medicine and 40 silver");
-            Shot("on-body", new Vector3(bodyArea.minX + 6.5f, 0f, bodyCell.z + 0.5f), ClipZoom);
+            // Closer than the other clips, with the corpse left of centre: the gear tab opens over the bottom-left of the screen and
+            // the GIF crops the tab and the corpse together, so the tab's text stays readable at 560 px.
+            Shot("on-body", new Vector3(bodyCell.x + 3.5f, 0f, bodyCell.z + 0.9f), OnBodyZoom);
             yield return Play(1.0, keep);
             var itemsBefore = map.listerThings.AllThings.Where(t => t.def.category == ThingCategory.Item).Select(t => t.thingIDNumber).ToHashSet();
             victim.Kill(null);
             FilthMaker.TryMakeFilth(bodyCell, map, ThingDefOf.Filth_Blood, 3);
             Mark("on-body-death");
             var corpse = victim.Corpse;
-            yield return Play(2.0, keep);
+            yield return Play(1.5, keep);
             nothingOnGround = !map.listerThings.AllThings.Any(t => t.Spawned && t.def.category == ThingCategory.Item && t != corpse
                 && !itemsBefore.Contains(t.thingIDNumber) && t.Position.DistanceTo(bodyCell) <= 3f);
             ctx.Setup($"Pirate killed with everything on the body: nothing on the ground {nothingOnGround}");
+            // Spawned after the death, two cells east (away from the tab), so the walk to the corpse is short and no live raider is
+            // near him. Drafted, so he neither wanders during the gear shot nor hauls the loot away after the strip.
+            var stripper = Colonist(new IntVec3(bodyCell.x + 2, 0, bodyCell.z), WorkTypeDefOf.Hauling, null, null);
+            stripper.drafter.Drafted = true;
             if (corpse != null)
             {
+                // The corpse's Gear tab shows what is still on the body before the strip.
+                holdSelection = false;
+                Find.Selector.ClearSelection();
+                Find.Selector.Select(corpse, playSound: false, forceDesignatorDeselect: false);
+                yield return Wait.Frames(2);
+                gearTabOpen = InspectPaneUtility.OpenTab(typeof(ITab_Pawn_Gear)) != null;
+                Mark("on-body-gear");
+                ctx.Setup($"Gear tab open {gearTabOpen}; on the body: {Describe(victim.apparel.WornApparel.Cast<Thing>().Concat(victim.equipment.AllEquipmentListForReading).Concat(victim.inventory.innerContainer))}");
+                yield return Play(2.5, keep);
+                Find.Selector.ClearSelection();
+                holdSelection = true;
+
                 corpse.SetForbidden(false, warnOnFail: false);
                 map.designationManager.AddDesignation(new Designation(corpse, DesignationDefOf.Strip));
                 stripper.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Strip, corpse));
@@ -345,7 +363,9 @@ public sealed class WorkshopClipsBatch : Batch
                 }
             }
             ctx.Setup($"Strip: {(stripped ? "done" : "not done in 20 seconds")}; on the ground now: {Describe(map.listerThings.AllThings.Where(t => t.Spawned && t.def.category == ThingCategory.Item && t.Position.DistanceTo(bodyCell) <= 3f))}");
-            yield return Play(3.0, keep);
+            // He steps off the pile so the spilled loot shows.
+            stripper.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, new IntVec3(bodyCell.x + 4, 0, bodyCell.z + 1)));
+            yield return Play(3.5, keep);
             Settings.values.deathDrop = DeathDrop.Ground;
             Gone(stripper);
 
@@ -418,9 +438,9 @@ public sealed class WorkshopClipsBatch : Batch
         ctx.Begin("workshop-clips.filmed")
             .Observe("pirateScrapped", pirateScrapped).Observe("clubWhole", clubWhole).Observe("recycled", recycled)
             .Observe("studied", studied).Observe("researchGain", progress1 - progress0).Observe("nothingOnGround", nothingOnGround)
-            .Observe("stripped", stripped).Observe("dropShots", dropShots).Observe("inspectShots", inspectShots)
+            .Observe("gearTabOpen", gearTabOpen).Observe("stripped", stripped).Observe("dropShots", dropShots).Observe("inspectShots", inspectShots)
             .Observe("marks", string.Join(", ", marks.Select(m => m.name)))
-            .Check(pirateScrapped && clubWhole && recycled && studied && progress1 > progress0 && nothingOnGround && stripped && dropShots == 4 && inspectShots == 2,
-                "a beat did not happen on film: raid scrap, whole club, recycle, study, nothing on the ground, strip, or a still");
+            .Check(pirateScrapped && clubWhole && recycled && studied && progress1 > progress0 && nothingOnGround && gearTabOpen && stripped && dropShots == 4 && inspectShots == 2,
+                "a beat did not happen on film: raid scrap, whole club, recycle, study, nothing on the ground, the gear tab, strip, or a still");
     }
 }

@@ -39,3 +39,18 @@ Status: resolved
 
 - Marks sit a little late for some beats (the pirate falls about 0.6 s after `raid-pirate-down`), so segments start before the mark. In the study shot the camera is still settling and the recycle shot's "Bill complete" message lingers until about 44.5 s, so the study GIF starts mid-job rather than at `study-work`. The study crop is wide because the points message is top-left, 700 px from the bench; it keeps one stray scrap item from the recycle shot at the left edge.
 - Stills (start, middle, end) were checked at 560 px in `work/gifstills/`. A second render gave byte-identical files.
+
+### 2026-11-22: on-body GIF redone
+
+- Kyle's notes on the first on-body GIF: the walk to the corpse took too long, and it cut too soon after the strip to show what came off. He also wanted the corpse's Gear tab open before the strip.
+- `WorkshopClipsBatch`'s on-body beat now:
+  - frames the corpse left of centre at zoom 5;
+  - after the death, selects the corpse, opens its Gear tab (`InspectPaneUtility.OpenTab(typeof(ITab_Pawn_Gear))`), marks `on-body-gear` and holds 2.5 s;
+  - spawns the stripper drafted, 2 cells east, after the death (no armed raider near him; drafted so he neither wanders nor hauls the loot);
+  - after `on-body-stripped`, orders him to a cell 4 east and 1 north, and holds 3.5 s.
+  The case also checks the tab opened.
+- Refilmed in run `20261123-000545-lootscavenging-workshop-clips-s1` (passed). The script's `RUNS` table points only `loot-scavenging-on-body` at it; the other three GIFs still come from `20261121-223036`.
+- The GIF is three segments, hard cut: the death (1.1 s), the Gear tab beside the corpse (1.8 s) and the strip with the loot left lying (3.9 s). 560x392, 6.83 s, 1.05 MB. The gear crop (1180x826 from the left edge) is wider than the others (900x630) to take in the tab, at the same aspect.
+- The tab lists cloth tribalwear, industrial scrap x3, medicine x3 and silver x40. The autopistol and flak vest became scrap at death, so the tab has no weapon line.
+- Marks here run about 0.55 s ahead of the picture, so the segments start after their marks.
+- Stills (start, gear tab, after the strip, end) checked at 560 px in `work/gifstills/`. The tab text reads clearly; the ground items show as icons, without stack counts.
