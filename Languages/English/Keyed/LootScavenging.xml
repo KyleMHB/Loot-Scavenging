@@ -99,15 +99,25 @@
   <LootScavenging_LimitHitPoints>Only below a hit point level</LootScavenging_LimitHitPoints>
   <LootScavenging_BelowHitPoints>Below {0} hit points</LootScavenging_BelowHitPoints>
   <LootScavenging_RuleKeep>{0} from affected pawns drop as normal.</LootScavenging_RuleKeep>
-  <LootScavenging_RuleAct>{0} from affected pawns {1}{2}{3}.</LootScavenging_RuleAct>
-  <LootScavenging_RuleChance>{0} of the time</LootScavenging_RuleChance>
-  <LootScavenging_RuleOtherwiseKept>Otherwise they drop as normal.</LootScavenging_RuleOtherwiseKept>
-  <LootScavenging_CondWhen>when {0}</LootScavenging_CondWhen>
-  <LootScavenging_CondReach>beyond the colony's reach</LootScavenging_CondReach>
-  <LootScavenging_CondQuality>below {0} quality</LootScavenging_CondQuality>
-  <LootScavenging_CondHitPoints>below {0} hit points</LootScavenging_CondHitPoints>
-  <LootScavenging_CondAnd>{0} and {1}</LootScavenging_CondAnd>
-  <LootScavenging_CondOr>{0} or {1}</LootScavenging_CondOr>
+  <!-- The rule sentence: one key for each combination of conditions and chance. Every key has the same slots, and each uses
+       only the ones it needs: {0} item category, {1} what happens to the items (a Verb key below), {2} quality name,
+       {3} hit-point percentage, {4} chance percentage. -->
+  <LootScavenging_RuleAct>{0} from affected pawns {1}.</LootScavenging_RuleAct>
+  <LootScavenging_RuleActChance>{0} from affected pawns {1} {4} of the time. Otherwise they drop as normal.</LootScavenging_RuleActChance>
+  <LootScavenging_RuleActQuality>{0} from affected pawns {1} when below {2} quality. Otherwise they drop as normal.</LootScavenging_RuleActQuality>
+  <LootScavenging_RuleActQualityChance>{0} from affected pawns {1} when below {2} quality {4} of the time. Otherwise they drop as normal.</LootScavenging_RuleActQualityChance>
+  <LootScavenging_RuleActHitPoints>{0} from affected pawns {1} when below {3} hit points. Otherwise they drop as normal.</LootScavenging_RuleActHitPoints>
+  <LootScavenging_RuleActHitPointsChance>{0} from affected pawns {1} when below {3} hit points {4} of the time. Otherwise they drop as normal.</LootScavenging_RuleActHitPointsChance>
+  <LootScavenging_RuleActQualityOrHitPoints>{0} from affected pawns {1} when below {2} quality or below {3} hit points. Otherwise they drop as normal.</LootScavenging_RuleActQualityOrHitPoints>
+  <LootScavenging_RuleActQualityOrHitPointsChance>{0} from affected pawns {1} when below {2} quality or below {3} hit points {4} of the time. Otherwise they drop as normal.</LootScavenging_RuleActQualityOrHitPointsChance>
+  <LootScavenging_RuleActReach>{0} from affected pawns {1} when beyond the colony's reach. Otherwise they drop as normal.</LootScavenging_RuleActReach>
+  <LootScavenging_RuleActReachChance>{0} from affected pawns {1} when beyond the colony's reach {4} of the time. Otherwise they drop as normal.</LootScavenging_RuleActReachChance>
+  <LootScavenging_RuleActReachQuality>{0} from affected pawns {1} when beyond the colony's reach and below {2} quality. Otherwise they drop as normal.</LootScavenging_RuleActReachQuality>
+  <LootScavenging_RuleActReachQualityChance>{0} from affected pawns {1} when beyond the colony's reach and below {2} quality {4} of the time. Otherwise they drop as normal.</LootScavenging_RuleActReachQualityChance>
+  <LootScavenging_RuleActReachHitPoints>{0} from affected pawns {1} when beyond the colony's reach and below {3} hit points. Otherwise they drop as normal.</LootScavenging_RuleActReachHitPoints>
+  <LootScavenging_RuleActReachHitPointsChance>{0} from affected pawns {1} when beyond the colony's reach and below {3} hit points {4} of the time. Otherwise they drop as normal.</LootScavenging_RuleActReachHitPointsChance>
+  <LootScavenging_RuleActReachQualityOrHitPoints>{0} from affected pawns {1} when beyond the colony's reach and below {2} quality or below {3} hit points. Otherwise they drop as normal.</LootScavenging_RuleActReachQualityOrHitPoints>
+  <LootScavenging_RuleActReachQualityOrHitPointsChance>{0} from affected pawns {1} when beyond the colony's reach and below {2} quality or below {3} hit points {4} of the time. Otherwise they drop as normal.</LootScavenging_RuleActReachQualityOrHitPointsChance>
   <LootScavenging_VerbDegrade>are damaged to {0} to {1} of their hit points</LootScavenging_VerbDegrade>
   <LootScavenging_VerbDegradeQuality>are damaged to {0} to {1} of their hit points and lose one quality step</LootScavenging_VerbDegradeQuality>
   <LootScavenging_VerbScrap>become scrap of their era</LootScavenging_VerbScrap>

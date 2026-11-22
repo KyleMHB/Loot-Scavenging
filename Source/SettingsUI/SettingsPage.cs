@@ -235,27 +235,27 @@ internal sealed class SettingsPage
         if (rule.outcome == Outcome.Keep)
             return "LootScavenging_RuleKeep".Translate(what);
 
-        string when = "";
-        string limits = null;
-        if (rule.limitQuality)
-            limits = "LootScavenging_CondQuality".Translate(QualityName(rule.belowQuality));
-        if (rule.limitHitPoints)
-        {
-            string hitPoints = "LootScavenging_CondHitPoints".Translate(rule.belowHitPointFraction.ToStringPercent());
-            limits = limits == null ? hitPoints : "LootScavenging_CondOr".Translate(limits, hitPoints).Resolve();
-        }
-        string condition = rule.onlyBeyondReach ? "LootScavenging_CondReach".Translate().Resolve() : null;
-        if (limits != null)
-            condition = condition == null ? limits : "LootScavenging_CondAnd".Translate(condition, limits).Resolve();
-        if (condition != null)
-            when = " " + "LootScavenging_CondWhen".Translate(condition);
-        string chance = rule.chance < 1f ? " " + "LootScavenging_RuleChance".Translate(rule.chance.ToStringPercent()) : "";
-
-        string sentence = "LootScavenging_RuleAct".Translate(what, OutcomeVerb(rule.outcome), when, chance);
-        if (when.Length > 0 || chance.Length > 0)
-            sentence += " " + "LootScavenging_RuleOtherwiseKept".Translate();
-        return sentence;
+        int limits = (rule.limitQuality ? 1 : 0) + (rule.limitHitPoints ? 2 : 0);
+        int index = (rule.onlyBeyondReach ? 8 : 0) + limits * 2 + (rule.chance < 1f ? 1 : 0);
+        return RuleActKeys[index].Translate(what, OutcomeVerb(rule.outcome), QualityName(rule.belowQuality),
+            rule.belowHitPointFraction.ToStringPercent(), rule.chance.ToStringPercent());
     }
+
+    // One whole-sentence key for each combination of conditions and chance, so a translation controls the word order,
+    // joining words and punctuation (translation spec, Decision 3). Indexed by beyond reach (+8), the limits (+2 each step:
+    // none, quality, hit points, quality or hit points) and a chance below 100% (+1). Every key takes the same slots:
+    // {0} category, {1} outcome verb phrase, {2} quality, {3} hit points, {4} chance.
+    private static readonly string[] RuleActKeys =
+    {
+        "LootScavenging_RuleAct", "LootScavenging_RuleActChance",
+        "LootScavenging_RuleActQuality", "LootScavenging_RuleActQualityChance",
+        "LootScavenging_RuleActHitPoints", "LootScavenging_RuleActHitPointsChance",
+        "LootScavenging_RuleActQualityOrHitPoints", "LootScavenging_RuleActQualityOrHitPointsChance",
+        "LootScavenging_RuleActReach", "LootScavenging_RuleActReachChance",
+        "LootScavenging_RuleActReachQuality", "LootScavenging_RuleActReachQualityChance",
+        "LootScavenging_RuleActReachHitPoints", "LootScavenging_RuleActReachHitPointsChance",
+        "LootScavenging_RuleActReachQualityOrHitPoints", "LootScavenging_RuleActReachQualityOrHitPointsChance",
+    };
 
     private string OutcomeVerb(Outcome outcome)
     {
