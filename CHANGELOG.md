@@ -2,6 +2,16 @@
 
 <!-- Agent read route: read only the newest relevant release; locate older versions by searching `^## ` headings. -->
 
+## 0.3.1 - 2026-11-23
+
+### Added
+
+- The Auto Mod Config example in `Extras/Loot-Scavenging-AutoConfig` now also carries a settings file named for the Workshop copy, so a preset can cover subscribers as well as local installs.
+
+### Changed
+
+- Replaced the preview image with a title card showing the six scrap items.
+
 ## 0.3.0 - 2026-11-22
 
 ### Added

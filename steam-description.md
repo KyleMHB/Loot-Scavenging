@@ -6,7 +6,7 @@ When a raider, visitor or other non-colony pawn dies, is downed or is stripped, 
 
 If you play for cleanup instead, a preset deletes damaged and low-quality gear from the hostile dead and removes their corpses, with no era handling at all.
 
-[b]Mod version:[/b] 0.3.0
+[b]Mod version:[/b] 0.3.1
 
 [b]Languages:[/b] English, 简体中文 (Simplified Chinese), Русский (Russian).
 
