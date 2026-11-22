@@ -11,7 +11,7 @@ See the spec's "Testing Decisions", "In-game language check".
 
 **Blocked by:** 03, 05, 06
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 **Recommended model:** `opus`: judging rendered text and layout from recordings, in two languages.
 
@@ -45,3 +45,30 @@ See the spec's "Testing Decisions", "In-game language check".
 
 - Deploy, build the DevTests project, then run `python tools/ls_test.py run ... --language <name>` per language, and `close-session` when finished.
 - The English smoke, settings and ui batches after any fix.
+
+## Comments
+
+**2026-11-22, completion (agent).** All acceptance criteria are met; nothing is committed. Details and run IDs are in TESTING.md, under "2026-11-22 - In-game language check".
+
+- **New case:** `lootscavenging.ui.translated-text` in `DevTests/UiBatch.cs`. It scans every label the ui batch draws, plus the following:
+  - the settings page with a weapons rule that has every condition and a chance;
+  - the item picker;
+  - every `LS_` bill's label, job string and description;
+  - neolithic and industrial scrap inspect text, with eligible and "cannot be studied" reasons;
+  - an unfamiliar charge rifle's label;
+  - `StudyDone` for a male and a female pawn.
+
+  It fails on a raw `LootScavenging_` key, a `{`, or an English fragment from a key whose translation differs. The English reference is read from the English Keyed file. Under `--record`, `Draw()` holds each window for 1.5 s. No other case changed, and `ModHarness.cs` is untouched: the case is part of the existing ui batch.
+- **Runs:** firstload, smoke, bench and ui in ChineseSimplified, then Russian, plus a recorded ui per language (`--record --show-ui --frames 30`). English ran firstload, smoke, settings, ui and bench. All passed with no logged or mod errors; bench skips techprints without Royalty.
+- **Fixes:**
+  - Russian: the game capitalizes the letter after any `:` in formatted text (`GenText.CapitalizeSentences`). In response:
+    - the 17 `RuleKeep`/`RuleAct*` keys were reworded to "Предметы категории «{0}» …";
+    - `StudyDone`, `StudyNow` and five `StudyWhy*` keys use a dash;
+    - `StudyWhyProjectEra` uses "так как";
+    - `StudyKeepInStock` reads "{0} в запасе".
+  - ChineseSimplified: `FirstLoadText` uses a no-break space in "Loot Scavenging", so the name no longer wraps after "Loot".
+  - Both languages were baselined; `status` shows 0 untranslated and 0 outdated.
+- **Gaps:**
+  - Stills show only the top of the settings page. Lower rows were checked as recorded text and with a taller-than-rect observation.
+  - The locked reason uses the ui batch's direct lock under the Progression preset. `--mods progression` does not load the pack's preset patch.
+  - English has the same capital after a colon, and its unfamiliar-scope note measures taller than its rect. Neither was changed.

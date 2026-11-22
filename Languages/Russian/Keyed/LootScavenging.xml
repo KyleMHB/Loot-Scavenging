@@ -7,19 +7,19 @@
 	<LootScavenging_RecycleJob>Перерабатывает {0}.</LootScavenging_RecycleJob>
 	<LootScavenging_RecycleDescription>Переработать {0} в материалы его эпохи.</LootScavenging_RecycleDescription>
 	<LootScavenging_StudyPointsPerUnit>Очки исследования за единицу при изучении: {0}.</LootScavenging_StudyPointsPerUnit>
-	<LootScavenging_StudyNow>Сейчас можно изучить для технологии «{0}»: задание на изучение за столом для исследований.</LootScavenging_StudyNow>
+	<LootScavenging_StudyNow>Сейчас можно изучить для технологии «{0}» — задание на изучение за столом для исследований.</LootScavenging_StudyNow>
 	<LootScavenging_StudyLabel>изучить {0}</LootScavenging_StudyLabel>
 	<LootScavenging_StudyJob>Изучает {0}.</LootScavenging_StudyJob>
 	<LootScavenging_StudyDescription>Изучить {0}, чтобы получить очки исследования для текущей технологии. Одно задание расходует не более {1} ед., очки за единицу: {2}. Чем больше очков, тем дольше работа. Задание ждёт, если текущая технология не может принять этот лом. Режим «Повторять до X шт» держит в запасе X ед.</LootScavenging_StudyDescription>
-	<LootScavenging_StudyKeepInStock>в запасе: {0}</LootScavenging_StudyKeepInStock>
+	<LootScavenging_StudyKeepInStock>{0} в запасе</LootScavenging_StudyKeepInStock>
 	<LootScavenging_StudyWhyNoPoints>Нельзя изучить: этот лом не приносит очков исследования.</LootScavenging_StudyWhyNoPoints>
 	<LootScavenging_StudyWhyNoProject>Сейчас нельзя изучить: не выбрана технология для исследования.</LootScavenging_StudyWhyNoProject>
-	<LootScavenging_StudyWhySpecialSource>Нельзя изучить для «{0}»: эта технология открывается другим способом.</LootScavenging_StudyWhySpecialSource>
-	<LootScavenging_StudyWhyFinished>Сейчас нельзя изучить: технология «{0}» уже изучена.</LootScavenging_StudyWhyFinished>
-	<LootScavenging_StudyWhyPrerequisites>Нельзя изучить для «{0}»: её требования ещё не исследованы.</LootScavenging_StudyWhyPrerequisites>
-	<LootScavenging_StudyWhyTechprints>Нельзя изучить для «{0}»: применены не все её чертежи.</LootScavenging_StudyWhyTechprints>
-	<LootScavenging_StudyWhyColonyEra>Пока нельзя изучить: поселению нужен технический уровень «{0}».</LootScavenging_StudyWhyColonyEra>
-	<LootScavenging_StudyWhyProjectEra>Нельзя изучить для «{0}»: технический уровень технологии — {1}, выше, чем у лома ({2}).</LootScavenging_StudyWhyProjectEra>
+	<LootScavenging_StudyWhySpecialSource>Нельзя изучить для «{0}» — эта технология открывается другим способом.</LootScavenging_StudyWhySpecialSource>
+	<LootScavenging_StudyWhyFinished>Сейчас нельзя изучить — технология «{0}» уже изучена.</LootScavenging_StudyWhyFinished>
+	<LootScavenging_StudyWhyPrerequisites>Нельзя изучить для «{0}» — её требования ещё не исследованы.</LootScavenging_StudyWhyPrerequisites>
+	<LootScavenging_StudyWhyTechprints>Нельзя изучить для «{0}» — применены не все её чертежи.</LootScavenging_StudyWhyTechprints>
+	<LootScavenging_StudyWhyColonyEra>Пока нельзя изучить — поселению нужен технический уровень «{0}».</LootScavenging_StudyWhyColonyEra>
+	<LootScavenging_StudyWhyProjectEra>Нельзя изучить для «{0}», так как технический уровень технологии ({1}) выше, чем у лома ({2}).</LootScavenging_StudyWhyProjectEra>
 	<LootScavenging_StudyWhyNoGain>Сейчас нельзя изучить: скорость исследования у рассказчика равна нулю.</LootScavenging_StudyWhyNoGain>
 	<LootScavenging_RecycleOriginalLabel>переработать исходные предметы</LootScavenging_RecycleOriginalLabel>
 	<LootScavenging_RecycleOriginalJob>Перерабатывает исходный предмет.</LootScavenging_RecycleOriginalJob>
@@ -27,7 +27,7 @@
 	<LootScavenging_StudyOriginalLabel>изучить исходные предметы</LootScavenging_StudyOriginalLabel>
 	<LootScavenging_StudyOriginalJob>Изучает исходный предмет.</LootScavenging_StudyOriginalJob>
 	<LootScavenging_StudyOriginalDescription>Изучить один незнакомый исходный предмет ради очков исследования так, будто это лом, которым он стал бы: очков столько же. Отметьте предметы, которые не жалко израсходовать; по умолчанию ни один не отмечен.</LootScavenging_StudyOriginalDescription>
-	<LootScavenging_StudyDone>{PAWN_labelShort} {PAWN_gender ? завершил : завершила} изучение: {2} ({1} шт.). Очки исследования для «{4}»: +{3}.</LootScavenging_StudyDone>
+	<LootScavenging_StudyDone>{PAWN_labelShort} {PAWN_gender ? завершил : завершила} изучение — {2} ({1} шт.). Очки исследования для «{4}»: +{3}.</LootScavenging_StudyDone>
 	<LootScavenging_FirstLoadTitle>Loot Scavenging</LootScavenging_FirstLoadTitle>
 	<LootScavenging_FirstLoadText>Loot Scavenging работает с пресетом «Прогрессия». Когда персонаж не из поселения погибает, оказывается обездвижен или раздет, всё его снаряжение, опережающее исследования вашего поселения, становится ломом своей эпохи. Лом можно переработать в материалы или изучить ради исследований. Снаряжение в пределах досягаемости выпадает как обычно.\n\nЧтобы вместо этого очищать карту после набегов или отключить действие мода, выберите другой пресет: Настройки &gt; Настройки модов &gt; Loot Scavenging.</LootScavenging_FirstLoadText>
 	<LootScavenging_FirstLoadOk>OK</LootScavenging_FirstLoadOk>
@@ -92,23 +92,23 @@
 	<LootScavenging_BelowQuality>Качество ниже</LootScavenging_BelowQuality>
 	<LootScavenging_LimitHitPoints>Только ниже порога прочности</LootScavenging_LimitHitPoints>
 	<LootScavenging_BelowHitPoints>Прочность ниже {0}</LootScavenging_BelowHitPoints>
-	<LootScavenging_RuleKeep>{0}: предметы с затронутых персонажей выпадают как обычно.</LootScavenging_RuleKeep>
-	<LootScavenging_RuleAct>{0}: предметы с затронутых персонажей {1}.</LootScavenging_RuleAct>
-	<LootScavenging_RuleActChance>{0}: с шансом {4} предметы с затронутых персонажей {1}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActChance>
-	<LootScavenging_RuleActQuality>{0}: предметы с затронутых персонажей {1}, если их качество ниже «{2}». В остальных случаях они выпадают как обычно.</LootScavenging_RuleActQuality>
-	<LootScavenging_RuleActQualityChance>{0}: с шансом {4} предметы с затронутых персонажей {1}, если их качество ниже «{2}». В остальных случаях они выпадают как обычно.</LootScavenging_RuleActQualityChance>
-	<LootScavenging_RuleActHitPoints>{0}: предметы с затронутых персонажей {1}, если их прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActHitPoints>
-	<LootScavenging_RuleActHitPointsChance>{0}: с шансом {4} предметы с затронутых персонажей {1}, если их прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActHitPointsChance>
-	<LootScavenging_RuleActQualityOrHitPoints>{0}: предметы с затронутых персонажей {1}, если их качество ниже «{2}» или прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActQualityOrHitPoints>
-	<LootScavenging_RuleActQualityOrHitPointsChance>{0}: с шансом {4} предметы с затронутых персонажей {1}, если их качество ниже «{2}» или прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActQualityOrHitPointsChance>
-	<LootScavenging_RuleActReach>{0}: предметы с затронутых персонажей {1}, если они вне досягаемости поселения. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReach>
-	<LootScavenging_RuleActReachChance>{0}: с шансом {4} предметы с затронутых персонажей {1}, если они вне досягаемости поселения. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachChance>
-	<LootScavenging_RuleActReachQuality>{0}: предметы с затронутых персонажей {1}, если они вне досягаемости поселения и их качество ниже «{2}». В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQuality>
-	<LootScavenging_RuleActReachQualityChance>{0}: с шансом {4} предметы с затронутых персонажей {1}, если они вне досягаемости поселения и их качество ниже «{2}». В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQualityChance>
-	<LootScavenging_RuleActReachHitPoints>{0}: предметы с затронутых персонажей {1}, если они вне досягаемости поселения и их прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachHitPoints>
-	<LootScavenging_RuleActReachHitPointsChance>{0}: с шансом {4} предметы с затронутых персонажей {1}, если они вне досягаемости поселения и их прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachHitPointsChance>
-	<LootScavenging_RuleActReachQualityOrHitPoints>{0}: предметы с затронутых персонажей {1}, если они вне досягаемости поселения и их качество ниже «{2}» или прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQualityOrHitPoints>
-	<LootScavenging_RuleActReachQualityOrHitPointsChance>{0}: с шансом {4} предметы с затронутых персонажей {1}, если они вне досягаемости поселения и их качество ниже «{2}» или прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQualityOrHitPointsChance>
+	<LootScavenging_RuleKeep>Предметы категории «{0}» с затронутых персонажей выпадают как обычно.</LootScavenging_RuleKeep>
+	<LootScavenging_RuleAct>Предметы категории «{0}» с затронутых персонажей {1}.</LootScavenging_RuleAct>
+	<LootScavenging_RuleActChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActChance>
+	<LootScavenging_RuleActQuality>Предметы категории «{0}» с затронутых персонажей {1}, если их качество ниже «{2}». В остальных случаях они выпадают как обычно.</LootScavenging_RuleActQuality>
+	<LootScavenging_RuleActQualityChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если их качество ниже «{2}». В остальных случаях они выпадают как обычно.</LootScavenging_RuleActQualityChance>
+	<LootScavenging_RuleActHitPoints>Предметы категории «{0}» с затронутых персонажей {1}, если их прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActHitPoints>
+	<LootScavenging_RuleActHitPointsChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если их прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActHitPointsChance>
+	<LootScavenging_RuleActQualityOrHitPoints>Предметы категории «{0}» с затронутых персонажей {1}, если их качество ниже «{2}» или прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActQualityOrHitPoints>
+	<LootScavenging_RuleActQualityOrHitPointsChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если их качество ниже «{2}» или прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActQualityOrHitPointsChance>
+	<LootScavenging_RuleActReach>Предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReach>
+	<LootScavenging_RuleActReachChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachChance>
+	<LootScavenging_RuleActReachQuality>Предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения и их качество ниже «{2}». В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQuality>
+	<LootScavenging_RuleActReachQualityChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения и их качество ниже «{2}». В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQualityChance>
+	<LootScavenging_RuleActReachHitPoints>Предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения и их прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachHitPoints>
+	<LootScavenging_RuleActReachHitPointsChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения и их прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachHitPointsChance>
+	<LootScavenging_RuleActReachQualityOrHitPoints>Предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения и их качество ниже «{2}» или прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQualityOrHitPoints>
+	<LootScavenging_RuleActReachQualityOrHitPointsChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения и их качество ниже «{2}» или прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQualityOrHitPointsChance>
 	<LootScavenging_VerbDegrade>повреждаются до {0}–{1} прочности</LootScavenging_VerbDegrade>
 	<LootScavenging_VerbDegradeQuality>повреждаются до {0}–{1} прочности и теряют одну ступень качества</LootScavenging_VerbDegradeQuality>
 	<LootScavenging_VerbScrap>превращаются в лом своей эпохи</LootScavenging_VerbScrap>
