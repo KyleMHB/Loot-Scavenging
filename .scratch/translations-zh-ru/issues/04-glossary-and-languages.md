@@ -7,7 +7,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 **Recommended model:** `opus`: choosing terms needs judgement in both languages.
 
@@ -41,3 +41,13 @@
 
 - `python ../RimWorldTranslate/rwtranslate.py --mod . check` and `status`.
 - The 1.7 build, which runs the check.
+
+## Comments
+
+2026-11-22, completion note:
+
+- `translation.json` now lists `ChineseSimplified` and `Russian`. `check` passes (exit 0) and reports 241 untranslated, 0 outdated per language as notes. `status` shows the same. The 1.7 Release build succeeds and runs the check.
+- `translation/glossary.md` holds 113 rows (68 from vanilla, 45 mod terms). The "From vanilla" tables (eras, benches and bills, items and quality, research, people and loot events) copy the game's own text from the 1.7 Core, Royalty, Ideology, Biotech, Anomaly and Odyssey ChineseSimplified and Russian archives, with the Keyed key or DefInjected path for each row. The "Mod terms" table holds this mod's own choices (scrap, unfamiliar, drop mode, reach, outcomes, presets, lists, modpack, lock and recurring phrases). The Style section covers full-width punctuation, era and quality slots, Russian count agreement and names kept in English.
+- Coverage was checked with a unigram and bigram count over the current English Keyed and def texts (241 texts, including ticket 01's in-progress keys). Every term in three or more texts has a row.
+- Judgement calls: Russian hit points use `HitPointsBasic`/`MaxHitPoints` (прочность), not `HitPoints` (Целостность). "Study" follows Anomaly's `Study` (调查 / изучить), so it stays apart from 研究 (research). Russian "gear" is снаряжение, because vanilla's `Equipment` says Оружие.
+- Archive extracts are under `work/vanilla-lang/` (ignored). No export or import was run.

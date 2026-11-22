@@ -1,5 +1,5 @@
 {
   "keyPrefix": "LootScavenging_",
   "hardcodedCheck": true,
-  "languages": []
+  "languages": ["ChineseSimplified", "Russian"]
 }
