@@ -1,8 +1,10 @@
-Raiders stop handing your tribal colony assault rifles. Their gear becomes scrap you can recycle or study.
+Vanilla raids hand a tribal colony assault rifles long before it could research or craft one. Loot Scavenging turns gear beyond your research into scrap of its era, so better gear has to come from your own research and your own benches. You recycle the scrap for materials or study it for research points, and raids still pay you back without letting you skip ahead.
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-raid.gif[/img]
 
-When a raider, visitor or other non-colony pawn dies, is downed or is stripped, Loot Scavenging decides what their gear becomes. By default, anything beyond your colony's research turns into scrap of its era. You recycle that scrap at benches you already have, or study it at a research bench for points toward your current project. Gear your colony could make drops as normal.
+The rules run when a raider, visitor or other non-colony pawn dies, is downed or is stripped. Gear your colony could already make drops as normal.
+
+Every part of it is configurable: an outcome and chance for each item category, keep and remove lists, and presets for progression, cleanup or vanilla. Modpacks can set and lock their own defaults.
 
 If you play for cleanup instead, a preset deletes damaged and low-quality gear from the hostile dead and removes their corpses, with no era handling at all.
 
