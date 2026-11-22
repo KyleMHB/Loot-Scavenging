@@ -49,6 +49,10 @@ dotnet build Source/LootScavenging.csproj -c Release -p:RimWorldVersion=1.6
 
 The build writes the assemblies to `1.7/Assemblies` and `1.6/Assemblies`.
 
+## Credits
+
+Scrap artwork by Morton.
+
 ## License
 
 Released under the **GNU General Public License v3.0**. See [`LICENSE`](LICENSE) for the complete terms.

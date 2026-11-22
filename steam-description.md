@@ -88,6 +88,8 @@ You can remove it from a save. The save then loads without scrap, studied scrap,
 
 Inspired by Looting Manager and Non uno Pinata. Loot Scavenging is a separate mod, written from scratch.
 
+Scrap artwork by Morton.
+
 [h2]License[/h2]
 
 Released under the GNU General Public License v3.0. Commercial use is allowed. Distributed modified versions must remain under GPLv3 and make corresponding source available as required by the license.
@@ -101,5 +103,6 @@ The Chinese and Russian text is machine-translated. If a line reads wrong, tell 
 Support me on Ko-fi.
 
 [url=https://ko-fi.com/I7L525WMJ6][img]https://img.shields.io/badge/Support_me_on_Ko--fi-72a4f2?style=for-the-badge&logo=kofi&logoColor=white[/img][/url]
+[url=https://github.com/KyleMHB/Loot-Scavenging][img]https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white[/img][/url]
 
 When you report a bug, please include your [b]Player.log[/b] file and your mod list.
