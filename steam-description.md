@@ -1,5 +1,7 @@
 Raiders stop handing your tribal colony assault rifles. Their gear becomes scrap you can recycle or study.
 
+[img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-raid.gif[/img]
+
 When a raider, visitor or other non-colony pawn dies, is downed or is stripped, Loot Scavenging decides what their gear becomes. By default, anything beyond your colony's research turns into scrap of its era. You recycle that scrap at benches you already have, or study it at a research bench for points toward your current project. Gear your colony could make drops as normal.
 
 If you play for cleanup instead, a preset deletes damaged and low-quality gear from the hostile dead and removes their corpses, with no era handling at all.
@@ -12,17 +14,35 @@ If you play for cleanup instead, a preset deletes damaged and low-quality gear f
 
 [list]
 [*][b]Scrap per era.[/b] Six stackable scrap items, from neolithic to archotech. The amount depends on the gear's value, quality and condition, so a stone knife gives one unit and a charge rifle gives several.
-[*][b]Recycling at benches you have.[/b] Recycle bills at the crafting spot, smithy, machining table and fabrication bench turn scrap into materials of its era. Each bench handles its own tier and every tier below it.
-[*][b]Study for research.[/b] Study bills at a research bench pay a fixed number of points per unit into the current project, from 10 for neolithic scrap to 100 for archotech. The scrap's inspect text says whether it can be studied now, and why not.
+[*][b]Recycling at benches you have.[/b] Scrap becomes materials of its era.
+[*][b]Study for research.[/b] Scrap becomes points for your current research project.
 [*][b]Four drop modes.[/b] Scrap out-of-reach gear, scrap everything, keep the original item but mark it unfamiliar until you research it, or off.
 [*][b]A rule per item category.[/b] Weapons, apparel, ammunition, drugs, medicine, food and other inventory each get an outcome (keep, degrade, scrap, disassemble or delete), a chance, and optional limits by research, quality and hit points.
-[*][b]Loot on the body.[/b] At death, loot can drop on the ground as usual, leave only the scrap on the body, or leave everything on the body (weapon, medicine, food, silver and scrap) until you strip or butcher the corpse.
+[*][b]Loot on the body.[/b] Loot can stay on the corpse until you strip or butcher it.
 [*][b]Who it affects.[/b] Hostile pawns, non-hostile factions, pawns with no faction and your prisoners each have their own toggle. Your colonists are never affected.
 [*][b]Protection.[/b] Quest items are never touched by default, and neither are unique weapons (Odyssey), persona weapons (Royalty) or relics (Ideology). An always-keep list and an always-remove list are picked from a searchable item menu.
 [*][b]Corpse cleanup.[/b] Optional removal of humanlike, animal and mechanoid corpses, each with its own toggle and a shared chance. A separate option destroys worn apparel when a corpse is butchered.
 [/list]
 
 Scrap is worth almost nothing by default, so a stockpile you keep for later does not raise colony wealth or sell for silver. Medicine is exempt from the drop mode by default, so a raid does not destroy medicine a tribal colony needs.
+
+[h2]Recycling at benches you have[/h2]
+
+[img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-recycle.gif[/img]
+
+Recycle bills at the crafting spot, smithy, machining table and fabrication bench turn scrap into materials of its era. Each bench handles its own tier and every tier below it.
+
+[h2]Study for research[/h2]
+
+[img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-study.gif[/img]
+
+Study bills at a research bench pay a fixed number of points per unit into the current project, from 10 for neolithic scrap to 100 for archotech. The scrap's inspect text says whether it can be studied now, and why not.
+
+[h2]Loot on the body[/h2]
+
+[img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-on-body.gif[/img]
+
+At death, loot can drop on the ground as usual, leave only the scrap on the body, or leave everything on the body (weapon, medicine, food, silver and scrap) until you strip or butcher the corpse.
 
 [h2]How to use[/h2]
 

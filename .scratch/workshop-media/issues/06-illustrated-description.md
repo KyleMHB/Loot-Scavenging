@@ -1,6 +1,6 @@
 # 06: Illustrated description and page preview
 
-Status: ready-for-agent
+Status: resolved
 
 **Recommended model:** `opus`: a public copy change under the copy rules, plus a layout restructure.
 
@@ -21,9 +21,20 @@ Status: ready-for-agent
 
 ## Acceptance
 
-- [ ] The description stays under 8,000 characters (the preview tool reports it).
-- [ ] Every image resolves locally in the preview.
-- [ ] Each GIF sits under the text whose claim it shows, and no feature claim changed meaning.
-- [ ] Kyle has reviewed the preview page.
+- [x] The description stays under 8,000 characters (the preview tool reports it).
+- [x] Every image resolves locally in the preview.
+- [x] Each GIF sits under the text whose claim it shows, and no feature claim changed meaning.
+- [x] Kyle has reviewed the preview page.
 
 ## Comments
+
+### 2026-11-22: description restructured, preview built (review open)
+
+- `steam-description.md`: the raid GIF follows the first paragraph. The Features list keeps all nine items; the recycling, study and loot-on-body items are cut to one line each, and their full text moved unchanged into new `[h2]` subsections (Recycling at benches you have, Study for research, Loot on the body) placed after the scrap-value note, each with its GIF above the paragraph. Headings stay `[h2]` like the rest of the file. No other text changed; `unslop` found nothing in the three new bullets.
+- Preview: `work/preview/workshop-page-preview.html`, built with `--image-map` to `docs/images/workshop/`, `--thumbnail About/Preview.png` and the gallery in order scrap-tiers, drop-modes, settings, inspect. The tool reports 6,578 of 8,000 characters. All ten local image paths exist; the only remote image is the existing Ko-fi badge.
+- The desktop app's browser pane opens local HTML as a `data:` snapshot, so its `file://` images do not load there; open the file in a normal browser to review.
+
+
+### 2026-11-22: reviewed
+
+Kyle reviewed the description and gallery and approved them. The on-body GIF is being refilmed with the Gear tab shown; its URL stays the same.
