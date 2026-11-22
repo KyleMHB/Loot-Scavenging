@@ -1,6 +1,6 @@
 # 05: Gallery: settings page and inspect text
 
-Status: ready-for-agent
+Status: resolved
 
 **Recommended model:** `sonnet`: two framed screenshots.
 
@@ -18,7 +18,13 @@ Status: ready-for-agent
 
 ## Acceptance
 
-- [ ] The settings page's text reads at 1920x1080. The preset name and one sentence read at 640 px.
-- [ ] The inspect lines are the game's real text, not redrawn.
+- [x] The settings page's text reads at 1920x1080. The preset name and one sentence read at 640 px.
+- [x] The inspect lines are the game's real text, not redrawn.
 
 ## Comments
+
+### 2026-11-22: rendered
+
+- Settings: no English still existed (earlier ui runs were Russian and Chinese, 640 px frames or the default small window), so I filmed one. The ui batch's first case now, under `--record`, sets the UI scale to 1.5 and enlarges the settings window for 4 s (run `20261122-234344-lootscavenging-ui-s1`, logged in TESTING.md). `tools/workshop_gallery.py settings` cuts a 2560x1440 frame into two bands of the same frame (preset line with its sentence; the Item rules heading with the Weapons and Apparel rows and their sentences), stacked with a plain gap and nothing drawn on them.
+- Inspect: `tools/workshop_gallery.py inspect` shows the two stills from the ticket 01 run with the game's own inspect pane cropped from the frame (not redrawn). The pane's lower lines are hidden in the stills by the Architect tooltip, so the crop stops above it.
+- Checked: viewed at full size and at 640 px; "Active preset: Progression" and the pane lines read at 640, the small sentences are soft there but read at full size.

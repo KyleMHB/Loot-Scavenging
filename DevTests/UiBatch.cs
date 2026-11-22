@@ -158,6 +158,21 @@ public sealed class UiBatch : Batch
             var buttons = new[] { "LootScavenging_PresetProgression", "LootScavenging_PresetCleanup", "LootScavenging_PresetVanilla", "LootScavenging_PresetReset" };
             c.Step(buttons.All(b => Drew(b.Translate())), "the three preset buttons and Reset were drawn");
             c.Conclude();
+            if (RunRecording.Enabled)
+            {
+                // Workshop gallery still (ticket 05): UI scale 1.5 so the page's small text survives a downscale, and the window
+                // taller than its default so the preset line and the first item rules with their sentences show together.
+                // Both are restored after the hold.
+                Rect original = window.windowRect;
+                float scale = Prefs.UIScale;
+                Prefs.UIScale = 1.5f;
+                yield return Wait.Frames(2);
+                window.windowRect = new Rect((UI.screenWidth - 820f) / 2f, 20f, 820f, UI.screenHeight - 40f);
+                yield return Wait.Seconds(4.0);
+                Prefs.UIScale = scale;
+                yield return Wait.Frames(2);
+                window.windowRect = original;
+            }
         }
 
         // ---- preset switches (the collapse fixed in e7efc62) -------------------------------------------------------------

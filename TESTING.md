@@ -81,6 +81,12 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 
 ## Result recording
 
+### 2026-11-22 - Settings still for the Workshop gallery (workshop-media ticket 05)
+
+- Version/environment: RimWorld 1.7, default mod set, English, seed 1. `deploy.ps1` first, then `python tools/ls_test.py run lootscavenging-ui --seed 1 --record --show-ui --frames 40 --quit-on-finish`.
+- Run: `20261122-234344-lootscavenging-ui-s1`, 7 of 7 passed. Under `--record` the ui batch's first case now sets the UI scale to 1.5 and stretches the settings window to the screen's height for 4 s, then restores both, so one frame shows the preset line and the first item rules with their sentences. `tools/workshop_gallery.py settings` cuts `work/gallery/settings-frame.png` (the video at 5.5 s) into the gallery image.
+- Status: Passed.
+
 ### 2026-11-22 - Full tier for 0.3.0 (translations ticket 09)
 
 - Version/environment: RimWorld 1.7.5014 rev1195, seed 1, at `e1ca95b`, shipping DLL (tickets 01 and 02 changed it). `perf` set: Dubs Performance Analyzer added; `dlcs`: all five DLCs added.
