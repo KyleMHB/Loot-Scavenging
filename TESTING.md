@@ -74,12 +74,19 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
   - paused stills of neolithic and spacer scrap selected.
 
   The case fails if a beat does not happen. Run it with `--record --show-ui --frames 12 --quit-on-finish`. It writes `shots.json` (marks for cutting) and `layout.json` (each shot's camera) to the run folder.
+- `lootscavenging-promo-clips`: a showcase, outside run-all, that films the promo video's live footage in place of its gallery cards, at normal speed on the Progression preset. A tribal warrior (club, autopistol in his pack) dies on camera under each of the four drop modes, 16 cells apart; under keep-original the autopistol is then selected so its pane reads "unfamiliar". The settings window then switches through Progression, Cleanup and Vanilla. The case fails if a death, the unfamiliar selection or a preset is missing. Run it with `--record --show-ui --frames 12 --quit-on-finish`, set the run id as `PROMO_RUN` in `tools/render_promo.py`, then run that script.
 - `lootscavenging-preview`: the earlier showcase of the six scrap piles in front of their benches, filmed for the first preview image (`tools/preview_image.py`). No longer used for `About/Preview.png`.
 - `lootscavenging-stacks`: a scene outside run-all for looking at the scrap art by hand. Each era gets piles of 1, 10 and 500 (the small, mid and full textures) and a full studied stack. Run it with `--keep-open`.
 
 Not covered: clicking in the settings page and bill tabs (the ui batch only draws them), a played raid with the Progression pack, Non uno Pinata, Progression: Ammunition and Progression: Hospitality (ticket 14), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
 
 ## Result recording
+
+### 2026-11-23 - Promo clips filmed
+
+- Version/environment: RimWorld 1.7, default mod set, English, seed 1. `deploy.ps1` first, then `python tools/ls_test.py run lootscavenging-promo-clips --seed 1 --record --show-ui --frames 12 --quit-on-finish`.
+- Runs: the first two did not film: FFmpeg captured no frame within 20 s and gave up without retrying. The harness on Templates `main` now stops and retries such an attempt. `20261123-004719-lootscavenging-promo-clips-s1` passed 1 of 1, each drop mode on its own spot: out-of-reach left the club and 1 industrial scrap; everything left 2 neolithic and 1 industrial scrap; keep-original and off left the club and autopistol.
+- `tools/render_promo.py` renders a 61.7 s promo with no still images: the drop-mode and settings sections use this run, and the title and end text sit over blurred footage. The scrap-tiers card was dropped.
 
 ### 2026-11-23 - On-body clip refilmed (workshop-media ticket 02)
 
