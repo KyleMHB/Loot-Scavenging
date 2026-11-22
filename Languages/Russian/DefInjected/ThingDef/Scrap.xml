@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+	<LS_Scrap_Neolithic.label>неолитический лом</LS_Scrap_Neolithic.label>
+	<LS_Scrap_Neolithic.description>Сломанное снаряжение из камня, кости и дерева. Мало на что годится, пока поселение не научится с ним работать. Этот лом можно переработать за рабочим столом или изучить ради исследований.</LS_Scrap_Neolithic.description>
+	<LS_Scrap_Medieval.label>средневековый лом</LS_Scrap_Medieval.label>
+	<LS_Scrap_Medieval.description>Погнутые клинки, рваная кожа и кольчуги. Этот лом можно переработать за рабочим столом или изучить ради исследований.</LS_Scrap_Medieval.description>
+	<LS_Scrap_Industrial.label>индустриальный лом</LS_Scrap_Industrial.label>
+	<LS_Scrap_Industrial.description>Разбитое огнестрельное оружие и броня. Этот лом можно переработать за рабочим столом или изучить ради исследований.</LS_Scrap_Industrial.description>
+	<LS_Scrap_Spacer.label>космический лом</LS_Scrap_Spacer.label>
+	<LS_Scrap_Spacer.description>Оплавленные, гудящие останки передового оружия и брони. Этот лом можно переработать за рабочим столом или изучить ради исследований.</LS_Scrap_Spacer.description>
+	<LS_Scrap_Ultra.label>ультратехнологичный лом</LS_Scrap_Ultra.label>
+	<LS_Scrap_Ultra.description>Раздробленное ультратехнологичное снаряжение, чьё устройство по-прежнему не поддаётся изучению. Этот лом можно переработать за рабочим столом или изучить ради исследований.</LS_Scrap_Ultra.description>
+	<LS_Scrap_Archotech.label>архотехнологичный лом</LS_Scrap_Archotech.label>
+	<LS_Scrap_Archotech.description>Фрагменты архотехнологичных изделий, холодные и странно тяжёлые. Этот лом можно переработать за рабочим столом или изучить ради исследований.</LS_Scrap_Archotech.description>
+</LanguageData>

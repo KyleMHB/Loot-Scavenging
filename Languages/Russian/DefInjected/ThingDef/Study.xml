@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+	<LS_StudiedScrap_Neolithic.label>изученный неолитический лом</LS_StudiedScrap_Neolithic.label>
+	<LS_StudiedScrap_Neolithic.description>Неолитический лом, который уже изучен. Его можно только переработать, и выход меньше, чем у неизученного лома.</LS_StudiedScrap_Neolithic.description>
+	<LS_StudiedScrap_Medieval.label>изученный средневековый лом</LS_StudiedScrap_Medieval.label>
+	<LS_StudiedScrap_Medieval.description>Средневековый лом, который уже изучен. Его можно только переработать, и выход меньше, чем у неизученного лома.</LS_StudiedScrap_Medieval.description>
+	<LS_StudiedScrap_Industrial.label>изученный индустриальный лом</LS_StudiedScrap_Industrial.label>
+	<LS_StudiedScrap_Industrial.description>Индустриальный лом, который уже изучен. Его можно только переработать, и выход меньше, чем у неизученного лома.</LS_StudiedScrap_Industrial.description>
+	<LS_StudiedScrap_Spacer.label>изученный космический лом</LS_StudiedScrap_Spacer.label>
+	<LS_StudiedScrap_Spacer.description>Космический лом, который уже изучен. Его можно только переработать, и выход меньше, чем у неизученного лома.</LS_StudiedScrap_Spacer.description>
+	<LS_StudiedScrap_Ultra.label>изученный ультратехнологичный лом</LS_StudiedScrap_Ultra.label>
+	<LS_StudiedScrap_Ultra.description>Ультратехнологичный лом, который уже изучен. Его можно только переработать, и выход меньше, чем у неизученного лома.</LS_StudiedScrap_Ultra.description>
+	<LS_StudiedScrap_Archotech.label>изученный архотехнологичный лом</LS_StudiedScrap_Archotech.label>
+	<LS_StudiedScrap_Archotech.description>Архотехнологичный лом, который уже изучен. Его можно только переработать, и выход меньше, чем у неизученного лома.</LS_StudiedScrap_Archotech.description>
+</LanguageData>
