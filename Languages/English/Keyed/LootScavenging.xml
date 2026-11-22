@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-  <LootScavenging_UnfamiliarLabel>unfamiliar</LootScavenging_UnfamiliarLabel>
+  <LootScavenging_UnfamiliarLabel>{0} (unfamiliar)</LootScavenging_UnfamiliarLabel>
   <LootScavenging_UnfamiliarInspect>Unfamiliar technology: cannot be equipped or worn until its research is finished.</LootScavenging_UnfamiliarInspect>
   <LootScavenging_CannotEquipUnfamiliar>unfamiliar technology</LootScavenging_CannotEquipUnfamiliar>
   <LootScavenging_RecycleLabel>recycle {0}</LootScavenging_RecycleLabel>
@@ -29,7 +29,7 @@
   <LootScavenging_StudyOriginalLabel>study original items</LootScavenging_StudyOriginalLabel>
   <LootScavenging_StudyOriginalJob>Studying an original item.</LootScavenging_StudyOriginalJob>
   <LootScavenging_StudyOriginalDescription>Study one unfamiliar original item for research points as if it were the scrap it would have become: the same points. Tick the items you are willing to use up; none are ticked by default.</LootScavenging_StudyOriginalDescription>
-  <LootScavenging_StudyDone>{0} studied {1} {2}: +{3} research points for {4}.</LootScavenging_StudyDone>
+  <LootScavenging_StudyDone>{PAWN_labelShort} studied {1} {2}: +{3} research points for {4}.</LootScavenging_StudyDone>
   <!-- First-load message (ticket 11) -->
   <LootScavenging_FirstLoadTitle>Loot Scavenging</LootScavenging_FirstLoadTitle>
   <LootScavenging_FirstLoadText>Loot Scavenging is running with the Progression preset. When a non-colony pawn dies, is downed or is stripped, any gear beyond your colony's research becomes scrap of its era, which you can recycle for materials or study for research. Gear within reach drops as normal.\n\nTo clean up raids instead, or to switch the mod's effects off, pick another preset under Options > Mod settings > Loot Scavenging.</LootScavenging_FirstLoadText>
@@ -181,7 +181,8 @@
   <LootScavenging_UnfamiliarLooted>Looted gear only</LootScavenging_UnfamiliarLooted>
   <LootScavenging_UnfamiliarAllExplain>Any gear beyond the colony's research is unfamiliar, wherever it came from. Nothing is saved on items.</LootScavenging_UnfamiliarAllExplain>
   <LootScavenging_UnfamiliarLootedExplain>Only gear looted from pawns is unfamiliar. Each looted item carries a saved marker.</LootScavenging_UnfamiliarLootedExplain>
-  <LootScavenging_UnfamiliarUnused>Only used when the drop mode keeps the original item.</LootScavenging_UnfamiliarUnused>
+  <LootScavenging_UnfamiliarAllExplainUnused>Any gear beyond the colony's research is unfamiliar, wherever it came from. Nothing is saved on items. Only used when the drop mode keeps the original item.</LootScavenging_UnfamiliarAllExplainUnused>
+  <LootScavenging_UnfamiliarLootedExplainUnused>Only gear looted from pawns is unfamiliar. Each looted item carries a saved marker. Only used when the drop mode keeps the original item.</LootScavenging_UnfamiliarLootedExplainUnused>
   <!-- Settings page: corpses -->
   <LootScavenging_SectionCorpses>Corpses</LootScavenging_SectionCorpses>
   <LootScavenging_CorpseHumanlike>Remove humanlike corpses</LootScavenging_CorpseHumanlike>

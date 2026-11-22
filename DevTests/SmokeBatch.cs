@@ -322,7 +322,7 @@ public sealed class SmokeBatch : Batch
             Unfamiliar.ResetCache();
             c.Note("The player switches the drop mode to keep originals");
             bool equip = EquipmentUtility.CanEquip(rifle, colonist, out string reason);
-            string tag = "LootScavenging_UnfamiliarLabel".Translate().Resolve();
+            string tag = "LootScavenging_UnfamiliarLabel".Translate("").Resolve().Trim(); // the marker words without the label slot
             c.Observe("label", rifle.LabelNoCount).Observe("cantReason", reason);
             c.Step(Unfamiliar.IsUnfamiliar(rifle), "the charge rifle is unfamiliar");
             c.Step(rifle.LabelNoCount.Contains(tag), "its label says so");

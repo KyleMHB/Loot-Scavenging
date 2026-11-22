@@ -31,7 +31,7 @@ public class CompUnfamiliar : ThingComp
 
     public override string TransformLabel(string label)
     {
-        return Unfamiliar.IsUnfamiliar(parent) ? label + " (" + "LootScavenging_UnfamiliarLabel".Translate().Resolve() + ")" : label;
+        return Unfamiliar.IsUnfamiliar(parent) ? "LootScavenging_UnfamiliarLabel".Translate(label).Resolve() : label;
     }
 
     public override string CompInspectStringExtra()

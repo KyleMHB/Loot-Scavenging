@@ -358,12 +358,12 @@ internal sealed class SettingsPage
 
         Choice(ls, "LootScavenging_UnfamiliarScope".Translate(), s.values.unfamiliarScope,
             new[] { UnfamiliarScope.AllOutOfReach, UnfamiliarScope.LootedOnly }, UnfamiliarScopeName, v => settings.values.unfamiliarScope = v, SettingNames.UnfamiliarScope);
-        string scope = s.values.unfamiliarScope == UnfamiliarScope.LootedOnly
-            ? "LootScavenging_UnfamiliarLootedExplain".Translate()
-            : "LootScavenging_UnfamiliarAllExplain".Translate();
-        if (s.values.rules.dropMode != DropMode.KeepOriginal)
-            scope += " " + "LootScavenging_UnfamiliarUnused".Translate();
-        Explain(ls, scope);
+        // Whole-sentence keys, with and without the "only used" note, so a translation controls the separator.
+        bool looted = s.values.unfamiliarScope == UnfamiliarScope.LootedOnly;
+        bool unused = s.values.rules.dropMode != DropMode.KeepOriginal;
+        Explain(ls, (looted
+            ? (unused ? "LootScavenging_UnfamiliarLootedExplainUnused" : "LootScavenging_UnfamiliarLootedExplain")
+            : (unused ? "LootScavenging_UnfamiliarAllExplainUnused" : "LootScavenging_UnfamiliarAllExplain")).Translate());
     }
 
     private static string DeathDropName(DeathDrop drop)

@@ -156,7 +156,7 @@ public class RecipeWorker_Study : RecipeWorker
 
         string projectLabel = project.LabelCap;
         Find.ResearchManager.AddProgress(project, points, pawn);
-        Messages.Message("LootScavenging_StudyDone".Translate(pawn.LabelShort, used.ToString(), label, points.ToString("0"),
+        Messages.Message("LootScavenging_StudyDone".Translate(pawn.Named("PAWN"), used.ToString(), label, points.ToString("0"),
             projectLabel), new LookTargets(pawn), MessageTypeDefOf.PositiveEvent, historical: false);
         if (Prefs.DevMode)
             Log.Message($"[Loot Scavenging] {pawn} studied {used} {label}: +{points} to {project.defName}"); // not translated
