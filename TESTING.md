@@ -66,6 +66,14 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 - `lootscavenging-firstload`: the first-load message on the real startup path. The launcher deletes every `Mod_*.xml` before a launch, so each harness launch starts with the flag unset; a developer-only `Mod` reads the settings file while mods are constructed to confirm it. Checks that startup set the flag and wrote the file, and that the whole in-memory log since startup has no error naming the mod (the runner's own count starts at the first batch).
 - `lootscavenging-progression` (`--mods progression`, outside run-all): the colony's era after Node Research's medieval emergence, study of medieval scrap for a medieval project, a paper from a project finished by study, a lost paper's retained progress and a second finish, Semi Random Research's picked offer, and every tier's recycling bench and pool material in the pack set. The pack mods are reached by reflection.
 - `lootscavenging-preview-story`: a showcase, outside run-all, that films the stills for `About/Preview.png` with the game paused. A downed pirate is shown with his rifle, vest and helmet on the ground (downed handling off), then with scrap in their place, then dead with "everything stays on the body" and nothing on the ground. A workshop shows scrap at a research bench and a machining table. It also films a story scene and a raid aftermath. The case fails if a raider leaves no scrap, or if scrap lands on the ground under everything on the body. Run it with `--record --frames 1 --quit-on-finish`, then `python tools/preview_story.py <run folder>`. That writes the candidates to `work/preview`; `split.png` is the one copied to `About/Preview.png`. Text uses RimWordFont from `Configurable Quality/artifacts/steam-page-mockup`.
+- `lootscavenging-workshop-clips`: a showcase, outside run-all, that films the Workshop description GIFs and gallery stills (`.scratch/workshop-media`) on the Progression preset at a tribal colony, at normal speed. It films:
+  - a pirate and a tribal warrior attacking a sandbag line, where the pirate's autopistol becomes industrial scrap and the club drops whole;
+  - one recycle bill at a crafting spot and one study bill at a research bench;
+  - a pirate who dies with everything on the body, then is stripped by a colonist;
+  - paused stills of a tribal warrior (club, autopistol in his pack) killed under each of the four drop modes;
+  - paused stills of neolithic and spacer scrap selected.
+
+  The case fails if a beat does not happen. Run it with `--record --show-ui --frames 12 --quit-on-finish`. It writes `shots.json` (marks for cutting) and `layout.json` (each shot's camera) to the run folder.
 - `lootscavenging-preview`: the earlier showcase of the six scrap piles in front of their benches, filmed for the first preview image (`tools/preview_image.py`). No longer used for `About/Preview.png`.
 - `lootscavenging-stacks`: a scene outside run-all for looking at the scrap art by hand. Each era gets piles of 1, 10 and 500 (the small, mid and full textures) and a full studied stack. Run it with `--keep-open`.
 
@@ -113,6 +121,17 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 - Version/environment: RimWorld 1.7.5014 rev1195, default mod set, seed 1; `dotnet test` 291 passed.
 - Runs, one launch: firstload `20261122-014550-lootscavenging-firstload-s1-f54ad1a8`, smoke `20261122-014602-lootscavenging-smoke-s1-6e34987e`, settings `20261122-014604-lootscavenging-settings-s1-321efb97` (10/10), ui `20261122-014606-lootscavenging-ui-s1-1adc1563` (6/6).
 - Observed: the partial file kept Cleanup, corpse chance 0.25 and all-on-body, filled the scrap value from the patched default (0.5), ended the locked drop mode at the pack value and set the seeded flag. The Cleanup round trip's file had no `<dropMode>` (equal to its default) and read back unchanged.
+- Status: Passed.
+
+### 2026-11-21 - Workshop clips and stills
+
+- Version/environment: RimWorld 1.7, default mod set, seed 1.
+- Run: workshop-clips `20261121-223036-lootscavenging-workshop-clips-s1` (`--record --show-ui --frames 12`), passed.
+- Observed:
+  - The pirate's autopistol became industrial scrap and the club dropped whole. The pirate was downed and the warrior killed by developer at their 5 and 7 second deadlines.
+  - The recycle and study bills finished at normal speed; study paid 60 points into Recurve Bow.
+  - Nothing landed at the on-body death, and the strip dropped the loot.
+  - All four drop-mode stills and both inspect stills were filmed. Mark times are in ticket 01 of `.scratch/workshop-media`.
 - Status: Passed.
 
 ### 2026-11-21 - Workshop preview image
