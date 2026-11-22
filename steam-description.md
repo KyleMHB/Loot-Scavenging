@@ -72,19 +72,9 @@ Inspired by Looting Manager and Non uno Pinata. Loot Scavenging is a separate mo
 
 Released under the GNU General Public License v3.0. Commercial use is allowed. Distributed modified versions must remain under GPLv3 and make corresponding source available as required by the license.
 
-[h2]AI?[/h2]
-
-Do I use AI to build my mods? [b]Yes.[/b]
-Am I obsessive about how I use it and the quality of the results? [b]Also yes.[/b]
+[h2]Translations[/h2]
 
 The Chinese and Russian text is machine-translated. If a line reads wrong, tell me and I will fix it.
-
-I understand the scepticism.
-I've seen the flood of AI-generated mods that look like someone typed a prompt, uploaded whatever came out, and called it done.
-
-That bothers me too.
-
-My workflow involves a lot of iteration, review, and testing. The same care I'd put into building everything by hand. I've spent hundreds of hours building mods. Using AI doesn't lower the standard I expect from my work.
 
 [h2]Links[/h2]
 

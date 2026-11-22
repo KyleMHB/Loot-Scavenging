@@ -55,18 +55,6 @@ Released under the **GNU General Public License v3.0**. See [`LICENSE`](LICENSE)
 
 Commercial use is allowed. Distributed modified versions must remain under GPLv3 and make corresponding source available as required by the license.
 
-## AI?
-
-Do I use AI to build my mods? **Yes.**  
-Am I obsessive about how I use it and the quality of the results? **Also yes.**
-
-I understand the scepticism.
-I've seen the flood of AI-generated mods that look like someone typed a prompt, uploaded whatever came out, and called it done.
-
-That bothers me too.
-
-My workflow involves a lot of iteration, review, and testing. The same care I'd put into building everything by hand. I've spent hundreds of hours building mods. Using AI doesn't lower the standard I expect from my work.
-
 ## Links
 
 Support me on Ko-fi.
