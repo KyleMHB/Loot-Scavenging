@@ -24,7 +24,7 @@ Add recycle and study bills to benches as you would any other bill. Study is Res
 
 ### Auto Mod Config
 
-A modlist curator can ship Loot Scavenging settings through [Auto Mod Config (Continued)](https://steamcommunity.com/sharedfiles/filedetails/?id=3586136174). This is optional, and the mod works without it. An example preset is in `Extras/Loot-Scavenging-AutoConfig`. Copy that folder into `RimWorld/Mods` as a separate mod and edit its settings file. The comment in that file lists every key and its values. Importing a preset replaces the player's saved Loot Scavenging settings, and a setting a modpack locks keeps the pack's value.
+A modlist curator can ship Loot Scavenging settings through [Auto Mod Config (Continued)](https://steamcommunity.com/sharedfiles/filedetails/?id=3586136174). This is optional, and the mod works without it. An example preset is in `Extras/Loot-Scavenging-AutoConfig`. Copy that folder into `RimWorld/Mods` as a separate mod and edit its settings files. There are two with the same content: `Mod_Loot Scavenging_LootScavengingMod.xml` for a local install and `Mod_3844457170_LootScavengingMod.xml`, which is expected to cover a Workshop subscription but is not confirmed yet. The comment in each file lists every key and its values. Importing a preset replaces the player's saved Loot Scavenging settings, and a setting a modpack locks keeps the pack's value.
 
 ## Requirements
 

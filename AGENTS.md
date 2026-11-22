@@ -16,7 +16,7 @@ This mod is built from the spec and the game's own code. Looting Manager, Non un
 - `Tests/LootScavenging.Tests`: xunit tests of `Source/Model/`, run by `dotnet test`.
 - `translation/`: the translation glossary and the record of the English each translation was made from. Committed, not shipped. `Languages/ChineseSimplified` and `Languages/Russian` ship.
 - `packs/`: preset patches for packs to copy into their own `Patches/`. The game never loads this folder.
-- `Extras/Loot-Scavenging-AutoConfig/`: an example Auto Mod Config preset, a separate mod for a modlist curator to copy into `RimWorld/Mods`. It is deployed inside the main mod, and `LoadFolders.xml` does not name it, so the game never loads it from there. Its settings file lists every saved key and value.
+- `Extras/Loot-Scavenging-AutoConfig/`: an example Auto Mod Config preset, a separate mod for a modlist curator to copy into `RimWorld/Mods`. It is deployed inside the main mod, and `LoadFolders.xml` does not name it, so the game never loads it from there. Its two settings files, one named for the local folder and one for the Workshop id 3844457170, have the same content and list every saved key and value; change them together.
 - `.scratch/<feature>/`: specs and tickets. `docs/agents/`: tracker conventions.
 
 ## Versioning
