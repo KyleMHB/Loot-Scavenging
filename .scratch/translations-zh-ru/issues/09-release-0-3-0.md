@@ -4,7 +4,7 @@
 
 **Blocked by:** 07, 08
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 **Recommended model:** `sonnet`: short copy edits, a version bump and running the existing release checks.
 
@@ -46,3 +46,9 @@
 - Done: `steam-description.md` has one Languages line and a machine-translation note with an invitation to correct, in the AI section. The About.xml description has the same Languages line. CHANGELOG `## Unreleased` is now `## 0.3.0 - 2026-11-22` with the translations entry above the auto-config entry. The three version locations read 0.3.0, and the AutoConfig example preset already carried 0.3.0.
 - Checks run: both Release builds pass (the 1.7 build ran the translation check, passed), `status` shows 0 untranslated and 0 outdated for ChineseSimplified and Russian, `dotnet test` 291 passed.
 - Not run, for Kyle: the Full tier's in-game runs (`run run-all`, `run run-all --mods dlcs`, `run lootscavenging-progression --mods progression`, the removal check, `run perf --mods perf`) and then `release-check`, all on the deployed DLL from tickets 01 and 02. Nothing was uploaded.
+
+2026-11-22, agent: Release gates passed; status resolved. Nothing was uploaded.
+
+- Full tier on the shipping DLL: `dotnet test` 291; run-all default `20261122-024556-run-all-s1-6fc117ae` (68 pass, 1 skip); run-all dlcs `20261122-024639-run-all-s1-e11e73e5` (69 pass); progression `20261122-024715-lootscavenging-progression-s1-bdeb446d` (6/6); removal check on the default run's save, all PASS; perf `20261122-070157-perf-s1-19c265ae` (0 ms/tick).
+- `release-check` passed all three lines (usual no-`perf.*`-cases warning). Recorded in TESTING.md.
+- Left for Kyle: the Workshop upload.

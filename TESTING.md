@@ -73,6 +73,14 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 
 ## Result recording
 
+### 2026-11-22 - Full tier for 0.3.0 (translations ticket 09)
+
+- Version/environment: RimWorld 1.7.5014 rev1195, seed 1, at `e1ca95b`, shipping DLL (tickets 01 and 02 changed it). `perf` set: Dubs Performance Analyzer added; `dlcs`: all five DLCs added.
+- Runs, all passed: `dotnet test` 291 passed; run-all default `20261122-024556-run-all-s1-6fc117ae` (68 pass, 1 skip: techprints need Royalty); run-all `--mods dlcs` `20261122-024639-run-all-s1-e11e73e5` (69 pass); progression `20261122-024715-lootscavenging-progression-s1-bdeb446d` (6/6); perf `20261122-070157-perf-s1-19c265ae` (0 ms/tick).
+- Removal check on the default run's save (`lootscavenging-saves-0.rws` of `20261122-024556-run-all-s1-6fc117ae`): exit 0, all PASS, the same 14 expected missing-def errors as 2026-11-21. An earlier attempt timed out because it picked the DLC run's save; the script now skips DLC saves (no DLL change).
+- Release-check passed on the deployed DLL: no developer runner, patch roots and preview size, perf.mod-tick 0 ms/tick in the run above. Usual warning: no targeted `perf.*` cases. `rwtranslate status` showed 0 untranslated and 0 outdated for ChineseSimplified and Russian.
+- Status: Passed.
+
 ### 2026-11-22 - In-game language check, Simplified Chinese and Russian (translations ticket 08)
 
 - Version/environment: RimWorld 1.7.5014 rev1195, default mod set (Harmony, Core, Loot Scavenging), seed 1. Each language: firstload, smoke, bench and ui in one launch, then ui alone with `--record --show-ui --frames 30`.
