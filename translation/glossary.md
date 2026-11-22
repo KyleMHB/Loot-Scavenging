@@ -27,6 +27,7 @@ The game shows these words itself through `TechLevel.ToStringHuman()`, so scrap 
 | machining table | 机械加工台 | верстак | ThingDef `TableMachining.label` |
 | fabrication bench | 精密装配台 | высокоточный станок | ThingDef `FabricationBench.label` |
 | research bench | 研究台 (基础研究台 / 高级研究台) | стол для исследований (простой / высокотехнологичный стол для исследований) | ThingDef `SimpleResearchBench.label`, `HiTechResearchBench.label` |
+| butcher table | 屠宰台 | разделочный стол | ThingDef `TableButcher.label` |
 | bill / Bills tab | 清单 / 「清单」选项卡 | задание / вкладка «Задания» | Keyed `TabBills`, `AddBill`; ConceptDef `BillsTab.label` |
 | Do until you have X | 维持 X 个 | повторять до X шт | BillRepeatModeDef `TargetCount.label` (English def: "do until you have X") |
 | Do X times / Forever | 做 X 次 / 不限次数 | cделать X шт / делать бесконечно | BillRepeatModeDef `RepeatCount.label`, `Forever.label` |
@@ -53,9 +54,11 @@ Quote the "Do until you have X" option exactly as above, spaces included. The Ru
 | ingredients | 原料 | ингредиенты | Keyed `Ingredients` |
 | components | 零部件 | компоненты | ThingDef `ComponentIndustrial.label` |
 | silver | 白银 | серебро | ThingDef `Silver.label` |
+| plasteel | 玻璃钢 | пласталь | ThingDef `Plasteel.label` |
 | market value | 市场价值 | рыночная стоимость | StatDef `MarketValue.label` |
 | colony wealth | 殖民地财富 | богатство поселения | Keyed `ThisMapColonyWealthTotal` |
 | charges (loaded ammo) | 充能 | заряды | Keyed `ChargesRemaining` |
+| ammunition | 弹药 | боеприпасы | Keyed `CommandExtractShellDesc` (Chinese); ThingDef `Uranium.description` (Russian). Vanilla has no category of this name |
 | quest | 任务 | задание | Keyed `Quest` |
 | unique weapon | 特化武器 | уникальное оружие | Keyed `UniqueWeapon` (Odyssey) |
 | persona weapon | 人格武器 | оружие с личностью | ThingCategoryDef `WeaponsMeleeBladelink.label` (Royalty) |
@@ -97,11 +100,15 @@ Vanilla uses "study" for Anomaly's entity study. This mod's study is the same ac
 | mechanoid | 机械族 | механоид | Keyed `Mechanoid` |
 | corpse | 尸体 | труп (туша for an animal, останки for a mechanoid) | Keyed `CorpseLabel`; ThingCategoryDef `Corpses.label`, `CorpsesAnimal.label`, `CorpsesMechanoid.label` |
 | humanlike corpses | 人类尸体 | трупы людей | ThingCategoryDef `CorpsesHumanlike.label` |
+| tainted apparel | 死者衣物 | одежда с трупов | SpecialThingFilterDef `AllowDeadmansApparel.label` |
 | downed | 倒地 | обездвижен | Keyed `DownedLower` |
 | strip / stripped | 剥光 / 被剥光 | раздеть / раздет | Keyed `Strip`, `GoodwillChangedReason_PawnStripped` |
 | butcher / butchered | 屠宰 | разделать / разделка | RecipeDef `ButcherCorpseFlesh.label`; Keyed `Difficulty_ButcherYieldFactor_Label` |
 | storyteller | 故事叙述者 | рассказчик | Keyed `Storyteller` (Chinese 当前故事叙述者 = "current storyteller") |
 | Options > Mod Settings | 选项 > Mod 设置 | Настройки > Настройки модов | Keyed `Options` (Menus_Main), `ModSettings` (Menu_Options) |
+| caravan | 远行队 | караван | Keyed `Caravan` |
+| outpost | 哨所 | лагерь | SitePartDef `Outpost.label` |
+| OK (button) | 确定 | OK (Latin letters, as vanilla) | Keyed `OK` |
 
 ## Mod terms
 

@@ -4,7 +4,7 @@
 
 **Blocked by:** 05, 06
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 **Recommended model:** `sonnet`: short documentation edits that follow an existing precedent.
 
@@ -21,10 +21,14 @@
 
 ## Acceptance
 
-- [ ] An agent reading only AGENTS.md knows to re-export and import both languages after an English edit, and which command shows stale text.
-- [ ] TESTING.md's Full tier includes the translation `status` gate.
-- [ ] No file outside AGENTS.md and TESTING.md changes.
+- [x] An agent reading only AGENTS.md knows to re-export and import both languages after an English edit, and which command shows stale text.
+- [x] TESTING.md's Full tier includes the translation `status` gate.
+- [x] No file outside AGENTS.md and TESTING.md changes.
 
 ## Checks
 
 - Read the two sections back against the spec. No build is needed for documentation only.
+
+## Comments
+
+2026-11-22: AGENTS.md gained the `translation/` layout line, the `status` command line and the update rule (re-export and import both languages, `baseline <Language>` after a hand edit, glossary row for new terms, release gate). TESTING.md's Full tier names the `status` gate and its prerequisites list a `--language` note. `check` passes; `status` shows 0 untranslated and 0 outdated for both languages. Beyond the ticket, at the coordinator's request, `translation/glossary.md` gained rows for butcher table, plasteel, ammunition, tainted apparel, caravan, outpost and OK, each checked against the 1.7 language archives under `work/vanilla-lang`. Vanilla has no ammunition category: Chinese comes from `CommandExtractShellDesc`, Russian from `Uranium.description`. Vanilla Russian for outpost is "лагерь" and for OK is "OK".

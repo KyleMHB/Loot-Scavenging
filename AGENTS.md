@@ -14,6 +14,7 @@ This mod is built from the spec and the game's own code. Looting Manager, Non un
 - `1.6/Assemblies`, `1.7/Assemblies`: build output, selected by `LoadFolders.xml`. There is no root `Assemblies/`.
 - `Defs/`, `Patches/`, `Languages/English/Keyed/`, `Textures/`: created when first needed.
 - `Tests/LootScavenging.Tests`: xunit tests of `Source/Model/`, run by `dotnet test`.
+- `translation/`: the translation glossary and the record of the English each translation was made from. Committed, not shipped. `Languages/ChineseSimplified` and `Languages/Russian` ship.
 - `packs/`: preset patches for packs to copy into their own `Patches/`. The game never loads this folder.
 - `Extras/Loot-Scavenging-AutoConfig/`: an example Auto Mod Config preset, a separate mod for a modlist curator to copy into `RimWorld/Mods`. It is deployed inside the main mod, and `LoadFolders.xml` does not name it, so the game never loads it from there. Its settings file lists every saved key and value.
 - `.scratch/<feature>/`: specs and tickets. `docs/agents/`: tracker conventions.
@@ -30,11 +31,14 @@ The example preset's `<version>` in `Extras/Loot-Scavenging-AutoConfig/Defs/Pres
 - Build 1.6: `dotnet build Source/LootScavenging.csproj -c Release -p:RimWorldVersion=1.6` (net472 against `Krafs.Rimworld.Ref` 1.6.4871; the installed game is 1.7, so 1.6 is compile-checked only)
 - Unit tests: `dotnet test` from the repo root. `Tests/LootScavenging.Tests` compiles `Source/Model/` directly, so code there must stay plain C# with no RimWorld references.
 - Translation check: runs after every build; by hand, `python ../RimWorldTranslate/rwtranslate.py --mod . check`
+- Stale translations: `python ../RimWorldTranslate/rwtranslate.py --mod . status` lists untranslated and outdated texts per language. The build does not fail on them.
 - Deploy to `RimWorld/Mods/Loot Scavenging` (both builds): `powershell -ExecutionPolicy Bypass -File deploy.ps1`
 
 ## Text
 
 Player-facing C# text goes through `"LootScavenging_...".Translate()` with English in `Languages/English/Keyed/LootScavenging.xml`; mark developer-only literals `// not translated`.
+
+When English text changes (Keyed or def text), update ChineseSimplified and Russian in the same change with the `rimworld-translate` skill and `translation/glossary.md`: run `status`, then `export` and `import` for both languages, which touch only the missing and outdated texts. After editing a translation by hand, run `baseline <Language>` so the record accepts it. Add a glossary row before using a new recurring term. Before a Workshop upload, `status` must show 0 untranslated and 0 outdated for both languages (see TESTING.md, Full tier).
 
 ## Posts
 
