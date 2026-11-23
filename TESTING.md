@@ -82,6 +82,13 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 
 ## Result recording
 
+### 2026-11-23 - Era-typical disassembly case no longer fails by chance
+
+- Change: `outcomes.disassembly-era-typical` failed now and then because one revolver is one or two industrial units, and a unit whose pick costs more than the unit (a component) returns nothing with probability 1 - value/price. The pirate now also carries 20 revolvers, with its pack emptied first and the "other" inventory rule set to Disassemble, because carried weapons fall under that rule. The case computes the empty-yield chance from the industrial pool (0.164 per unit, 3.3e-17 for 21 revolvers) and requires it below 1e-9. It also requires that no revolver is left whole, and still that every product comes from the industrial pool and none from another tier's pool. Test-only; no mod code changed.
+- Version/environment: RimWorld 1.7, default mod set, English, seed 1. `deploy.ps1` first.
+- Runs: outcomes `20261123-212546-lootscavenging-outcomes-s1-9f3e0a68` 15 pass, 1 skip (ammunition needs an ammo mod). Products: 18 wood, 10 leather, 8 cloth, 30 steel, 3 components, 15 chemfuel; 0 revolvers left.
+- Status: Passed.
+
 ### 2026-11-23 - Downed weapon into the pack (0.5.1)
 
 - Version/environment: RimWorld 1.7, default mod set, English, seed 1. `deploy.ps1` first; `dotnet test` 291 passed.

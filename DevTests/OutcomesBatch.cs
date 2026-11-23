@@ -293,10 +293,33 @@ public sealed class OutcomesBatch : Batch
             // Every material any tier's pool can return, so a product from the wrong pool would show too.
             var befores = DefDatabase<ScrapTierDef>.AllDefsListForReading.SelectMany(t => t.pool).Select(e => e.thing).Where(d => d != null).Distinct()
                 .ToDictionary(d => d, d => Kit.StackIds(map, d));
-            var at = KillPirate(p => Arm(p, revolver, QualityCategory.Normal), out _);
-            var made = befores.SelectMany(kv => NewNear(map, kv.Key, kv.Value, at)).Where(t => !(t is Corpse)).ToList();
-            c.Observe("products", Describe(made));
-            c.Step(made.Count > 0 && made.All(t => pool.Contains(t.def)), "an era-typical revolver returns only industrial pool materials");
+            // One revolver is one or two scrap units, and a unit whose pick costs more than the unit's value (a component) returns
+            // nothing with probability 1 - value/price, so a single revolver can yield nothing by chance. The pirate also carries
+            // 20 revolvers, and the chance that every unit comes back empty is computed from the pool below. A weapon carried in
+            // the inventory is judged by the "other" inventory rule, so that rule disassembles too, and the pack is emptied first
+            // so nothing but revolvers is disassembled.
+            const int carried = 20;
+            Rules.other = new CategoryRule(Outcome.Disassemble);
+            var revolversBefore = Kit.StackIds(map, revolver);
+            var tierDef = TierDef(ScrapTier.Industrial);
+            double totalWeight = tierDef.pool.Where(e => e.thing != null && e.weight > 0f && e.thing.BaseMarketValue > 0f).Sum(e => (double)e.weight);
+            double emptyPerUnit = tierDef.pool.Where(e => e.thing != null && e.weight > 0f && e.thing.BaseMarketValue > 0f)
+                .Sum(e => e.weight / totalWeight * Math.Max(0.0, 1.0 - tierDef.valuePerUnit / e.thing.BaseMarketValue));
+            double emptyChance = Math.Pow(emptyPerUnit, carried + 1);
+            c.Observe("emptyPerUnit", emptyPerUnit.ToString("0.000")).Observe("emptyChance", emptyChance.ToString("0.0e0"));
+            c.Step(emptyChance < 1e-9, $"{carried + 1} revolvers leave an empty yield with chance {emptyChance:0.0e0}");
+            var at = KillPirate(p =>
+            {
+                p.inventory.innerContainer.ClearAndDestroyContents();
+                Arm(p, revolver, QualityCategory.Normal);
+                for (int i = 0; i < carried; i++)
+                    p.inventory.innerContainer.TryAdd(Make(revolver, QualityCategory.Normal));
+            }, out var pirate);
+            var made = befores.SelectMany(kv => NewNear(map, kv.Key, kv.Value, at, 7f)).Where(t => !(t is Corpse)).ToList();
+            int whole = NewNear(map, revolver, revolversBefore, at, 7f).Count + (pirate.Corpse?.InnerPawn?.inventory?.innerContainer.Count(t => t.def == revolver) ?? 0);
+            c.Observe("products", Describe(made)).Observe("revolversLeft", whole);
+            c.Step(whole == 0, $"all {carried + 1} revolvers are disassembled, none left whole");
+            c.Step(made.Count > 0 && made.All(t => pool.Contains(t.def)), "era-typical revolvers return only industrial pool materials");
             c.Conclude();
         }
 
