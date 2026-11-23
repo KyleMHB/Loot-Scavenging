@@ -2,22 +2,27 @@
 
 <!-- Agent read route: read only the newest relevant release; locate older versions by searching `^## ` headings. -->
 
-## 0.4.1 - 2026-11-23
+## 0.5.0 - 2026-11-23
+
+### Added
+
+- New setting, "Drop mode includes ammunition". Turn it on to have ammunition beyond your colony's reach handled by the drop mode like any other item, as it was before. Modpacks can set and lock it as `rules.dropIncludesAmmunition`.
 
 ### Changed
 
-- Ammunition no longer turns into scrap just because it's beyond your colony's reach. It now follows its own item rule, which keeps it by default, so raiders drop their arrows and rounds whole. A new setting, "Drop mode includes ammunition", brings back the old behaviour. Modpacks can set and lock it as `rules.dropIncludesAmmunition`.
+- Ammunition no longer turns into scrap just because it's beyond your colony's reach. It now follows its own item rule, which keeps it by default, so raiders drop their arrows and rounds whole.
 - The Cleanup preset now deletes all ammunition from the hostile dead.
-
 - "Everything stays on the body" now covers downed pawns too. A downed pawn the rules cover keeps its weapon in hand and its inventory and scrap in its pack, instead of dropping them. Gear the rules scrap or delete is still handled when the pawn is downed.
-
-### Removed
-
-- Removed the one-time message shown over the main menu on first load. Auto Mod Config presets no longer need `firstLoadMessageShown`; a file that still sets it loads as before.
 
 ### Fixed
 
 - Scrapped ammunition no longer gives one scrap per round. A stack now gives about what it's worth, with at least one scrap per stack, so 53 cheap arrows make around 4 scrap instead of 53. Other items are unchanged.
+
+## 0.4.1 - 2026-11-23
+
+### Removed
+
+- Removed the one-time message shown over the main menu on first load. Auto Mod Config presets no longer need `firstLoadMessageShown`; a file that still sets it loads as before.
 
 ## 0.4.0 - 2026-11-23
 
