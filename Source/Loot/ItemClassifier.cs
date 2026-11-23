@@ -22,6 +22,14 @@ internal static class ItemClassifier
         return ItemCategory.Other;
     }
 
+    /// <summary>The scrap units a stack is worth. Ammunition rounds per stack, everything else per item.</summary>
+    public static int ScrapUnits(Thing thing)
+    {
+        return IsAmmunition(thing.def)
+            ? ScrapAmounts.AmmoUnits(thing.MarketValue, thing.stackCount)
+            : ScrapAmounts.Units(thing.MarketValue, thing.stackCount);
+    }
+
     // Ammo is recognised by item category name, so no ammo mod is referenced: vanilla-style mods and Combat Extended
     // both put their rounds under a category with "Ammo" in its def name (checked up the category tree).
     private static bool IsAmmunition(ThingDef def)

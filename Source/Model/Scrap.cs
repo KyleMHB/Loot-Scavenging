@@ -63,6 +63,20 @@ public static class ScrapAmounts
         return perItem * count;
     }
 
+    /// <summary>
+    /// Scrap units for an ammunition stack: the per-item share is kept as a fraction and the stack is rounded once, with at
+    /// least one unit per stack. <see cref="Units"/>'s one-per-item minimum would turn 50 arrows into 50 scrap.
+    /// </summary>
+    public static int AmmoUnits(float unitMarketValue, int count)
+    {
+        if (count < 1)
+            count = 1;
+        if (float.IsNaN(unitMarketValue) || unitMarketValue < 0f)
+            unitMarketValue = 0f;
+        double total = Math.Sqrt(unitMarketValue) / ValueScale * count;
+        return Math.Max(1, (int)Math.Round(total, MidpointRounding.AwayFromZero));
+    }
+
     /// <summary>Splits an amount into stacks no larger than the stack limit.</summary>
     public static int[] SplitIntoStacks(int units, int stackLimit)
     {

@@ -32,7 +32,7 @@ internal static class ScrapEquivalent
             era = EraReader.ItemEra(thing.def, null).Era;
 
         tier = ScrapTiers.TierFor(era, EraReader.ColonyEra());
-        units = ScrapAmounts.Units(thing.MarketValue, thing.stackCount);
+        units = ItemClassifier.ScrapUnits(thing);
         return true;
     }
 

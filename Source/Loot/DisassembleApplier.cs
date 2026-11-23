@@ -39,7 +39,7 @@ internal static class DisassembleApplier
     {
         LootRules rules = LootScavengingMod.Settings.values.rules;
         ScrapTier tier = ScrapTiers.TierFor(era.Era, EraReader.ColonyEra());
-        int units = ScrapAmounts.Units(thing.MarketValue, thing.stackCount);
+        int units = ItemClassifier.ScrapUnits(thing);
 
         List<Thing> made;
         string source;

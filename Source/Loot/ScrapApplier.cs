@@ -54,7 +54,7 @@ internal static class ScrapApplier
     {
         ScrapTier tier = ScrapTiers.TierFor(era.Era, EraReader.ColonyEra());
         ThingDef scrapDef = ScrapDefs.For(tier);
-        int units = ScrapAmounts.Units(thing.MarketValue, thing.stackCount);
+        int units = ItemClassifier.ScrapUnits(thing);
 
         OutcomeApplier.Delete(pawn, thing);
 
