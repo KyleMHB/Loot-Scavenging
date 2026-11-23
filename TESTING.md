@@ -1,6 +1,6 @@
 # Loot Scavenging Testing
 
-Updated through: `main` on 2026-11-22
+Updated through: `main` on 2026-11-23
 
 ## Agent read route
 
@@ -57,8 +57,8 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 
 ## Other batches
 
-- `lootscavenging-outcomes`: what an item becomes at death. Delete keeps apparel on the corpse, a mechanoid's weapon, era fallbacks and the components fallback, scrap amounts and the drop modes, a ten-pirate raid's piles, a quest-tagged weapon, animal corpse removal, degrade, item-based and era-typical disassembly, full stacks, ejected charges, a 200-unit recycling sample against `LootPool.Expected`, and the tier defs' config errors.
-- `lootscavenging-moments`: downed and strip with the option on and off, a living prisoner's strip, scrap on the body (kept and with corpse removal), everything on the body (scrap, ejected charges, inventory and disassembly products in the corpse; with corpse removal; a colonist's gear and a mechanoid's scrap under both on-body options dropping as usual), a world pawn's death, butchering with a real bill job, and home-map-only on a generated camp map.
+- `lootscavenging-outcomes`: what an item becomes at death. Delete keeps apparel on the corpse, a mechanoid's weapon, era fallbacks and the components fallback, scrap amounts and the drop modes, a ten-pirate raid's piles, a quest-tagged weapon, animal corpse removal, degrade, item-based and era-typical disassembly, full stacks, ejected charges, a 200-unit recycling sample against `LootPool.Expected`, and the tier defs' config errors, and ammunition and the drop mode (needs an ammo mod: environment unavailable on the default set; run it with `--mods compat-progression`).
+- `lootscavenging-moments`: downed and strip with the option on and off, a living prisoner's strip, scrap on the body (kept and with corpse removal), everything on the body (scrap, ejected charges, inventory and disassembly products in the corpse; with corpse removal; a colonist's gear and a mechanoid's scrap under both on-body options dropping as usual; a downed pirate keeping his in-reach club in hand and the rest in his pack, with downed handling on and off), a world pawn's death, butchering with a real bill job, and home-map-only on a generated camp map.
 - `lootscavenging-settings`: through the calls the page makes, not the page. Presets and "(changed)", Vanilla in game, locks (the pack's lock names applied to `Presets.Configure` directly; the pack's patch is not loaded), keep and remove lists, a missing-def list entry through a settings save and load, and the picker's search. Two cases go through `LoadedModManager.WriteModSettings`/`ReadModSettings`, reading under the compiled-in config as at startup and running the defaults step under a patched one. `imported-partial-file` reads a hand-written file (`activePreset` Cleanup, two setting keys and a locked drop mode, no `defaultsSeeded`), as an Auto Mod Config preset could leave it: the two keys are kept, a missing key takes the patched Def default, the locked key ends at the pack value and the seeded flag is set. `cleanup-round-trip` saves a Cleanup config with the drop mode at Progression's value: the file leaves it out, and after reading back and the defaults step every value matches.
 - `lootscavenging-bench`: real bill jobs. Recycling and studied-scrap bills at a machining table, the study bench and its Bills tab, the study bill with no project, keep-X, work and XP, finishing a project, original items at the fabrication bench and research bench, and a techprint project (Royalty only).
 - `lootscavenging-saves`: a looted-only marked rifle, scrap, studied scrap and a study bill through the runner's save and reload, and the save file's contents.
@@ -81,6 +81,16 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 Not covered: clicking in the settings page and bill tabs (the ui batch only draws them), a played raid with the Progression pack, Non uno Pinata, Progression: Ammunition and Progression: Hospitality (ticket 14), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
 
 ## Result recording
+
+### 2026-11-23 - Everything on the body when downed; ammunition and the drop mode
+
+- Version/environment: RimWorld 1.7, seed 1, English, the working tree after `8a50293` with the two new cases. `deploy.ps1` first.
+- Runs, default set: smoke passed; moments `20261123-191508-lootscavenging-moments-s1-3074b5bf` 14/14; outcomes `20261123-191505-lootscavenging-outcomes-s1-f4eb2e5b` 15 pass, 1 skip (the ammunition case needs an ammo mod).
+- Runs, `--mods compat-progression`: outcomes `20261123-191529-lootscavenging-outcomes-s1-20c9c44e` 16/16. Moments stopped at setup again ("no clear 80x14 area near the map centre"), as on 2026-11-21.
+- Observed:
+  - `all-on-body-downed`: with downed handling on, the pirate kept his club in hand, his carried revolver became 1 industrial scrap in his pack, his 50 silver stayed in his pack, and nothing landed on the ground after 60 ticks. With downed handling off, the club stayed in hand and the revolver stayed whole in his pack.
+  - `ammunition-drop-mode`: Progression: Ammunition loads `PA_ArrowRefill`, `PA_AmmoRefill` and `PA_ChargeRefill`; the case used `PA_AmmoRefill` (industrial). By default 25 refills dropped whole with no scrap. With `rules.dropIncludesAmmunition` on, 25 became 18 industrial scrap, rounded once per stack (per-item rounding would give 25).
+- Status: Passed.
 
 ### 2026-11-23 - Promo clips filmed
 

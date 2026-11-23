@@ -20,7 +20,7 @@ public sealed class MomentsBatch : Batch
     private const string DownStripOn = P + "downed-and-strip-on", DownStripOff = P + "downed-and-strip-off", Prisoner = P + "prisoner-strip",
         OnBody = P + "scrap-on-body", OnBodyRemoved = P + "scrap-on-body-corpse-removed", OffMap = P + "off-map-death",
         AllOnBody = P + "all-on-body", AllOnBodyDisassembled = P + "all-on-body-disassembled", AllOnBodyRemoved = P + "all-on-body-corpse-removed",
-        AllOnBodySkips = P + "all-on-body-skips",
+        AllOnBodySkips = P + "all-on-body-skips", AllOnBodyDowned = P + "all-on-body-downed",
         Butcher = P + "butchering-removes-apparel", HomeOnly = P + "home-map-only", NoErrors = P + "no-mod-errors";
 
     public override string Id => "lootscavenging-moments";
@@ -38,6 +38,7 @@ public sealed class MomentsBatch : Batch
         new PlannedCase(AllOnBodyDisassembled, Levels.Mechanical, "everything on the body: disassembly products stay in the corpse"),
         new PlannedCase(AllOnBodyRemoved, Levels.Mechanical, "everything on the body with corpse removal on: the loot lands on the ground"),
         new PlannedCase(AllOnBodySkips, Levels.Mechanical, "everything on the body: a colonist's gear and a mechanoid's scrap drop as usual"),
+        new PlannedCase(AllOnBodyDowned, Levels.Mechanical, "everything on the body: a downed pirate keeps his in-reach club in hand and his pack, with downed handling on and off"),
         new PlannedCase(OffMap, Levels.Mechanical, "a world pawn's death (no map, no corpse) logs no error"),
         new PlannedCase(Butcher, Levels.PlayerWorkflow, "a butcher bill destroys worn apparel with the option on and drops it with the option off"),
         new PlannedCase(HomeOnly, Levels.Mechanical, "home-map-only leaves gear whole on an away map; off, it is scrapped there"),
@@ -53,7 +54,8 @@ public sealed class MomentsBatch : Batch
         yield return Wait.Ticks(1);
         var map = ctx.Map;
         MakeTribal(ctx);
-        var sites = new Queue<IntVec3>(Sites(area, 11, 7));
+        // Two rows 6 cells apart: the first row's sites ran out.
+        var sites = new Queue<IntVec3>(Sites(area, 11, 7).Concat(Sites(area, 11, 7).Select(c => c + new IntVec3(0, 0, -6))));
         var revolver = Kit.Def("Gun_Revolver");
         var vest = Kit.Def("Apparel_FlakVest");
         var industrial = Scrap(ScrapTier.Industrial);
@@ -267,6 +269,59 @@ public sealed class MomentsBatch : Batch
                 c.Step(weapon.Destroyed && made == expected && inWreck == 0,
                     $"{mode}: the lancer's weapon becomes {made} {tierDef.defName} beside the wreck (expected {expected}), {inWreck} inside it");
                 mech.Corpse?.Destroy();
+            }
+            if (ready) c.Conclude();
+        }
+
+        // ---- everything stays on the body when downed ---------------------------------------------------------------------
+        {
+            var c = ctx.Begin(AllOnBodyDowned);
+            var club = Kit.Def("MeleeWeapon_Club");
+            bool ready = true;
+            foreach (bool downedHandling in new[] { true, false })
+            {
+                ModHarness.RestoreSettings();
+                Settings.values.deathDrop = DeathDrop.AllOnBody;
+                Rules.onDownedAndStrip = downedHandling;
+                string tag = downedHandling ? "On" : "Off";
+                var cell = sites.Dequeue();
+                var p = Spawn(ctx, Mercenary, Pirates, cell);
+                var held = Arm(p, club, QualityCategory.Normal);
+                var carried = Stack(revolver, 1);
+                p.inventory.innerContainer.TryAdd(carried);
+                p.inventory.innerContainer.TryAdd(Stack(silver, 50));
+                c.Subject(p);
+                c.Note($"Everything stays on the body; downed and strip {(downedHandling ? "on" : "off")}. A pirate with a club in hand and a revolver and 50 silver in his pack is downed");
+                c.Step(!EraReader.ItemEra(club, Pirates).OutOfReach && EraReader.ItemEra(revolver, Pirates).OutOfReach,
+                    "the club is in reach of the tribal colony and the revolver is not");
+                int expectedScrap = ScrapAmounts.Units(carried.MarketValue, 1);
+                var watched = AllScrap.Concat(new[] { silver, club, revolver }).ToList();
+                var before = watched.ToDictionary(d => d, d => Kit.StackIds(map, d));
+                int Ground() => watched.Sum(d => Units(NewNear(map, d, before[d], cell)));
+                int Pack(ThingDef def) => p.inventory.innerContainer.Where(t => t.def == def).Sum(t => t.stackCount);
+                HealthUtility.TryAnesthetize(p);
+                if (!Kit.Require(ctx, AllOnBodyDowned, (p.Downed && !p.Dead && p.Spawned, "the pirate is downed and alive")))
+                {
+                    ready = false;
+                    break;
+                }
+                // A few ticks so anything the game drops later than MakeDowned shows too.
+                yield return Wait.Ticks(60);
+                int ground = Ground(), scrapIn = AllScrap.Sum(Pack), silverIn = Pack(silver), revolverIn = Pack(revolver);
+                c.Observe("primary" + tag, p.equipment?.Primary?.def.defName ?? "none").Observe("scrapInPack" + tag, scrapIn)
+                    .Observe("revolverInPack" + tag, revolverIn).Observe("silverInPack" + tag, silverIn).Observe("onGround" + tag, ground);
+                c.Step(p.Downed && p.equipment?.Primary == held, $"{tag}: the club is still in his hands");
+                if (downedHandling)
+                {
+                    c.Expect("scrapInPack" + tag, expectedScrap);
+                    c.Step(carried.Destroyed && scrapIn == expectedScrap && revolverIn == 0,
+                        $"{tag}: the carried revolver is scrapped into his pack ({scrapIn} scrap, expected {expectedScrap})");
+                }
+                else
+                    c.Step(!carried.Destroyed && revolverIn == 1 && scrapIn == 0, $"{tag}: the carried revolver stays whole in his pack");
+                c.Step(silverIn == 50, $"{tag}: the 50 silver stay in his pack ({silverIn})");
+                c.Step(ground == 0, $"{tag}: nothing lands on the ground ({ground})");
+                p.Destroy();
             }
             if (ready) c.Conclude();
         }

@@ -17,7 +17,7 @@ public sealed class OutcomesBatch : Batch
     private const string DeleteKeepsApparel = P + "delete-weapon-keep-apparel", Mech = P + "mechanoid-weapon", Fallback = P + "era-fallback",
         Amounts = P + "scrap-amounts-and-modes", Raid = P + "large-raid-piles", Quest = P + "quest-weapon-protected", Animal = P + "animal-corpse-removed",
         Degrade = P + "degrade", ItemBased = P + "disassembly-item-based", EraTypical = P + "disassembly-era-typical", FullStacks = P + "disassembly-full-stacks",
-        Charges = P + "ejected-charges", Sample = P + "recycle-sample", Pools = P + "tier-table", NoErrors = P + "no-mod-errors";
+        Charges = P + "ejected-charges", Ammo = P + "ammunition-drop-mode", Sample = P + "recycle-sample", Pools = P + "tier-table", NoErrors = P + "no-mod-errors";
 
     public override string Id => "lootscavenging-outcomes";
     public override int SegmentCount => 1;
@@ -37,6 +37,7 @@ public sealed class OutcomesBatch : Batch
         new PlannedCase(EraTypical, Levels.Mechanical, "era-typical yield comes from the item's tier pool"),
         new PlannedCase(FullStacks, Levels.Mechanical, "a yield above the stack limit arrives as full stacks with nothing lost"),
         new PlannedCase(Charges, Levels.Mechanical, "a smokepop belt's chemfuel is ejected for scrap, delete and disassemble with the setting on, not with it off"),
+        new PlannedCase(Ammo, Levels.Mechanical, "out-of-reach ammunition drops whole by default; with dropIncludesAmmunition on, a stack becomes scrap rounded once per stack (needs an ammo mod)"),
         new PlannedCase(Sample, Levels.Mechanical, "200 industrial units recycle to about 2200 silver of pool materials, components and chemfuel included; studied scrap pays half"),
         new PlannedCase(Pools, Levels.Mechanical, "every tier def loads with no config errors"),
         new PlannedCase(NoErrors, Levels.Mechanical, "no error naming the mod logged during the batch"),
@@ -361,6 +362,53 @@ public sealed class OutcomesBatch : Batch
             c.Step(deleteOn == 10 && deleteOff == 0, $"deleted: 10 ejected on ({deleteOn}), none off ({deleteOff})");
             c.Step(disOn == 10 + costChemfuel, $"disassembled: 10 ejected plus {costChemfuel} from the cost list ({disOn})");
             c.Conclude();
+        }
+
+        // ---- ammunition and the drop mode ----------------------------------------------------------------------------------
+        {
+            // The mod recognises ammo by an item category with "Ammo" in its def name, up the category tree. Vanilla has none,
+            // so this needs an ammo mod such as Progression: Ammunition (--mods compat-progression).
+            static bool NamesAmmo(ThingCategoryDef cat) => cat.defName.IndexOf("Ammo", StringComparison.OrdinalIgnoreCase) >= 0;
+            static bool IsAmmo(ThingDef def) => def.thingCategories != null && def.thingCategories.Any(cat => NamesAmmo(cat) || cat.Parents.Any(NamesAmmo));
+            var ammoDefs = DefDatabase<ThingDef>.AllDefs.Where(d => d.category == ThingCategory.Item && d.stackLimit > 1 && !d.MadeFromStuff && IsAmmo(d)).ToList();
+            var ammo = ammoDefs.Where(d => EraReader.ItemEra(d, Pirates).OutOfReach).OrderBy(d => d.BaseMarketValue).FirstOrDefault();
+            if (ammo == null)
+                ctx.Begin(Ammo).EnvironmentUnavailable(ammoDefs.Count == 0
+                    ? "no ammunition is loaded; run with an ammo mod (--mods compat-progression)"
+                    : "no loaded ammunition is out of reach of the tribal colony: " + string.Join(", ", ammoDefs.Select(d => d.defName)));
+            else
+            {
+                var c = ctx.Begin(Ammo);
+                ModHarness.RestoreSettings();
+                int count = Math.Min(ammo.stackLimit, 50);
+                var era = EraReader.ItemEra(ammo, Pirates);
+                var tierDef = Scrap(ScrapTiers.TierFor(era.Era, EraReader.ColonyEra()));
+                c.Observe("ammoDef", ammo.defName).Observe("ammoEra", era.Era).Observe("loadedAmmo", string.Join(", ", ammoDefs.Select(d => d.defName)));
+                c.Step(!Rules.dropIncludesAmmunition && Rules.dropMode == DropMode.ScrapOutOfReach,
+                    "by default the drop mode is out-of-reach and leaves ammunition out");
+
+                var before = Kit.StackIds(map, ammo);
+                var scrapBefore = Kit.StackIds(map, tierDef);
+                var at = KillPirate(p => p.inventory.innerContainer.TryAdd(Stack(ammo, count)), out _);
+                int whole = Units(NewNear(map, ammo, before, at)), scrapDefault = Units(NewNear(map, tierDef, scrapBefore, at));
+                c.Expect("ammoDroppedDefault", count).Observe("ammoDroppedDefault", whole).Observe("scrapDefault", scrapDefault);
+                c.Step(whole == count && scrapDefault == 0, $"a pirate's {count} {ammo.label} drop whole ({whole}), no scrap ({scrapDefault})");
+
+                Rules.dropIncludesAmmunition = true;
+                c.Note("The player turns on \"drop mode includes ammunition\"");
+                var stack = Stack(ammo, count);
+                int expected = ScrapAmounts.AmmoUnits(stack.MarketValue, count);
+                int perItem = ScrapAmounts.Units(stack.MarketValue, count);
+                before = Kit.StackIds(map, ammo);
+                scrapBefore = Kit.StackIds(map, tierDef);
+                at = KillPirate(p => p.inventory.innerContainer.TryAdd(stack), out _);
+                int left = Units(NewNear(map, ammo, before, at)), scrap = Units(NewNear(map, tierDef, scrapBefore, at));
+                c.Expect("scrapIncluded", expected).Observe("scrapIncluded", scrap).Observe("ammoLeft", left).Observe("perItemRounding", perItem);
+                c.Step(stack.Destroyed && left == 0, $"a second pirate's {count} {ammo.label} are gone ({left} left)");
+                c.Step(scrap == expected, $"they become {scrap} {tierDef.defName}, rounded once per stack (expected {expected}; per-item rounding gives {perItem})");
+                ModHarness.RestoreSettings();
+                c.Conclude();
+            }
         }
 
         // ---- 04/15: recycling sample -------------------------------------------------------------------------------------
