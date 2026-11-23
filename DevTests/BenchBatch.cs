@@ -31,7 +31,7 @@ public sealed class BenchBatch : Batch
         new PlannedCase(RecycleStudied, Levels.PlayerWorkflow, "a studied-scrap recycling bill returns about half the value"),
         new PlannedCase(StudyBench, Levels.Mechanical, "the research bench is a study bench with a Bills tab"),
         new PlannedCase(NoProject, Levels.PlayerWorkflow, "with no current project the study bill never starts"),
-        new PlannedCase(StudyBill, Levels.PlayerWorkflow, "keep 3 of 8: one iteration studies 5 for 100 points, work 3000, Intellectual XP gained, 3 left"),
+        new PlannedCase(StudyBill, Levels.PlayerWorkflow, "keep 3 of 8: one iteration studies 5 for 75 points, work 2250, Intellectual XP gained, 3 left"),
         new PlannedCase(StudyFinish, Levels.PlayerWorkflow, "30 points short: the bill studies 2 units, work 900, and finishes the project"),
         new PlannedCase(OriginalRecycle, Levels.PlayerWorkflow, "an unticked unfamiliar rifle is never taken; ticked, it is recycled as its scrap; a lower bench refuses it"),
         new PlannedCase(OriginalStudy, Levels.Mechanical, "an unfamiliar rifle studies as its scrap equivalent when its era is allowed"),
@@ -214,15 +214,15 @@ public sealed class BenchBatch : Batch
             done.AfterTick += watch.Tick;
             yield return done;
             float points = watch.P1 - watch.P0;
-            c.Expect("points", 100).Observe("points", points).Expect("workLeft", 3000).Observe("workLeft", watch.MaxWork)
+            c.Expect("points", 75).Observe("points", points).Expect("workLeft", 2250).Observe("workLeft", watch.MaxWork)
                 .Observe("xpGained", watch.Xp1 - watch.Xp0).Observe("left", Kit.CountOnMap(map, medieval));
             if (done.TimedOut)
                 c.WorkflowInconclusive("the researcher did not finish a study job in 15000 ticks", (researcher.Spawned && !researcher.Dead, "the researcher is alive"),
                     (studyBill.ShouldDoNow(), "the study bill wants doing"));
             else
             {
-                c.Step(Kit.Near(points, 100f, 0.5f), $"one iteration adds 100 points ({points:0.#})");
-                c.Step(watch.MaxWork <= 3000f && watch.MaxWork >= 2850f, $"its work is 3000 ({watch.MaxWork:0})");
+                c.Step(Kit.Near(points, 75f, 0.5f), $"one iteration adds 75 points ({points:0.#})");
+                c.Step(watch.MaxWork <= 2250f && watch.MaxWork >= 2100f, $"its work is 2250 ({watch.MaxWork:0})");
                 c.Step(watch.Xp1 > watch.Xp0, "the researcher gains Intellectual XP");
                 c.Step(Kit.CountOnMap(map, medieval) == 3, "3 units are left in stock");
                 c.Conclude();

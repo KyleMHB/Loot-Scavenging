@@ -51,7 +51,7 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 | `tribal-medicine` | A pirate's industrial medicine drops whole by default while his revolver becomes scrap; with `rules.dropIncludesMedicine` on, a second pirate's medicine becomes industrial scrap | 16 |
 | `cleanup-preset` | Poor weapon deleted, good weapon kept, corpse removed with its kept apparel on the ground | 01, 10, 11 |
 | `recycling` | Machining table recycles three tiers, smithy no industrial, vanilla bills kept; 20 single units through the recipe's product step give pool materials | 04 |
-| `study` | 5 medieval units pay 100 points at research factor 1; factor 0 and industrial scrap pay nothing | 05 |
+| `study` | 5 medieval units pay 75 points at research factor 1; factor 0 and industrial scrap pay nothing | 05 |
 | `keep-original` | An out-of-reach charge rifle is unfamiliar and not equippable until Charged Shot finishes | 06 |
 | `no-mod-errors` | No error naming the mod during the batch | - |
 

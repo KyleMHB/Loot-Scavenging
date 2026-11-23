@@ -137,7 +137,7 @@ Study is a job in the Research work type: a researcher carries scrap to a resear
 | Nothing eligible | When no project is active, or the active project is a higher era than the scrap, the study job waits and the scrap stays in storage. Its inspect text says why. |
 | Which scrap can be studied | A setting. By default the colony's current era and below, so higher scrap waits until the colony advances. |
 | Recycle or study | A setting. By default each unit is used for one or the other. The alternative studies it first and then recycles the remains at reduced value. |
-| How much | A set number of points per unit for each tier: a setting per tier (default 10, 20, 30, 50, 70, 100) and one multiplier for all (default 100%, 0 to 300%). Zero stops that tier being studied. |
+| How much | A set number of points per unit for each tier: a setting per tier (default 10, 15, 15, 25, 35, 50; 10, 20, 30, 50, 70, 100 before 2026-11-23) and one multiplier for all (default 100%, 0 to 300%). Zero stops that tier being studied. |
 | Techprint projects | A setting, off by default. Off, projects that need techprints receive nothing. On, study pays into them even before the techprints are applied. Projects with a special study source never receive anything. |
 | Time and skill | Study time scales with the points paid. Research speed applies and the researcher gains Intellectual experience. |
 

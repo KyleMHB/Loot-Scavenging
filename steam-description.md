@@ -38,7 +38,7 @@ Recycle bills at the crafting spot, smithy, machining table and fabrication benc
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-study.gif[/img]
 
-Study bills at a research bench pay a set number of points per unit into the current project, by default from 10 for neolithic scrap to 100 for archotech. The settings let you change each era's points and scale them all with one slider. The scrap's inspect text says whether it can be studied now, and why not.
+Study bills at a research bench pay a set number of points per unit into the current project, by default from 10 for neolithic scrap to 50 for archotech. The settings let you change each era's points and scale them all with one slider. The scrap's inspect text says whether it can be studied now, and why not.
 
 [h2]Loot on the body[/h2]
 

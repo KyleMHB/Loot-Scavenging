@@ -48,11 +48,11 @@ public sealed class SettingValues
     public static float DefaultStudyPoints(ScrapTier tier) => tier switch
     {
         ScrapTier.Neolithic => 10f,
-        ScrapTier.Medieval => 20f,
-        ScrapTier.Industrial => 30f,
-        ScrapTier.Spacer => 50f,
-        ScrapTier.Ultra => 70f,
-        _ => 100f,
+        ScrapTier.Medieval => 15f,
+        ScrapTier.Industrial => 15f,
+        ScrapTier.Spacer => 25f,
+        ScrapTier.Ultra => 35f,
+        _ => 50f,
     };
 
     /// <summary>The points set for a tier, before the multiplier.</summary>

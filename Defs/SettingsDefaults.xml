@@ -132,11 +132,11 @@
       <recycleOrStudy>OneOrTheOther</recycleOrStudy>
       <studyTechprintProjects>false</studyTechprintProjects>
       <studyPointsNeolithic>10</studyPointsNeolithic>
-      <studyPointsMedieval>20</studyPointsMedieval>
-      <studyPointsIndustrial>30</studyPointsIndustrial>
-      <studyPointsSpacer>50</studyPointsSpacer>
-      <studyPointsUltra>70</studyPointsUltra>
-      <studyPointsArchotech>100</studyPointsArchotech>
+      <studyPointsMedieval>15</studyPointsMedieval>
+      <studyPointsIndustrial>15</studyPointsIndustrial>
+      <studyPointsSpacer>25</studyPointsSpacer>
+      <studyPointsUltra>35</studyPointsUltra>
+      <studyPointsArchotech>50</studyPointsArchotech>
       <studyPointsMultiplier>1</studyPointsMultiplier>
     </values>
     <locked />
