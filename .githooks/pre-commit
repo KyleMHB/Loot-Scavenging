@@ -1,0 +1,12 @@
+#!/bin/sh
+# Enable once per clone: git config core.hooksPath .githooks
+# The copy lint lives in the Templates repo; set `git config templates.root <path>` if it is not at E:/Coding/Templates.
+set -u
+templates=$(git config --get templates.root || echo "E:/Coding/Templates")
+python=$(command -v python || command -v python3)
+lint="$templates/tools/copy-lint/copy_lint.py"
+if [ -f "$lint" ]; then
+    "$python" "$lint" --staged || exit 1
+else
+    echo "copy lint skipped: $lint not found"
+fi
