@@ -6,7 +6,7 @@ The rules run when a raider, visitor or other non-colony pawn dies, is downed or
 
 Every part of it is configurable: an outcome and chance for each item category, keep and remove lists, and presets for progression, cleanup or vanilla. Modpacks can set and lock their own defaults.
 
-If you play for cleanup instead, a preset deletes damaged and low-quality gear from the hostile dead and removes their corpses, with no era handling at all.
+If you play for cleanup instead, a preset deletes damaged and low-quality gear and all ammo from the hostile dead and removes their corpses, with no era handling at all.
 
 [b]Mod version:[/b] 0.4.1
 
@@ -60,7 +60,7 @@ The mod starts on the Progression preset.
 
 [list]
 [*][b]Progression[/b] (default): gear beyond your research becomes scrap when any non-colony pawn dies, is downed or is stripped, prisoners included. Gear within reach drops as normal, and corpses are left.
-[*][b]Cleanup[/b]: no era handling. From the hostile dead, weapons below normal quality, apparel below good quality, and either one below 50% hit points are deleted. Every hostile humanlike corpse is removed.
+[*][b]Cleanup[/b]: no era handling. From the hostile dead, weapons below normal quality, apparel below good quality, and either one below 50% hit points are deleted, along with all ammunition. Every hostile humanlike corpse is removed.
 [*][b]Vanilla[/b]: loot and corpses behave as in the base game.
 [/list]
 

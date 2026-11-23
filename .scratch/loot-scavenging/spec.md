@@ -191,8 +191,10 @@ The presets set these values.
 | Owner groups | Hostile, non-hostile faction, no faction, prisoners | Hostile only | None |
 | Weapons | Keep within reach | Delete below Normal quality or below 50% hit points, otherwise keep | Keep |
 | Apparel | Keep within reach | Delete below Good quality or below 50% hit points, otherwise keep | Keep |
-| Inventory groups | Keep within reach | Keep | Keep |
+| Ammunition | Keep | Delete | Keep |
+| Other inventory groups | Keep within reach | Keep | Keep |
 | Drop mode includes medicine | Off | Off | Off |
+| Drop mode includes ammunition | Off | Off | Off |
 | Corpses | Off | Humanlike on at 100%; animal and mechanoid off | Off |
 | Butchering removes worn apparel | Off | Off | Off |
 
@@ -304,7 +306,7 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Instant disassembly | Stays, with a setting for era-typical or item-based yields. |
 | Default preset | Progression, with no first-load message. |
 | Downed, stripped and prisoner gear | The Progression preset applies the rules on downed and on strip, with the prisoner group on. Cleanup applies them on death only. |
-| Cleanup preset | No era handling. From hostile dead, deletes weapons below Normal quality, apparel below Good, and either one below 50% hit points. Removes every hostile humanlike corpse. Butchering apparel removal stays off. Progression leaves corpses alone. Settled 2026-11-21. |
+| Cleanup preset | No era handling. From hostile dead, deletes weapons below Normal quality, apparel below Good, and either one below 50% hit points. Removes every hostile humanlike corpse. Butchering apparel removal stays off. Progression leaves corpses alone. Settled 2026-11-21. Deletes all ammunition from hostile dead, added 2026-11-23 when the other presets started keeping ammo. |
 | Game versions | 1.6 and 1.7. |
 | Scrap art | Made or commissioned by Kyle. Placeholder icons until then. |
 | Credit | An inspired-by line on the Workshop page naming Looting Manager and Non uno Pinata. |

@@ -49,15 +49,15 @@ public class PackDefaultsTests
         {
             v.scrapMarketValue = 2f;
             v.corpses.humanlike = true; // Vanilla must still leave corpses alone
-            v.rules.ammunition = new CategoryRule(Outcome.Delete);
+            v.rules.drugs = new CategoryRule(Outcome.Delete);
         });
         SettingValues cleanup = Presets.Build(PresetId.Cleanup, pack);
         SettingValues vanilla = Presets.Build(PresetId.Vanilla, pack);
         Assert.Equal(2f, cleanup.scrapMarketValue);
         Assert.Equal(2f, vanilla.scrapMarketValue);
         Assert.False(vanilla.corpses.humanlike);
-        Assert.Equal(Outcome.Keep, vanilla.rules.ammunition.outcome);
-        Assert.Equal(Outcome.Keep, cleanup.rules.ammunition.outcome);
+        Assert.Equal(Outcome.Keep, vanilla.rules.drugs.outcome);
+        Assert.Equal(Outcome.Keep, cleanup.rules.drugs.outcome);
         Assert.Equal(Outcome.Delete, cleanup.rules.weapons.outcome);
     }
 

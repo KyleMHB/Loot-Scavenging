@@ -135,7 +135,7 @@
  "Keyed:LootScavenging_PresetActiveChanged": "Active preset: {0} (changed)",
  "Keyed:LootScavenging_PresetChangedExplain": "Some settings no longer match the {0} preset. Pick a preset to set every setting back to its values. The keep and remove lists stay as they are.",
  "Keyed:LootScavenging_PresetCleanup": "Cleanup",
- "Keyed:LootScavenging_PresetCleanupExplain": "No era handling. From hostile dead only, weapons below normal quality, apparel below good quality and either one below 50% hit points are deleted; the rest drops as normal. Every hostile humanlike corpse is removed.",
+ "Keyed:LootScavenging_PresetCleanupExplain": "No era handling. From hostile dead only, weapons below normal quality, apparel below good quality and either one below 50% hit points are deleted, and so is all their ammunition; the rest drops as normal. Every hostile humanlike corpse is removed.",
  "Keyed:LootScavenging_PresetProgression": "Progression",
  "Keyed:LootScavenging_PresetProgressionExplain": "Gear beyond your colony's research becomes scrap when any non-colony pawn dies, is downed or is stripped, prisoners included. Gear within reach drops as normal, and corpses are left.",
  "Keyed:LootScavenging_PresetReset": "Reset to defaults",

@@ -7,6 +7,7 @@
 ### Changed
 
 - Ammunition no longer turns into scrap just because it's beyond your colony's reach. It now follows its own item rule, which keeps it by default, so raiders drop their arrows and rounds whole. A new setting, "Drop mode includes ammunition", brings back the old behaviour. Modpacks can set and lock it as `rules.dropIncludesAmmunition`.
+- The Cleanup preset now deletes all ammunition from the hostile dead.
 
 - "Everything stays on the body" now covers downed pawns too. A downed pawn the rules cover keeps its weapon in hand and its inventory and scrap in its pack, instead of dropping them. Gear the rules scrap or delete is still handled when the pawn is downed.
 

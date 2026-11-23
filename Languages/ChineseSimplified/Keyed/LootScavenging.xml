@@ -39,7 +39,7 @@
 	<LootScavenging_LockedSummary>部分设置已被整合包锁定。无论选择哪个预设，它们都保持整合包的值。</LootScavenging_LockedSummary>
 	<LootScavenging_PresetReset>恢复默认</LootScavenging_PresetReset>
 	<LootScavenging_PresetProgressionExplain>当任何非殖民地角色（包括囚犯）死亡、倒地或被剥光时，超出殖民地研究水平的装备会变为废料。在殖民地能力范围内的装备照常掉落，尸体保留。</LootScavenging_PresetProgressionExplain>
-	<LootScavenging_PresetCleanupExplain>不处理时代。仅针对敌对死者：品质低于一般的武器、品质低于良好的衣物，以及耐久度低于50%的武器或衣物会被删除；其余照常掉落。所有敌对的人类尸体都会被移除。</LootScavenging_PresetCleanupExplain>
+	<LootScavenging_PresetCleanupExplain>不处理时代。仅针对敌对死者：品质低于一般的武器、品质低于良好的衣物，以及耐久度低于50%的武器或衣物会被删除，其所有弹药也会被删除；其余照常掉落。所有敌对的人类尸体都会被移除。</LootScavenging_PresetCleanupExplain>
 	<LootScavenging_PresetVanillaExplain>没有受影响的角色群体，因此战利品和尸体的表现与原版游戏相同。</LootScavenging_PresetVanillaExplain>
 	<LootScavenging_ResetConfirm>将所有设置恢复为默认值（「渐进」预设），并清空保留列表和移除列表？</LootScavenging_ResetConfirm>
 	<LootScavenging_SectionWho>对象与地点</LootScavenging_SectionWho>
