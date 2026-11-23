@@ -69,6 +69,32 @@ internal static class StudyRecipes
         }
     }
 
+    /// <summary>
+    /// Rewrites each study bill's description and nominal work from the current study points settings. The settings load
+    /// before the defs and change on the settings page, so this runs again whenever they may have changed.
+    /// </summary>
+    public static void ApplyPoints()
+    {
+        foreach (KeyValuePair<RecipeDef, ScrapTier> entry in tierOf)
+        {
+            ThingDef scrap = ScrapFor(entry.Value);
+            if (scrap != null)
+                ApplyPoints(entry.Key, entry.Value, scrap);
+        }
+    }
+
+    private static void ApplyPoints(RecipeDef recipe, ScrapTier tier, ThingDef scrap)
+    {
+        float pointsPerUnit = ScrapStudy.PointsPerUnit(tier);
+        int batch = StudyRules.BatchUnits(pointsPerUnit);
+        recipe.description = "LootScavenging_StudyDescription".Translate(scrap.label, batch.ToString(), pointsPerUnit.ToString("0.#"));
+        // Nominal, one unit's worth: the real work is set per iteration from the points it pays (BillWorkPatch).
+        recipe.workAmount = Math.Max(1f, pointsPerUnit) * StudyRules.TicksPerPoint;
+    }
+
+    private static ThingDef ScrapFor(ScrapTier tier) =>
+        ScrapTierTable.For(tier)?.scrap ?? DefDatabase<ThingDef>.GetNamedSilentFail(ScrapTiers.DefName(tier));
+
     // Defs whose class is exactly the vanilla research bench. Subclasses from other mods are left alone.
     private static List<ThingDef> ConvertBenches()
     {
@@ -89,18 +115,15 @@ internal static class StudyRecipes
 
     private static RecipeDef Build(ScrapTier tier, string defName, List<ThingDef> benches)
     {
-        ThingDef scrap = ScrapTierTable.For(tier)?.scrap ?? DefDatabase<ThingDef>.GetNamedSilentFail(ScrapTiers.DefName(tier));
-        float pointsPerUnit = scrap?.GetModExtension<StudyPoints>()?.pointsPerUnit ?? 0f;
-        if (scrap == null || pointsPerUnit <= 0f)
+        // Built even when the tier's points are zero, so raising them in the settings needs no restart.
+        ThingDef scrap = ScrapFor(tier);
+        if (scrap == null)
             return null;
 
-        int batch = StudyRules.BatchUnits(pointsPerUnit);
         RecipeDef recipe = BillRecipes.New(defName, new List<ThingDef>(benches), ScrapStudy.IngredientDefs(scrap), 1f, allowedByDefault: true);
         recipe.label = "LootScavenging_StudyLabel".Translate(scrap.label);
         recipe.jobString = "LootScavenging_StudyJob".Translate(scrap.label);
-        recipe.description = "LootScavenging_StudyDescription".Translate(scrap.label, batch.ToString(), pointsPerUnit.ToString("0.#"));
-        // Nominal, one unit's worth: the real work is set per iteration from the points it pays (BillWorkPatch).
-        recipe.workAmount = pointsPerUnit * StudyRules.TicksPerPoint;
+        ApplyPoints(recipe, tier, scrap);
         // A whole stack of any size, so a lone unit is studied too; an iteration uses at most a batch of it.
         recipe.ignoreIngredientCountTakeEntireStacks = true;
         recipe.workerClass = typeof(RecipeWorker_Study);

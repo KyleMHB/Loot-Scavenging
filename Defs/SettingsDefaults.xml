@@ -19,7 +19,9 @@
        rules.ammunition, rules.drugs, rules.medicine, rules.food, rules.other, rules.degradeMin, rules.degradeMax,
        rules.degradeLowersQuality, rules.disassemblyYield, rules.disassemblyEfficiency, rules.ejectCharges,
        corpses.humanlike, corpses.animal, corpses.mechanoid, corpses.chance, corpses.butcherRemovesApparel, eraFallback,
-       scrapMarketValue, deathDrop, unfamiliarScope, studyEras, recycleOrStudy, studyTechprintProjects.
+       scrapMarketValue, deathDrop, unfamiliarScope, studyEras, recycleOrStudy, studyTechprintProjects,
+       studyPointsNeolithic, studyPointsMedieval, studyPointsIndustrial, studyPointsSpacer, studyPointsUltra,
+       studyPointsArchotech, studyPointsMultiplier.
        The keep and remove lists and the protection toggles can be defaulted here but not locked.
        The defaults seed a config that has none saved. A saved config, or a partial one another tool wrote, keeps its
        values; a key it lacks takes the value written here, and locked settings are put back.
@@ -129,6 +131,13 @@
       <studyEras>ColonyEraAndBelow</studyEras>
       <recycleOrStudy>OneOrTheOther</recycleOrStudy>
       <studyTechprintProjects>false</studyTechprintProjects>
+      <studyPointsNeolithic>10</studyPointsNeolithic>
+      <studyPointsMedieval>20</studyPointsMedieval>
+      <studyPointsIndustrial>30</studyPointsIndustrial>
+      <studyPointsSpacer>50</studyPointsSpacer>
+      <studyPointsUltra>70</studyPointsUltra>
+      <studyPointsArchotech>100</studyPointsArchotech>
+      <studyPointsMultiplier>1</studyPointsMultiplier>
     </values>
     <locked />
   </LootScavenging.SettingsDefaultsDef>

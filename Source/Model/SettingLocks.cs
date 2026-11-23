@@ -98,6 +98,16 @@ public static class SettingNames
     public const string StudyEras = "studyEras"; // not translated
     public const string RecycleOrStudy = "recycleOrStudy"; // not translated
     public const string StudyTechprintProjects = "studyTechprintProjects"; // not translated
+    public const string StudyPointsNeolithic = "studyPointsNeolithic"; // not translated
+    public const string StudyPointsMedieval = "studyPointsMedieval"; // not translated
+    public const string StudyPointsIndustrial = "studyPointsIndustrial"; // not translated
+    public const string StudyPointsSpacer = "studyPointsSpacer"; // not translated
+    public const string StudyPointsUltra = "studyPointsUltra"; // not translated
+    public const string StudyPointsArchotech = "studyPointsArchotech"; // not translated
+    public const string StudyPointsMultiplier = "studyPointsMultiplier"; // not translated
+
+    /// <summary>The lock name of a tier's study points.</summary>
+    public static string StudyPoints(ScrapTier tier) => "studyPoints" + tier; // not translated
 
     /// <summary>A category's rule, locked as a whole: outcome, conditions and chance.</summary>
     public static string Category(CategoryInfo category) => "rules." + category.Field; // not translated

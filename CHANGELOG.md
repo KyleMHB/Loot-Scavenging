@@ -2,6 +2,16 @@
 
 <!-- Agent read route: read only the newest relevant release; locate older versions by searching `^## ` headings. -->
 
+## 0.4.0 - 2026-11-23
+
+### Added
+
+- You can now set the research points each era's scrap pays when studied, and scale them all with one slider. Setting an era to 0 stops its scrap being studied. Modpacks can set and lock these values too.
+
+### Changed
+
+- Research points per unit moved from the scrap item defs into the settings. A patch on a scrap def's `StudyPoints` extension no longer has any effect; patch `studyPoints<Era>` in `Defs/SettingsDefaults.xml` instead.
+
 ## 0.3.1 - 2026-11-23
 
 ### Added

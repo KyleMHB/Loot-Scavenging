@@ -32,7 +32,14 @@ public class LootScavengingMod : Mod
     public override void WriteSettings()
     {
         base.WriteSettings();
+        ApplySettingsToDefs();
+    }
+
+    /// <summary>Copies the settings that defs carry onto them: scrap market value and the study bills' points.</summary>
+    public static void ApplySettingsToDefs()
+    {
         ScrapDefs.ApplyMarketValue();
+        StudyRecipes.ApplyPoints();
     }
 
     // Shown once ever: the flag is written as soon as the message is up, so it does not return on the next launch.

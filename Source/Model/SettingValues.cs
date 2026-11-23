@@ -30,6 +30,62 @@ public sealed class SettingValues
     public RecycleOrStudy recycleOrStudy = RecycleOrStudy.OneOrTheOther;
     public bool studyTechprintProjects;
 
+    // Research points one unit of each tier's scrap pays when studied, before the multiplier and the storyteller's research
+    // factor. Zero stops that tier being studied.
+    public float studyPointsNeolithic = DefaultStudyPoints(ScrapTier.Neolithic);
+    public float studyPointsMedieval = DefaultStudyPoints(ScrapTier.Medieval);
+    public float studyPointsIndustrial = DefaultStudyPoints(ScrapTier.Industrial);
+    public float studyPointsSpacer = DefaultStudyPoints(ScrapTier.Spacer);
+    public float studyPointsUltra = DefaultStudyPoints(ScrapTier.Ultra);
+    public float studyPointsArchotech = DefaultStudyPoints(ScrapTier.Archotech);
+
+    // Scales every tier's study points at once.
+    public float studyPointsMultiplier = 1f;
+
+    public const float MaxStudyPoints = 1000f;
+    public const float MaxStudyPointsMultiplier = 3f;
+
+    public static float DefaultStudyPoints(ScrapTier tier) => tier switch
+    {
+        ScrapTier.Neolithic => 10f,
+        ScrapTier.Medieval => 20f,
+        ScrapTier.Industrial => 30f,
+        ScrapTier.Spacer => 50f,
+        ScrapTier.Ultra => 70f,
+        _ => 100f,
+    };
+
+    /// <summary>The points set for a tier, before the multiplier.</summary>
+    public float StudyPoints(ScrapTier tier) => tier switch
+    {
+        ScrapTier.Neolithic => studyPointsNeolithic,
+        ScrapTier.Medieval => studyPointsMedieval,
+        ScrapTier.Industrial => studyPointsIndustrial,
+        ScrapTier.Spacer => studyPointsSpacer,
+        ScrapTier.Ultra => studyPointsUltra,
+        _ => studyPointsArchotech,
+    };
+
+    public void SetStudyPoints(ScrapTier tier, float points)
+    {
+        switch (tier)
+        {
+            case ScrapTier.Neolithic: studyPointsNeolithic = points; break;
+            case ScrapTier.Medieval: studyPointsMedieval = points; break;
+            case ScrapTier.Industrial: studyPointsIndustrial = points; break;
+            case ScrapTier.Spacer: studyPointsSpacer = points; break;
+            case ScrapTier.Ultra: studyPointsUltra = points; break;
+            default: studyPointsArchotech = points; break;
+        }
+    }
+
+    /// <summary>Points one unit of a tier pays before the storyteller's research factor: its own points times the multiplier.</summary>
+    public float StudyPointsPerUnit(ScrapTier tier)
+    {
+        float points = StudyPoints(tier) * studyPointsMultiplier;
+        return points > 0f && !float.IsInfinity(points) ? points : 0f;
+    }
+
     /// <summary>A deep copy: nothing is shared, so editing the copy never changes the original.</summary>
     public SettingValues Clone() => ValueWalk.Copy(this);
 

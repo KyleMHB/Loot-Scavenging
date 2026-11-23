@@ -45,6 +45,13 @@ public class SettingKeysTests
             ["studyEras"] = "studyEras",
             ["recycleOrStudy"] = "recycleOrStudy",
             ["studyTechprintProjects"] = "studyTechprintProjects",
+            ["studyPointsNeolithic"] = "studyPointsNeolithic",
+            ["studyPointsMedieval"] = "studyPointsMedieval",
+            ["studyPointsIndustrial"] = "studyPointsIndustrial",
+            ["studyPointsSpacer"] = "studyPointsSpacer",
+            ["studyPointsUltra"] = "studyPointsUltra",
+            ["studyPointsArchotech"] = "studyPointsArchotech",
+            ["studyPointsMultiplier"] = "studyPointsMultiplier",
         };
         string[] categories = { "weapons", "apparel", "ammunition", "drugs", "medicine", "food", "other" };
         string[,] ruleFields =

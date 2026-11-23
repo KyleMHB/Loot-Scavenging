@@ -54,6 +54,9 @@
            unfamiliarScope: AllOutOfReach, LootedOnly
            studyEras: ColonyEraAndBelow, AnyEra
            recycleOrStudy: OneOrTheOther, StudyThenRecycle
-           studyTechprintProjects: true, false -->
+           studyTechprintProjects: true, false
+           studyPointsNeolithic, studyPointsMedieval, studyPointsIndustrial, studyPointsSpacer, studyPointsUltra,
+             studyPointsArchotech: 0 to 1000 (research points per unit; 0 stops that scrap being studied)
+           studyPointsMultiplier: 0 to 3 (scales every tier's points) -->
   </ModSettings>
 </SettingsBlock>

@@ -214,4 +214,9 @@
 	<LootScavenging_PickerFirstShown>Показаны первые {0} из {1}. Уточните запрос, чтобы сузить поиск.</LootScavenging_PickerFirstShown>
 	<LootScavenging_PickerOnList>В списке</LootScavenging_PickerOnList>
 	<LootScavenging_ListNotLoaded>{0} (не загружен)</LootScavenging_ListNotLoaded>
+	<LootScavenging_StudyPointsMultiplier>Очки исследования от изучения: {0}</LootScavenging_StudyPointsMultiplier>
+	<LootScavenging_StudyPointsMultiplierExplain>Каждая единица лома даёт очки своего технического уровня, указанные ниже, умноженные на {0}. Индустриальный лом даёт за единицу очков исследования: {1} (до учёта скорости исследования рассказчика).</LootScavenging_StudyPointsMultiplierExplain>
+	<LootScavenging_StudyPointsMultiplierOff>Лом нельзя изучить: каждая единица даёт 0 очков.</LootScavenging_StudyPointsMultiplierOff>
+	<LootScavenging_StudyPointsPerTier>Очки исследования за единицу, по техническому уровню</LootScavenging_StudyPointsPerTier>
+	<LootScavenging_StudyPointsPerTierExplain>До применения множителя выше. Если для уровня указать 0, его лом нельзя будет изучить.</LootScavenging_StudyPointsPerTierExplain>
 </LanguageData>

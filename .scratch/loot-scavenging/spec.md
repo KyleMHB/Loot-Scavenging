@@ -137,7 +137,7 @@ Study is a job in the Research work type: a researcher carries scrap to a resear
 | Nothing eligible | When no project is active, or the active project is a higher era than the scrap, the study job waits and the scrap stays in storage. Its inspect text says why. |
 | Which scrap can be studied | A setting. By default the colony's current era and below, so higher scrap waits until the colony advances. |
 | Recycle or study | A setting. By default each unit is used for one or the other. The alternative studies it first and then recycles the remains at reduced value. |
-| How much | A fixed number of points per unit for each tier. |
+| How much | A set number of points per unit for each tier: a setting per tier (default 10, 20, 30, 50, 70, 100) and one multiplier for all (default 100%, 0 to 300%). Zero stops that tier being studied. |
 | Techprint projects | A setting, off by default. Off, projects that need techprints receive nothing. On, study pays into them even before the techprints are applied. Projects with a special study source never receive anything. |
 | Time and skill | Study time scales with the points paid. Research speed applies and the researcher gains Intellectual experience. |
 
@@ -174,7 +174,7 @@ The page is grouped into six sections.
 | Presets | Vanilla, Cleanup, Progression, and Reset to defaults |
 | Who and where | Owner groups, prisoners, home map only, on death or on any drop |
 | Item rules | One row per category: outcome, chance, conditions |
-| Scrap and study | Drop mode, which eras can be studied, recycle or study, scrap value, where scrap appears, era fallback, disassembly yield, techprint projects, unfamiliar label scope |
+| Scrap and study | Drop mode, which eras can be studied, recycle or study, study points per tier and their multiplier, scrap value, where scrap appears, era fallback, disassembly yield, techprint projects, unfamiliar label scope |
 | Corpses | Humanlike, animal, mechanoid, chance, butchering option |
 | Lists | Always keep, always remove, protection toggles |
 
@@ -293,6 +293,7 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Nothing eligible | The study job waits. |
 | Study eras | A setting, defaulting to the colony's era and below. |
 | Recycle or study | A setting, defaulting to one or the other. |
+| Study points | Settings, not XML: one per tier plus a multiplier, lockable by a pack. Moved from the scrap defs 2026-11-23 at Kyle's request, after a Workshop report that a 3000-point raid gave about 70 industrial scrap, 2100 points. |
 | Techprint projects | A setting, off by default. |
 | Scrap value | A setting, defaulting to near zero. |
 | Where scrap appears | Ground by default, with a setting for the body. |

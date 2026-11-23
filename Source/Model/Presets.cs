@@ -155,6 +155,9 @@ public static class Presets
         v.studyEras = StudyEraLimit.ColonyEraAndBelow;
         v.recycleOrStudy = RecycleOrStudy.OneOrTheOther;
         v.studyTechprintProjects = false;
+        foreach (ScrapTier tier in (ScrapTier[])System.Enum.GetValues(typeof(ScrapTier)))
+            v.SetStudyPoints(tier, SettingValues.DefaultStudyPoints(tier));
+        v.studyPointsMultiplier = 1f;
         return v;
     }
 

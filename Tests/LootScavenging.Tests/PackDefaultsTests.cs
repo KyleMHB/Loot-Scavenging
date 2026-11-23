@@ -133,6 +133,8 @@ public class PackDefaultsTests
             "corpses.humanlike", "corpses.animal", "corpses.mechanoid", "corpses.chance", "corpses.butcherRemovesApparel",
             "eraFallback", "scrapMarketValue", "deathDrop", "unfamiliarScope", "studyEras", "recycleOrStudy",
             "studyTechprintProjects",
+            "studyPointsNeolithic", "studyPointsMedieval", "studyPointsIndustrial", "studyPointsSpacer", "studyPointsUltra",
+            "studyPointsArchotech", "studyPointsMultiplier",
         };
         Assert.Equal(expected.OrderBy(n => n), SettingLocks.Lockable.OrderBy(n => n));
     }

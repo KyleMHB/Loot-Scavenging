@@ -7,12 +7,6 @@ using Verse;
 
 namespace LootScavenging;
 
-/// <summary>Fixed research points per unit, on each scrap ThingDef (Defs/ThingDefs/Scrap.xml).</summary>
-public class StudyPoints : DefModExtension
-{
-    public float pointsPerUnit;
-}
-
 /// <summary>What one thing is worth at the research bench.</summary>
 public readonly struct StudyWorth
 {
@@ -56,16 +50,18 @@ public static class ScrapStudy
         return true;
     }
 
-    /// <summary>The worth of one unit of a scrap def.</summary>
+    /// <summary>The worth of one unit of a scrap def: its tier's points from the settings, times the multiplier.</summary>
     public static bool TryGetWorth(ThingDef def, out StudyWorth worth)
     {
         worth = default;
-        StudyPoints points = def?.GetModExtension<StudyPoints>();
-        if (points == null || !TryGetScrapTier(def, out ScrapTier tier))
+        if (def == null || !TryGetScrapTier(def, out ScrapTier tier))
             return false;
-        worth = new StudyWorth(tier, 1, points.pointsPerUnit);
+        worth = new StudyWorth(tier, 1, PointsPerUnit(tier));
         return true;
     }
+
+    /// <summary>A tier's points per unit from the settings, before the storyteller's research factor.</summary>
+    public static float PointsPerUnit(ScrapTier tier) => LootScavengingMod.Settings?.values.StudyPointsPerUnit(tier) ?? 0f;
 
     /// <summary>
     /// The defs a tier's study bill allows in its ingredient filter, given that tier's scrap. Runs in the implied-def pass.

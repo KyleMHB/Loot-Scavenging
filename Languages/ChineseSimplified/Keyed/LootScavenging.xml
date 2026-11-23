@@ -214,4 +214,9 @@
 	<LootScavenging_PickerFirstShown>显示{1}个物品中的前{0}个。输入更多内容以缩小搜索范围。</LootScavenging_PickerFirstShown>
 	<LootScavenging_PickerOnList>已在列表中</LootScavenging_PickerOnList>
 	<LootScavenging_ListNotLoaded>{0}（未加载）</LootScavenging_ListNotLoaded>
+	<LootScavenging_StudyPointsMultiplier>调查获得的研究点数：{0}</LootScavenging_StudyPointsMultiplier>
+	<LootScavenging_StudyPointsMultiplierExplain>每单位废料提供下方其时代的点数，乘以{0}。工业时代废料每单位提供{1}研究点数（未计入故事叙述者的研究速度）。</LootScavenging_StudyPointsMultiplierExplain>
+	<LootScavenging_StudyPointsMultiplierOff>废料无法调查：每单位提供0点数。</LootScavenging_StudyPointsMultiplierOff>
+	<LootScavenging_StudyPointsPerTier>每单位研究点数（按时代）</LootScavenging_StudyPointsPerTier>
+	<LootScavenging_StudyPointsPerTierExplain>在上方倍率之前计算。将某个时代设为0，该时代的废料便无法调查。</LootScavenging_StudyPointsPerTierExplain>
 </LanguageData>

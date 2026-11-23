@@ -111,6 +111,9 @@ public static class StudyRules
     public static StudyVerdict Check(ScrapTier tier, Era colonyEra, ProjectFacts project, StudyEraLimit eras,
         bool techprintProjects, float pointsPerUnit, float researchFactor)
     {
+        // Set to zero in the settings: the tier is not studied at all, whatever the project.
+        if (!IsUsable(pointsPerUnit))
+            return StudyVerdict.NoStudyPoints;
         if (!project.Exists)
             return StudyVerdict.NoProject;
         if (project.SpecialSource || !(project.BaseCost > 0f))

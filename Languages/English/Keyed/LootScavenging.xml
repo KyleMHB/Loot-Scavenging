@@ -151,6 +151,11 @@
   <LootScavenging_StudyThenRecycle>Study, then recycle</LootScavenging_StudyThenRecycle>
   <LootScavenging_OneOrTheOtherExplain>Each unit of scrap is either recycled for materials or studied for research.</LootScavenging_OneOrTheOtherExplain>
   <LootScavenging_StudyThenRecycleExplain>Studied scrap is not used up: what is left can be recycled afterwards, at reduced value.</LootScavenging_StudyThenRecycleExplain>
+  <LootScavenging_StudyPointsMultiplier>Research points from study: {0}</LootScavenging_StudyPointsMultiplier>
+  <LootScavenging_StudyPointsMultiplierExplain>Each unit of scrap pays its era's points below, times {0}. Industrial scrap pays {1} points a unit, before the storyteller's research speed.</LootScavenging_StudyPointsMultiplierExplain>
+  <LootScavenging_StudyPointsMultiplierOff>Scrap cannot be studied: every unit pays 0 points.</LootScavenging_StudyPointsMultiplierOff>
+  <LootScavenging_StudyPointsPerTier>Research points per unit, by era</LootScavenging_StudyPointsPerTier>
+  <LootScavenging_StudyPointsPerTierExplain>Before the multiplier above. Set an era to 0 and its scrap cannot be studied.</LootScavenging_StudyPointsPerTierExplain>
   <LootScavenging_ScrapValue>Scrap market value: {0} silver per unit</LootScavenging_ScrapValue>
   <LootScavenging_ScrapValueLow>Scrap is worth almost nothing, so a stockpile kept for later does not raise colony wealth or sell for silver.</LootScavenging_ScrapValueLow>
   <LootScavenging_ScrapValueHigh>Each unit of scrap is worth {0} silver: stockpiled scrap counts toward colony wealth and can be sold.</LootScavenging_ScrapValueHigh>

@@ -26,14 +26,19 @@ internal sealed class SettingsPage
 
     private static readonly PresetId[] PresetOrder = { PresetId.Progression, PresetId.Cleanup, PresetId.Vanilla };
 
+    private static readonly ScrapTier[] StudyTiers = (ScrapTier[])Enum.GetValues(typeof(ScrapTier));
+
     private LootScavengingSettings s;
+
+    // The text typed in each tier's study points field, kept between frames as the number field needs.
+    private readonly string[] pointBuffers = new string[StudyTiers.Length];
     private Vector2 scroll;
     private float viewHeight = 4000f;
 
     public void Draw(Rect inRect, LootScavengingSettings settings)
     {
         s = settings;
-        float scrapValueBefore = s.values.scrapMarketValue;
+        float[] defValuesBefore = DefValues();
 
         var view = new Rect(0f, 0f, inRect.width - 16f, viewHeight);
         Widgets.BeginScrollView(inRect, ref scroll, view);
@@ -53,8 +58,33 @@ internal sealed class SettingsPage
         Widgets.EndScrollView();
 
         EnforceLocks();
-        if (s.values.scrapMarketValue != scrapValueBefore)
-            ScrapDefs.ApplyMarketValue();
+        float[] defValuesAfter = DefValues();
+        for (int i = 0; i < defValuesAfter.Length; i++)
+        {
+            if (defValuesAfter[i] != defValuesBefore[i])
+            {
+                LootScavengingMod.ApplySettingsToDefs();
+                break;
+            }
+        }
+    }
+
+    // The values copied onto defs (scrap market value, study points), compared each frame so the defs follow the page.
+    private float[] DefValues()
+    {
+        var values = new float[StudyTiers.Length + 2];
+        values[0] = s.values.scrapMarketValue;
+        values[1] = s.values.studyPointsMultiplier;
+        for (int i = 0; i < StudyTiers.Length; i++)
+            values[i + 2] = s.values.StudyPoints(StudyTiers[i]);
+        return values;
+    }
+
+    // A preset or Reset changed the values under the page: drop the typed text so the number fields show the new values.
+    private void ValuesReplaced()
+    {
+        Array.Clear(pointBuffers, 0, pointBuffers.Length);
+        LootScavengingMod.ApplySettingsToDefs();
     }
 
     // The disabled rows already refuse input; this puts back any locked value a widget still managed to change (the
@@ -94,7 +124,7 @@ internal sealed class SettingsPage
             {
                 s.Apply(Presets.Apply(preset, s.Capture()));
                 s.activePreset = preset;
-                ScrapDefs.ApplyMarketValue();
+                ValuesReplaced();
             }
         }
         var reset = new Rect(row.x + 3 * (width + 8f), row.y, width, row.height);
@@ -105,7 +135,7 @@ internal sealed class SettingsPage
             {
                 settings.Apply(Presets.Defaults());
                 settings.activePreset = PresetId.Progression;
-                ScrapDefs.ApplyMarketValue();
+                ValuesReplaced();
             }, destructive: true));
         }
         ls.Gap(6f);
@@ -328,6 +358,8 @@ internal sealed class SettingsPage
             ? "LootScavenging_StudyThenRecycleExplain".Translate()
             : "LootScavenging_OneOrTheOtherExplain".Translate());
 
+        DrawStudyPoints(ls);
+
         bool valueLocked = IsLocked(SettingNames.ScrapMarketValue);
         SetDisabled(valueLocked);
         float value = ls.SliderLabeled("LootScavenging_ScrapValue".Translate(s.values.scrapMarketValue.ToString("0.##")), s.values.scrapMarketValue, 0.01f, 10f);
@@ -364,6 +396,37 @@ internal sealed class SettingsPage
         Explain(ls, (looted
             ? (unused ? "LootScavenging_UnfamiliarLootedExplainUnused" : "LootScavenging_UnfamiliarLootedExplain")
             : (unused ? "LootScavenging_UnfamiliarAllExplainUnused" : "LootScavenging_UnfamiliarAllExplain")).Translate());
+    }
+
+    // One multiplier for every tier, then each tier's own points, typed in directly.
+    private void DrawStudyPoints(Listing_Standard ls)
+    {
+        SettingValues v = s.values;
+        v.studyPointsMultiplier = Percent(ls, "LootScavenging_StudyPointsMultiplier".Translate(v.studyPointsMultiplier.ToStringPercent()),
+            v.studyPointsMultiplier, 0f, SettingValues.MaxStudyPointsMultiplier, SettingNames.StudyPointsMultiplier);
+        Explain(ls, v.studyPointsMultiplier > 0f
+            ? "LootScavenging_StudyPointsMultiplierExplain".Translate(v.studyPointsMultiplier.ToStringPercent(),
+                v.StudyPointsPerUnit(ScrapTier.Industrial).ToString("0.#"))
+            : "LootScavenging_StudyPointsMultiplierOff".Translate());
+
+        ls.Label("LootScavenging_StudyPointsPerTier".Translate());
+        Indent(ls);
+        for (int i = 0; i < StudyTiers.Length; i++)
+        {
+            ScrapTier tier = StudyTiers[i];
+            string lockName = SettingNames.StudyPoints(tier);
+            bool locked = IsLocked(lockName);
+            float points = v.StudyPoints(tier);
+            ThingDef scrap = ScrapDefs.For(tier);
+            SetDisabled(locked);
+            ls.TextFieldNumericLabeled(scrap != null ? scrap.LabelCap.Resolve() : tier.ToString(), ref points, ref pointBuffers[i], 0f, SettingValues.MaxStudyPoints);
+            SetDisabled(false);
+            if (!locked)
+                v.SetStudyPoints(tier, points);
+            LockedNote(ls, locked);
+        }
+        Outdent(ls);
+        Explain(ls, "LootScavenging_StudyPointsPerTierExplain".Translate());
     }
 
     private static string DeathDropName(DeathDrop drop)

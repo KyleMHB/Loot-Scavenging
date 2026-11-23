@@ -49,7 +49,7 @@ public class LootScavengingSettings : ModSettings
             activePreset = PresetId.Progression;
         defaultsSeeded = true;
         loadedKeys = null;
-        ScrapDefs.ApplyMarketValue();
+        LootScavengingMod.ApplySettingsToDefs();
     }
 
     /// <summary>The current values. Shares the live objects, so read it, do not keep it.</summary>

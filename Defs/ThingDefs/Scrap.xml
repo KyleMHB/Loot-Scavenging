@@ -4,7 +4,8 @@
   <!-- Scrap: one generic, fully stackable item per era tier (spec, "Scrap"). It remembers nothing about its source item.
        Each tier has its own untinted art in Textures/Things/Item/Scrap/<era>, with _a/_b/_c for small, mid and full stacks.
        Studied scrap (Defs/Study.xml) reuses it darkened. The market value is a near-zero default;
-       the "scrap value" setting overwrites it at startup. -->
+       the "scrap value" setting overwrites it at startup. Research points per unit are settings too (studyPoints<Tier>
+       in Defs/SettingsDefaults.xml). -->
 
   <ThingCategoryDef>
     <defName>LS_Scrap</defName>
@@ -49,12 +50,6 @@
 
   <ThingDef ParentName="LS_ScrapBase">
     <defName>LS_Scrap_Neolithic</defName>
-    <!-- Fixed research points per unit when studied (ticket 05). Ticket 04's tier table may absorb these later. -->
-    <modExtensions>
-      <li Class="LootScavenging.StudyPoints">
-        <pointsPerUnit>10</pointsPerUnit>
-      </li>
-    </modExtensions>
     <label>neolithic scrap</label>
     <description>Broken stone, bone and wood gear, good for little until a colony knows how to work it. Recycle it at a bench or study it for research.</description>
     <graphicData>
@@ -65,11 +60,6 @@
 
   <ThingDef ParentName="LS_ScrapBase">
     <defName>LS_Scrap_Medieval</defName>
-    <modExtensions>
-      <li Class="LootScavenging.StudyPoints">
-        <pointsPerUnit>20</pointsPerUnit>
-      </li>
-    </modExtensions>
     <label>medieval scrap</label>
     <description>Bent blades and torn leather and mail. Recycle it at a bench or study it for research.</description>
     <graphicData>
@@ -80,11 +70,6 @@
 
   <ThingDef ParentName="LS_ScrapBase">
     <defName>LS_Scrap_Industrial</defName>
-    <modExtensions>
-      <li Class="LootScavenging.StudyPoints">
-        <pointsPerUnit>30</pointsPerUnit>
-      </li>
-    </modExtensions>
     <label>industrial scrap</label>
     <description>Wrecked firearms and armour. Recycle it at a bench or study it for research.</description>
     <graphicData>
@@ -95,11 +80,6 @@
 
   <ThingDef ParentName="LS_ScrapBase">
     <defName>LS_Scrap_Spacer</defName>
-    <modExtensions>
-      <li Class="LootScavenging.StudyPoints">
-        <pointsPerUnit>50</pointsPerUnit>
-      </li>
-    </modExtensions>
     <label>spacer scrap</label>
     <description>Fused, humming remains of advanced weapons and armour. Recycle it at a bench or study it for research.</description>
     <graphicData>
@@ -110,11 +90,6 @@
 
   <ThingDef ParentName="LS_ScrapBase">
     <defName>LS_Scrap_Ultra</defName>
-    <modExtensions>
-      <li Class="LootScavenging.StudyPoints">
-        <pointsPerUnit>70</pointsPerUnit>
-      </li>
-    </modExtensions>
     <label>ultratech scrap</label>
     <description>Shattered ultratech gear whose workings still resist inspection. Recycle it at a bench or study it for research.</description>
     <graphicData>
@@ -125,11 +100,6 @@
 
   <ThingDef ParentName="LS_ScrapBase">
     <defName>LS_Scrap_Archotech</defName>
-    <modExtensions>
-      <li Class="LootScavenging.StudyPoints">
-        <pointsPerUnit>100</pointsPerUnit>
-      </li>
-    </modExtensions>
     <label>archotech scrap</label>
     <description>Fragments of archotech work, cold and strangely heavy. Recycle it at a bench or study it for research.</description>
     <graphicData>
