@@ -7,7 +7,7 @@
 
 drop-modes and inspect cut stills from a lootscavenging-workshop-clips run (shots.json marks, layout.json cameras); the default is
 the run recorded for ticket 01. settings uses work/gallery/settings-frame.png, a frame from a `lootscavenging-ui --record
---show-ui` run (see TESTING.md). Numbers come from Defs/, bench labels from the game's Data, mode labels from the English Keyed
+--show-ui` run (see TESTING.md). Numbers come from Defs/ (study points from SettingsDefaults.xml), bench labels from the game's Data, mode labels from the English Keyed
 file, and the inspect text is the game's own, cropped from the stills.
 """
 from pathlib import Path
@@ -42,14 +42,19 @@ def keyed():
 
 
 def thing_defs():
-    """defName -> (label, points per unit) for the mod's scrap items."""
+    """defName -> (label, sprite folder) for the mod's scrap items."""
     out = {}
     for d in ET.parse(ROOT / "Defs" / "ThingDefs" / "Scrap.xml").getroot().iter("ThingDef"):
         name = d.findtext("defName")
-        pts = d.find("modExtensions/li/pointsPerUnit")
-        if name and name.startswith("LS_Scrap_") and pts is not None:
-            out[name] = (d.findtext("label"), float(pts.text), d.findtext("graphicData/texPath"))
+        if name and name.startswith("LS_Scrap_"):
+            out[name] = (d.findtext("label"), d.findtext("graphicData/texPath"))
     return out
+
+
+def default_study_points(tier):
+    """The default research points per unit for a tier, from studyPoints<Tier> in the settings defaults."""
+    root = ET.parse(ROOT / "Defs" / "SettingsDefaults.xml").getroot()
+    return float(next(root.iter("studyPoints" + tier)).text)
 
 
 def bench_labels():
@@ -68,7 +73,8 @@ def tiers():
     things, labels = thing_defs(), bench_labels()
     out = []
     for t in ET.parse(ROOT / "Defs" / "ScrapTiers.xml").getroot().iter("LootScavenging.ScrapTierDef"):
-        label, pts, tex = things[t.findtext("scrap")]
+        label, tex = things[t.findtext("scrap")]
+        pts = default_study_points(t.findtext("tier"))
         benches = [labels[li.text] for li in t.findall("benches/li")]
         out.append({"era": label.replace(" scrap", ""), "tier": t.findtext("tier"), "benches": benches, "points": pts, "tex": tex})
     return out
@@ -189,7 +195,7 @@ def scrap_tiers():
             shadowed(img, (cx, y + 132 + j * 36), bench, fitted(29, bench, room), anchor="la", blur=2, offset=1)
         points = f"{t['points']:g}"
         shadowed(img, (cx, y + th - 138), points, font(True, 62), anchor="la", fill=accent)
-        label = "study points per unit"
+        label = "default study points per unit"
         shadowed(img, (cx, y + th - 34), label, fitted(22, label, room), anchor="ls", fill=MUTED, blur=2, offset=1)
 
     shadowed(img, (CANVAS[0] / 2, caption_y), "A bench recycles its own tier and every tier below it", font(True, 36), fill=ps.CREAM)
