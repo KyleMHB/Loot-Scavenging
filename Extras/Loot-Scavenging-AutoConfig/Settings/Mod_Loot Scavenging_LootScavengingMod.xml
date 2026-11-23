@@ -23,6 +23,7 @@
          What out-of-reach gear becomes
            dropMode: ScrapOutOfReach, ScrapEverything, KeepOriginal, Off
            dropIncludesMedicine: true, false
+           dropIncludesAmmunition: true, false
            deathDrop: Ground, ScrapOnBody, AllOnBody
            eraFallback: CarrierFaction, ColonyEra, Components
          One rule per category. Replace <category> with weapons, apparel, ammunition, drugs, medicine, food or other,

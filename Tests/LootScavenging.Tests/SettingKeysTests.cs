@@ -26,6 +26,7 @@ public class SettingKeysTests
             ["rules.onDownedAndStrip"] = "onDownedAndStrip",
             ["rules.dropMode"] = "dropMode",
             ["rules.dropIncludesMedicine"] = "dropIncludesMedicine",
+            ["rules.dropIncludesAmmunition"] = "dropIncludesAmmunition",
             ["rules.degradeMin"] = "degradeMin",
             ["rules.degradeMax"] = "degradeMax",
             ["rules.degradeLowersQuality"] = "degradeLowersQuality",

@@ -90,6 +90,8 @@ All four modes ship in the first release.
 
 **Medicine is exempt from the drop mode** by default. Out-of-reach medicine, such as industrial medicine at a tribal colony, follows the medicine category rule instead of becoming scrap, so a raid does not destroy something a colony needs. A setting includes medicine in the drop mode like any other item.
 
+**Ammunition is exempt the same way**, with its own setting. Out-of-reach rounds mostly fit out-of-reach weapons, which the drop mode already handles, and scrapping a big stack of cheap rounds gave far more scrap than the ammo was worth.
+
 ## Scrap, recycling and study
 
 Out-of-reach gear becomes scrap: one stackable item per era, where the amount carries the gear's value. Scrap is recycled for materials or studied for research, at benches the colony already owns.
@@ -281,6 +283,7 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Scrap form | Generic per era. The amount carries the value. |
 | Scrap tiers | Six, neolithic to archotech, with Animal folded into neolithic. Ultratech and archotech were split from spacer 2026-11-21, so their research can be studied and their gear yields more. |
 | Medicine and the drop mode | Exempt by default, with a setting to include it. Settled 2026-11-21, because industrial medicine was scrapped at tribal colonies. |
+| Ammunition and the drop mode | Exempt by default, with a setting to include it. Settled 2026-11-23, after a player's tribal raider dropped 53 spacer scrap from one stack of arrows. |
 | Recycling yields | A weighted loot pool per tier in XML, with a value per unit. One pick per unit, amount by market value. Lower tiers at about 15% weight. Static. No fixed lines, no keep-in-stock count, and bill text that names no materials. Changed from a fixed table 2026-11-21, because fixed yields oversupplied basic materials. |
 | Recycling gate | The bench alone. A bench handles its tier and below. |
 | Recycling place | Existing benches, no new building. |

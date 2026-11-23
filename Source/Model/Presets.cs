@@ -89,6 +89,7 @@ public static class Presets
         r.food = Keep();
         r.other = Keep();
         r.dropIncludesMedicine = false;
+        r.dropIncludesAmmunition = false;
         v.corpses.humanlike = false;
         v.corpses.animal = false;
         v.corpses.mechanoid = false;
@@ -97,7 +98,7 @@ public static class Presets
     }
 
     // Cleanup: no era handling, hostile dead only. Weapons below Normal, apparel below Good, and either below 50% hit
-    // points are deleted; everything else is kept. Every hostile humanlike corpse is removed.
+    // points are deleted, and so is all ammunition; everything else is kept. Every hostile humanlike corpse is removed.
     private static void Cleanup(SettingValues v)
     {
         ResetBehaviour(v);
@@ -106,6 +107,7 @@ public static class Presets
         SetGroups(v.rules, hostile: true, nonHostileFaction: false, noFaction: false, prisoners: false);
         v.rules.weapons = DeleteBelow(ItemQuality.Normal, 0.5f);
         v.rules.apparel = DeleteBelow(ItemQuality.Good, 0.5f);
+        v.rules.ammunition = new CategoryRule(Outcome.Delete);
         v.corpses.humanlike = true;
         v.corpses.chance = 1f;
     }
@@ -126,6 +128,7 @@ public static class Presets
         LootRules r = v.rules;
         r.homeMapOnly = false;
         r.dropIncludesMedicine = false;
+        r.dropIncludesAmmunition = false;
         r.weapons = Keep();
         r.apparel = Keep();
         r.ammunition = Keep();

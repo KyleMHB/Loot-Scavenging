@@ -126,7 +126,7 @@ public class PackDefaultsTests
         string[] expected =
         {
             "rules.hostile", "rules.nonHostileFaction", "rules.noFaction", "rules.prisoners", "rules.homeMapOnly",
-            "rules.onDownedAndStrip", "rules.dropMode", "rules.dropIncludesMedicine",
+            "rules.onDownedAndStrip", "rules.dropMode", "rules.dropIncludesMedicine", "rules.dropIncludesAmmunition",
             "rules.weapons", "rules.apparel", "rules.ammunition", "rules.drugs", "rules.medicine", "rules.food", "rules.other",
             "rules.degradeMin", "rules.degradeMax", "rules.degradeLowersQuality",
             "rules.disassemblyYield", "rules.disassemblyEfficiency", "rules.ejectCharges",

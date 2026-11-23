@@ -49,8 +49,15 @@ public class PresetsTests
         Assert.Equal(expected, Judge(PresetId.Cleanup, Drop(ItemCategory.Apparel, quality: quality, hitPoints: hitPoints)));
     }
 
+    [Fact]
+    public void OnlyCleanupDeletesAmmunition()
+    {
+        Assert.Equal(Outcome.Delete, Judge(PresetId.Cleanup, Drop(ItemCategory.Ammunition, quality: null, hitPoints: 1f)));
+        Assert.Equal(Outcome.Keep, Judge(PresetId.Progression, Drop(ItemCategory.Ammunition, quality: null, hitPoints: 0.1f, outOfReach: true)));
+        Assert.Equal(Outcome.Keep, Judge(PresetId.Vanilla, Drop(ItemCategory.Ammunition, quality: null, hitPoints: 0.1f)));
+    }
+
     [Theory]
-    [InlineData(ItemCategory.Ammunition)]
     [InlineData(ItemCategory.Drugs)]
     [InlineData(ItemCategory.Medicine)]
     [InlineData(ItemCategory.Food)]

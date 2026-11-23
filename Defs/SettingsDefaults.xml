@@ -15,7 +15,8 @@
          </Operation>
        A locked setting always holds the value written here: the page shows it disabled with a reason, and presets, Reset
        and a saved value cannot change it. Lockable names: rules.hostile, rules.nonHostileFaction, rules.noFaction,
-       rules.prisoners, rules.homeMapOnly, rules.onDownedAndStrip, rules.dropMode, rules.dropIncludesMedicine, rules.weapons, rules.apparel,
+       rules.prisoners, rules.homeMapOnly, rules.onDownedAndStrip, rules.dropMode, rules.dropIncludesMedicine, rules.dropIncludesAmmunition,
+       rules.weapons, rules.apparel,
        rules.ammunition, rules.drugs, rules.medicine, rules.food, rules.other, rules.degradeMin, rules.degradeMax,
        rules.degradeLowersQuality, rules.disassemblyYield, rules.disassemblyEfficiency, rules.ejectCharges,
        corpses.humanlike, corpses.animal, corpses.mechanoid, corpses.chance, corpses.butcherRemovesApparel, eraFallback,
@@ -41,6 +42,7 @@
         <onDownedAndStrip>true</onDownedAndStrip>
         <dropMode>ScrapOutOfReach</dropMode>
         <dropIncludesMedicine>false</dropIncludesMedicine>
+        <dropIncludesAmmunition>false</dropIncludesAmmunition>
       <weapons>
         <outcome>Keep</outcome>
         <onlyBeyondReach>false</onlyBeyondReach>

@@ -215,4 +215,7 @@
 	<LootScavenging_StudyPointsMultiplierOff>Лом нельзя изучить: каждая единица даёт 0 очков.</LootScavenging_StudyPointsMultiplierOff>
 	<LootScavenging_StudyPointsPerTier>Очки исследования за единицу, по техническому уровню</LootScavenging_StudyPointsPerTier>
 	<LootScavenging_StudyPointsPerTierExplain>До применения множителя выше. Если для уровня указать 0, его лом нельзя будет изучить.</LootScavenging_StudyPointsPerTierExplain>
+	<LootScavenging_DropIncludesAmmunition>Режим выпадения затрагивает боеприпасы</LootScavenging_DropIncludesAmmunition>
+	<LootScavenging_DropIncludesAmmunitionOn>Боеприпасы вне досягаемости обрабатываются режимом выпадения, как любой другой предмет.</LootScavenging_DropIncludesAmmunitionOn>
+	<LootScavenging_DropIncludesAmmunitionOff>Боеприпасы выпадают нетронутыми, если их собственное правило не велит иного, даже вне досягаемости.</LootScavenging_DropIncludesAmmunitionOff>
 </LanguageData>

@@ -53,6 +53,10 @@ public sealed class LootRules
     // Medicine is exempt from the drop mode and follows its own category rule unless this is on.
     public bool dropIncludesMedicine;
 
+    // Ammunition is exempt the same way: rounds mostly fit out-of-reach weapons, which are already dealt with, and scrapping
+    // a big stack of cheap rounds gave far more scrap than the ammo was worth.
+    public bool dropIncludesAmmunition;
+
     // Category rules (step 5).
     public CategoryRule weapons = new CategoryRule(Outcome.Keep);
     public CategoryRule apparel = new CategoryRule(Outcome.Keep);

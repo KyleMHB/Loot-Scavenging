@@ -135,6 +135,9 @@
   <LootScavenging_DropIncludesMedicine>Drop mode includes medicine</LootScavenging_DropIncludesMedicine>
   <LootScavenging_DropIncludesMedicineOn>Medicine beyond reach is handled by the drop mode like any other item.</LootScavenging_DropIncludesMedicineOn>
   <LootScavenging_DropIncludesMedicineOff>Medicine drops untouched unless its own item rule says otherwise, even when it is beyond reach.</LootScavenging_DropIncludesMedicineOff>
+  <LootScavenging_DropIncludesAmmunition>Drop mode includes ammunition</LootScavenging_DropIncludesAmmunition>
+  <LootScavenging_DropIncludesAmmunitionOn>Ammunition beyond reach is handled by the drop mode like any other item.</LootScavenging_DropIncludesAmmunitionOn>
+  <LootScavenging_DropIncludesAmmunitionOff>Ammunition drops untouched unless its own item rule says otherwise, even when it is beyond reach.</LootScavenging_DropIncludesAmmunitionOff>
   <LootScavenging_DropModeOffExplain>No era handling: gear beyond reach follows its item rule like any other gear.</LootScavenging_DropModeOffExplain>
   <LootScavenging_StudyEras>Which scrap can be studied</LootScavenging_StudyEras>
   <LootScavenging_StudyErasColony>The colony's era and below</LootScavenging_StudyErasColony>

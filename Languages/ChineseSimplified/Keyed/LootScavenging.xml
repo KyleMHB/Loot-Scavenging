@@ -215,4 +215,7 @@
 	<LootScavenging_StudyPointsMultiplierOff>废料无法调查：每单位提供0点数。</LootScavenging_StudyPointsMultiplierOff>
 	<LootScavenging_StudyPointsPerTier>每单位研究点数（按时代）</LootScavenging_StudyPointsPerTier>
 	<LootScavenging_StudyPointsPerTierExplain>在上方倍率之前计算。将某个时代设为0，该时代的废料便无法调查。</LootScavenging_StudyPointsPerTierExplain>
+	<LootScavenging_DropIncludesAmmunition>掉落模式包括弹药</LootScavenging_DropIncludesAmmunition>
+	<LootScavenging_DropIncludesAmmunitionOn>超出能力范围的弹药与其他物品一样由掉落模式处理。</LootScavenging_DropIncludesAmmunitionOn>
+	<LootScavenging_DropIncludesAmmunitionOff>弹药原样掉落，除非其自身的物品规则另有规定，即使超出能力范围也是如此。</LootScavenging_DropIncludesAmmunitionOff>
 </LanguageData>
