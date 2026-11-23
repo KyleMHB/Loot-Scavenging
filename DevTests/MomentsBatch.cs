@@ -38,7 +38,7 @@ public sealed class MomentsBatch : Batch
         new PlannedCase(AllOnBodyDisassembled, Levels.Mechanical, "everything on the body: disassembly products stay in the corpse"),
         new PlannedCase(AllOnBodyRemoved, Levels.Mechanical, "everything on the body with corpse removal on: the loot lands on the ground"),
         new PlannedCase(AllOnBodySkips, Levels.Mechanical, "everything on the body: a colonist's gear and a mechanoid's scrap drop as usual"),
-        new PlannedCase(AllOnBodyDowned, Levels.Mechanical, "everything on the body: a downed pirate keeps his in-reach club in hand and his pack, with downed handling on and off"),
+        new PlannedCase(AllOnBodyDowned, Levels.Mechanical, "everything on the body: a downed pirate keeps his in-reach club and the rest in his pack, with downed handling on and off"),
         new PlannedCase(OffMap, Levels.Mechanical, "a world pawn's death (no map, no corpse) logs no error"),
         new PlannedCase(Butcher, Levels.PlayerWorkflow, "a butcher bill destroys worn apparel with the option on and drops it with the option off"),
         new PlannedCase(HomeOnly, Levels.Mechanical, "home-map-only leaves gear whole on an away map; off, it is scrapped there"),
@@ -291,7 +291,7 @@ public sealed class MomentsBatch : Batch
                 p.inventory.innerContainer.TryAdd(carried);
                 p.inventory.innerContainer.TryAdd(Stack(silver, 50));
                 c.Subject(p);
-                c.Note($"Everything stays on the body; downed and strip {(downedHandling ? "on" : "off")}. A pirate with a club in hand and a revolver and 50 silver in his pack is downed");
+                c.Note($"Everything stays on the body; downed and strip {(downedHandling ? "on" : "off")}. A pirate with a club in hand and a revolver and 50 silver in his pack is downed, then despawned and spawned again");
                 c.Step(!EraReader.ItemEra(club, Pirates).OutOfReach && EraReader.ItemEra(revolver, Pirates).OutOfReach,
                     "the club is in reach of the tribal colony and the revolver is not");
                 int expectedScrap = ScrapAmounts.Units(carried.MarketValue, 1);
@@ -308,9 +308,9 @@ public sealed class MomentsBatch : Batch
                 // A few ticks so anything the game drops later than MakeDowned shows too.
                 yield return Wait.Ticks(60);
                 int ground = Ground(), scrapIn = AllScrap.Sum(Pack), silverIn = Pack(silver), revolverIn = Pack(revolver);
-                c.Observe("primary" + tag, p.equipment?.Primary?.def.defName ?? "none").Observe("scrapInPack" + tag, scrapIn)
+                c.Observe("primary" + tag, p.equipment?.Primary?.def.defName ?? "none").Observe("clubInPack" + tag, Pack(club)).Observe("scrapInPack" + tag, scrapIn)
                     .Observe("revolverInPack" + tag, revolverIn).Observe("silverInPack" + tag, silverIn).Observe("onGround" + tag, ground);
-                c.Step(p.Downed && p.equipment?.Primary == held, $"{tag}: the club is still in his hands");
+                c.Step(p.Downed && p.equipment?.Primary == null && p.inventory.innerContainer.Contains(held), $"{tag}: the club is in his pack, not his hands");
                 if (downedHandling)
                 {
                     c.Expect("scrapInPack" + tag, expectedScrap);
@@ -321,6 +321,14 @@ public sealed class MomentsBatch : Batch
                     c.Step(!carried.Destroyed && revolverIn == 1 && scrapIn == 0, $"{tag}: the carried revolver stays whole in his pack");
                 c.Step(silverIn == 50, $"{tag}: the 50 silver stay in his pack ({silverIn})");
                 c.Step(ground == 0, $"{tag}: nothing lands on the ground ({ground})");
+                // Spawning a downed pawn again (a reload, or being carried and set down) drops any weapon it holds
+                // (Pawn_EquipmentTracker.Notify_PawnSpawned); one in the pack stays.
+                p.DeSpawn();
+                GenSpawn.Spawn(p, cell, map);
+                int groundAfterRespawn = Ground();
+                c.Observe("onGroundAfterRespawn" + tag, groundAfterRespawn);
+                c.Step(p.Downed && p.inventory.innerContainer.Contains(held) && groundAfterRespawn == 0,
+                    $"{tag}: spawned again, he still has the club in his pack and nothing lands on the ground ({groundAfterRespawn})");
                 p.Destroy();
             }
             if (ready) c.Conclude();

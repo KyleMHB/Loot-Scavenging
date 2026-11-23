@@ -146,7 +146,7 @@
 	<LootScavenging_DeathDropAllOnBody>Всё остаётся на трупе</LootScavenging_DeathDropAllOnBody>
 	<LootScavenging_DeathDropGroundExplain>Оружие, инвентарь и лом выпадают рядом с трупом, как в базовой игре.</LootScavenging_DeathDropGroundExplain>
 	<LootScavenging_DeathDropScrapOnBodyExplain>Лом с погибших остаётся на трупе и выпадает, когда труп раздевают, разделывают или кремируют. Оружие и инвентарь выпадают рядом с трупом как обычно.</LootScavenging_DeathDropScrapOnBodyExplain>
-	<LootScavenging_DeathDropAllOnBodyExplain>Когда персонаж, на которого распространяются эти правила, погибает или обездвижен, ничего не выпадает. Обездвиженный персонаж сохраняет оружие в руках, а медикаменты, продовольствие, серебро и лом — в инвентаре. У погибшего они остаются на трупе, пока его не разденут, не разделают или не кремируют. Механоиды, чьё снаряжение игра уничтожает, не меняются.</LootScavenging_DeathDropAllOnBodyExplain>
+	<LootScavenging_DeathDropAllOnBodyExplain>Когда персонаж, на которого распространяются эти правила, погибает или обездвижен, ничего не выпадает. Обездвиженный персонаж сохраняет оружие, медикаменты, продовольствие, серебро и лом в инвентаре. У погибшего они остаются на трупе, пока его не разденут, не разделают или не кремируют. Механоиды, чьё снаряжение игра уничтожает, не меняются.</LootScavenging_DeathDropAllOnBodyExplain>
 	<LootScavenging_EraFallback>Снаряжение без собственного уровня</LootScavenging_EraFallback>
 	<LootScavenging_EraFallbackCarrier>Уровень фракции владельца</LootScavenging_EraFallbackCarrier>
 	<LootScavenging_EraFallbackColony>Уровень поселения</LootScavenging_EraFallbackColony>

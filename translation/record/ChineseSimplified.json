@@ -54,7 +54,7 @@
  "Keyed:LootScavenging_CorpseMechanoidOn": "Mechanoid corpses from affected groups can be removed.",
  "Keyed:LootScavenging_DeathDrop": "Where loot lands at death",
  "Keyed:LootScavenging_DeathDropAllOnBody": "Everything stays on the body",
- "Keyed:LootScavenging_DeathDropAllOnBodyExplain": "When a pawn these rules cover dies or is downed, nothing drops. A downed pawn keeps its weapon in hand and its medicine, food, silver and scrap in its pack. The dead keep them on the body until the corpse is stripped, butchered or cremated. Mechanoids whose gear the game destroys are unchanged.",
+ "Keyed:LootScavenging_DeathDropAllOnBodyExplain": "When a pawn these rules cover dies or is downed, nothing drops. A downed pawn keeps its weapon, medicine, food, silver and scrap in its pack. The dead keep them on the body until the corpse is stripped, butchered or cremated. Mechanoids whose gear the game destroys are unchanged.",
  "Keyed:LootScavenging_DeathDropGround": "On the ground",
  "Keyed:LootScavenging_DeathDropGroundExplain": "The weapon, inventory and any scrap drop beside the body, as in the base game.",
  "Keyed:LootScavenging_DeathDropScrapOnBody": "Scrap stays on the body",

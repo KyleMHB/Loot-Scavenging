@@ -8,7 +8,7 @@ Every part of it is configurable: an outcome and chance for each item category, 
 
 If you play for cleanup instead, a preset deletes damaged and low-quality gear and all ammo from the hostile dead and removes their corpses, with no era handling at all.
 
-[b]Mod version:[/b] 0.5.0
+[b]Mod version:[/b] 0.5.1
 
 [b]Languages:[/b] English, 简体中文 (Simplified Chinese), Русский (Russian).
 

@@ -11,15 +11,14 @@ namespace LootScavenging.Loot;
 /// Loot kept on a pawn's body for the "where loot lands at death" setting. Pawn.Kill drops the weapon and inventory
 /// beside the corpse, so what should stay is taken off the pawn before that drop and put back into the dead pawn's
 /// inventory after it, where stripping, butchering or cremating the corpse finds it. With "everything stays on the body"
-/// the same happens when a pawn is downed, except the weapon goes back into its hands.
+/// the same happens when a pawn is downed: the weapon goes into its pack with the rest, because the game drops a weapon a
+/// downed pawn holds whenever it is spawned again (after a reload or being carried), and a pawn that gets back up should
+/// not be armed at once.
 /// </summary>
 internal static class BodyLoot
 {
     // Things taken off a pawn for the length of its Kill or MakeDowned call.
     private static readonly Dictionary<Pawn, List<Thing>> held = new Dictionary<Pawn, List<Thing>>();
-
-    // Equipment taken off a pawn for the same call, kept apart so a downed pawn can be handed it back.
-    private static readonly Dictionary<Pawn, List<ThingWithComps>> heldEquipment = new Dictionary<Pawn, List<ThingWithComps>>();
 
     // Pawns dying or being downed whose loot all stays on the body, decided before their gear is sorted so that
     // disassembly products and ejected charges are held too instead of placed on the ground.
@@ -63,9 +62,7 @@ internal static class BodyLoot
             foreach (ThingWithComps eq in pawn.equipment.AllEquipmentListForReading.ToList())
             {
                 pawn.equipment.Remove(eq);
-                if (!heldEquipment.TryGetValue(pawn, out List<ThingWithComps> equipment))
-                    heldEquipment[pawn] = equipment = new List<ThingWithComps>();
-                equipment.Add(eq);
+                Hold(pawn, eq);
             }
         }
         if (pawn.inventory != null)
@@ -79,23 +76,10 @@ internal static class BodyLoot
     }
 
     // Called after Pawn.Kill or MakeDowned: the game's drop has run, so things added now stay on the pawn. The entry is
-    // always used up: if the call was cancelled or threw, the pawn simply gets its things back. With reequip (downed),
-    // the weapon goes back into the pawn's hands; on a corpse it goes into the inventory with the rest.
-    public static void PlaceOnBody(Pawn pawn, bool reequip)
+    // always used up: if the call was cancelled or threw, the pawn simply gets its things back in its inventory.
+    public static void PlaceOnBody(Pawn pawn)
     {
         keepsAll.Remove(pawn);
-        if (heldEquipment.TryGetValue(pawn, out List<ThingWithComps> equipment))
-        {
-            heldEquipment.Remove(pawn);
-            foreach (ThingWithComps eq in equipment)
-            {
-                if (reequip && !pawn.Dead && pawn.equipment != null
-                    && (eq.def.equipmentType != EquipmentType.Primary || pawn.equipment.Primary == null))
-                    pawn.equipment.AddEquipment(eq);
-                else
-                    Give(pawn, eq);
-            }
-        }
         if (!held.TryGetValue(pawn, out List<Thing> list))
             return;
         held.Remove(pawn);
@@ -128,7 +112,7 @@ internal static class BodyLootHook
     {
         try
         {
-            BodyLoot.PlaceOnBody(__instance, reequip: false);
+            BodyLoot.PlaceOnBody(__instance);
         }
         catch (System.Exception e)
         {
@@ -144,7 +128,7 @@ internal static class BodyLootHook
             return;
         try
         {
-            BodyLoot.PlaceOnBody(__instance, reequip: false);
+            BodyLoot.PlaceOnBody(__instance);
         }
         catch (System.Exception e)
         {
@@ -153,7 +137,7 @@ internal static class BodyLootHook
     }
 }
 
-// After the downed drop, a downed pawn gets back what was held: its weapon in its hands, the rest in its inventory.
+// After the downed drop, a downed pawn gets back what was held, weapon included, in its inventory.
 [HarmonyPatch(typeof(Pawn_HealthTracker), "MakeDowned")]
 internal static class DownedBodyLootHook
 {
@@ -161,7 +145,7 @@ internal static class DownedBodyLootHook
     {
         try
         {
-            BodyLoot.PlaceOnBody(___pawn, reequip: true);
+            BodyLoot.PlaceOnBody(___pawn);
         }
         catch (System.Exception e)
         {
@@ -175,7 +159,7 @@ internal static class DownedBodyLootHook
             return;
         try
         {
-            BodyLoot.PlaceOnBody(___pawn, reequip: true);
+            BodyLoot.PlaceOnBody(___pawn);
         }
         catch (System.Exception e)
         {

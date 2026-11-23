@@ -2,6 +2,12 @@
 
 <!-- Agent read route: read only the newest relevant release; locate older versions by searching `^## ` headings. -->
 
+## 0.5.1 - 2026-11-23
+
+### Changed
+
+- With "Everything stays on the body", a downed pawn now keeps its weapon in its pack instead of its hands. A weapon in hand still dropped after a save was reloaded or the pawn was carried, and a raider who got back up was armed straight away. Stripping or killing the pawn still finds the weapon.
+
 ## 0.5.0 - 2026-11-23
 
 ### Added
