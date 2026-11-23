@@ -146,7 +146,7 @@
 	<LootScavenging_DeathDropAllOnBody>全部留在尸体上</LootScavenging_DeathDropAllOnBody>
 	<LootScavenging_DeathDropGroundExplain>武器、随身物品和废料都掉落在尸体旁，与原版游戏相同。</LootScavenging_DeathDropGroundExplain>
 	<LootScavenging_DeathDropScrapOnBodyExplain>死者的废料留在尸体上，在尸体被剥光、屠宰或火化时掉落。武器和随身物品照常掉落在尸体旁。</LootScavenging_DeathDropScrapOnBodyExplain>
-	<LootScavenging_DeathDropAllOnBodyExplain>当受这些规则约束的角色死亡时，不会掉落任何东西：其武器、医疗药品、食物、白银和废料都留在尸体上，直到尸体被剥光、屠宰或火化。游戏在死亡时销毁其装备的机械族不受影响。</LootScavenging_DeathDropAllOnBodyExplain>
+	<LootScavenging_DeathDropAllOnBodyExplain>当受这些规则约束的角色死亡或倒地时，不会掉落任何东西。倒地的角色手中仍握着武器，医疗药品、食物、白银和废料仍在其背包中。死者的这些物品留在尸体上，直到尸体被剥光、屠宰或火化。游戏会销毁其装备的机械族不受影响。</LootScavenging_DeathDropAllOnBodyExplain>
 	<LootScavenging_EraFallback>没有自身时代的装备</LootScavenging_EraFallback>
 	<LootScavenging_EraFallbackCarrier>携带者派系的时代</LootScavenging_EraFallbackCarrier>
 	<LootScavenging_EraFallbackColony>殖民地的时代</LootScavenging_EraFallbackColony>

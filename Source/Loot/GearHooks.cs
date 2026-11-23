@@ -24,7 +24,7 @@ internal static class PawnKillHook
         {
             // Death drops equipment and inventory; apparel stays on the corpse, so this is its last sorting too.
             // Does not depend on stripping, so pawns that cannot be stripped are still sorted.
-            BodyLoot.BeginDeath(__instance);
+            BodyLoot.BeginDrop(__instance);
             GearSorter.Sort(__instance, Moment.Death, equipment: true, apparel: true, inventory: true);
             BodyLoot.HoldGear(__instance);
         }
@@ -46,8 +46,11 @@ internal static class PawnDownedHook
             return;
         try
         {
-            // Downing drops equipment and inventory, never apparel.
+            // Downing drops equipment and inventory, never apparel. With "everything stays on the body" the kept gear is
+            // held and handed back after the drop (DownedBodyLootHook).
+            BodyLoot.BeginDrop(___pawn);
             GearSorter.Sort(___pawn, Moment.Downed, equipment: true, apparel: false, inventory: true);
+            BodyLoot.HoldGear(___pawn);
         }
         catch (Exception e)
         {

@@ -8,17 +8,21 @@ using Verse;
 namespace LootScavenging.Loot;
 
 /// <summary>
-/// Loot kept on a dead pawn's body for the "where loot lands at death" setting. Pawn.Kill drops the weapon and inventory
+/// Loot kept on a pawn's body for the "where loot lands at death" setting. Pawn.Kill drops the weapon and inventory
 /// beside the corpse, so what should stay is taken off the pawn before that drop and put back into the dead pawn's
-/// inventory after it, where stripping, butchering or cremating the corpse finds it.
+/// inventory after it, where stripping, butchering or cremating the corpse finds it. With "everything stays on the body"
+/// the same happens when a pawn is downed, except the weapon goes back into its hands.
 /// </summary>
 internal static class BodyLoot
 {
-    // Things taken off a pawn for the length of its Kill call.
+    // Things taken off a pawn for the length of its Kill or MakeDowned call.
     private static readonly Dictionary<Pawn, List<Thing>> held = new Dictionary<Pawn, List<Thing>>();
 
-    // Dying pawns whose loot all stays on the body, decided before their gear is sorted so that disassembly products and
-    // ejected charges are held too instead of placed on the ground.
+    // Equipment taken off a pawn for the same call, kept apart so a downed pawn can be handed it back.
+    private static readonly Dictionary<Pawn, List<ThingWithComps>> heldEquipment = new Dictionary<Pawn, List<ThingWithComps>>();
+
+    // Pawns dying or being downed whose loot all stays on the body, decided before their gear is sorted so that
+    // disassembly products and ejected charges are held too instead of placed on the ground.
     private static readonly HashSet<Pawn> keepsAll = new HashSet<Pawn>();
 
     public static bool KeepsAll(Pawn pawn) => keepsAll.Contains(pawn);
@@ -34,11 +38,11 @@ internal static class BodyLoot
     }
 
     /// <summary>
-    /// Called at the start of a death, before the gear is sorted: with "everything stays on the body", marks a covered
-    /// pawn so its loot is held. Pawns whose gear the game destroys at death (most mechanoids) and pawns that cannot be
-    /// stripped drop as usual, so nothing is saved that would otherwise vanish or be stuck on a corpse.
+    /// Called at the start of a death or a downing, before the gear is sorted: with "everything stays on the body", marks
+    /// a covered pawn so its loot is held. Pawns whose gear the game destroys on drop (most mechanoids) and pawns that
+    /// cannot be stripped drop as usual, so nothing is saved that would otherwise vanish or be stuck on a corpse.
     /// </summary>
-    public static void BeginDeath(Pawn pawn)
+    public static void BeginDrop(Pawn pawn)
     {
         if (LootScavengingMod.Settings.values.deathDrop != DeathDrop.AllOnBody || !pawn.Spawned || !CanHoldLoot(pawn))
             return;
@@ -47,7 +51,7 @@ internal static class BodyLoot
             keepsAll.Add(pawn);
     }
 
-    /// <summary>Takes a marked pawn's weapon and inventory off it before the death drop. Runs after the gear is sorted, so
+    /// <summary>Takes a marked pawn's weapon and inventory off it before the game's drop. Runs after the gear is sorted, so
     /// what is left is what the rules kept.</summary>
     public static void HoldGear(Pawn pawn)
     {
@@ -59,7 +63,9 @@ internal static class BodyLoot
             foreach (ThingWithComps eq in pawn.equipment.AllEquipmentListForReading.ToList())
             {
                 pawn.equipment.Remove(eq);
-                Hold(pawn, eq);
+                if (!heldEquipment.TryGetValue(pawn, out List<ThingWithComps> equipment))
+                    heldEquipment[pawn] = equipment = new List<ThingWithComps>();
+                equipment.Add(eq);
             }
         }
         if (pawn.inventory != null)
@@ -72,11 +78,24 @@ internal static class BodyLoot
         }
     }
 
-    // Called after Pawn.Kill: the death drop has run, so things added now stay in the dead pawn's inventory. The entry is
-    // always used up: if the death was cancelled or threw, the pawn simply gets its things back in its inventory.
-    public static void PlaceOnBody(Pawn pawn)
+    // Called after Pawn.Kill or MakeDowned: the game's drop has run, so things added now stay on the pawn. The entry is
+    // always used up: if the call was cancelled or threw, the pawn simply gets its things back. With reequip (downed),
+    // the weapon goes back into the pawn's hands; on a corpse it goes into the inventory with the rest.
+    public static void PlaceOnBody(Pawn pawn, bool reequip)
     {
         keepsAll.Remove(pawn);
+        if (heldEquipment.TryGetValue(pawn, out List<ThingWithComps> equipment))
+        {
+            heldEquipment.Remove(pawn);
+            foreach (ThingWithComps eq in equipment)
+            {
+                if (reequip && !pawn.Dead && pawn.equipment != null
+                    && (eq.def.equipmentType != EquipmentType.Primary || pawn.equipment.Primary == null))
+                    pawn.equipment.AddEquipment(eq);
+                else
+                    Give(pawn, eq);
+            }
+        }
         if (!held.TryGetValue(pawn, out List<Thing> list))
             return;
         held.Remove(pawn);
@@ -109,7 +128,7 @@ internal static class BodyLootHook
     {
         try
         {
-            BodyLoot.PlaceOnBody(__instance);
+            BodyLoot.PlaceOnBody(__instance, reequip: false);
         }
         catch (System.Exception e)
         {
@@ -125,11 +144,42 @@ internal static class BodyLootHook
             return;
         try
         {
-            BodyLoot.PlaceOnBody(__instance);
+            BodyLoot.PlaceOnBody(__instance, reequip: false);
         }
         catch (System.Exception e)
         {
             Log.Error($"[Loot Scavenging] Returning held loot to {__instance} failed: {e}"); // not translated
+        }
+    }
+}
+
+// After the downed drop, a downed pawn gets back what was held: its weapon in its hands, the rest in its inventory.
+[HarmonyPatch(typeof(Pawn_HealthTracker), "MakeDowned")]
+internal static class DownedBodyLootHook
+{
+    private static void Postfix(Pawn ___pawn)
+    {
+        try
+        {
+            BodyLoot.PlaceOnBody(___pawn, reequip: true);
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[Loot Scavenging] Leaving loot on downed {___pawn} failed: {e}"); // not translated
+        }
+    }
+
+    private static void Finalizer(Pawn ___pawn, System.Exception __exception)
+    {
+        if (__exception == null)
+            return;
+        try
+        {
+            BodyLoot.PlaceOnBody(___pawn, reequip: true);
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[Loot Scavenging] Returning held loot to downed {___pawn} failed: {e}"); // not translated
         }
     }
 }

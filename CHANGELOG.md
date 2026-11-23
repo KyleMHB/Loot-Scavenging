@@ -4,6 +4,10 @@
 
 ## 0.4.1 - 2026-11-23
 
+### Changed
+
+- "Everything stays on the body" now covers downed pawns too. A downed pawn the rules cover keeps its weapon in hand and its inventory and scrap in its pack, instead of dropping them. Gear the rules scrap or delete is still handled when the pawn is downed.
+
 ### Removed
 
 - Removed the one-time message shown over the main menu on first load. Auto Mod Config presets no longer need `firstLoadMessageShown`; a file that still sets it loads as before.

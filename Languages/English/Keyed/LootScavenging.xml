@@ -160,7 +160,7 @@
   <LootScavenging_DeathDropAllOnBody>Everything stays on the body</LootScavenging_DeathDropAllOnBody>
   <LootScavenging_DeathDropGroundExplain>The weapon, inventory and any scrap drop beside the body, as in the base game.</LootScavenging_DeathDropGroundExplain>
   <LootScavenging_DeathDropScrapOnBodyExplain>Scrap from the dead stays on the body, and drops when the corpse is stripped, butchered or cremated. The weapon and inventory drop beside the body as usual.</LootScavenging_DeathDropScrapOnBodyExplain>
-  <LootScavenging_DeathDropAllOnBodyExplain>When a pawn these rules cover dies, nothing drops: its weapon, medicine, food, silver and scrap stay on the body until the corpse is stripped, butchered or cremated. Mechanoids whose gear the game destroys at death are unchanged.</LootScavenging_DeathDropAllOnBodyExplain>
+  <LootScavenging_DeathDropAllOnBodyExplain>When a pawn these rules cover dies or is downed, nothing drops. A downed pawn keeps its weapon in hand and its medicine, food, silver and scrap in its pack. The dead keep them on the body until the corpse is stripped, butchered or cremated. Mechanoids whose gear the game destroys are unchanged.</LootScavenging_DeathDropAllOnBodyExplain>
   <LootScavenging_EraFallback>Gear with no era of its own</LootScavenging_EraFallback>
   <LootScavenging_EraFallbackCarrier>The carrier's faction era</LootScavenging_EraFallbackCarrier>
   <LootScavenging_EraFallbackColony>The colony's era</LootScavenging_EraFallbackColony>

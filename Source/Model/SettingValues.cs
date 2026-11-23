@@ -21,7 +21,7 @@ public sealed class SettingValues
     // Market value per scrap unit: near zero so stockpiled scrap does not raise wealth or sell for silver.
     public float scrapMarketValue = DefaultScrapMarketValue;
 
-    // Where a covered pawn's weapon, inventory and scrap land when it dies.
+    // Where a covered pawn's weapon, inventory and scrap land when it dies (and, for AllOnBody, when it is downed).
     public DeathDrop deathDrop = DeathDrop.Ground;
 
     public UnfamiliarScope unfamiliarScope = UnfamiliarScope.AllOutOfReach;
