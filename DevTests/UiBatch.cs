@@ -14,7 +14,7 @@ using static LootScavenging.DevTests.Fixtures;
 
 namespace LootScavenging.DevTests;
 
-// The settings page, the bills tabs and the first-load message drawn for real (tickets 04, 05, 11, 13): each window is opened
+// The settings page and the bills tabs drawn for real (tickets 04, 05, 11, 13): each window is opened
 // through the window stack or the inspect pane and left to draw for a few frames, while a Widgets.Label postfix records every
 // label drawn and where. The cases read that record and the game's state; nothing is clicked. The settings page's preset
 // switch is applied the way its button does it, then drawn. A label outside the scroll view's visible area is still drawn
@@ -23,7 +23,7 @@ public sealed class UiBatch : Batch
 {
     private const string P = "lootscavenging.ui.";
     private const string Page = P + "settings-page-draws", Switch = P + "settings-after-preset-switch", Locks = P + "settings-locked-rows",
-        Bills = P + "bills-tabs", FirstLoad = P + "first-load-message", Translated = P + "translated-text", NoErrors = P + "no-mod-errors";
+        Bills = P + "bills-tabs", Translated = P + "translated-text", NoErrors = P + "no-mod-errors";
 
     public override string Id => "lootscavenging-ui";
     public override int SegmentCount => 1;
@@ -34,7 +34,6 @@ public sealed class UiBatch : Batch
         new PlannedCase(Switch, Levels.Mechanical, "after each preset switch the page still draws all six sections in one column, top to bottom"),
         new PlannedCase(Locks, Levels.Mechanical, "with the pack's locks the page shows the locked summary and reasons, and drawing leaves a locked value at the pack's value"),
         new PlannedCase(Bills, Levels.Mechanical, "the machining table's and research bench's Bills tabs draw their recycle and study bills; the study bench offers only study bills"),
-        new PlannedCase(FirstLoad, Levels.Mechanical, "the first-load message opens with its title, text and two buttons, and marks itself shown"),
         new PlannedCase(Translated, Levels.Mechanical, "no text the mod drew or built in the batch holds a raw LootScavenging_ key, an unfilled { slot, or English left in a key whose translation differs"),
         new PlannedCase(NoErrors, Levels.Mechanical, "no error naming the mod logged during the batch"),
     };
@@ -253,30 +252,6 @@ public sealed class UiBatch : Batch
             c.Observe("addBillOptions", string.Join(", ", options.Select(o => o.Label)));
             c.Step(options.Count > 0 && options.All(o => studyLabels.Contains(o.Label)), "the study bench's add-bill menu offers study bills (scrap and original items) and nothing else");
             Find.Selector.ClearSelection();
-            c.Conclude();
-        }
-
-        // ---- the first-load message ------------------------------------------------------------------------------------
-        {
-            var c = ctx.Begin(FirstLoad);
-            bool flagBefore = Settings.firstLoadMessageShown;
-            Settings.firstLoadMessageShown = false;
-            int before = Find.WindowStack.Windows.Count;
-            AccessTools.Method(typeof(LootScavengingMod), "ShowFirstLoadMessage").Invoke(mod, null);
-            ctx.Setup("Developer called the mod's first-load message directly (the startup path runs once per launch; see the firstload batch)");
-            foreach (var w in Draw()) yield return w;
-            var box = Find.WindowStack.Windows.OfType<Dialog_MessageBox>().LastOrDefault();
-            string title = "LootScavenging_FirstLoadTitle".Translate();
-            string firstLine = ((string)"LootScavenging_FirstLoadText".Translate()).Split('\n')[0].Trim();
-            c.Observe("box", box == null ? "none" : $"title '{box.title}', buttonA '{box.buttonAText}', buttonB '{box.buttonBText}'")
-                .Observe("textFirstLine", firstLine);
-            c.Step(box != null && box.title == title, "a message box titled with the first-load title is open");
-            c.Step(box != null && box.buttonAText == "LootScavenging_FirstLoadOk".Translate() && box.buttonBText == "LootScavenging_FirstLoadOpenSettings".Translate(),
-                "it offers OK and Open settings");
-            c.Step(DrewPart(firstLine.Length > 40 ? firstLine.Substring(0, 40) : firstLine), "its text was drawn on screen");
-            c.Step(Settings.firstLoadMessageShown, "the flag is set as soon as the message is up");
-            if (box != null) Find.WindowStack.TryRemove(box, doCloseSound: false);
-            Settings.firstLoadMessageShown = flagBefore || Settings.firstLoadMessageShown;
             c.Conclude();
         }
 

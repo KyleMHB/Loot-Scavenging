@@ -10,13 +10,11 @@
          modpack patched it. So a file may hold only the keys you change. A file that names the Cleanup preset and two keys
          does not give Cleanup's rows: list those rows too, or write a full file.
          A setting a modpack locks always ends at the pack's value, whatever this file says.
-         Optional: add <firstLoadMessageShown>true</firstLoadMessageShown> to skip the one-time first-load message.
          Do not write defaultsSeeded. The mod sets it.
          Booleans are true or false. Enum values are written exactly as listed. Fractions are 0 to 1.
 
          activePreset: Progression, Cleanup, Vanilla. It only sets which preset the settings page names. The values below
            decide what the mod does.
-         firstLoadMessageShown: true, false
 
          Who and when
            hostile, nonHostileFaction, noFaction, prisoners: true, false (which groups' gear is sorted)

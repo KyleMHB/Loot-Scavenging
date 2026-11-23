@@ -18,7 +18,7 @@ namespace LootScavenging.DevTests;
 public sealed class SettingsBatch : Batch
 {
     private const string P = "lootscavenging.settings.";
-    private const string PresetsCase = P + "presets-and-changed", Vanilla = P + "vanilla-preset-in-game", FirstLoad = P + "first-load-flag",
+    private const string PresetsCase = P + "presets-and-changed", Vanilla = P + "vanilla-preset-in-game",
         Locks = P + "locked-setting", Lists = P + "keep-and-remove-lists", RoundTrip = P + "missing-def-list-entry", Picker = P + "item-picker-search",
         Partial = P + "imported-partial-file", CleanupTrip = P + "cleanup-round-trip", NoErrors = P + "no-mod-errors";
 
@@ -31,7 +31,6 @@ public sealed class SettingsBatch : Batch
     {
         new PlannedCase(PresetsCase, Levels.Mechanical, "each preset applies unchanged; editing a value marks it changed; Reset returns to Progression"),
         new PlannedCase(Vanilla, Levels.Mechanical, "under Vanilla a pirate's out-of-reach revolver drops whole and the corpse stays"),
-        new PlannedCase(FirstLoad, Levels.Mechanical, "the first-load flag is set and saved, so the message does not return"),
         new PlannedCase(Locks, Levels.Mechanical, "the pack's lock names are known; a locked setting keeps the pack value through another preset and a saved config"),
         new PlannedCase(Lists, Levels.Mechanical, "a keep-list revolver stays whole out of reach; remove-list silver is deleted"),
         new PlannedCase(RoundTrip, Levels.Mechanical, "a list entry for a missing def saves, loads and is evaluated with no error"),
@@ -97,17 +96,6 @@ public sealed class SettingsBatch : Batch
             c.Step(!gun.Destroyed && gun.Spawned && ScrapOnMap(map) == scrapBefore, "a pirate's out-of-reach poor revolver drops whole");
             c.Step(p.Corpse != null && p.Corpse.Spawned, "the corpse stays");
             ModHarness.RestoreSettings();
-            c.Conclude();
-        }
-
-        // ---- 11: first-load flag -------------------------------------------------------------------------------------------
-        {
-            var c = ctx.Begin(FirstLoad);
-            var file = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_*_LootScavengingMod.xml").FirstOrDefault();
-            string text = file != null ? File.ReadAllText(file) : "";
-            c.Observe("settingsFile", file != null ? Path.GetFileName(file) : "none").Observe("flagInMemory", Settings.firstLoadMessageShown);
-            c.Step(Settings.firstLoadMessageShown, "the first-load message is marked shown");
-            c.Step(text.Contains("<firstLoadMessageShown>True</firstLoadMessageShown>"), "the saved settings file records it, so it is not shown on the next launch");
             c.Conclude();
         }
 

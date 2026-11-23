@@ -28,10 +28,6 @@
 	<LootScavenging_StudyOriginalJob>正在调查原物品。</LootScavenging_StudyOriginalJob>
 	<LootScavenging_StudyOriginalDescription>将一件陌生的原物品按其本应变成的废料进行调查以获取研究点数：点数相同。勾选你愿意消耗的物品；默认不勾选任何物品。</LootScavenging_StudyOriginalDescription>
 	<LootScavenging_StudyDone>{PAWN_labelShort}调查了{1}个{2}：为{4}提供+{3}研究点数。</LootScavenging_StudyDone>
-	<LootScavenging_FirstLoadTitle>Loot Scavenging</LootScavenging_FirstLoadTitle>
-	<LootScavenging_FirstLoadText>Loot&#160;Scavenging正在使用「渐进」预设。当非殖民地角色死亡、倒地或被剥光时，任何超出你殖民地研究水平的装备都会变为其时代的废料，你可以将其回收为材料，或调查以获取研究点数。在殖民地能力范围内的装备照常掉落。\n\n若要改为清理袭击后的战利品，或关闭本Mod的效果，请在选项 &gt; Mod 设置 &gt; Loot&#160;Scavenging中选择其他预设。</LootScavenging_FirstLoadText>
-	<LootScavenging_FirstLoadOk>确定</LootScavenging_FirstLoadOk>
-	<LootScavenging_FirstLoadOpenSettings>打开设置</LootScavenging_FirstLoadOpenSettings>
 	<LootScavenging_SectionPresets>预设</LootScavenging_SectionPresets>
 	<LootScavenging_PresetActive>当前预设：{0}</LootScavenging_PresetActive>
 	<LootScavenging_PresetActiveChanged>当前预设：{0}（已更改）</LootScavenging_PresetActiveChanged>

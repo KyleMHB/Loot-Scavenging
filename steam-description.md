@@ -48,7 +48,7 @@ At death, loot can drop on the ground as usual, leave only the scrap on the body
 
 [h2]How to use[/h2]
 
-The mod starts on the Progression preset and shows a short message on first load.
+The mod starts on the Progression preset.
 
 [list]
 [*]Change the preset or any rule under [b]Options > Mod settings > Loot Scavenging[/b].

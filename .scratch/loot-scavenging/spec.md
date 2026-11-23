@@ -178,7 +178,7 @@ The page is grouped into six sections.
 | Corpses | Humanlike, animal, mechanoid, chance, butchering option |
 | Lists | Always keep, always remove, protection toggles |
 
-- **Default preset is Progression.** A one-time message on first load says what the mod is doing and where the presets are.
+- **Default preset is Progression.** There is no first-load message; the Workshop description and the settings page explain the presets.
 
 The presets set these values.
 
@@ -299,7 +299,7 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Where scrap appears | Ground by default, with a setting for the body. |
 | Unknown era | The carrying faction's era, with settings for the colony's era or straight to components. |
 | Instant disassembly | Stays, with a setting for era-typical or item-based yields. |
-| Default preset | Progression, with a one-time first-load message. |
+| Default preset | Progression, with no first-load message. |
 | Downed, stripped and prisoner gear | The Progression preset applies the rules on downed and on strip, with the prisoner group on. Cleanup applies them on death only. |
 | Cleanup preset | No era handling. From hostile dead, deletes weapons below Normal quality, apparel below Good, and either one below 50% hit points. Removes every hostile humanlike corpse. Butchering apparel removal stays off. Progression leaves corpses alone. Settled 2026-11-21. |
 | Game versions | 1.6 and 1.7. |

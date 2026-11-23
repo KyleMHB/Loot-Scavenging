@@ -23,10 +23,10 @@ public sealed class ModHarness : HarnessSettings
     public override string[] RuntimeFolders => new[] { "About", "1.6", "1.7", "Defs", "Patches", "Languages", "Textures", "packs", "Extras" };
     public override string[] RuntimeFiles => new[] { "LoadFolders.xml" };
 
-    public override IEnumerable<Batch> CreateBatches() => new Batch[] { new SmokeBatch(), new OutcomesBatch(), new MomentsBatch(), new SettingsBatch(), new BenchBatch(), new SavesBatch(), new PreviewBatch(), new PreviewStoryBatch(), new MilestoneBatch(), new WorkshopClipsBatch(), new PromoClipsBatch(), new StacksBatch(), new ProgressionBatch(), new UiBatch(), new FirstLoadBatch() };
+    public override IEnumerable<Batch> CreateBatches() => new Batch[] { new SmokeBatch(), new OutcomesBatch(), new MomentsBatch(), new SettingsBatch(), new BenchBatch(), new SavesBatch(), new PreviewBatch(), new PreviewStoryBatch(), new MilestoneBatch(), new WorkshopClipsBatch(), new PromoClipsBatch(), new StacksBatch(), new ProgressionBatch(), new UiBatch(), new StartupBatch() };
 
-    // firstload first: it reads startup from the game's log, which keeps only the newest 1000 messages.
-    public override IEnumerable<string> RunAll => new[] { "lootscavenging-firstload", "lootscavenging-smoke", "lootscavenging-outcomes", "lootscavenging-moments", "lootscavenging-settings", "lootscavenging-bench", "lootscavenging-saves", "lootscavenging-ui" };
+    // startup first: it reads startup from the game's log, which keeps only the newest 1000 messages.
+    public override IEnumerable<string> RunAll => new[] { "lootscavenging-startup", "lootscavenging-smoke", "lootscavenging-outcomes", "lootscavenging-moments", "lootscavenging-settings", "lootscavenging-bench", "lootscavenging-saves", "lootscavenging-ui" };
 
     // Mod settings live in the process and outlive the colony, so a batch that changes them gets them back here, even when it
     // stops early. Nothing is written to the settings file.

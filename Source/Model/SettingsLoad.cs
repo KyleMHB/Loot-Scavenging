@@ -11,6 +11,7 @@ namespace LootScavenging.Model;
 public static class SettingsLoad
 {
     public const string ActivePresetKey = "activePreset"; // not translated
+    // Saved by earlier versions for a first-load message since removed. Still read, so a file holding it counts as seeded.
     public const string FirstLoadKey = "firstLoadMessageShown"; // not translated
     public const string SeededKey = "defaultsSeeded"; // not translated
 

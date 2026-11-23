@@ -21,9 +21,6 @@ public class LootScavengingSettings : ModSettings
     // The preset last picked on the page (ticket 11). Whether it has been changed since is worked out, not saved.
     public PresetId activePreset = PresetId.Progression;
 
-    // The one-time first-load message has been shown.
-    public bool firstLoadMessageShown;
-
     // The settings defaults Def has been applied to this config. A file without it still counts as seeded when it holds any
     // saved key (SettingsLoad.IsSeeded); only a config with nothing saved takes the Def's values once the defs are loaded.
     private bool defaultsSeeded;
@@ -69,7 +66,6 @@ public class LootScavengingSettings : ModSettings
         if (Scribe.mode == LoadSaveMode.LoadingVars)
             RecordLoadedKeys();
         Scribe_Values.Look(ref activePreset, SettingsLoad.ActivePresetKey, PresetId.Progression);
-        Scribe_Values.Look(ref firstLoadMessageShown, SettingsLoad.FirstLoadKey, false);
         Scribe_Values.Look(ref defaultsSeeded, SettingsLoad.SeededKey, false);
 
         // The save leaves out a value equal to this default. A missing key loads as it too, but the settings load before the

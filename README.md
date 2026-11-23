@@ -18,7 +18,7 @@ A RimWorld mod that decides what non-colony pawns' gear becomes when they die, a
 
 ## Usage
 
-The mod starts on the Progression preset and shows a one-time message on first load. Change presets and rules under Options > Mod settings > Loot Scavenging.
+The mod starts on the Progression preset. Change presets and rules under Options > Mod settings > Loot Scavenging.
 
 Add recycle and study bills to benches as you would any other bill. Study is Research work.
 

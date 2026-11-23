@@ -168,4 +168,4 @@ Vanilla uses "study" for Anomaly's entity study. This mod's study is the same ac
 - Russian: era words arrive as masculine nominative adjectives. Pair them with the masculine лом, or put the slot after a dash or colon as vanilla does: «технический уровень — {0}». Never write «{0} эпоха» or decline the slot.
 - Russian: quality names are a mix of adverbs and nouns (нормально, шедевр) and cannot be declined. Put the slot after a colon or in quotes: «качество ниже «{0}»».
 - Russian: avoid number agreement where a count is a placeholder. Use «ед.», «шт.» or a colon: «Очки исследования за единицу: {0}», «Предметов: {0}».
-- Both: "Loot Scavenging" and DLC names (Royalty, Ideology, Biotech, Anomaly, Odyssey) stay in English, including the first-load title.
+- Both: "Loot Scavenging" and DLC names (Royalty, Ideology, Biotech, Anomaly, Odyssey) stay in English.
