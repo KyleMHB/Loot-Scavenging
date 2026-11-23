@@ -2,6 +2,12 @@
 
 <!-- Agent read route: read only the newest relevant release; locate older versions by searching `^## ` headings. -->
 
+## 0.4.1 - 2026-11-23
+
+### Removed
+
+- Removed the one-time message shown over the main menu on first load. Auto Mod Config presets no longer need `firstLoadMessageShown`; a file that still sets it loads as before.
+
 ## 0.4.0 - 2026-11-23
 
 ### Added
@@ -12,10 +18,6 @@
 
 - Lowered the default research points from studying scrap, because a large raid could pay for several days of research at once. Industrial and higher eras now pay half as much: industrial 15 (was 30), spacer 25 (was 50), ultratech 35 (was 70) and archotech 50 (was 100). Medieval drops from 20 to 15, and neolithic stays at 10.
 - Research points per unit moved from the scrap item defs into the settings. A patch on a scrap def's `StudyPoints` extension no longer has any effect; patch `studyPoints<Era>` in `Defs/SettingsDefaults.xml` instead.
-
-### Removed
-
-- Removed the one-time message shown over the main menu on first load. Auto Mod Config presets no longer need `firstLoadMessageShown`; a file that still sets it loads as before.
 
 ## 0.3.1 - 2026-11-23
 
