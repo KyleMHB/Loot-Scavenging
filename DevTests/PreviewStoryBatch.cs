@@ -59,7 +59,9 @@ public sealed class PreviewStoryBatch : Batch
         ModHarness.SaveSettings();
         Rules.dropMode = DropMode.ScrapEverything;
         Rules.onDownedAndStrip = true;
-        ctx.Setup("Developer set the drop mode to scrap everything with downed and strip on, so every raider's gear becomes scrap");
+        // Shot before ticket 21: downed raiders drop their gear, scrapped as it drops, and the drop scene's pirate drops his rifle.
+        Rules.downedGear = DownedGear.DropWeapon;
+        ctx.Setup("Developer set the drop mode to scrap everything with downed and strip on and downed pawns dropping the weapon, so every raider's gear becomes scrap");
 
         var tribe = Tribe ?? throw new SetupException("no hostile neolithic faction in this world");
         var area = Kit.Area(ctx, 64, 18);
