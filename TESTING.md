@@ -70,6 +70,7 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
   - a pirate and a tribal warrior attacking a sandbag line, where the pirate's autopistol becomes industrial scrap and the club drops whole;
   - one recycle bill at a crafting spot and one study bill at a research bench;
   - a pirate who dies with everything on the body, his corpse selected with its Gear tab open, then stripped by a colonist who steps away from the loot;
+  - under the default "Keep the weapon in his pack", a pirate anesthetised on camera: nothing falls, his autopistol sits in his pack, and he is selected with his Gear tab open (the case checks all three and that he stays down);
   - paused stills of a tribal warrior (club, autopistol in his pack) killed under each of the four drop modes;
   - paused stills of neolithic and spacer scrap selected.
 
@@ -81,6 +82,12 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 Not covered: clicking in the settings page and bill tabs (the ui batch only draws them), a played raid with the Progression pack, Non uno Pinata, Progression: Ammunition and Progression: Hospitality (ticket 14), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
 
 ## Result recording
+
+### 2026-11-24 - Study, downed raider and inspect refilmed (workshop-media ticket 08, 0.5.2)
+
+- Version/environment: RimWorld 1.7, default mod set, English, seed 1. `deploy.ps1` first, then `python tools/ls_test.py run lootscavenging-workshop-clips --seed 1 --mods default --record --show-ui --frames 12 --quit-on-finish`.
+- Runs: `20261124-153920-lootscavenging-workshop-clips-s1` (the downed raider's Gear tab covered half of him) and `20261124-154152-lootscavenging-workshop-clips-s1`, which passed with every beat. New `downed` beat: a pirate in a collar shirt, pants and flak vest with an autopistol is anesthetised under "Keep the weapon in his pack"; he stayed down, the autopistol was in his pack, nothing lay within 3 cells, and the Gear tab opened. Study paid +30 points for 6 neolithic scrap (5 per unit); the spacer inspect line reads 12.5 per unit.
+- Status: Passed.
 
 ### 2026-11-24 - Downed pawns keep the weapon in the pack (ticket 21, 0.5.2)
 

@@ -28,6 +28,8 @@ WORK = ROOT / "work" / "gallery"
 GAME_DATA = ps.GAME / "Data"
 ERA_LOOKS = ps.GAME / "Mods" / "UI-Rethemed-Era-Looks"
 CLIPS_RUN = Path("E:/Coding/Templates/tools/rimworld-dev-tests/work/userdata/loot/LootScavengingTests/20261121-223036-lootscavenging-workshop-clips-s1")
+# The inspect stills were refilmed in 0.5.2, when study points per unit were halved (5 and 12.5, not 10 and 25 and 50).
+INSPECT_RUN = Path("E:/Coding/Templates/tools/rimworld-dev-tests/work/userdata/loot/LootScavengingTests/20261124-154152-lootscavenging-workshop-clips-s1")
 CANVAS = (1920, 1080)
 ps.SIZE = CANVAS  # framed() and title() size their layers from preview_story.SIZE
 BG = (38, 36, 33, 255)
@@ -319,7 +321,7 @@ def main(argv):
     if not argv or argv[0] not in ("scrap-tiers", "drop-modes", "settings", "inspect"):
         sys.exit(__doc__)
     cmd, rest = argv[0], argv[1:]
-    run = Path(rest[0]) if rest else CLIPS_RUN
+    run = Path(rest[0]) if rest else (INSPECT_RUN if cmd == "inspect" else CLIPS_RUN)
     if cmd == "scrap-tiers":
         scrap_tiers()
     elif cmd == "drop-modes":
