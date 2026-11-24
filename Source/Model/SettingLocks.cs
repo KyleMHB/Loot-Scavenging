@@ -32,6 +32,13 @@ public sealed class SettingLocks
 
     public static readonly SettingLocks None = new SettingLocks(null);
 
+    // Lock names a pack may still use for settings since split (ticket 24): locking the old one locks each that replaced it.
+    // Kept out of Lockable, so the page and the Def's list show only the new names.
+    private static readonly Dictionary<string, string[]> Renamed = new Dictionary<string, string[]>
+    {
+        ["rules.onDownedAndStrip"] = new[] { SettingNames.SortWhenArrested, SettingNames.SortWhenStripped }, // not translated
+    };
+
     private readonly HashSet<string> names = new HashSet<string>();
 
     /// <summary>Requested names that are not in <see cref="Lockable"/>; they are ignored.</summary>
@@ -47,7 +54,12 @@ public sealed class SettingLocks
             string name = raw?.Trim();
             if (string.IsNullOrEmpty(name))
                 continue;
-            if (known.Contains(name))
+            if (Renamed.TryGetValue(name, out string[] replacements))
+            {
+                foreach (string replacement in replacements)
+                    names.Add(replacement);
+            }
+            else if (known.Contains(name))
                 names.Add(name);
             else if (!Unknown.Contains(name))
                 Unknown.Add(name);
@@ -77,8 +89,10 @@ public static class SettingNames
     public const string NoFaction = "rules.noFaction"; // not translated
     public const string Prisoners = "rules.prisoners"; // not translated
     public const string HomeMapOnly = "rules.homeMapOnly"; // not translated
-    public const string OnDownedAndStrip = "rules.onDownedAndStrip"; // not translated
+    public const string SortWhenArrested = "rules.sortWhenArrested"; // not translated
+    public const string SortWhenStripped = "rules.sortWhenStripped"; // not translated
     public const string DownedGear = "rules.downedGear"; // not translated
+    public const string ColonistsKeepGear = "colonistsKeepGear"; // not translated
     public const string PrisonerJoinGear = "rules.prisonerJoinGear"; // not translated
     public const string OtherJoinGear = "rules.otherJoinGear"; // not translated
     public const string DropMode = "rules.dropMode"; // not translated

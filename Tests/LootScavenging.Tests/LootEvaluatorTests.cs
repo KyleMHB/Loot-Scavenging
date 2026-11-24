@@ -97,23 +97,35 @@ public class LootEvaluatorTests
         Assert.Equal(DecisionReason.NoMap, decision.Reason);
     }
 
-    [Theory]
-    [InlineData(Moment.Downed)]
-    [InlineData(Moment.Strip)]
-    public void DownedAndStripFollowTheMomentSetting(Moment moment)
+    [Fact]
+    public void AnArrestFollowsOnlyItsOwnSetting()
     {
-        var deathOnly = LootEvaluator.Evaluate(Drop(moment: moment), TestRules.Basic(r => { r.onDownedAndStrip = false; }));
-        var anyDrop = LootEvaluator.Evaluate(Drop(moment: moment), TestRules.Basic(r => { r.onDownedAndStrip = true; }));
+        var off = LootEvaluator.Evaluate(Drop(moment: Moment.Arrest), TestRules.Basic(r => { r.sortWhenArrested = false; r.sortWhenStripped = true; }));
+        var on = LootEvaluator.Evaluate(Drop(moment: Moment.Arrest), TestRules.Basic(r => { r.sortWhenArrested = true; r.sortWhenStripped = false; }));
 
-        Assert.Equal(Outcome.Keep, deathOnly.Outcome);
-        Assert.Equal(DecisionReason.MomentOff, deathOnly.Reason);
-        Assert.Equal(Outcome.Delete, anyDrop.Outcome);
+        Assert.Equal(Outcome.Keep, off.Outcome);
+        Assert.Equal(DecisionReason.MomentOff, off.Reason);
+        Assert.Equal(Outcome.Delete, on.Outcome);
     }
 
     [Fact]
-    public void DeathAlwaysAppliesWhateverTheMomentSetting()
+    public void AStripFollowsOnlyItsOwnSetting()
     {
-        var decision = LootEvaluator.Evaluate(Drop(moment: Moment.Death), TestRules.Basic(r => { r.onDownedAndStrip = false; }));
+        var off = LootEvaluator.Evaluate(Drop(moment: Moment.Strip), TestRules.Basic(r => { r.sortWhenStripped = false; r.sortWhenArrested = true; }));
+        var on = LootEvaluator.Evaluate(Drop(moment: Moment.Strip), TestRules.Basic(r => { r.sortWhenStripped = true; r.sortWhenArrested = false; }));
+
+        Assert.Equal(Outcome.Keep, off.Outcome);
+        Assert.Equal(DecisionReason.MomentOff, off.Reason);
+        Assert.Equal(Outcome.Delete, on.Outcome);
+    }
+
+    // A downing is neither an arrest nor a strip (ticket 24): what drops there is always sorted.
+    [Theory]
+    [InlineData(Moment.Death)]
+    [InlineData(Moment.Downed)]
+    public void DeathAndDowningAlwaysApplyWhateverTheMomentSettings(Moment moment)
+    {
+        var decision = LootEvaluator.Evaluate(Drop(moment: moment), TestRules.Basic(r => { r.sortWhenArrested = false; r.sortWhenStripped = false; }));
 
         Assert.Equal(Outcome.Delete, decision.Outcome);
     }
@@ -141,7 +153,7 @@ public class LootEvaluatorTests
     [Fact]
     public void TheOwnerCheckComesBeforeThePlaceAndMomentChecks()
     {
-        var rules = TestRules.Basic(r => { r.noFaction = false; r.homeMapOnly = true; r.onDownedAndStrip = false; });
+        var rules = TestRules.Basic(r => { r.noFaction = false; r.homeMapOnly = true; r.sortWhenStripped = false; });
 
         var decision = LootEvaluator.Evaluate(Drop(owner: OwnerGroup.NoFaction, map: MapKind.Away, moment: Moment.Strip), rules);
 

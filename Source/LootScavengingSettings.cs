@@ -112,7 +112,14 @@ public class LootScavengingSettings : ModSettings
                     .Invoke(null, new[] { owner, field, key.Key, field.GetValue(defaultOwner) });
             }
         }
+
+        // Before OnDefaultsLoaded fills the missing keys, so a file from before the split keeps its choice (ticket 24).
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
+            SettingsLoad.MigrateDownedAndStrip(values, loadedKeys, oldDownedAndStrip);
     }
+
+    // The old "Also when stripped or arrested" the file held, if any; read straight from the node, since it is no longer saved.
+    private bool? oldDownedAndStrip;
 
     // Only the loading pass reads the file's own node; the loader's later passes do not. The game's System.Xml reference
     // marks the indexer Windows-only; Scribe_Values reads the file the same way on every platform.
@@ -131,6 +138,7 @@ public class LootScavengingSettings : ModSettings
             if (node[key.Key] != null)
                 loadedKeys.Add(key.Key);
         }
+        oldDownedAndStrip = bool.TryParse(node[SettingsLoad.OldDownedAndStripKey]?.InnerText?.Trim(), out bool old) ? old : null;
     }
 #pragma warning restore CA1416
 

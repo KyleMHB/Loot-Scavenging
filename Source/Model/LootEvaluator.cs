@@ -90,7 +90,8 @@ public static class LootEvaluator
     // Step 3.
     private static LootDecision? CheckMoment(DropCandidate item, LootRules rules)
     {
-        if ((item.Moment == Moment.Downed || item.Moment == Moment.Strip) && !rules.onDownedAndStrip)
+        // A downing is neither an arrest nor a strip: what drops there is always sorted (ticket 24).
+        if (item.Moment == Moment.Strip && !rules.sortWhenStripped || item.Moment == Moment.Arrest && !rules.sortWhenArrested)
             return LootDecision.Leave(DecisionReason.MomentOff);
         return null;
     }

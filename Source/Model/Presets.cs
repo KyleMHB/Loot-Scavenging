@@ -71,7 +71,8 @@ public static class Presets
     {
         var v = Common();
         v.rules.dropMode = DropMode.ScrapOutOfReach;
-        v.rules.onDownedAndStrip = true;
+        v.rules.sortWhenArrested = true;
+        v.rules.sortWhenStripped = true;
         SetGroups(v.rules, hostile: true, nonHostileFaction: true, noFaction: true, prisoners: true);
         return v;
     }
@@ -107,7 +108,9 @@ public static class Presets
     {
         ResetBehaviour(v);
         v.rules.dropMode = DropMode.Off;
-        v.rules.onDownedAndStrip = false;
+        v.rules.sortWhenArrested = false;
+        v.rules.sortWhenStripped = false;
+        v.colonistsKeepGear = true;
         SetGroups(v.rules, hostile: true, nonHostileFaction: false, noFaction: false, prisoners: false);
         v.rules.weapons = DeleteBelow(ItemQuality.Normal, 0.5f);
         v.rules.apparel = DeleteBelow(ItemQuality.Good, 0.5f);
@@ -116,12 +119,15 @@ public static class Presets
         v.corpses.chance = 1f;
     }
 
-    // Vanilla: no group is affected, so nothing changes. The moment is unused; it is left at death only.
+    // Vanilla: no group is affected, so nothing changes. The moment is unused; it is left at death only. Colonists drop
+    // their gear as in the base game.
     private static void Vanilla(SettingValues v)
     {
         ResetBehaviour(v);
         v.rules.dropMode = DropMode.Off;
-        v.rules.onDownedAndStrip = false;
+        v.rules.sortWhenArrested = false;
+        v.rules.sortWhenStripped = false;
+        v.colonistsKeepGear = false;
         SetGroups(v.rules, hostile: false, nonHostileFaction: false, noFaction: false, prisoners: false);
     }
 
@@ -160,7 +166,8 @@ public static class Presets
 
         v.eraFallback = EraFallback.CarrierFaction;
         v.scrapMarketValue = SettingValues.DefaultScrapMarketValue;
-        v.deathDrop = DeathDrop.Ground;
+        v.deathDrop = DeathDrop.AllOnBody;
+        v.colonistsKeepGear = true;
         v.unfamiliarScope = UnfamiliarScope.AllOutOfReach;
         v.studyEras = StudyEraLimit.ColonyEraAndBelow;
         v.recycleOrStudy = RecycleOrStudy.OneOrTheOther;

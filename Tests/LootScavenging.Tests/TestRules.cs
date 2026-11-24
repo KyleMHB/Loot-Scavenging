@@ -17,7 +17,8 @@ internal static class TestRules
             nonHostileFaction = false,
             noFaction = false,
             prisoners = false,
-            onDownedAndStrip = false,
+            sortWhenArrested = false,
+            sortWhenStripped = false,
         };
         rules.weapons.outcome = Outcome.Delete;
         edit?.Invoke(rules);
