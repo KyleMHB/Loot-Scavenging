@@ -32,7 +32,9 @@ Example: a player on Cleanup has `corpseAnimal=false` left out. A pack that late
 
 **Decision needed (Kyle):** should the mod's own save write every key (`forceSave: true`), so a player's file never follows a changed default? Or is following the baseline intended, so a pack update reaches players who never touched a setting? Partial files from other tools keep working either way, because the fill step is separate. Ticket 17's settings move reads "file lacks the key" as "take the baseline", so the answer changes that ticket's migration too.
 
-## Decisions (Kyle, 2026-11-24)
+## Decisions (2026-11-24)
+
+Kyle asked for all of C (Part 1 and Part 2) to be built and ruled corpse loss expected. The hook choices below came from the coordinator's brief, not from Kyle.
 
 - Part 1: build all of it. Arrest of a standing pawn and trade: hook `Pawn.DropAndForbidEverything`. Recruit or enslave of a downed raider: sort worn apparel (strip semantics) when a non-colony pawn's faction changes to the player's, before it changes, so he is judged as the group he was. Lost manipulation: prefix `Pawn_EquipmentTracker.TryDropEquipment`, non-colony pawns only. All count as the downed-and-strip moment, so that toggle turns them off.
 - Part 2: the mod's own save writes every key (`forceSave: true`), so a player's file never follows a changed default. Partial files from other tools, and files from before 0.5.2, still fill missing keys from the baseline.
