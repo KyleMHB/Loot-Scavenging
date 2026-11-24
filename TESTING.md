@@ -67,7 +67,7 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 - `lootscavenging-progression` (`--mods progression`, outside run-all): the colony's era after Node Research's medieval emergence, study of medieval scrap for a medieval project, a paper from a project finished by study, a lost paper's retained progress and a second finish, Semi Random Research's picked offer, and every tier's recycling bench and pool material in the pack set. The pack mods are reached by reflection.
 - `lootscavenging-preview-story`: a showcase, outside run-all, that films the stills for `About/Preview.png` with the game paused. A downed pirate is shown with his rifle, vest and helmet on the ground (the case sets "Keep his weapon" for that scene and lays the rifle beside him), then with scrap in their place, then dead with "everything stays on the body" and nothing on the ground. A workshop shows scrap at a research bench and a machining table. It also films a story scene and a raid aftermath. The case fails if a raider leaves no scrap, or if scrap lands on the ground under everything on the body. Run it with `--record --frames 1 --quit-on-finish`, then `python tools/preview_story.py <run folder>`. That writes the candidates to `work/preview`; `split.png` is the one copied to `About/Preview.png`. Text uses RimWordFont from `Configurable Quality/artifacts/steam-page-mockup`.
 - `lootscavenging-workshop-clips`: a showcase, outside run-all, that films the Workshop description GIFs and gallery stills (`.scratch/workshop-media`) on the Progression preset at a tribal colony, at normal speed. It films:
-  - a pirate and a tribal warrior attacking a sandbag line, where the pirate's autopistol becomes industrial scrap and the club drops whole;
+  - a pirate and a tribal warrior attacking a sandbag line under the defaults: the pirate goes down holding his autopistol and the warrior dies with his club on the body; an archer then strips the pirate and the autopistol becomes industrial scrap;
   - one recycle bill at a crafting spot and one study bill at a research bench;
   - a pirate who dies with everything on the body, his corpse selected with its Gear tab open, then stripped by a colonist who steps away from the loot;
   - under the default "Keep his weapon", a pirate anesthetised on camera: nothing falls, he keeps his autopistol in hand, and he is selected with his Gear tab open (the case checks all three and that he stays down);
@@ -82,6 +82,13 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 Not covered: clicking in the settings page and bill tabs (the ui batch only draws them), a played raid with the Progression pack, Non uno Pinata, Progression: Ammunition and Progression: Hospitality (ticket 14), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
 
 ## Result recording
+
+### 2026-11-24 - Raid GIF refilmed under the 0.5.2 defaults
+
+- Change: the raid beat of `workshop-clips` now runs on the Progression preset's defaults: the downed pirate keeps his autopistol, the dead warrior keeps his club on the body, and an archer strips the pirate, which turns the autopistol and his clothes into industrial scrap. The case checks the weapon in hand before the strip, the strip, the scrap and the club.
+- Version/environment: RimWorld 1.7.5014, default mod set, English, seed 1. `deploy.ps1` and the DevTests build first, the display nudged awake, then `python tools/ls_test.py run lootscavenging-workshop-clips --seed 1 --mods default --record --show-ui --frames 12 --quit-on-finish`.
+- Run: `20261124-184041-lootscavenging-workshop-clips-s1` passed with every beat (3 industrial scrap from the strip). `tools/render_workshop_gifs.py` cuts `loot-scavenging-raid.gif` from it.
+- Status: Passed.
 
 ### 2026-11-24 - Colonists keep their gear, arrest and strip split (ticket 24, 0.5.2)
 

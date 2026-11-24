@@ -17,8 +17,8 @@ namespace LootScavenging.DevTests;
 
 // Films the Workshop description GIFs and the gallery stills (.scratch/workshop-media, ticket 01) with --record --show-ui, all on
 // the Progression preset at a tribal colony, at normal game speed:
-//   raid      a pirate with an autopistol and a tribal warrior with a club attack a sandbag line; the pirate's out-of-reach gun
-//             becomes industrial scrap where it falls, the club drops whole
+//   raid      a pirate with an autopistol and a tribal warrior with a club attack a sandbag line; under the defaults the downed
+//             pirate keeps his gun and the dead warrior his club; an archer strips the pirate and the gun becomes industrial scrap
 //   recycle   a crafter works one recycle bill on neolithic scrap at the crafting spot
 //   study     a researcher works one study bill on neolithic scrap at a research bench (Recurve Bow current)
 //   on-body   "everything stays on the body": a pirate dies and nothing lands; his corpse's Gear tab shows the loot still on him;
@@ -101,9 +101,7 @@ public sealed class WorkshopClipsBatch : Batch
         ModHarness.SaveSettings();
         Settings.Apply(Presets.Apply(PresetId.Progression, Settings.Capture()));
         Settings.activePreset = PresetId.Progression;
-        // Filmed before ticket 21: the downed pirate's autopistol is scrapped as he falls.
-        Rules.downedGear = DownedGear.DropWeapon;
-        ctx.Setup($"Developer applied the Progression preset with downed pawns set to drop the weapon: drop mode {Rules.dropMode}, sort when arrested {Rules.sortWhenArrested}, sort when stripped {Rules.sortWhenStripped}, loot at death {Settings.values.deathDrop}");
+        ctx.Setup($"Developer applied the Progression preset: downed {Rules.downedGear}, drop mode {Rules.dropMode}, sort when arrested {Rules.sortWhenArrested}, sort when stripped {Rules.sortWhenStripped}, loot at death {Settings.values.deathDrop}");
 
         var tribe = Tribe ?? throw new SetupException("no hostile neolithic faction in this world");
         var neolithic = Scrap(ScrapTier.Neolithic);
@@ -206,6 +204,7 @@ public sealed class WorkshopClipsBatch : Batch
         }
         var keep = Kit.All(Camera, Tidy);
 
+        bool raidWeaponInHand = false, raidStripped = false;
         bool weaponInHand = false, nothingFell = false, stayedDown = false, downedTabOpen = false;
         bool pirateScrapped = false, clubWhole = false, recycled = false, studied = false, nothingOnGround = false, gearTabOpen = false, stripped = false;
         int dropShots = 0, inspectShots = 0;
@@ -262,12 +261,37 @@ public sealed class WorkshopClipsBatch : Batch
                 if (i == 28 && Standing(warrior)) { warrior.Kill(null); ctx.Setup("Developer killed the warrior after 7 seconds of fighting"); }
             }
             Falls();
+            yield return Play(1.5, keep);
+            // Under the defaults the downed pirate still holds his autopistol and the dead warrior keeps his club on the body.
+            raidWeaponInHand = pirate.Downed && !pirate.Dead && pirate.equipment?.Primary?.def.defName == "Gun_Autopistol";
+            var club = Kit.Def("MeleeWeapon_Club");
+            clubWhole = map.listerThings.ThingsOfDef(club).Any(t => t.Spawned)
+                || warrior.inventory.innerContainer.Any(t => t.def == club) || warrior.equipment?.Primary?.def == club;
+            ctx.Setup($"After the fight: pirate {(pirate.Dead ? "dead" : "downed")} holding {pirate.equipment?.Primary?.LabelCap ?? "nothing"}, warrior {(warrior.Dead ? "dead" : "downed")}; club whole {clubWhole}");
+            // The archer nearest the pirate strips him: his out-of-reach autopistol and clothes become industrial scrap.
+            var raidStripper = archers.Where(Standing).OrderBy(p => p.Position.DistanceToSquared(pirate.Position)).FirstOrDefault();
+            foreach (var p in archers) if (p != raidStripper) Gone(p);
+            if (raidStripper != null && pirate.Spawned && !pirate.Dead)
+            {
+                map.designationManager.AddDesignation(new Designation(pirate, DesignationDefOf.Strip));
+                raidStripper.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Strip, pirate));
+                Mark("raid-strip-ordered");
+                ctx.Setup("Developer ordered an archer to strip the downed pirate");
+                bool marked = false;
+                for (int i = 0; i < 80 && !raidStripped; i++)
+                {
+                    yield return Play(0.25, keep);
+                    raidStripped = !pirate.Spawned || !pirate.AnythingToStrip();
+                    if (raidStripped && !marked) { marked = true; Mark("raid-stripped"); }
+                }
+                // He steps back west off the pile so the scrap shows.
+                raidStripper.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, raidStripper.Position + new IntVec3(-2, 0, 1)));
+            }
             yield return Play(3.0, keep);
-            foreach (var p in archers) Gone(p);
-            pirateScrapped = Kit.NewStacks(map, industrial, industrialBefore).Any()
+            Gone(raidStripper);
+            pirateScrapped = raidStripped && Kit.NewStacks(map, industrial, industrialBefore).Any()
                 && !map.listerThings.ThingsOfDef(Kit.Def("Gun_Autopistol")).Any(t => t.Spawned && raidArea.Contains(t.Position));
-            clubWhole = map.listerThings.ThingsOfDef(Kit.Def("MeleeWeapon_Club")).Any(t => t.Spawned);
-            ctx.Setup($"After the raid: pirate {(pirate.Dead ? "dead" : "downed")}, warrior {(warrior.Dead ? "dead" : "downed")}; new industrial scrap {Kit.NewStacks(map, industrial, industrialBefore).Sum(t => t.stackCount)}, club on the ground {clubWhole}");
+            ctx.Setup($"After the strip: stripped {raidStripped}; new industrial scrap {Kit.NewStacks(map, industrial, industrialBefore).Sum(t => t.stackCount)}");
             Mark("raid-over");
             yield return Play(1.0, keep);
 
@@ -481,12 +505,12 @@ public sealed class WorkshopClipsBatch : Batch
         }
 
         ctx.Begin("workshop-clips.filmed")
-            .Observe("pirateScrapped", pirateScrapped).Observe("clubWhole", clubWhole).Observe("recycled", recycled)
+            .Observe("raidWeaponInHand", raidWeaponInHand).Observe("raidStripped", raidStripped).Observe("pirateScrapped", pirateScrapped).Observe("clubWhole", clubWhole).Observe("recycled", recycled)
             .Observe("studied", studied).Observe("researchGain", progress1 - progress0).Observe("nothingOnGround", nothingOnGround)
             .Observe("downedWeaponInHand", weaponInHand).Observe("downedNothingFell", nothingFell).Observe("downedStayedDown", stayedDown).Observe("downedTabOpen", downedTabOpen)
             .Observe("gearTabOpen", gearTabOpen).Observe("stripped", stripped).Observe("dropShots", dropShots).Observe("inspectShots", inspectShots)
             .Observe("marks", string.Join(", ", marks.Select(m => m.name)))
-            .Check(pirateScrapped && clubWhole && recycled && studied && progress1 > progress0 && nothingOnGround && gearTabOpen && weaponInHand && nothingFell && stayedDown && downedTabOpen && stripped && dropShots == 4 && inspectShots == 2,
+            .Check(raidWeaponInHand && raidStripped && pirateScrapped && clubWhole && recycled && studied && progress1 > progress0 && nothingOnGround && gearTabOpen && weaponInHand && nothingFell && stayedDown && downedTabOpen && stripped && dropShots == 4 && inspectShots == 2,
                 "a beat did not happen on film: the downed raider's pack, raid scrap, whole club, recycle, study, nothing on the ground, the gear tab, strip, or a still");
     }
 }

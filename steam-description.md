@@ -50,7 +50,7 @@ At death, everything stays on the body (weapon, medicine, food, silver and scrap
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-downed.gif[/img]
 
-A raider who goes down keeps his weapon in his hand, and nothing drops. His gear is not judged until he is stripped, arrested, joins your colony or dies, and then only once. If he gets back up, he is still armed. Set [b]When a non-colony pawn is downed[/b] to "Drop the weapon" to have it drop and be sorted at once. The first GIF above was filmed with that choice.
+A raider who goes down keeps his weapon in his hand, and nothing drops. His gear is not judged until he is stripped, arrested, joins your colony or dies, and then only once. If he gets back up, he is still armed. Set [b]When a non-colony pawn is downed[/b] to "Drop the weapon" to have it drop and be sorted at once.
 
 [h2]How to use[/h2]
 
