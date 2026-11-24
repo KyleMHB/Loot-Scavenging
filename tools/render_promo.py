@@ -37,6 +37,9 @@ HARNESS_CANDIDATES = [
     Path("E:/Coding/Rimworld/RimWorldDevTests"),
 ]
 MAIN_RUN = "20261121-223036-lootscavenging-workshop-clips-s1"
+# The study beat (points halved in 0.5.2) and the downed raider beat come from this run of the same batch; the raid and recycle
+# beats keep MAIN_RUN, which was filmed under "Drop the weapon" and still plays as it did.
+NEW_RUN = "20261124-154152-lootscavenging-workshop-clips-s1"
 # The on-body beat was refilmed with the corpse's Gear tab open. Its crops and offsets in ON_BODY belong to this run.
 ON_BODY_RUN = "20261123-000545-lootscavenging-workshop-clips-s1"
 # The drop-mode deaths and the settings page, filmed live for the promo in place of the gallery images.
@@ -53,7 +56,9 @@ RAID = [
     ("raid-attack", 1.3, 4.3, (2048, 1152, 200, 180), "raiders attack a tribal colony", 0),
     # The pirate falls about 0.6 s after his mark; his autopistol becomes scrap where he lies. Alerts slide in beside
     # him about 2.5 s after the mark, so the segment ends before them.
-    ("raid-pirate-down", -1.0, 2.25, (1120, 630, 1220, 590), "gear beyond your research becomes scrap", 0),
+    # Filmed under "Drop the weapon", which is no longer the default, so this segment names it with a chip.
+    ("raid-pirate-down", -1.0, 2.25, (1120, 630, 1220, 590), "gear beyond your research becomes scrap", 0,
+     ("LootScavenging_Downed", "LootScavenging_DownedDropWeapon", True)),
     # The raider dies at the wall and his club drops whole.
     ("raid-warrior-down", -0.4, 2.6, (1280, 720, 0, 200), "gear you could make drops whole", 0),
 ]
@@ -63,12 +68,18 @@ RECYCLE = [
     # The product lands on the ground.
     ("recycle-done", -1.0, 2.4, (1280, 720, 690, 340), "it becomes materials of its era", 0),
 ]
+# Default "Keep the weapon in his pack", so no chip: a pirate is downed, nothing falls, and his Gear tab shows the autopistol
+# in his inventory. The tab covers the left of the frame; the crop ends inside its empty lower part, above the caption band, and clear of the chunks to the
+# right, and the caption band covers only the tab's empty lower part.
+DOWNED = [
+    ("downed-fall", -0.3, 4.2, (1440, 810, 0, 230), "a downed raider keeps his weapon in his pack", 0),
+]
 STUDY = [
-    # Mid-job at the bench; the recycle shot's "Bill complete" message has faded by now.
-    ("study-work", 10.5, 13.5, (1280, 720, 580, 320), "or study it at a research bench", 0),
-    # The game's message reports the points; wide enough to hold it and the bench. The camera leaves 2.4 s after the
-    # mark, so the last frame is held a moment for reading.
-    ("study-done", -1.2, 2.4, (1760, 990, 150, 0), "for points toward your current research", 1.0),
+    # Mid-job at the bench; the recycle shot's "Bill complete" message has faded by now (0.5.2 run: the job is 13 s).
+    ("study-done", -2.8, -0.6, (1280, 720, 580, 320), "or study it at a research bench", 0),
+    # The game's message reports the points (+30 for six units of neolithic scrap); wide enough to hold it and the bench.
+    # The camera leaves about 3 s after the mark, so the last frame is held a moment for reading.
+    ("study-done", -0.6, 2.4, (1760, 990, 150, 0), "for points toward your current research", 1.0),
 ]
 ON_BODY = [
     # The picture lags this run's marks by about 0.55 s.
@@ -115,8 +126,9 @@ END_FOOTAGE = (ON_BODY_RUN, "on-body-stripped", -0.5, (1280, 720, 400, 380))
 SECTIONS = [
     ("title", "card", "title", 4.5),
     ("raid", "live", (MAIN_RUN, RAID, None), None),
+    ("downed", "live", (NEW_RUN, DOWNED, None), None),
     ("recycle", "live", (MAIN_RUN, RECYCLE, None), None),
-    ("study", "live", (MAIN_RUN, STUDY, None), None),
+    ("study", "live", (NEW_RUN, STUDY, None), None),
     ("on-body", "live", (ON_BODY_RUN, ON_BODY, ON_BODY_CHIP), None),
     ("drop-modes", "live", (PROMO_RUN, DROP_MODES, None), None),
     ("settings", "live", (PROMO_RUN, SETTINGS, None), None),

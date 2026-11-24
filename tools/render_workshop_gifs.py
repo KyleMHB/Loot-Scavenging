@@ -24,9 +24,12 @@ HARNESS_CANDIDATES = [
     Path("E:/Coding/Templates/tools/rimworld-dev-tests"),
     Path("E:/Coding/Rimworld/RimWorldDevTests"),
 ]
-RUN_NAME = "20261121-223036-lootscavenging-workshop-clips-s1"
-# GIFs refilmed in a later run of the same batch.
+RUN_NAME = "20261124-154152-lootscavenging-workshop-clips-s1"
+# The study and downed GIFs come from the 0.5.2 run (study points halved; the downed beat is new). The raid and recycle
+# GIFs keep their first run, and the on-body GIF its Gear-tab refilm, which still show what they showed.
 RUNS = {
+    "loot-scavenging-raid": "20261121-223036-lootscavenging-workshop-clips-s1",
+    "loot-scavenging-recycle": "20261121-223036-lootscavenging-workshop-clips-s1",
     "loot-scavenging-on-body": "20261123-000545-lootscavenging-workshop-clips-s1",
 }
 WIDTH, FPS = 560, 12
@@ -36,7 +39,8 @@ WIDTH, FPS = 560, 12
 # time minus the recording's origin). Crops are in 2560x1440 pixels and stay clear of the top-left messages (except the
 # study message, which is the point), the right-hand HUD text and neighbouring scenes' items.
 GIFS = {
-    # The downed pirate's autopistol becomes scrap; then the killed raider's club drops whole.
+    # Filmed under "Drop the weapon" (the pre-0.5.2 downed behaviour): the downed pirate's autopistol becomes scrap, then the
+    # killed raider's club drops whole.
     "loot-scavenging-raid": [
         ("raid-pirate-down", -0.7, 1.7, 620, 349, 1730, 718),
         ("raid-warrior-down", -0.4, 2.4, 800, 450, 100, 400),
@@ -49,9 +53,16 @@ GIFS = {
     # A study bill at the research bench: the scrap is being studied, then the game's message reports the points.
     # The camera is still settling and the recycle shot's message still shows at the job's start, so the first
     # segment starts mid-job, once that message has faded.
+    # In the 0.5.2 run the job is 13 s, so one continuous segment runs from mid-job (the recycle shot's message has gone by
+    # study-done - 2.8) to the message that reports the points.
     "loot-scavenging-study": [
-        ("study-work", 10.3, 12.8, 1260, 860, 200, 0),
-        ("study-done", -1.2, 2.0, 1260, 860, 200, 0),
+        ("study-done", -2.8, 2.4, 1260, 860, 200, 0),
+    ],
+    # Default "Keep the weapon in his pack": a pirate stands, is downed and nothing falls; then his Gear tab shows the autopistol
+    # in his inventory. One continuous segment; the crop takes the tab (left) and the raider, clear of the forbidden-marked
+    # chunks to the right, and stops under the tab's button row.
+    "loot-scavenging-downed": [
+        ("downed-fall", -0.3, 4.7, 1240, 868, 0, 272),
     ],
     # Nothing lands at the pirate's death; his corpse's Gear tab shows the loot still on him; stripping the corpse spills it
     # and the colonist steps off the pile. The gear crop takes the tab (bottom left) and the corpse; the others are tighter on

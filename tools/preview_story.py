@@ -18,6 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 FFMPEG = Path("E:/Coding/Rimworld/RimWorldDevTests/work/ffmpeg/ffmpeg.exe")
 GAME = Path("E:/Steam/steamapps/common/RimWorld")
 RIMWORLD_FONT = ROOT.parent / "Configurable Quality" / "artifacts" / "steam-page-mockup" / "RimWordFont.ttf"
+if not RIMWORLD_FONT.is_file():  # in a git worktree ROOT.parent is not the workspace
+    RIMWORLD_FONT = Path("E:/Coding/Rimworld/Configurable Quality/artifacts/steam-page-mockup/RimWordFont.ttf")
 SIZE = (1280, 720)
 FRAME = (2560, 1440)
 CREAM = (235, 225, 200, 255)
