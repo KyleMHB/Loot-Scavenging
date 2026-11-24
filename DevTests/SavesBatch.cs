@@ -21,7 +21,7 @@ public sealed class SavesBatch : Batch
 {
     private const string P = "lootscavenging.saves.";
     private const string Before = P + "looted-marker-set", Reload = P + "reload-keeps-state", File_ = P + "save-contents",
-        Doubled = P + "old-scrap-doubled", DoubledOnce = P + "old-scrap-doubled-once";
+        Doubled = P + "old-scrap-doubled", DoubledOnce = P + "old-scrap-doubled-once", DownedReload = P + "downed-reload-keeps-weapon";
 
     public override string Id => "lootscavenging-saves";
     public override int SegmentCount => 4;
@@ -31,6 +31,7 @@ public sealed class SavesBatch : Batch
         new PlannedCase(Before, Levels.Mechanical, "looted-only scope marks a looted charge rifle; an unlooted one stays equippable"),
         new PlannedCase(Reload, Levels.Mechanical, "after save and load: scrap and studied scrap stacks, the study bench and its bill, and the rifle's marker are intact"),
         new PlannedCase(File_, Levels.Mechanical, "the save holds the marker once and names no mod class for the bench"),
+        new PlannedCase(DownedReload, Levels.Mechanical, "a pirate downed holding his revolver is saved and loaded: he still holds it, none lies on the ground, and he gets up holding it"),
         new PlannedCase(Doubled, Levels.Mechanical, "a game at scrap scale 1 loads with its scrap doubled: 600 on the ground become 1000 and 200 beside them, 7 in a colonist's pack 14, 12 in a caravan 24"),
         new PlannedCase(DoubledOnce, Levels.Mechanical, "a second load doubles nothing"),
     };
@@ -106,6 +107,19 @@ public sealed class SavesBatch : Batch
             ctx.Remember("scrap", scrap.thingIDNumber.ToString());
             ctx.Remember("studied", studied.thingIDNumber.ToString());
             ctx.Remember("bench", bench.thingIDNumber.ToString());
+
+            // Ticket 23: a downed pirate holding his weapon when the game is saved. Loading spawns him again, and the game drops
+            // a downed pawn's weapon when he spawns outside a bed.
+            var down = ctx.Begin(DownedReload);
+            var raider = Spawn(ctx, Mercenary, Pirates, sites[0] + new IntVec3(0, 0, 4));
+            var revolver = Arm(raider, Kit.Def("Gun_Revolver"), QualityCategory.Normal);
+            HealthUtility.TryAnesthetize(raider);
+            down.Subject(raider);
+            down.Note("Downed pawns keep their weapon (the default). A pirate holding a revolver is downed, then the game is saved and loaded");
+            down.Step(raider.Downed && raider.equipment.Primary == revolver && DownedGears.KeepsWeapon(Rules, OwnerGroup.Hostile, MapKind.Home),
+                "before the save he is down holding his revolver, and the setting covers him");
+            ctx.Remember("raider", raider.thingIDNumber.ToString());
+            ctx.Remember("raiderGun", revolver.thingIDNumber.ToString());
             yield return Wait.Reload();
             yield break;
         }
@@ -150,6 +164,32 @@ public sealed class SavesBatch : Batch
             c.Step(markers == 1, "only the looted rifle writes a marker (an unmarked item saves nothing)");
             c.Step(!text.Contains("Building_StudyBench"), "the bench is saved under the vanilla research bench class");
             c.Conclude();
+        }
+
+        if (index == 1)
+        {
+            var c = ctx.Begin(DownedReload);
+            var raider = map.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.thingIDNumber.ToString() == ctx.Recall("raider"));
+            if (raider == null) { c.SetupFailed("the downed pirate is not on the loaded map"); }
+            else
+            {
+                c.Subject(raider);
+                var held = raider.equipment.Primary;
+                var revolver = Kit.Def("Gun_Revolver");
+                var onGround = map.listerThings.ThingsOfDef(revolver).Where(t => t.Spawned && t.Position.DistanceTo(raider.Position) <= 5f).ToList();
+                c.Observe("primary", held == null ? "none" : held.def.defName + " " + held.thingIDNumber).Observe("revolversOnGround", onGround.Count);
+                c.Step(raider.Downed && held != null && held.thingIDNumber.ToString() == ctx.Recall("raiderGun") && onGround.Count == 0,
+                    "after the load he is still down holding the same revolver, and none lies on the ground");
+                raider.health.RemoveHediff(raider.health.hediffSet.GetFirstHediffOfDef(HediffDefOf.Anesthetic));
+                var up = Wait.Until(() => !raider.Downed, 600);
+                yield return up;
+                c.Observe("gets up: primary", raider.equipment.Primary?.def.defName ?? "none");
+                c.Step(!up.TimedOut && raider.equipment.Primary == held && held != null && !held.Destroyed, "he gets up still holding it");
+                c.Conclude();
+                // Gone before he can attack the colonists.
+                raider.Destroy();
+                if (held != null && !held.Destroyed) held.Destroy();
+            }
         }
 
         // ---- 19: a save from before 0.5.2 has its scrap doubled once -----------------------------------------------------
