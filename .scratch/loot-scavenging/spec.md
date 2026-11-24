@@ -88,6 +88,10 @@ Step 3 covers modded and uncraftable gear with no era of its own. Two settings r
 
 All four modes ship in the first release.
 
+**Which categories the drop mode judges** is a switch on each category's rule, "Include in drop mode" (`rules.<category>.inDropMode`). Weapons and apparel are on by default; a weapon or apparel carried in the inventory counts as gear. Every inventory category is off by default: ammunition, drugs, medicine, food, raw materials and other. An item in a category that is off follows its category rule, whatever its era. This applies to every drop mode, so "Scrap everything" scraps all gear and only the inventory categories switched on. New inventory categories are added as reports show items the drop mode should not judge, each with its switch off. (Settled 2026-11-24, after Nacht's report: a tribal raider's devilstrand became spacer scrap. Components, survival meals, go-juice and techprints would have gone the same way.)
+
+**Raw materials** is an inventory category: anything the game counts as a building material (stuff), and items filed under the game's raw resources or manufactured categories (`ResourcesRaw`, `Manufactured`), except mortar shells. It covers devilstrand, steel, plasteel, wood, stone blocks, silver, gold, chemfuel, components and neutroamine. Materials have no era and are never out of reach, because any colony can build and craft with them. With the switch on, "Scrap out-of-reach gear" still leaves them whole, and "Scrap everything" turns them into scrap of the colony's era.
+
 **Medicine is exempt from the drop mode** by default. Out-of-reach medicine, such as industrial medicine at a tribal colony, follows the medicine category rule instead of becoming scrap, so a raid does not destroy something a colony needs. A setting includes medicine in the drop mode like any other item.
 
 **Ammunition is exempt the same way**, with its own setting. Out-of-reach rounds mostly fit out-of-reach weapons, which the drop mode already handles, and scrapping a big stack of cheap rounds gave far more scrap than the ammo was worth.
@@ -193,8 +197,7 @@ The presets set these values.
 | Apparel | Keep within reach | Delete below Good quality or below 50% hit points, otherwise keep | Keep |
 | Ammunition | Keep | Delete | Keep |
 | Other inventory groups | Keep within reach | Keep | Keep |
-| Drop mode includes medicine | Off | Off | Off |
-| Drop mode includes ammunition | Off | Off | Off |
+| Include in drop mode | Weapons and apparel on; every inventory category off | Same | Same |
 | Corpses | Off | Humanlike on at 100%; animal and mechanoid off | Off |
 | Butchering removes worn apparel | Off | Off | Off |
 
@@ -285,7 +288,11 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Scrap form | Generic per era. The amount carries the value. |
 | Scrap tiers | Six, neolithic to archotech, with Animal folded into neolithic. Ultratech and archotech were split from spacer 2026-11-21, so their research can be studied and their gear yields more. |
 | Medicine and the drop mode | Exempt by default, with a setting to include it. Settled 2026-11-21, because industrial medicine was scrapped at tribal colonies. |
-| Ammunition and the drop mode | Exempt by default, with a setting to include it. Settled 2026-11-23, after a player's tribal raider dropped 53 spacer scrap from one stack of arrows. |
+| Ammunition and the drop mode | Exempt by default, with a setting to include it. Settled 2026-11-23, because scrapping a big stack of cheap rounds gave far more scrap than it was worth. |
+| Drop mode scope | A switch per category, weapons and apparel on, inventory categories off. Settled 2026-11-24; replaces `rules.dropIncludesMedicine` and `rules.dropIncludesAmmunition`, which are read once and moved to `rules.medicine.inDropMode` and `rules.ammunition.inDropMode` so packs that set or lock them keep working. |
+| Raw materials category | Stuff plus the `ResourcesRaw` and `Manufactured` thing categories (mortar shells excluded; components, chemfuel and neutroamine sit under `Manufactured`), a new inventory category kept by default. Settled 2026-11-24. |
+| Materials and eras | Stuff (devilstrand, steel, stone) has no era and is never out of reach, because any colony can build and craft with it. Settled 2026-11-24, after a player's tribal raider dropped 53 spacer scrap from a stack of devilstrand a modded recipe had given a spacer era. |
+| Scrap amount for stacks | Anything that stacks is rounded once per stack, at least one scrap per stack. Single items keep at least one scrap each. Settled 2026-11-24; ammunition alone had this from 2026-11-23. |
 | Recycling yields | A weighted loot pool per tier in XML, with a value per unit. One pick per unit, amount by market value. Lower tiers at about 15% weight. Static. No fixed lines, no keep-in-stock count, and bill text that names no materials. Changed from a fixed table 2026-11-21, because fixed yields oversupplied basic materials. |
 | Recycling gate | The bench alone. A bench handles its tier and below. |
 | Recycling place | Existing benches, no new building. |
