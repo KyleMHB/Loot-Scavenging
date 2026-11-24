@@ -151,18 +151,20 @@ public sealed class BenchBatch : Batch
             var tier = TierDef(ScrapTier.Industrial);
             var bill = AddBill(table, "LS_RecycleStudied_Industrial");
             bill.repeatMode = BillRepeatModeDefOf.Forever;
-            SpawnStack(map, tier.studiedScrap, 10, table.Position + new IntVec3(0, 0, -4));
+            // 20, not 10: 0.5.2 halved a unit's value, and 10 units came to 27.5 silver, less than one component (83 drawn).
+            const int Units = 20;
+            SpawnStack(map, tier.studiedScrap, Units, table.Position + new IntVec3(0, 0, -4));
             var before = Counts(tier.pool.Select(e => e.thing));
-            var done = Wait.Until(() => Kit.CountOnMap(map, tier.studiedScrap) == 0, 15000, rest);
+            var done = Wait.Until(() => Kit.CountOnMap(map, tier.studiedScrap) == 0, 30000, rest);
             yield return done;
             float value = GainedValue(before, out string desc);
-            float expected = 10 * tier.valuePerUnit * tier.studiedYieldFactor;
+            float expected = Units * tier.valuePerUnit * tier.studiedYieldFactor;
             c.Expect("value", expected).Observe("value", value).Observe("products", desc);
             if (done.TimedOut)
-                c.WorkflowInconclusive("the crafter did not recycle the studied scrap in 15000 ticks", (crafter.Spawned && !crafter.Dead, "the crafter is alive"));
+                c.WorkflowInconclusive("the crafter did not recycle the studied scrap in 30000 ticks", (crafter.Spawned && !crafter.Dead, "the crafter is alive"));
             else
             {
-                c.Step(value > 0f && value <= 2f * expected, $"10 studied units return about {expected} silver ({value:0}), half of scrap's value");
+                c.Step(value > 0f && value <= 2f * expected, $"{Units} studied units return about {expected} silver ({value:0}), half of scrap's value");
                 c.Conclude();
             }
             bill.suspended = true;
