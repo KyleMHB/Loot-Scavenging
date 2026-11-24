@@ -43,8 +43,8 @@ internal static class SortedDrop
 
     /// <summary>The checks the hooks for a living pawn's drop share: a non-colony pawn whose drop no other hook of this mod
     /// is sorting. Dead pawns are left out because Kill sets that state before its own drop, which its hook already sorted.
-    /// Downed pawns count (ticket 21): the arrest of a downed pawn drops the pack his weapon went into. MakeDowned's own
-    /// drop is marked by its hook, or keeps everything for a pawn in a bed.</summary>
+    /// Downed pawns count (tickets 21 and 23): the arrest of a downed pawn drops the weapon and pack he kept. MakeDowned's
+    /// own drop is marked by its hook, or keeps everything for a pawn in a bed.</summary>
     public static bool ShouldSort(Pawn pawn, bool runOriginal) =>
         runOriginal && Current.ProgramState == ProgramState.Playing && pawn != null && !pawn.Dead && !pawn.Destroyed
         && pawn.Faction is not { IsPlayer: true } && !Contains(pawn);
@@ -127,18 +127,22 @@ internal static class PawnDownedHook
         __state = true;
         try
         {
-            // "Keep the weapon in his pack": nothing drops and nothing is judged. The weapon and pack are held over the
-            // game's drop and all go into his pack (the postfix below), to be sorted at his strip, arrest, join or death.
-            if (BodyLoot.StowsAtDowning(___pawn))
+            // "Keep his weapon" (ticket 23): nothing drops and nothing is judged. He keeps his weapon in hand and his pack,
+            // to be sorted at his strip, arrest, join or death, or as the game drops the weapon when he is put down again.
+            if (BodyLoot.KeepsWeaponAtDowning(___pawn))
             {
-                BodyLoot.Stow(___pawn);
+                BodyLoot.BeginKeepingGear(___pawn);
                 return;
             }
-            // "Drop the weapon": downing drops equipment and inventory, never apparel. With "everything stays on the body"
-            // the kept gear is held and handed back after the drop.
+            // "Drop the weapon": downing drops equipment and inventory, never apparel, sorted as they drop. With
+            // "everything stays on the body" the rules judge it here and what they kept stays in his hands and pack.
             BodyLoot.BeginDrop(___pawn);
             GearSorter.Sort(___pawn, Moment.Downed, equipment: true, apparel: false, inventory: true);
-            BodyLoot.HoldGear(___pawn);
+            if (BodyLoot.KeepsAll(___pawn))
+            {
+                BodyLoot.MarkJudgedAtDowning(___pawn);
+                BodyLoot.BeginKeepingGear(___pawn);
+            }
         }
         catch (Exception e)
         {
@@ -146,9 +150,9 @@ internal static class PawnDownedHook
         }
     }
 
-    // After the downed drop, a downed pawn gets back what was held, weapon included, in its inventory.
-    // A pawn downed in a bed keeps everything in the game (the keep flag), and his later arrest is sorted by the hook on
-    // DropAndForbidEverything.
+    // After the downed drop, a pawn whose loot all stays on the body gets the scrap and disassembly products made for him
+    // in his inventory. A pawn downed in a bed keeps everything in the game (the keep flag), and his later arrest is sorted
+    // by the hook on DropAndForbidEverything.
     private static void Postfix(Pawn ___pawn)
     {
         try
@@ -164,7 +168,10 @@ internal static class PawnDownedHook
     private static void Finalizer(Pawn ___pawn, Exception __exception, bool __state)
     {
         if (__state)
+        {
             SortedDrop.Exit(___pawn);
+            BodyLoot.EndKeepingGear(___pawn);
+        }
         if (__exception == null)
             return;
         try
@@ -256,12 +263,9 @@ internal static class DropEquipmentHook
             return true;
         try
         {
-            // A downed pawn still holding a weapon (downed in a bed, then moved) drops it as he is spawned again. Under
-            // "keep the weapon in his pack" it goes into his pack instead, unjudged, as at the downing itself.
-            if (pawn.Downed && BodyLoot.StowsAtDowning(pawn))
-                BodyLoot.StowEquipment(pawn, eq);
-            else
-                GearSorter.SortEquipment(pawn, eq, Moment.Downed);
+            // Includes the drop the game makes as a downed pawn still holding his weapon is spawned outside a bed (see
+            // SpawnDropHook): sorted here like any other living pawn's drop.
+            GearSorter.SortEquipment(pawn, eq, Moment.Downed);
         }
         catch (Exception e)
         {
@@ -269,9 +273,66 @@ internal static class DropEquipmentHook
         }
         if (__instance.Contains(eq))
             return true;
-        // Scrapped, disassembled, deleted or put in the pack: nothing is left to drop, and the room a caller wanted is made.
+        // Scrapped, disassembled or deleted: nothing is left to drop, and the room a caller wanted is made.
         resultingEq = null;
         __result = true;
         return false;
+    }
+}
+
+// A covered pawn being downed under "Keep his weapon", or whose kept loot stays on the body, keeps his weapon and pack:
+// these skip exactly the two drops MakeDowned makes through DropAndForbidEverything, as the game does for a pawn downed
+// in a bed. A carried thing (a kidnapped colonist, a thief's silver) still drops. First, so no other mod sorts or moves a
+// drop that is not going to happen.
+[HarmonyPatch(typeof(Pawn_EquipmentTracker), nameof(Pawn_EquipmentTracker.DropAllEquipment))]
+internal static class KeepEquipmentAtDowningHook
+{
+    [HarmonyPriority(Priority.First)]
+    private static bool Prefix(Pawn_EquipmentTracker __instance) => !BodyLoot.IsKeepingGear(__instance.pawn);
+}
+
+[HarmonyPatch(typeof(Pawn_InventoryTracker), nameof(Pawn_InventoryTracker.DropAllNearPawn))]
+internal static class KeepInventoryAtDowningHook
+{
+    [HarmonyPriority(Priority.First)]
+    private static bool Prefix(Pawn_InventoryTracker __instance) => !BodyLoot.IsKeepingGear(__instance.pawn);
+}
+
+// The game drops a downed pawn's weapon whenever he is spawned outside a bed: carried and put down, rescued to a bed (the
+// tuck drops him first), or a reload. A pawn who kept his weapon at his downing (ticket 23) hits this. While the game is
+// playing the drop goes ahead and DropEquipmentHook sorts it; the pawn then remembers what is left, as he does at a
+// downing in the game, so he picks it up again if he gets up. During a load or map setup the rules cannot run, so the drop
+// is skipped and he keeps holding his weapon, as he was when saved.
+[HarmonyPatch(typeof(Pawn_EquipmentTracker), nameof(Pawn_EquipmentTracker.Notify_PawnSpawned))]
+internal static class SpawnDropHook
+{
+    [HarmonyPriority(Priority.Last)]
+    private static bool Prefix(Pawn_EquipmentTracker __instance, bool __runOriginal, out ThingWithComps __state)
+    {
+        __state = null;
+        Pawn pawn = __instance.pawn;
+        if (!__runOriginal || pawn == null || !pawn.Downed || pawn.Dead || pawn.GetPosture().InBed() || __instance.Primary == null)
+            return true;
+        try
+        {
+            if (!BodyLoot.KeptGearWhenDowned(pawn))
+                return true;
+            if (Current.ProgramState != ProgramState.Playing)
+                return false;
+            __state = __instance.Primary;
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[Loot Scavenging] Checking the weapon of spawned downed {pawn} failed: {e}"); // not translated
+        }
+        return true;
+    }
+
+    private static void Postfix(Pawn_EquipmentTracker __instance, ThingWithComps __state)
+    {
+        Pawn pawn = __instance.pawn;
+        if (__state == null || pawn?.mindState == null || !__state.Spawned || __state.Destroyed || __state.Map != pawn.Map)
+            return;
+        pawn.mindState.droppedWeapon = __state;
     }
 }
