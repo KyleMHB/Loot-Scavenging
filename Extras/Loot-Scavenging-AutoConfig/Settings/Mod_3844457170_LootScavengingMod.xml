@@ -22,16 +22,19 @@
          Who and when
            hostile, nonHostileFaction, noFaction, prisoners: true, false (which groups' gear is sorted)
            homeMapOnly: true, false
-           onDownedAndStrip: true, false (also sort when a pawn is stripped or arrested, not only at death)
-           downedGear: KeepWeapon, DropWeapon (a downed pawn keeps his weapon in hand and nothing is sorted, or he drops
-             it, sorted as it drops when onDownedAndStrip is true)
+           sortWhenArrested: true, false (sort the gear a pawn drops when he is arrested or sold)
+           sortWhenStripped: true, false (sort the gear taken off a stripped pawn)
+           downedGear: KeepWeapon, DropWeapon (a downed non-colony pawn keeps his weapon in hand and nothing is sorted,
+             or he drops it, sorted as it drops)
+           colonistsKeepGear: true, false (a downed or dead colonist keeps his weapon and pack; colony gear is never
+             sorted either way)
            prisonerJoinGear, otherJoinGear: MarkUnfamiliar, FollowDropMode, LeaveAlone (gear of a recruited or enslaved
              prisoner, and of anyone else who joins)
          What out-of-reach gear becomes
            dropMode: ScrapOutOfReach, ScrapEverything, KeepOriginal, Off
            dropIncludesMedicine: true, false
            dropIncludesAmmunition: true, false
-           deathDrop: Ground, ScrapOnBody, AllOnBody
+           deathDrop: Ground, ScrapOnBody, AllOnBody (where a covered pawn's loot lands at death; default AllOnBody)
            eraFallback: CarrierFaction, ColonyEra, Components
          One rule per category. Replace <category> with weapons, apparel, ammunition, drugs, medicine, food or other,
          which gives for example weaponsOutcome and apparelBelowQuality (49 keys in all).

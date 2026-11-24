@@ -16,7 +16,7 @@ internal static class LootDebugActions
     private static void LogRules()
     {
         LootRules r = Rules;
-        Log.Message($"[Loot Scavenging] hostile={r.hostile} nonHostileFaction={r.nonHostileFaction} noFaction={r.noFaction} prisoners={r.prisoners} homeMapOnly={r.homeMapOnly} onDownedAndStrip={r.onDownedAndStrip} weapons={r.weapons.outcome} apparel={r.apparel.outcome}"); // not translated
+        Log.Message($"[Loot Scavenging] hostile={r.hostile} nonHostileFaction={r.nonHostileFaction} noFaction={r.noFaction} prisoners={r.prisoners} homeMapOnly={r.homeMapOnly} sortWhenArrested={r.sortWhenArrested} sortWhenStripped={r.sortWhenStripped} colonistsKeepGear={LootScavengingMod.Settings.values.colonistsKeepGear} weapons={r.weapons.outcome} apparel={r.apparel.outcome}"); // not translated
     }
 
     [DebugAction(Category, "Toggle no-faction group", allowedGameStates = AllowedGameStates.Playing)] // not translated
@@ -33,10 +33,17 @@ internal static class LootDebugActions
         LogRules();
     }
 
-    [DebugAction(Category, "Toggle downed and strip", allowedGameStates = AllowedGameStates.Playing)] // not translated
-    private static void ToggleDownedAndStrip()
+    [DebugAction(Category, "Toggle sort when arrested", allowedGameStates = AllowedGameStates.Playing)] // not translated
+    private static void ToggleSortWhenArrested()
     {
-        Rules.onDownedAndStrip = !Rules.onDownedAndStrip;
+        Rules.sortWhenArrested = !Rules.sortWhenArrested;
+        LogRules();
+    }
+
+    [DebugAction(Category, "Toggle sort when stripped", allowedGameStates = AllowedGameStates.Playing)] // not translated
+    private static void ToggleSortWhenStripped()
+    {
+        Rules.sortWhenStripped = !Rules.sortWhenStripped;
         LogRules();
     }
 

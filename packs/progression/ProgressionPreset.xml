@@ -5,7 +5,8 @@
      this file into the pack's own Patches/ folder (it needs nothing else; it patches only Loot Scavenging's defaults def).
 
      What it does: the Progression defaults stay as they are (out-of-reach gear becomes scrap from every non-colony group,
-     on death, downed and strip, with prisoners on), and instant disassembly returns era-typical yields. The item-based
+     at death, arrest and strip, with prisoners on; a pawn's loot stays on his body at death; colonists keep their gear),
+     and instant disassembly returns era-typical yields. The item-based
      yield would hand a tribal colony plasteel on the battlefield with no bench, so the yield is also locked: the page
      shows it disabled with a reason and nothing else can switch it.
 
