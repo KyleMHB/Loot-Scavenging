@@ -2,6 +2,8 @@
 
 Status: done
 
+**Revised by ticket 23 (2026-11-24):** a downed pawn now keeps his weapon in hand, not in his pack. "Keep the weapon in his pack" (`KeepInPack`) became "Keep his weapon" (`KeepWeapon`), the stow code and the not-for-sale mark on stowed weapons are gone, and choices 2, 6 and 8 below no longer hold. See [23-downed-keep-weapon-in-hand.md](23-downed-keep-weapon-in-hand.md).
+
 **Recommended model:** `opus`. It changes when gear is judged at the core hooks, and a mistake loses loot or judges it twice.
 
 **Blocked by:** None. Ships in 0.5.2, on top of tickets 18, 19 and 20, which are all merged on main.

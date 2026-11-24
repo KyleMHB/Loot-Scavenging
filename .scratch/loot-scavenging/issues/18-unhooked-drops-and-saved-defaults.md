@@ -52,7 +52,7 @@ Kyle asked for all of C (Part 1 and Part 2) to be built and ruled corpse loss ex
 ## Other review findings, not scheduled
 
 Recorded so they aren't lost. Each needs Kyle's call before it becomes work.
-- **Downed raiders and allies lose an out-of-reach weapon for good** (§3.3). The game would let them pick it up on recovery. One option is to leave the non-hostile group out of the downed moment. Since ticket 21 a downed pawn keeps his weapon whole in his pack by default, so this holds only under "Drop the weapon".
+- **Downed raiders and allies lose an out-of-reach weapon for good** (§3.3). The game would let them pick it up on recovery. One option is to leave the non-hostile group out of the downed moment. Since ticket 21 a downed pawn keeps his weapon whole by default (in his hand since ticket 23), so this holds only under "Drop the weapon".
 - **Death acidifier pawns and mechanoids** (§3.4). They pay scrap for gear the game destroys, and mechanoid scrap stops once the colony researches the weapon.
 - **Quest pawns' untagged gear is sorted** (§2.5). The corpse rule checks the pawn's quest tags; protection checks only the item's.
 - **Hunted animals' corpses** (§2.4). With animal corpse removal on, a hunter's kill is removed.
