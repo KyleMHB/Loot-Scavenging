@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using LootScavenging.Model;
 using RimWorld;
 using RimWorldDevTests;
@@ -17,7 +18,7 @@ public sealed class OutcomesBatch : Batch
     private const string DeleteKeepsApparel = P + "delete-weapon-keep-apparel", Mech = P + "mechanoid-weapon", Fallback = P + "era-fallback",
         Amounts = P + "scrap-amounts-and-modes", Raid = P + "large-raid-piles", Quest = P + "quest-weapon-protected", Animal = P + "animal-corpse-removed",
         Degrade = P + "degrade", ItemBased = P + "disassembly-item-based", EraTypical = P + "disassembly-era-typical", FullStacks = P + "disassembly-full-stacks",
-        Charges = P + "ejected-charges", Ammo = P + "ammunition-drop-mode", Sample = P + "recycle-sample", Pools = P + "tier-table", NoErrors = P + "no-mod-errors";
+        Charges = P + "ejected-charges", Ammo = P + "ammunition-drop-mode", Materials = P + "materials-stay-whole", ToolMaterials = P + "tool-materials-stay-whole", StackScrap = P + "stack-scrap-by-value", Sample = P + "recycle-sample", Pools = P + "tier-table", NoErrors = P + "no-mod-errors";
 
     public override string Id => "lootscavenging-outcomes";
     public override int SegmentCount => 1;
@@ -38,6 +39,9 @@ public sealed class OutcomesBatch : Batch
         new PlannedCase(FullStacks, Levels.Mechanical, "a yield above the stack limit arrives as full stacks with nothing lost"),
         new PlannedCase(Charges, Levels.Mechanical, "a smokepop belt's chemfuel is ejected for scrap, delete and disassemble with the setting on, not with it off"),
         new PlannedCase(Ammo, Levels.Mechanical, "out-of-reach ammunition drops whole by default; with dropIncludesAmmunition on, a stack becomes scrap rounded once per stack (needs an ammo mod)"),
+        new PlannedCase(Materials, Levels.Mechanical, "a stack of devilstrand that a modded recipe puts behind unfinished spacer research drops whole, with steel and plasteel and no scrap, while the revolver still becomes scrap"),
+        new PlannedCase(ToolMaterials, Levels.Mechanical, "known gap: wood (a material that also has melee tools) behind the same spacer recipe still drops whole"),
+        new PlannedCase(StackScrap, Levels.Mechanical, "with the other-items rule on Scrap, 53 devilstrand or 50 cloth become StackUnits of the colony's tier, not one scrap per item; a lone revolver still gives Units"),
         new PlannedCase(Sample, Levels.Mechanical, "200 industrial units recycle to about 2200 silver of pool materials, components and chemfuel included; studied scrap pays half"),
         new PlannedCase(Pools, Levels.Mechanical, "every tier def loads with no config errors"),
         new PlannedCase(NoErrors, Levels.Mechanical, "no error naming the mod logged during the batch"),
@@ -420,7 +424,7 @@ public sealed class OutcomesBatch : Batch
                 Rules.dropIncludesAmmunition = true;
                 c.Note("The player turns on \"drop mode includes ammunition\"");
                 var stack = Stack(ammo, count);
-                int expected = ScrapAmounts.AmmoUnits(stack.MarketValue, count);
+                int expected = ScrapAmounts.StackUnits(stack.MarketValue, count);
                 int perItem = ScrapAmounts.Units(stack.MarketValue, count);
                 before = Kit.StackIds(map, ammo);
                 scrapBefore = Kit.StackIds(map, tierDef);
@@ -432,6 +436,140 @@ public sealed class OutcomesBatch : Batch
                 ModHarness.RestoreSettings();
                 c.Conclude();
             }
+        }
+
+        // ---- materials have no era (0.5.2) -------------------------------------------------------------------------------
+        {
+            var c = ctx.Begin(Materials);
+            ModHarness.RestoreSettings();
+            const BindingFlags priv = BindingFlags.NonPublic | BindingFlags.Static;
+            var indexField = typeof(EraReader).GetField("recipeIndex", priv);
+            var prerequisitesOf = typeof(EraReader).GetMethod("PrerequisitesOf", priv);
+            var devilstrand = Kit.Def("DevilstrandCloth");
+            var steel = ThingDefOf.Steel;
+            var plasteel = Kit.Def("Plasteel");
+            var wood = ThingDefOf.WoodLog;
+            var spacerProject = Project("ChargedShot");
+            if (indexField == null || prerequisitesOf == null)
+            {
+                c.Step(false, "EraReader's recipeIndex field and PrerequisitesOf method were not found (renamed: update this case)");
+                c.Conclude();
+                ctx.Begin(ToolMaterials).NotApplicable("EraReader's recipe index could not be reached by reflection");
+            }
+            else
+            {
+                // A player's report: a modded recipe producing devilstrand sits behind spacer research. EraReader indexes recipes by
+                // product once and caches the index, so it is cleared before and after to make it see this recipe and then forget it.
+                var recipe = new RecipeDef
+                {
+                    defName = "LS_DevTest_DevilstrandBehindSpacerResearch",
+                    products = new List<ThingDefCountClass> { new ThingDefCountClass(devilstrand, 1), new ThingDefCountClass(wood, 1) },
+                    researchPrerequisite = spacerProject,
+                };
+                DefDatabase<RecipeDef>.Add(recipe);
+                indexField.SetValue(null, null);
+                ctx.Setup("Developer added a RecipeDef producing DevilstrandCloth behind the unfinished spacer project ChargedShot and cleared EraReader's recipe index");
+                try
+                {
+                    var found = (List<ResearchProjectDef>)prerequisitesOf.Invoke(null, new object[] { devilstrand });
+                    c.Step(spacerProject.techLevel == TechLevel.Spacer && !spacerProject.IsFinished, "ChargedShot is an unfinished spacer project");
+                    c.Step(found.Contains(spacerProject),
+                        "the rebuilt recipe index ties devilstrand to that spacer project, which before 0.5.2 made it spacer-era and out of reach");
+                    var era = EraReader.ItemEra(devilstrand, Pirates);
+                    c.Observe("devilstrandEra", era.Era + "/" + era.Source).Observe("devilstrandOutOfReach", era.OutOfReach);
+                    c.Step(era.Source == EraSource.Unknown && !era.OutOfReach, $"EraReader gives devilstrand no era and not out of reach ({era.Era}/{era.Source})");
+
+                    var tiers = ((ScrapTier[])Enum.GetValues(typeof(ScrapTier))).ToDictionary(t => t, t => Kit.CountOnMap(map, Scrap(t)));
+                    int devilBefore = Kit.CountOnMap(map, devilstrand), steelBefore = Kit.CountOnMap(map, steel), plasteelBefore = Kit.CountOnMap(map, plasteel);
+                    ThingWithComps gun = null;
+                    int gunUnits = 0;
+                    KillPirate(p =>
+                    {
+                        gun = Arm(p, revolver, QualityCategory.Normal);
+                        gunUnits = ScrapAmounts.Units(gun.MarketValue, 1);
+                        p.inventory.innerContainer.TryAdd(Stack(devilstrand, 53));
+                        p.inventory.innerContainer.TryAdd(Stack(steel, 30));
+                        p.inventory.innerContainer.TryAdd(Stack(plasteel, 20));
+                    }, out _);
+                    int devil = Kit.CountOnMap(map, devilstrand) - devilBefore, steelGot = Kit.CountOnMap(map, steel) - steelBefore,
+                        plasteelGot = Kit.CountOnMap(map, plasteel) - plasteelBefore;
+                    var scrapGot = tiers.ToDictionary(kv => kv.Key, kv => Kit.CountOnMap(map, Scrap(kv.Key)) - kv.Value);
+                    c.Expect("devilstrand", 53).Observe("devilstrand", devil).Observe("steel", steelGot).Observe("plasteel", plasteelGot)
+                        .Expect("industrialScrap", gunUnits).Observe("scrapByTier", string.Join(", ", scrapGot.Where(kv => kv.Value != 0).Select(kv => kv.Value + " " + kv.Key)));
+                    c.Step(devil == 53, $"the pirate's 53 devilstrand drop whole ({devil})");
+                    c.Step(steelGot == 30 && plasteelGot == 20, $"his steel ({steelGot} of 30) and plasteel ({plasteelGot} of 20) drop whole too");
+                    c.Step(scrapGot[ScrapTier.Spacer] == 0, $"no spacer scrap came from the devilstrand ({scrapGot[ScrapTier.Spacer]})");
+                    c.Step(gun.Destroyed && scrapGot[ScrapTier.Industrial] == gunUnits && scrapGot.Where(kv => kv.Key != ScrapTier.Industrial).All(kv => kv.Value == 0),
+                        $"his out-of-reach revolver still becomes {scrapGot[ScrapTier.Industrial]} industrial scrap (expected {gunUnits}) and nothing else is scrap");
+                    c.Conclude();
+
+                    // Wood is a material too, and Core gives it <tools> (a log can be swung), so the game counts it as a weapon. Gear
+                    // means equippable weapons only, so behind the same recipe it drops whole as well.
+                    c = ctx.Begin(ToolMaterials);
+                    var woodEra = EraReader.ItemEra(wood, Pirates);
+                    int woodBefore = Kit.CountOnMap(map, wood), spacerBefore = Kit.CountOnMap(map, Scrap(ScrapTier.Spacer));
+                    KillPirate(p => p.inventory.innerContainer.TryAdd(Stack(wood, 50)), out _);
+                    int woodGot = Kit.CountOnMap(map, wood) - woodBefore, woodSpacer = Kit.CountOnMap(map, Scrap(ScrapTier.Spacer)) - spacerBefore;
+                    c.Observe("woodEra", woodEra.Era + "/" + woodEra.Source).Observe("woodIsGear", EraReader.IsGear(wood)).Observe("woodDropped", woodGot).Observe("woodSpacerScrap", woodSpacer);
+                    ThingDef beer = DefDatabase<ThingDef>.GetNamedSilentFail("Beer");
+                    c.Step(!EraReader.IsGear(wood) && (beer == null || !EraReader.IsGear(beer)), "wood and beer, which the game counts as melee weapons, are not gear");
+                    c.Step(woodGot == 50 && woodSpacer == 0 && woodEra.Source == EraSource.Unknown,
+                        $"a pirate's 50 wood behind the same spacer recipe drop whole ({woodGot} dropped, {woodSpacer} spacer scrap, era {woodEra.Era}/{woodEra.Source})");
+                    RemoveRecipe();
+                    c.Step(DefDatabase<RecipeDef>.GetNamedSilentFail(recipe.defName) == null && !DefDatabase<RecipeDef>.AllDefsListForReading.Contains(recipe),
+                        "the injected recipe is removed again and the recipe index cleared");
+                    c.Conclude();
+                }
+                finally { RemoveRecipe(); }
+
+                void RemoveRecipe()
+                {
+                    DefDatabase<RecipeDef>.AllDefsListForReading.Remove(recipe);
+                    typeof(DefDatabase<RecipeDef>).GetMethod("Remove", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)?.Invoke(null, new object[] { recipe });
+                    indexField.SetValue(null, null);
+                }
+            }
+        }
+
+        // ---- stackable items scrap by stack value (0.5.2) --------------------------------------------------------------------
+        {
+            var c = ctx.Begin(StackScrap);
+            ModHarness.RestoreSettings();
+            Rules.other = new CategoryRule(Outcome.Scrap);
+            c.Note("The player sets the other-items inventory rule to Scrap");
+            int ScrapOf(ScrapTier t) => Kit.CountOnMap(map, Scrap(t));
+            ThingWithComps gun = null;
+            int gunUnits = 0;
+            foreach (var (def, count, withGun) in new[] { (Kit.Def("DevilstrandCloth"), 53, true), (Kit.Def("Cloth"), 50, false) })
+            {
+                var stack = Stack(def, count);
+                var era = EraReader.ItemEra(def, Pirates);
+                var tier = ScrapTiers.TierFor(era.Era, EraReader.ColonyEra());
+                int expected = ScrapAmounts.StackUnits(stack.MarketValue, count);
+                int tierBefore = ScrapOf(tier), industrialBefore = ScrapOf(ScrapTier.Industrial);
+                KillPirate(p =>
+                {
+                    p.inventory.innerContainer.TryAdd(stack);
+                    if (withGun)
+                    {
+                        gun = Arm(p, revolver, QualityCategory.Normal);
+                        gunUnits = ScrapAmounts.Units(gun.MarketValue, 1);
+                    }
+                }, out _);
+                int got = ScrapOf(tier) - tierBefore;
+                c.Expect(def.defName, expected).Observe(def.defName, got).Observe(def.defName + "UnitValue", stack.MarketValue.ToString("0.##")).Observe(def.defName + "Tier", tier);
+                c.Step(era.Source == EraSource.Unknown, $"{def.label} has no era, so its scrap is the colony's tier ({tier})");
+                c.Step(stack.Destroyed && got == expected, $"{count} {def.label} become {got} {tier} scrap (expected {expected} from the stack's value)");
+                c.Step(got < count / 2, $"far fewer than one scrap per item ({got} for {count})");
+                if (withGun)
+                {
+                    int industrialGot = ScrapOf(ScrapTier.Industrial) - industrialBefore;
+                    c.Expect("revolver", gunUnits).Observe("revolver", industrialGot);
+                    c.Step(gun.Destroyed && industrialGot == gunUnits, $"the pirate's lone revolver still gives ScrapAmounts.Units ({industrialGot}, expected {gunUnits}), at least one unit per item");
+                }
+            }
+            ModHarness.RestoreSettings();
+            c.Conclude();
         }
 
         // ---- 04/15: recycling sample -------------------------------------------------------------------------------------

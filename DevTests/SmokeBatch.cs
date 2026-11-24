@@ -159,7 +159,7 @@ public sealed class SmokeBatch : Batch
             float medValue = kit2.MarketValue;
             medic2.inventory.innerContainer.TryAdd(kit2);
             c.Subject(medic2);
-            int expectedMed = ScrapAmounts.Units(medValue, 3);
+            int expectedMed = ScrapAmounts.StackUnits(medValue, 3); // stackable items round once per stack (0.5.2)
             medsBefore = Kit.CountOnMap(map, medicine);
             before = Kit.StackIds(map, industrial);
             medic2.Kill(null);
