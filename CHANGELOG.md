@@ -6,6 +6,11 @@
 
 ### Changed
 
+- Scrap is cheaper, so gear gives about twice as many units, and cheap gear that used to leave nothing now leaves some. A unit is worth half as much, recycles into half as much and studies for half the research points. Scrap now stacks to 1,000.
+- Scrap already in a save is doubled the first time the save loads, so it keeps its value. That covers scrap on your maps, in pawns' packs, in caravans and in transport pods.
+- Research points per unit that you set yourself are halved once, so your doubled scrap still pays the same research in total. The settings page shows a note when this happens.
+- New x10 recycle and study bills handle ten units in one job. They start only when at least ten units are in stock.
+- Gear with no era that would break into components now gives scrap instead when it is worth less than one component, so it no longer hands out a component worth more than the gear.
 - Every setting is now saved, including ones that match the default. A setting you chose stays put when a modpack or a mod update changes its default. Before, a choice that matched the default of the day was left out of the settings file and moved with the default.
 
 ### Fixed

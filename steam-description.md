@@ -32,13 +32,13 @@ Scrap is worth almost nothing by default, so a stockpile you keep for later does
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-recycle.gif[/img]
 
-Recycle bills at the crafting spot, smithy, machining table and fabrication bench turn scrap into materials of its era. Each bench handles its own tier and every tier below it.
+Recycle bills at the crafting spot, smithy, machining table and fabrication bench turn scrap into materials of its era. Each bench handles its own tier and every tier below it. A x10 bill handles ten units in one job.
 
 [h2]Study for research[/h2]
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-study.gif[/img]
 
-Study bills at a research bench pay a set number of points per unit into the current project, by default from 10 for neolithic scrap to 50 for archotech. The settings let you change each era's points and scale them all with one slider. The scrap's inspect text says whether it can be studied now, and why not.
+Study bills at a research bench pay a set number of points per unit into the current project, by default from 5 for neolithic scrap to 25 for archotech. The settings let you change each era's points and scale them all with one slider. The scrap's inspect text says whether it can be studied now, and why not.
 
 [h2]Loot on the body[/h2]
 
@@ -84,7 +84,7 @@ Modpacks can patch the scrap tiers, their benches and materials, and the default
 
 You can add Loot Scavenging to an existing save. Stockpiles you already have will not take scrap until you allow it in their filters.
 
-You can remove it from a save. The save then loads without scrap, studied scrap, recycle bills and study bills, and logs errors for them. Research benches stay as normal research benches, and gear kept as unfamiliar items becomes usable. Use up or destroy your scrap and delete those bills first.
+You can remove it from a save. The save then loads without scrap, studied scrap, recycle bills and study bills, and logs errors for them and for one value the mod keeps in the save. Research benches stay as normal research benches, and gear kept as unfamiliar items becomes usable. Use up or destroy your scrap and delete those bills first.
 
 [h2]Credits[/h2]
 
