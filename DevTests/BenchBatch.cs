@@ -16,7 +16,7 @@ namespace LootScavenging.DevTests;
 public sealed class BenchBatch : Batch
 {
     private const string P = "lootscavenging.bench.";
-    private const string Recycle = P + "recycle-bill", RecycleStudied = P + "recycle-studied-bill", StudyBench = P + "study-bench-tab",
+    private const string Recycle = P + "recycle-bill", RecycleStudied = P + "recycle-studied-bill", RecycleBulk = P + "recycle-bulk-bill", StudyBench = P + "study-bench-tab",
         NoProject = P + "study-no-project", StudyBill = P + "study-bill", StudyFinish = P + "study-finishes-project",
         OriginalRecycle = P + "original-recycle", OriginalStudy = P + "original-study", Techprint = P + "techprint-project", NoErrors = P + "no-mod-errors";
 
@@ -29,10 +29,11 @@ public sealed class BenchBatch : Batch
     {
         new PlannedCase(Recycle, Levels.PlayerWorkflow, "a recycling bill on 12 industrial units runs 5, 5, 2, hauls at most 5, yields pool materials, offers no keep-in-stock"),
         new PlannedCase(RecycleStudied, Levels.PlayerWorkflow, "a studied-scrap recycling bill returns about half the value"),
+        new PlannedCase(RecycleBulk, Levels.PlayerWorkflow, "a x10 recycling bill never starts on 9 units; on 63 it runs 50 then 13, with ten times the work per job"),
         new PlannedCase(StudyBench, Levels.Mechanical, "the research bench is a study bench with a Bills tab"),
         new PlannedCase(NoProject, Levels.PlayerWorkflow, "with no current project the study bill never starts"),
-        new PlannedCase(StudyBill, Levels.PlayerWorkflow, "keep 3 of 8: one iteration studies 5 for 75 points, work 2250, Intellectual XP gained, 3 left"),
-        new PlannedCase(StudyFinish, Levels.PlayerWorkflow, "30 points short: the bill studies 2 units, work 900, and finishes the project"),
+        new PlannedCase(StudyBill, Levels.PlayerWorkflow, "keep 3 of 8: one iteration studies 5 for 37.5 points, work 1125, Intellectual XP gained, 3 left"),
+        new PlannedCase(StudyFinish, Levels.PlayerWorkflow, "15 points short: the bill studies 2 units, work 450, and finishes the project"),
         new PlannedCase(OriginalRecycle, Levels.PlayerWorkflow, "an unticked unfamiliar rifle is never taken; ticked, it is recycled as its scrap; a lower bench refuses it"),
         new PlannedCase(OriginalStudy, Levels.Mechanical, "an unfamiliar rifle studies as its scrap equivalent when its era is allowed"),
         new PlannedCase(Techprint, Levels.Mechanical, "a techprint project gets nothing with the setting off, and stops a point short with it on"),
@@ -167,6 +168,48 @@ public sealed class BenchBatch : Batch
             bill.suspended = true;
         }
 
+        // ---- 19: x10 recycling bill ----------------------------------------------------------------------------------------
+        {
+            var c = ctx.Begin(RecycleBulk);
+            c.Subject(crafter);
+            var tier = TierDef(ScrapTier.Industrial);
+            var bill = AddBill(table, "LS_Recycle_Bulk_Industrial");
+            bill.repeatMode = BillRepeatModeDefOf.Forever;
+            var pile = SpawnStack(map, industrial, 9, table.Position + new IntVec3(0, 0, -4));
+            bool sawJob = false;
+            var window = Wait.Ticks(1500, rest);
+            window.AfterTick += () => sawJob |= crafter.CurJob?.RecipeDef == bill.recipe;
+            yield return window;
+            c.Step(!sawJob && Kit.CountOnMap(map, industrial) == 9, "with 9 units on hand the x10 bill never starts");
+
+            pile.stackCount = 63;
+            ctx.Setup("Developer raised the pile to 63 industrial scrap");
+            var before = Counts(tier.pool.Select(e => e.thing));
+            var watch = new JobWatch { Recipe = bill.recipe, Pawn = crafter, Carried = industrial };
+            var seq = new List<int> { Kit.CountOnMap(map, industrial) };
+            var done = Wait.Until(() => Kit.CountOnMap(map, industrial) == 0, 30000, rest);
+            done.AfterTick += () => { watch.Tick(); int now = Kit.CountOnMap(map, industrial); if (now != seq.Last()) seq.Add(now); };
+            yield return done;
+            float value = GainedValue(before, out string desc);
+            int batch = tier.batchSize * 10;
+            c.Observe("scrapLeftSequence", string.Join(">", seq)).Observe("maxCarried", watch.MaxCarried).Observe("products", desc)
+                .Expect("firstJobWork", batch * tier.workPerUnit).Observe("firstJobWork", watch.MaxWork)
+                .Expect("value", 63 * tier.valuePerUnit).Observe("value", value);
+            if (done.TimedOut)
+                c.WorkflowInconclusive("the crafter did not recycle all 63 units in 30000 ticks", (crafter.Spawned && !crafter.Dead, "the crafter is alive"),
+                    (((Building_WorkTable)table).CurrentlyUsableForBills(), "the machining table is usable"));
+            else
+            {
+                c.Step(seq.SequenceEqual(new[] { 63, 13, 0 }), $"the bill uses the pile {batch} then 13 at a time ({string.Join(">", seq)})");
+                c.Step(watch.MaxCarried > 0 && watch.MaxCarried <= batch, $"the crafter never carries more than ten batches ({watch.MaxCarried})");
+                c.Step(watch.MaxWork <= batch * tier.workPerUnit && watch.MaxWork >= 0.9f * batch * tier.workPerUnit,
+                    $"the first job's work is {batch} units' ({watch.MaxWork:0})");
+                c.Step(value >= 0.6f * 63 * tier.valuePerUnit && value <= 1.4f * 63 * tier.valuePerUnit, $"63 units return about {63 * tier.valuePerUnit} silver of materials ({value:0})");
+                c.Conclude();
+            }
+            bill.suspended = true;
+        }
+
         // ---- 05: study bench ---------------------------------------------------------------------------------------------
         {
             var c = ctx.Begin(StudyBench);
@@ -214,15 +257,15 @@ public sealed class BenchBatch : Batch
             done.AfterTick += watch.Tick;
             yield return done;
             float points = watch.P1 - watch.P0;
-            c.Expect("points", 75).Observe("points", points).Expect("workLeft", 2250).Observe("workLeft", watch.MaxWork)
+            c.Expect("points", 37.5f).Observe("points", points).Expect("workLeft", 1125).Observe("workLeft", watch.MaxWork)
                 .Observe("xpGained", watch.Xp1 - watch.Xp0).Observe("left", Kit.CountOnMap(map, medieval));
             if (done.TimedOut)
                 c.WorkflowInconclusive("the researcher did not finish a study job in 15000 ticks", (researcher.Spawned && !researcher.Dead, "the researcher is alive"),
                     (studyBill.ShouldDoNow(), "the study bill wants doing"));
             else
             {
-                c.Step(Kit.Near(points, 75f, 0.5f), $"one iteration adds 75 points ({points:0.#})");
-                c.Step(watch.MaxWork <= 2250f && watch.MaxWork >= 2100f, $"its work is 2250 ({watch.MaxWork:0})");
+                c.Step(Kit.Near(points, 37.5f, 0.5f), $"one iteration adds 37.5 points ({points:0.#})");
+                c.Step(watch.MaxWork <= 1125f && watch.MaxWork >= 1050f, $"its work is 1125 ({watch.MaxWork:0})");
                 c.Step(watch.Xp1 > watch.Xp0, "the researcher gains Intellectual XP");
                 c.Step(Kit.CountOnMap(map, medieval) == 3, "3 units are left in stock");
                 c.Conclude();
@@ -233,23 +276,23 @@ public sealed class BenchBatch : Batch
             c.Subject(researcher);
             studyBill.targetCount = 0;
             float remaining = project.Cost - Find.ResearchManager.GetProgress(project);
-            Find.ResearchManager.AddProgress(project, remaining - 30f);
+            Find.ResearchManager.AddProgress(project, remaining - 15f);
             researcher.jobs.EndCurrentJob(JobCondition.InterruptForced);
-            ctx.Setup($"Developer added {remaining - 30f:0.#} points to Complex Clothing, leaving 30, and interrupted the researcher's current job");
+            ctx.Setup($"Developer added {remaining - 15f:0.#} points to Complex Clothing, leaving 15, and interrupted the researcher's current job");
             var watch = new JobWatch { Recipe = studyBill.recipe, Pawn = researcher, Project = project };
             var done = Wait.Until(() => watch.Ended, 15000, rest);
             done.AfterTick += watch.Tick;
             yield return done;
             foreach (var w in Find.WindowStack.Windows.OfType<Dialog_NodeTree>().ToList()) w.Close(false);
             float points = watch.P1 - watch.P0;
-            c.Expect("points", 30).Observe("points", points).Expect("workLeft", 900).Observe("workLeft", watch.MaxWork).Observe("left", Kit.CountOnMap(map, medieval))
+            c.Expect("points", 15).Observe("points", points).Expect("workLeft", 450).Observe("workLeft", watch.MaxWork).Observe("left", Kit.CountOnMap(map, medieval))
                 .Observe("finished", project.IsFinished);
             if (done.TimedOut)
                 c.WorkflowInconclusive("the researcher did not finish a study job in 15000 ticks", (researcher.Spawned && !researcher.Dead, "the researcher is alive"));
             else
             {
                 c.Step(project.IsFinished, "Complex Clothing finishes through study");
-                c.Step(watch.MaxWork <= 900f && watch.MaxWork >= 800f, $"the iteration's work follows its 30 points: 900 ({watch.MaxWork:0})");
+                c.Step(watch.MaxWork <= 450f && watch.MaxWork >= 400f, $"the iteration's work follows its 15 points: 450 ({watch.MaxWork:0})");
                 c.Step(Kit.CountOnMap(map, medieval) == 1, "only the 2 units it needed are used; 1 is left");
                 c.Conclude();
             }

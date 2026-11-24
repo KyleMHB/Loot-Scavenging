@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Reflection;
+using LootScavenging.Loot;
 using LootScavenging.Model;
+using RimWorld.Planet;
 using RimWorld;
 using RimWorldDevTests;
 using Verse;
@@ -17,17 +20,46 @@ namespace LootScavenging.DevTests;
 public sealed class SavesBatch : Batch
 {
     private const string P = "lootscavenging.saves.";
-    private const string Before = P + "looted-marker-set", Reload = P + "reload-keeps-state", File_ = P + "save-contents";
+    private const string Before = P + "looted-marker-set", Reload = P + "reload-keeps-state", File_ = P + "save-contents",
+        Doubled = P + "old-scrap-doubled", DoubledOnce = P + "old-scrap-doubled-once";
 
     public override string Id => "lootscavenging-saves";
-    public override int SegmentCount => 2;
+    public override int SegmentCount => 4;
 
     public override IReadOnlyList<PlannedCase> Plan => new[]
     {
         new PlannedCase(Before, Levels.Mechanical, "looted-only scope marks a looted charge rifle; an unlooted one stays equippable"),
         new PlannedCase(Reload, Levels.Mechanical, "after save and load: scrap and studied scrap stacks, the study bench and its bill, and the rifle's marker are intact"),
         new PlannedCase(File_, Levels.Mechanical, "the save holds the marker once and names no mod class for the bench"),
+        new PlannedCase(Doubled, Levels.Mechanical, "a game at scrap scale 1 loads with its scrap doubled: 600 on the ground become 1000 and 200 beside them, 7 in a colonist's pack 14, 12 in a caravan 24"),
+        new PlannedCase(DoubledOnce, Levels.Mechanical, "a second load doubles nothing"),
     };
+
+    // Ticket 19's scale, private to the component: set to 1 here to stand for a save from before 0.5.2.
+    private static readonly FieldInfo ScaleField = typeof(ScrapScaleComponent).GetField("scrapScale", BindingFlags.NonPublic | BindingFlags.Instance);
+    private static int Scale => (int)ScaleField.GetValue(Current.Game.GetComponent<ScrapScaleComponent>());
+
+    // Units of a def anywhere under a holder: a map's ground, storage, pawns and their packs, or a caravan's pawns.
+    private static List<Thing> Under(IThingHolder holder, ThingDef def)
+    {
+        var all = new List<Thing>();
+        if (holder is Map map) ThingOwnerUtility.GetAllThingsRecursively(map, ThingRequest.ForGroup(ThingRequestGroup.Everything), all);
+        else ThingOwnerUtility.GetAllThingsRecursively(holder, all);
+        return all.Where(t => t.def == def).Distinct().ToList();
+    }
+
+    private static Caravan CaravanById(string id) => int.TryParse(id, out int n) ? Find.WorldObjects.Caravans.FirstOrDefault(c => c.ID == n) : null;
+
+    // The three places the doubling case watches, as units and stacks.
+    private static (int ground, int largest, int pack, int caravan) Watched(Map map, BatchContext ctx)
+    {
+        var ground = Under(map, Scrap(ScrapTier.Medieval));
+        var pawn = map.mapPawns.AllPawns.FirstOrDefault(p => p.thingIDNumber.ToString() == ctx.Recall("packPawn"));
+        var caravan = CaravanById(ctx.Recall("caravan"));
+        int pack = pawn == null ? -1 : Units(Under(pawn, StudiedScrap(ScrapTier.Neolithic)));
+        int inCaravan = caravan == null ? -1 : Units(Under(caravan, Scrap(ScrapTier.Spacer)));
+        return (Units(ground), ground.Count == 0 ? 0 : ground.Max(t => t.stackCount), pack, inCaravan);
+    }
 
     private static Thing ById(Map map, string id) => int.TryParse(id, out int n) ? map.listerThings.AllThings.FirstOrDefault(t => t.thingIDNumber == n) : null;
 
@@ -78,6 +110,7 @@ public sealed class SavesBatch : Batch
             yield break;
         }
 
+        if (index == 1)
         {
             var c = ctx.Begin(Reload);
             var looted = ById(map, ctx.Recall("looted"));
@@ -102,6 +135,7 @@ public sealed class SavesBatch : Batch
             c.Step(unlooted != null && !Unfamiliar.IsUnfamiliar(unlooted), "the unlooted one is still familiar");
             c.Conclude();
         }
+        if (index == 1)
         {
             var c = ctx.Begin(File_);
             // The runner moves its save into the run's evidence folder after loading it.
@@ -115,6 +149,53 @@ public sealed class SavesBatch : Batch
                 .Observe("lsDefNames", Regex.Matches(text, ">LS_[A-Za-z_]+<").Cast<Match>().Select(m => m.Value.Trim('<', '>')).Distinct().Count());
             c.Step(markers == 1, "only the looted rifle writes a marker (an unmarked item saves nothing)");
             c.Step(!text.Contains("Building_StudyBench"), "the bench is saved under the vanilla research bench class");
+            c.Conclude();
+        }
+
+        // ---- 19: a save from before 0.5.2 has its scrap doubled once -----------------------------------------------------
+        if (index == 1)
+        {
+            int scale = Scale;
+            var sites = Sites(Kit.Area(ctx, 30, 12), 4);
+            var ground = SpawnStack(map, Scrap(ScrapTier.Medieval), 600, sites[0] + new IntVec3(0, 0, -3));
+            var colonist = map.mapPawns.FreeColonistsSpawned.First();
+            colonist.inventory.innerContainer.TryAdd(Stack(StudiedScrap(ScrapTier.Neolithic), 7), false);
+            var traveller = PawnGenerator.GeneratePawn(new PawnGenerationRequest(PawnKindDefOf.Colonist, Faction.OfPlayer, forceGenerateNewPawn: true));
+            traveller.inventory.innerContainer.TryAdd(Stack(Scrap(ScrapTier.Spacer), 12), false);
+            var caravan = CaravanMaker.MakeCaravan(new[] { traveller }, Faction.OfPlayer, map.Tile, true);
+            ScaleField.SetValue(Current.Game.GetComponent<ScrapScaleComponent>(), SettingsLoad.OldScrapScale);
+            ctx.Remember("packPawn", colonist.thingIDNumber.ToString());
+            ctx.Remember("caravan", caravan.ID.ToString());
+            ctx.Remember("newGameScale", scale.ToString());
+            var w = Watched(map, ctx);
+            ctx.Setup($"Developer placed 600 medieval scrap on the ground (one stack: {ground.stackCount}), 7 studied neolithic scrap in {colonist.LabelShort}'s pack and 12 spacer scrap in a caravan, " +
+                $"then set the save's scrap scale from {scale} to 1 (counted {w.ground}, {w.pack}, {w.caravan})");
+            yield return Wait.Reload();
+            yield break;
+        }
+        if (index == 2)
+        {
+            var c = ctx.Begin(Doubled);
+            var w = Watched(map, ctx);
+            c.Observe("newGameScale", ctx.Recall("newGameScale")).Observe("scale", Scale).Observe("ground", w.ground).Observe("largestStack", w.largest)
+                .Observe("pack", w.pack).Observe("caravan", w.caravan);
+            c.Step(ctx.Recall("newGameScale") == SettingsLoad.CurrentScrapScale.ToString(), "the new game started at scrap scale 2");
+            c.Step(w.ground == 1200 && w.largest <= Scrap(ScrapTier.Medieval).stackLimit, $"the 600 on the ground are 1200, no stack over the limit ({w.ground}, largest {w.largest})");
+            c.Step(w.pack == 14, $"the 7 in the colonist's pack are 14 ({w.pack})");
+            c.Step(w.caravan == 24, $"the 12 in the caravan are 24 ({w.caravan})");
+            c.Step(Scale == SettingsLoad.CurrentScrapScale, "the save's scrap scale is now 2");
+            c.Conclude();
+            ctx.Remember("afterDoubling", $"{w.ground}/{w.pack}/{w.caravan}");
+            yield return Wait.Reload();
+            yield break;
+        }
+        if (index == 3)
+        {
+            var c = ctx.Begin(DoubledOnce);
+            var w = Watched(map, ctx);
+            string now = $"{w.ground}/{w.pack}/{w.caravan}";
+            c.Expect("units", ctx.Recall("afterDoubling")).Observe("units", now).Observe("scale", Scale);
+            c.Step(now == ctx.Recall("afterDoubling") && now == "1200/14/24", $"a second load leaves the ground, pack and caravan at {now}");
             c.Conclude();
         }
     }
