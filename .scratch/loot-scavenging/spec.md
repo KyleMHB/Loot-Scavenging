@@ -48,16 +48,17 @@ Degrade, scrap, recycling, study, protection lists, presets and the era rules ha
 
 Every item a pawn drops passes the same ordered checks, and the first check that says "leave it" ends the run with the item untouched.
 
-1. **Owner.** Colony pawns are never affected. Other pawns fall into four groups, each with its own toggle: hostile, non-hostile faction, no faction (wild animals, wild people), and the colony's prisoners.
+1. **Owner.** Colony pawns are never affected, and neither is a pawn that has ever been a colonist (a colonist who ran wild, a shambler raised from one). Other pawns fall into four groups, each with its own toggle: hostile, non-hostile faction, no faction (wild animals, wild people), and the colony's prisoners.
 2. **Place.** An optional "home map only" setting leaves loot alone on caravan, quest and outpost maps.
 3. **Moment.** Rules always apply on death. A setting extends them to gear dropped when a pawn is downed or stripped. The Progression preset turns it on and switches the prisoner group on, so out-of-reach gear cannot be taken intact from a downed raider or a stripped prisoner. The Cleanup preset leaves it off.
-4. **Protection.** Quest-tagged items, unique weapons, persona weapons, relics and anything on the player's keep list are never touched.
+4. **Protection.** Quest-tagged items, unique weapons, persona weapons, relics and anything on the player's keep list are never touched. In "Keep the original item" mode they are never unfamiliar either.
+   Then the **remove list**: an item on it gets its category's outcome, or Delete when that outcome is Keep, skipping the drop mode, conditions and chance (settled 2026-11-24; before, the drop mode came first and kept or scrapped out-of-reach listed items). Then the **drop mode**, which decides out-of-reach items before the category rule.
 5. **Category.** The item is matched to one category rule: weapons, apparel, or an inventory group (ammunition, drugs, medicine, food, other).
 6. **Conditions.** The category rule can be limited to items beyond the colony's reach, below a quality, or below a hit-point percentage.
 7. **Chance.** The category's own chance is rolled.
 8. **Outcome.** The category's outcome is applied.
 
-A whole dropped stack is treated as one item, and a partial drop acts on the piece that left the pawn.
+A whole dropped stack is treated as one item, and a partial drop acts on the piece that left the pawn. Each item is judged once: with "Everything stays on the body", gear kept at a downing goes into the pawn's pack and is skipped when the pawn later dies or is stripped (not saved, so after a reload it is judged once more). Locked apparel stays on a stripped living pawn, but is sorted at death.
 
 | Outcome | What the player sees |
 | --- | --- |

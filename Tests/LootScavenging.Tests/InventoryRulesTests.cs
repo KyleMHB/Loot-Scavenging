@@ -139,6 +139,29 @@ public class InventoryRulesTests
         Assert.Equal(Outcome.Delete, LootEvaluator.Evaluate(Item(ItemCategory.Other, "Silver"), rules, () => 0.99).Outcome);
     }
 
+    // The drop mode used to return first, so an out-of-reach item on the remove list was kept whole in keep-original
+    // mode and scrapped in the scrap modes.
+    [Theory]
+    [InlineData(DropMode.ScrapOutOfReach)]
+    [InlineData(DropMode.ScrapEverything)]
+    [InlineData(DropMode.KeepOriginal)]
+    [InlineData(DropMode.Off)]
+    public void RemoveListBeatsEveryDropModeForOutOfReachItems(DropMode mode)
+    {
+        var rules = TestRules.Basic();
+        rules.dropMode = mode;
+        rules.weapons.outcome = Outcome.Keep;
+        rules.removeList.Add("Gun_ChargeRifle");
+        var item = Item(ItemCategory.Weapon, "Gun_ChargeRifle");
+        item.ItemEra = new EraResult(Era.Spacer, EraSource.Research, true);
+        item.OutOfReach = true;
+
+        var decision = LootEvaluator.Evaluate(item, rules);
+
+        Assert.Equal(Outcome.Delete, decision.Outcome);
+        Assert.Equal(DecisionReason.RemoveList, decision.Reason);
+    }
+
     [Fact]
     public void RemoveListDoesNotOverrideTheOwnerCheck()
     {

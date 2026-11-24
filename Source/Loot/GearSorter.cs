@@ -8,7 +8,8 @@ namespace LootScavenging.Loot;
 
 /// <summary>
 /// Walks a pawn's gear at one moment, describes each item for the evaluator, applies the outcome and logs the decision.
-/// Callers pass only the gear that moment actually drops, so no item is judged twice.
+/// Callers pass only the gear that moment actually drops. Gear the rules kept at a downing and put back in the pack
+/// ("everything stays on the body") is skipped later, so no item is judged twice in a session.
 /// </summary>
 internal static class GearSorter
 {
@@ -31,9 +32,10 @@ internal static class GearSorter
 
         if (apparel && pawn.apparel != null)
         {
-            // A living pawn keeps locked apparel when stripped; only a dead pawn's locked apparel leaves it.
+            // A living pawn keeps locked apparel when stripped. At death it is sorted like the rest: the Kill prefix runs
+            // before the pawn is dead, so this tests the moment, not pawn.Dead.
             IEnumerable<Apparel> worn = pawn.apparel.WornApparel.ToList();
-            if (!pawn.Dead)
+            if (moment == Moment.Strip)
                 worn = worn.Where(ap => !pawn.apparel.IsLocked(ap));
             foreach (Apparel ap in worn)
                 Judge(pawn, ap, owner, moment, mapKind, ItemCategory.Apparel, rules);
@@ -49,9 +51,11 @@ internal static class GearSorter
     public static OwnerGroup OwnerOf(Pawn pawn)
     {
         // Faction-level hostility, because Thing.HostileTo is always false for a destroyed (dead) pawn.
+        // A pawn that was ever a colonist counts as the colony's, so a colonist who ran wild, or a dead colonist raised as a
+        // shambler, keeps the colony's gear. A recruit who later turned hostile is left alone too.
         Faction faction = pawn.Faction;
         return OwnerGroups.Classify(
-            isPlayerFaction: faction != null && faction.IsPlayer,
+            isPlayerFaction: faction != null && faction.IsPlayer || pawn.records != null && PawnUtility.EverBeenColonistOrTameAnimal(pawn),
             isPrisonerOfColony: pawn.IsPrisonerOfColony,
             hasFaction: faction != null,
             factionHostileToPlayer: faction != null && faction.HostileTo(Faction.OfPlayer));
@@ -60,7 +64,7 @@ internal static class GearSorter
     private static void Judge(Pawn pawn, Thing thing, OwnerGroup owner, Moment moment, MapKind mapKind, ItemCategory category, LootRules rules)
     {
         // Scrap already on the pawn (including scrap made earlier in this pass) is never judged again.
-        if (ScrapDefs.IsScrap(thing.def))
+        if (ScrapDefs.IsScrap(thing.def) || BodyLoot.WasJudgedAtDowning(thing))
             return;
 
         EraResult era = EraReader.ItemEra(thing.def, pawn.Faction);

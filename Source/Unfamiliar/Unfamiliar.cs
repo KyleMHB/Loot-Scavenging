@@ -32,13 +32,14 @@ public static class Unfamiliar
 
     /// <summary>
     /// True when the drop mode keeps originals and this item is out of reach by the active scope. False outside a running game.
-    /// A weapon or apparel item only; anything else is never unfamiliar.
+    /// A weapon or apparel item only; anything else is never unfamiliar. Protected items (quest items, unique, persona and
+    /// relic weapons, the keep list) never are: the drop keeps them whole so the colony can use them.
     /// </summary>
     public static bool IsUnfamiliar(Thing thing)
     {
         LootScavengingSettings settings = LootScavengingMod.Settings;
         if (settings == null || settings.values.rules.dropMode != DropMode.KeepOriginal || thing == null
-            || Current.ProgramState != ProgramState.Playing || !IsGear(thing.def))
+            || Current.ProgramState != ProgramState.Playing || !IsGear(thing.def) || IsProtected(thing, settings))
         {
             return false;
         }
@@ -65,7 +66,7 @@ public static class Unfamiliar
     {
         LootScavengingSettings settings = LootScavengingMod.Settings;
         if (settings == null || settings.values.rules.dropMode != DropMode.KeepOriginal || settings.values.unfamiliarScope != UnfamiliarScope.LootedOnly
-            || !IsGear(thing.def) || !(thing is ThingWithComps withComps))
+            || !IsGear(thing.def) || !(thing is ThingWithComps withComps) || IsProtected(thing, settings))
         {
             return;
         }
@@ -80,6 +81,13 @@ public static class Unfamiliar
         {
             comp.lootedEra = UnfamiliarRule.MarkerEra(reach);
         }
+    }
+
+    private static bool IsProtected(Thing thing, LootScavengingSettings settings)
+    {
+        var facts = new DropCandidate();
+        Loot.ItemClassifier.DescribeProtection(thing, facts);
+        return LootEvaluator.IsProtected(facts, settings.values.rules);
     }
 
     // Labels ask once per item per frame, so the per-def era result and the colony era are cached for a few seconds and

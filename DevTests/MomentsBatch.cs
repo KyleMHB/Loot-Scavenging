@@ -21,7 +21,9 @@ public sealed class MomentsBatch : Batch
         OnBody = P + "scrap-on-body", OnBodyRemoved = P + "scrap-on-body-corpse-removed", OffMap = P + "off-map-death",
         AllOnBody = P + "all-on-body", AllOnBodyDisassembled = P + "all-on-body-disassembled", AllOnBodyRemoved = P + "all-on-body-corpse-removed",
         AllOnBodySkips = P + "all-on-body-skips", AllOnBodyDowned = P + "all-on-body-downed",
-        Butcher = P + "butchering-removes-apparel", HomeOnly = P + "home-map-only", NoErrors = P + "no-mod-errors";
+        Butcher = P + "butchering-removes-apparel", HomeOnly = P + "home-map-only", NoErrors = P + "no-mod-errors",
+        JudgedOnce = P + "downed-then-killed-judged-once", LockedApparel = P + "locked-apparel-at-death",
+        FormerColonist = P + "former-colonist-keeps-gear", ProtectedFamiliar = P + "protected-never-unfamiliar";
 
     public override string Id => "lootscavenging-moments";
     public override int SegmentCount => 1;
@@ -39,6 +41,10 @@ public sealed class MomentsBatch : Batch
         new PlannedCase(AllOnBodyRemoved, Levels.Mechanical, "everything on the body with corpse removal on: the loot lands on the ground"),
         new PlannedCase(AllOnBodySkips, Levels.Mechanical, "everything on the body: a colonist's gear and a mechanoid's scrap drop as usual"),
         new PlannedCase(AllOnBodyDowned, Levels.Mechanical, "everything on the body: a downed pirate keeps his in-reach club and the rest in his pack, with downed handling on and off"),
+        new PlannedCase(JudgedOnce, Levels.Mechanical, "everything on the body: a club kept at a downing is not judged again as other inventory when the pirate dies"),
+        new PlannedCase(LockedApparel, Levels.Mechanical, "a pirate's locked out-of-reach vest is scrapped at death"),
+        new PlannedCase(FormerColonist, Levels.Mechanical, "a colonist who ran wild (no faction) keeps an out-of-reach revolver when downed"),
+        new PlannedCase(ProtectedFamiliar, Levels.Mechanical, "keep-original mode: a keep-listed (and, with Royalty, a persona) out-of-reach weapon is never unfamiliar"),
         new PlannedCase(OffMap, Levels.Mechanical, "a world pawn's death (no map, no corpse) logs no error"),
         new PlannedCase(Butcher, Levels.PlayerWorkflow, "a butcher bill destroys worn apparel with the option on and drops it with the option off"),
         new PlannedCase(HomeOnly, Levels.Mechanical, "home-map-only leaves gear whole on an away map; off, it is scrapped there"),
@@ -332,6 +338,116 @@ public sealed class MomentsBatch : Batch
                 p.Destroy();
             }
             if (ready) c.Conclude();
+        }
+
+        // ---- review 2026-11-24: a thing kept at a downing is judged once ----------------------------------------------
+        {
+            var c = ctx.Begin(JudgedOnce);
+            ModHarness.RestoreSettings();
+            Settings.values.deathDrop = DeathDrop.AllOnBody;
+            Rules.onDownedAndStrip = true;
+            Rules.weapons.outcome = Outcome.Keep;
+            Rules.other.outcome = Outcome.Delete;
+            Rules.other.chance = 1f;
+            var club = Kit.Def("MeleeWeapon_Club");
+            var cell = sites.Dequeue();
+            var p = Spawn(ctx, Mercenary, Pirates, cell);
+            var held = Arm(p, club, QualityCategory.Normal);
+            c.Subject(p);
+            c.Note("Everything on the body, downed handling on, weapons Keep, other inventory Delete. A pirate holding a club is downed, then killed");
+            c.Step(!EraReader.ItemEra(club, Pirates).OutOfReach, "the club is in reach of the tribal colony");
+            HealthUtility.TryAnesthetize(p);
+            if (Kit.Require(ctx, JudgedOnce, (p.Downed && !p.Dead, "the pirate is downed and alive")))
+            {
+                c.Step(p.inventory.innerContainer.Contains(held), "the club is kept and goes into his pack");
+                p.Kill(null);
+                bool inCorpse = p.Corpse?.InnerPawn?.inventory?.innerContainer.Contains(held) ?? false;
+                c.Observe("clubDestroyed", held.Destroyed).Observe("clubInCorpse", inCorpse);
+                c.Step(!held.Destroyed && inCorpse, "at death the club is not judged again as other inventory: it stays whole in the corpse");
+                c.Conclude();
+            }
+            p.Corpse?.Destroy();
+        }
+
+        // ---- review 2026-11-24: locked apparel is sorted at death -----------------------------------------------------
+        {
+            var c = ctx.Begin(LockedApparel);
+            ModHarness.RestoreSettings();
+            Settings.values.deathDrop = DeathDrop.Ground;
+            var cell = sites.Dequeue();
+            var p = Spawn(ctx, Mercenary, Pirates, cell);
+            var worn = Dress(p, vest, QualityCategory.Normal);
+            p.apparel.Lock(worn);
+            c.Subject(p);
+            c.Note("Loot lands on the ground. A pirate wears a flak vest the game has locked on him, then dies");
+            c.Step(EraReader.ItemEra(vest, Pirates).OutOfReach && p.apparel.IsLocked(worn), "the vest is out of reach and locked");
+            var before = Kit.StackIds(map, industrial);
+            p.Kill(null);
+            int scrap = Units(NewNear(map, industrial, before, cell));
+            c.Observe("vestDestroyed", worn.Destroyed).Observe("scrapNear", scrap);
+            c.Step(worn.Destroyed && scrap > 0, $"the locked vest is scrapped at death ({scrap} scrap)");
+            c.Conclude();
+            p.Corpse?.Destroy();
+        }
+
+        // ---- review 2026-11-24: a former colonist keeps the colony's gear ---------------------------------------------
+        {
+            var c = ctx.Begin(FormerColonist);
+            ModHarness.RestoreSettings();
+            Rules.onDownedAndStrip = true;
+            var cell = sites.Dequeue();
+            var p = Spawn(ctx, PawnKindDefOf.Colonist, Faction.OfPlayer, cell);
+            var gun = Arm(p, revolver, QualityCategory.Normal);
+            // Time records only grow in the tracker's interval update (AddTo refuses them); one 80-tick update as a colonist
+            // gives the record the game checks.
+            p.records.RecordsTickMothballed(80);
+            c.Step(PawnUtility.EverBeenColonistOrTameAnimal(p), "he has colonist time on record");
+            p.SetFaction(null);
+            ctx.Setup("Developer ran one 80-tick records update for the colonist and removed its faction (as a wild-man break does)");
+            c.Subject(p);
+            c.Step(p.Faction == null && Rules.IsGroupOn(OwnerGroup.NoFaction) && EraReader.ItemEra(revolver, null).OutOfReach,
+                "he has no faction, the no-faction group is on and the revolver is out of reach");
+            HealthUtility.TryAnesthetize(p);
+            if (Kit.Require(ctx, FormerColonist, (p.Downed && !p.Dead, "he is downed and alive")))
+            {
+                c.Observe("revolverDestroyed", gun.Destroyed);
+                c.Step(!gun.Destroyed, "downing leaves the colony's revolver whole");
+                c.Conclude();
+            }
+            p.Destroy();
+            if (!gun.Destroyed) gun.Destroy();
+        }
+
+        // ---- review 2026-11-24: protected items are never unfamiliar --------------------------------------------------
+        {
+            var c = ctx.Begin(ProtectedFamiliar);
+            ModHarness.RestoreSettings();
+            Rules.dropMode = DropMode.KeepOriginal;
+            Settings.values.unfamiliarScope = UnfamiliarScope.AllOutOfReach;
+            Unfamiliar.ResetCache();
+            var cell = sites.Dequeue();
+            var rifle = (ThingWithComps)GenSpawn.Spawn(Make(Kit.Def("Gun_ChargeRifle"), QualityCategory.Normal), cell, map);
+            c.Note("Keep-original mode, all out-of-reach gear. A charge rifle lies on the map");
+            bool before = Unfamiliar.IsUnfamiliar(rifle);
+            Rules.keepList.Add(rifle.def.defName);
+            bool listed = Unfamiliar.IsUnfamiliar(rifle);
+            c.Observe("unfamiliar", before).Observe("unfamiliarKeepListed", listed);
+            c.Step(before, "the charge rifle is unfamiliar at the tribal colony");
+            c.Step(!listed, "on the keep list it is not unfamiliar");
+            rifle.Destroy();
+            var personaDef = DefDatabase<ThingDef>.GetNamedSilentFail("MeleeWeapon_MonoSwordBladelink");
+            if (ModsConfig.RoyaltyActive && personaDef != null)
+            {
+                var persona = (ThingWithComps)GenSpawn.Spawn(Make(personaDef, QualityCategory.Normal), cell, map);
+                bool unfamiliar = Unfamiliar.IsUnfamiliar(persona);
+                c.Observe("personaUnfamiliar", unfamiliar);
+                c.Step(EraReader.ItemEra(personaDef, null).OutOfReach && !unfamiliar, "a persona monosword is out of reach but not unfamiliar");
+                persona.Destroy();
+            }
+            else
+                c.Note("Royalty is not loaded, so the persona weapon was not checked");
+            c.Conclude();
+            Unfamiliar.ResetCache();
         }
 
         // ---- 10: death off the map ---------------------------------------------------------------------------------------

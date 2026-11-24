@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using HarmonyLib;
+using System.Runtime.CompilerServices;
 using LootScavenging.Model;
 using RimWorld;
 using Verse;
@@ -75,16 +75,27 @@ internal static class BodyLoot
         }
     }
 
+    // Things the rules already judged at a downing and put back in the pawn's pack. A later death, strip or second downing
+    // would otherwise judge them again: chance re-rolled, degrade applied twice, the weapon judged as "other inventory".
+    // Weak keys, so the table empties itself; it is not saved, so after a reload such things are judged once more.
+    private static readonly ConditionalWeakTable<Thing, object> judgedAtDowning = new ConditionalWeakTable<Thing, object>();
+
+    public static bool WasJudgedAtDowning(Thing thing) => judgedAtDowning.TryGetValue(thing, out _);
+
     // Called after Pawn.Kill or MakeDowned: the game's drop has run, so things added now stay on the pawn. The entry is
     // always used up: if the call was cancelled or threw, the pawn simply gets its things back in its inventory.
-    public static void PlaceOnBody(Pawn pawn)
+    public static void PlaceOnBody(Pawn pawn, bool downed)
     {
         keepsAll.Remove(pawn);
         if (!held.TryGetValue(pawn, out List<Thing> list))
             return;
         held.Remove(pawn);
         foreach (Thing thing in list)
+        {
+            if (downed && !judgedAtDowning.TryGetValue(thing, out _))
+                judgedAtDowning.Add(thing, null);
             Give(pawn, thing);
+        }
     }
 
     public static void Give(Pawn pawn, Thing thing)
@@ -98,72 +109,5 @@ internal static class BodyLoot
             GenPlace.TryPlaceThing(thing, pawn.PositionHeld, map, ThingPlaceMode.Near);
         else
             thing.Destroy();
-    }
-}
-
-// After the death drop, a dead pawn gets back what was held for its body. Pawn.Kill has two postfixes from this mod; they
-// share one Harmony id, so only HarmonyPriority orders them. This one runs first: when CorpseRemovalHook then removes the
-// corpse, its strip drops the inventory to the ground instead of the loot vanishing.
-[HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
-internal static class BodyLootHook
-{
-    [HarmonyPriority(Priority.High)]
-    private static void Postfix(Pawn __instance)
-    {
-        try
-        {
-            BodyLoot.PlaceOnBody(__instance);
-        }
-        catch (System.Exception e)
-        {
-            Log.Error($"[Loot Scavenging] Leaving loot on {__instance} failed: {e}"); // not translated
-        }
-    }
-
-    // Finalizers run after every postfix. When Kill (or a patch on it) threw, the postfix may not have run, and the held
-    // things would otherwise be lost.
-    private static void Finalizer(Pawn __instance, System.Exception __exception)
-    {
-        if (__exception == null)
-            return;
-        try
-        {
-            BodyLoot.PlaceOnBody(__instance);
-        }
-        catch (System.Exception e)
-        {
-            Log.Error($"[Loot Scavenging] Returning held loot to {__instance} failed: {e}"); // not translated
-        }
-    }
-}
-
-// After the downed drop, a downed pawn gets back what was held, weapon included, in its inventory.
-[HarmonyPatch(typeof(Pawn_HealthTracker), "MakeDowned")]
-internal static class DownedBodyLootHook
-{
-    private static void Postfix(Pawn ___pawn)
-    {
-        try
-        {
-            BodyLoot.PlaceOnBody(___pawn);
-        }
-        catch (System.Exception e)
-        {
-            Log.Error($"[Loot Scavenging] Leaving loot on downed {___pawn} failed: {e}"); // not translated
-        }
-    }
-
-    private static void Finalizer(Pawn ___pawn, System.Exception __exception)
-    {
-        if (__exception == null)
-            return;
-        try
-        {
-            BodyLoot.PlaceOnBody(___pawn);
-        }
-        catch (System.Exception e)
-        {
-            Log.Error($"[Loot Scavenging] Returning held loot to downed {___pawn} failed: {e}"); // not translated
-        }
     }
 }

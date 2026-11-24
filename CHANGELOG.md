@@ -8,7 +8,13 @@
 
 - Materials such as devilstrand, steel and modded stone are never beyond your colony's reach any more, so raiders drop them whole instead of turning them into scrap. A mod recipe that makes a material could give it that recipe's era, and a tribal raider's 53 devilstrand became 53 spacer scrap.
 - Wood, beer, thrumbo horns, tusks and other items the game lets a pawn swing as a club no longer count as weapons. A raider's wood or beer used to be judged by his faction's era, so it could turn into scrap at a tribal colony, and a horn worth 800 silver could be scrapped or deleted by a weapon rule. Grenades and javelins that stack still count as weapons.
-- Any stack that does get scrapped now gives about what it's worth, with at least one scrap per stack, as ammunition already did. Before, every item in the stack gave at least one scrap.
+- A stack that does get scrapped is now counted as a whole and rounded once, with at least one scrap per stack, as ammunition already was. Before, every item in the stack gave at least one scrap, so 53 devilstrand gave at least 53.
+- With "Keep the original item", quest items, unique, persona and relic weapons and items on the always-keep list are never unfamiliar, so a quest-reward persona monosword can be used straight away.
+- Items on the always-remove list are now removed in every drop mode. An out-of-reach item on the list used to be kept whole by "Keep the original item", or scrapped instead of deleted.
+- Apparel the game locks on a pawn, as on some raiders and quest pawns, is now sorted at death like the rest. It used to drop whole from the corpse.
+- With "Everything stays on the body", gear kept when a pawn is downed is no longer judged again when the pawn dies or is stripped. A kept weapon could be deleted at death by the "Other inventory" rule, and chance and degrade applied twice. After a save is loaded, that gear is judged once more.
+- A pawn who has ever been a colonist now counts as the colony's, so a colonist who runs wild, or is raised as a shambler, keeps the colony's gear. A recruit who later turns hostile is left alone too.
+- If a game update breaks one of the mod's patches, only that part of the mod stops, with an error naming it. Before, the whole mod could fail to load.
 
 ## 0.5.1 - 2026-11-23
 

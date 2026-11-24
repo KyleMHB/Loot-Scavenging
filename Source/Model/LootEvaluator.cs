@@ -55,6 +55,7 @@ public static class LootEvaluator
             ?? CheckPlace(item, rules)
             ?? CheckMoment(item, rules)
             ?? CheckProtection(item, rules)
+            ?? CheckRemoveList(item, rules)
             ?? ApplyDropMode(item, rules)
             ?? ApplyCategory(item, rules, roll ?? fallbackRandom.NextDouble);
     }
@@ -94,7 +95,7 @@ public static class LootEvaluator
         return null;
     }
 
-    // Drop mode (spec, "Drop mode"): sits after protection (step 4) and before the category rule (step 5).
+    // Drop mode (spec, "Drop mode"): sits after protection (step 4) and the remove list, and before the category rule (step 5).
     // Returns null to fall through to the category rule.
     private static LootDecision? ApplyDropMode(DropCandidate item, LootRules rules)
     {
@@ -133,27 +134,36 @@ public static class LootEvaluator
     // Step 4.
     private static LootDecision? CheckProtection(DropCandidate item, LootRules rules)
     {
-        bool protectedItem = (rules.protectQuestItems && item.QuestTagged)
+        return IsProtected(item, rules) ? LootDecision.Leave(DecisionReason.Protected) : (LootDecision?)null;
+    }
+
+    /// <summary>The protection step on its own: quest items, unique, persona and relic weapons (each behind its toggle) and
+    /// the keep list. The unfamiliar label asks it too, so a protected item is never locked away.</summary>
+    public static bool IsProtected(DropCandidate item, LootRules rules)
+    {
+        return (rules.protectQuestItems && item.QuestTagged)
             || (rules.protectUniqueWeapons && item.UniqueWeapon)
             || (rules.protectPersonaWeapons && item.PersonaWeapon)
             || (rules.protectRelics && item.Relic)
             || rules.IsOnKeepList(item.DefName);
-        return protectedItem ? LootDecision.Leave(DecisionReason.Protected) : (LootDecision?)null;
+    }
+
+    // The remove list targets an item outright, before the drop mode, so it applies to out-of-reach items too: conditions
+    // and chance are skipped. It uses the category's outcome, or Delete when the category keeps items (or has no rule), so
+    // "always remove" never does nothing.
+    private static LootDecision? CheckRemoveList(DropCandidate item, LootRules rules)
+    {
+        if (!rules.IsOnRemoveList(item.DefName))
+            return null;
+        CategoryRule rule = rules.RuleFor(item.Category);
+        Outcome targeted = rule != null && rule.outcome != Outcome.Keep ? rule.outcome : Outcome.Delete;
+        return new LootDecision(targeted, DecisionReason.RemoveList);
     }
 
     // Steps 5 to 8.
     private static LootDecision ApplyCategory(DropCandidate item, LootRules rules, Func<double> roll)
     {
         CategoryRule rule = rules.RuleFor(item.Category);
-
-        // The remove list targets an item outright: conditions and chance are skipped. It uses the category's outcome,
-        // or Delete when the category keeps items, so "always remove" never does nothing.
-        if (rules.IsOnRemoveList(item.DefName))
-        {
-            Outcome targeted = rule != null && rule.outcome != Outcome.Keep ? rule.outcome : Outcome.Delete;
-            return new LootDecision(targeted, DecisionReason.RemoveList);
-        }
-
         if (rule == null)
             return LootDecision.Leave(DecisionReason.NoCategoryRule);
         if (!MeetsConditions(item, rule))
