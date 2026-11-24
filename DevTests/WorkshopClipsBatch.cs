@@ -483,7 +483,7 @@ public sealed class WorkshopClipsBatch : Batch
         ctx.Begin("workshop-clips.filmed")
             .Observe("pirateScrapped", pirateScrapped).Observe("clubWhole", clubWhole).Observe("recycled", recycled)
             .Observe("studied", studied).Observe("researchGain", progress1 - progress0).Observe("nothingOnGround", nothingOnGround)
-            .Observe("downedWeaponInPack", weaponInHand).Observe("downedNothingFell", nothingFell).Observe("downedStayedDown", stayedDown).Observe("downedTabOpen", downedTabOpen)
+            .Observe("downedWeaponInHand", weaponInHand).Observe("downedNothingFell", nothingFell).Observe("downedStayedDown", stayedDown).Observe("downedTabOpen", downedTabOpen)
             .Observe("gearTabOpen", gearTabOpen).Observe("stripped", stripped).Observe("dropShots", dropShots).Observe("inspectShots", inspectShots)
             .Observe("marks", string.Join(", ", marks.Select(m => m.name)))
             .Check(pirateScrapped && clubWhole && recycled && studied && progress1 > progress0 && nothingOnGround && gearTabOpen && weaponInHand && nothingFell && stayedDown && downedTabOpen && stripped && dropShots == 4 && inspectShots == 2,

@@ -25,9 +25,11 @@ HARNESS_CANDIDATES = [
     Path("E:/Coding/Rimworld/RimWorldDevTests"),
 ]
 RUN_NAME = "20261124-154152-lootscavenging-workshop-clips-s1"
-# The study and downed GIFs come from the 0.5.2 run (study points halved; the downed beat is new). The raid and recycle
-# GIFs keep their first run, and the on-body GIF its Gear-tab refilm, which still show what they showed.
+# The study GIF comes from the 0.5.2 run (study points halved). The downed GIF was refilmed once the downed raider kept
+# his weapon in hand. The raid and recycle GIFs keep their first run, and the on-body GIF its Gear-tab refilm, which
+# still show what they showed.
 RUNS = {
+    "loot-scavenging-downed": "20261124-161503-lootscavenging-workshop-clips-s1",
     "loot-scavenging-raid": "20261121-223036-lootscavenging-workshop-clips-s1",
     "loot-scavenging-recycle": "20261121-223036-lootscavenging-workshop-clips-s1",
     "loot-scavenging-on-body": "20261123-000545-lootscavenging-workshop-clips-s1",
@@ -58,8 +60,8 @@ GIFS = {
     "loot-scavenging-study": [
         ("study-done", -2.8, 2.4, 1260, 860, 200, 0),
     ],
-    # Default "Keep the weapon in his pack": a pirate stands, is downed and nothing falls; then his Gear tab shows the autopistol
-    # in his inventory. One continuous segment; the crop takes the tab (left) and the raider, clear of the forbidden-marked
+    # Default "Keep his weapon": a pirate stands, is downed and nothing falls; then his Gear tab shows the autopistol
+    # under Equipment. One continuous segment; the crop takes the tab (left) and the raider, clear of the forbidden-marked
     # chunks to the right, and stops under the tab's button row.
     "loot-scavenging-downed": [
         ("downed-fall", -0.3, 4.7, 1240, 868, 0, 272),
