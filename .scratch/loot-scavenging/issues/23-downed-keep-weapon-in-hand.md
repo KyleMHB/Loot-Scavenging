@@ -6,6 +6,8 @@ Status: done
 
 **Blocked by:** None. Ships in 0.5.2, on top of ticket 21, which it revises.
 
+**Revised by ticket 24 (2026-11-24):** under "Drop the weapon" a downing always drops and sorts the weapon and pack, also with everything on the body, so choices 2 and 4 and `BodyLoot.WasJudgedAtDowning` no longer apply; colonists keep their gear through the same spawn block; "Also when stripped or arrested" is now two toggles.
+
 **Source:** Kyle, 2026-11-24.
 
 ## Decision (Kyle)

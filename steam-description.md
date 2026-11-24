@@ -20,8 +20,8 @@ If you play for cleanup instead, a preset deletes damaged and low-quality gear a
 [*][b]Study for research.[/b] Scrap becomes points for your current research project.
 [*][b]Four drop modes.[/b] Scrap out-of-reach gear, scrap everything, keep the original item but mark it unfamiliar until you research it, or off.
 [*][b]A rule per item category.[/b] Weapons, apparel, ammunition, drugs, medicine, food and other inventory each get an outcome (keep, degrade, scrap, disassemble or delete), a chance, and optional limits by research, quality and hit points.
-[*][b]Loot on the body.[/b] Loot can stay on the corpse until you strip or butcher it.
-[*][b]Who it affects.[/b] Hostile pawns, non-hostile factions, pawns with no faction and your prisoners each have their own toggle. Your colonists are never affected.
+[*][b]Loot on the body.[/b] Loot stays on the corpse until you strip or butcher it.
+[*][b]Who it affects.[/b] Hostile pawns, non-hostile factions, pawns with no faction and your prisoners each have their own toggle. Your colonists keep their gear, downed or dead.
 [*][b]Protection.[/b] Quest items are never touched by default, and neither are unique weapons (Odyssey), persona weapons (Royalty) or relics (Ideology). An always-keep list and an always-remove list are picked from a searchable item menu.
 [*][b]Corpse cleanup.[/b] Optional removal of humanlike, animal and mechanoid corpses, each with its own toggle and a shared chance. A separate option destroys worn apparel when a corpse is butchered.
 [/list]
@@ -44,13 +44,13 @@ Study bills at a research bench pay a set number of points per unit into the cur
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-on-body.gif[/img]
 
-At death, loot can drop on the ground as usual, leave only the scrap on the body, or leave everything on the body (weapon, medicine, food, silver and scrap) until you strip or butcher the corpse.
+At death, everything stays on the body (weapon, medicine, food, silver and scrap) until you strip or butcher the corpse. Loot can also drop on the ground as usual, or leave only the scrap on the body.
 
 [h2]Downed raiders keep their weapon[/h2]
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-downed.gif[/img]
 
-A raider who goes down keeps his weapon in his hand, and nothing drops. His gear is not judged until he is stripped, arrested, joins your colony or dies, and then only once. If he gets back up, he is still armed. Set [b]When a non-colony pawn is downed[/b] to "Drop the weapon" if you want it on the ground as in the base game. The first GIF above was filmed with that choice.
+A raider who goes down keeps his weapon in his hand, and nothing drops. His gear is not judged until he is stripped, arrested, joins your colony or dies, and then only once. If he gets back up, he is still armed. Set [b]When a non-colony pawn is downed[/b] to "Drop the weapon" to have it drop and be sorted at once. The first GIF above was filmed with that choice.
 
 [h2]How to use[/h2]
 
