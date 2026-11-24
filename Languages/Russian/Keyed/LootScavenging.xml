@@ -218,4 +218,8 @@
 	<LootScavenging_DropIncludesAmmunition>Режим выпадения затрагивает боеприпасы</LootScavenging_DropIncludesAmmunition>
 	<LootScavenging_DropIncludesAmmunitionOn>Боеприпасы вне досягаемости обрабатываются режимом выпадения, как любой другой предмет.</LootScavenging_DropIncludesAmmunitionOn>
 	<LootScavenging_DropIncludesAmmunitionOff>Боеприпасы выпадают нетронутыми, если их собственное правило не велит иного, даже вне досягаемости.</LootScavenging_DropIncludesAmmunitionOff>
+	<LootScavenging_RecycleBulkLabel>переработать {0} x10</LootScavenging_RecycleBulkLabel>
+	<LootScavenging_StudyBulkLabel>изучить {0} x10</LootScavenging_StudyBulkLabel>
+	<LootScavenging_BulkBillNote>Выполняет работу десяти заданий за один раз и начинается, только когда в наличии не меньше единиц: {0}.</LootScavenging_BulkBillNote>
+	<LootScavenging_StudyPointsHalvedNote>В версии 0.5.2 лом стал дешевле, поэтому ваши очки исследования за единицу уменьшены вдвое, чтобы итог остался прежним.</LootScavenging_StudyPointsHalvedNote>
 </LanguageData>

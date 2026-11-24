@@ -218,4 +218,8 @@
 	<LootScavenging_DropIncludesAmmunition>掉落模式包括弹药</LootScavenging_DropIncludesAmmunition>
 	<LootScavenging_DropIncludesAmmunitionOn>超出能力范围的弹药与其他物品一样由掉落模式处理。</LootScavenging_DropIncludesAmmunitionOn>
 	<LootScavenging_DropIncludesAmmunitionOff>弹药原样掉落，除非其自身的物品规则另有规定，即使超出能力范围也是如此。</LootScavenging_DropIncludesAmmunitionOff>
+	<LootScavenging_RecycleBulkLabel>回收{0} x10</LootScavenging_RecycleBulkLabel>
+	<LootScavenging_StudyBulkLabel>调查{0} x10</LootScavenging_StudyBulkLabel>
+	<LootScavenging_BulkBillNote>一次工作完成十个清单的量，库存至少有{0}单位时才会开始。</LootScavenging_BulkBillNote>
+	<LootScavenging_StudyPointsHalvedNote>0.5.2版降低了废料的价值，因此每单位的研究点数已减半，总量保持不变。</LootScavenging_StudyPointsHalvedNote>
 </LanguageData>

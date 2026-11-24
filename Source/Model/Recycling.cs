@@ -156,6 +156,34 @@ public static class RecycleBatch
     public static float Work(int units, float workPerUnit) => units * workPerUnit;
 }
 
+/// <summary>
+/// The ×10 recycle and study bills (ticket 19). Each iteration does the work of ten ×1 iterations, so scrap that comes in
+/// larger numbers needs fewer hauls. The bill needs at least <see cref="MinUnits"/> units to start; a smaller pile uses the ×1
+/// bill.
+/// </summary>
+public static class BulkBills
+{
+    public const int Factor = 10;
+
+    public const int MinUnits = Factor;
+
+    /// <summary>
+    /// The count to take from each chosen stack, in order: as much of each as the <paramref name="budget"/> still allows. A
+    /// stack the budget no longer reaches gets 0.
+    /// </summary>
+    public static int[] Spread(int[] stacks, int budget)
+    {
+        var counts = new int[stacks.Length];
+        int left = Math.Max(0, budget);
+        for (int i = 0; i < stacks.Length; i++)
+        {
+            counts[i] = Math.Min(Math.Max(0, stacks[i]), left);
+            left -= counts[i];
+        }
+        return counts;
+    }
+}
+
 public static class RecycleBenches
 {
     /// <summary>

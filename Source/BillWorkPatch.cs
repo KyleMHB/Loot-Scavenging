@@ -49,7 +49,7 @@ internal static class BillWorkPatch
 
         if (RecycleRecipes.TryGetTier(recipe, out ScrapTierDef tierDef))
         {
-            int units = Trim(job.placedThings, RecycleBatch.Units(Placed(job.placedThings), tierDef.batchSize));
+            int units = Trim(job.placedThings, RecycleBatch.Units(Placed(job.placedThings), tierDef.batchSize * Factor(recipe)));
             driver.workLeft = RecycleBatch.Work(units, tierDef.workPerUnit);
         }
         else if (StudyRecipes.TryGetTier(recipe, out _))
@@ -82,7 +82,7 @@ internal static class BillWorkPatch
         units = 0;
         if (RecycleRecipes.TryGetTier(bill.recipe, out ScrapTierDef tierDef))
         {
-            units = RecycleBatch.Units(available, tierDef.batchSize);
+            units = RecycleBatch.Units(available, tierDef.batchSize * Factor(bill.recipe));
             return true;
         }
         if (StudyRecipes.TryGetTier(bill.recipe, out _) && TryPlanStudy(bill, thing, available, out StudyPlan plan))
@@ -99,12 +99,15 @@ internal static class BillWorkPatch
         plan = default;
         if (!ScrapStudy.TryGetWorth(thing, out StudyWorth worth))
             return false;
-        int max = StudyRules.BatchUnits(worth.PointsPerUnit);
+        int max = StudyRules.BatchUnits(worth.PointsPerUnit) * Factor(bill.recipe);
         if (bill is Bill_Production production && production.repeatMode == BillRepeatModeDefOf.TargetCount)
             max = Math.Min(max, StudyRules.StockAllowance(bill.recipe.WorkerCounter.CountProducts(production), production.targetCount));
         plan = ScrapStudy.Plan(worth, available, max, ScrapStudy.CurrentProject);
         return true;
     }
+
+    /// <summary>How many ×1 batches one iteration of a scrap bill uses: 10 for a ×10 bill (ticket 19), otherwise 1.</summary>
+    internal static int Factor(RecipeDef recipe) => Math.Max(RecycleRecipes.Factor(recipe), StudyRecipes.Factor(recipe));
 
     private static int Placed(List<ThingCountClass> placed)
     {
@@ -149,6 +152,11 @@ internal static class BillIngredientCapPatch
             return;
         try
         {
+            if (BillWorkPatch.Factor(bill.recipe) > 1)
+            {
+                RaiseBulk(bill, chosen);
+                return;
+            }
             for (int i = 0; i < chosen.Count; i++)
             {
                 ThingCount pick = chosen[i];
@@ -159,6 +167,30 @@ internal static class BillIngredientCapPatch
         catch (Exception e)
         {
             Log.ErrorOnce($"[Loot Scavenging] Capping a scrap bill's ingredients failed: {e}", 0x4C5309); // not translated
+        }
+    }
+
+    // A ×10 bill names ten units, so the game picks just ten, from as many stacks as it takes. The picks are raised to what
+    // ten ×1 batches use (or what the stock allowance and the project allow), taken from the chosen stacks in order; a pick
+    // the budget no longer reaches is dropped.
+    private static void RaiseBulk(Bill bill, List<ThingCount> chosen)
+    {
+        var stacks = new int[chosen.Count];
+        int total = 0;
+        for (int i = 0; i < chosen.Count; i++)
+        {
+            stacks[i] = chosen[i].Thing?.stackCount ?? 0;
+            total += stacks[i];
+        }
+        if (chosen[0].Thing == null || !BillWorkPatch.TryCap(bill, chosen[0].Thing, total, out int budget))
+            return;
+        int[] counts = BulkBills.Spread(stacks, budget);
+        for (int i = chosen.Count - 1; i >= 0; i--)
+        {
+            if (counts[i] <= 0)
+                chosen.RemoveAt(i);
+            else
+                chosen[i] = chosen[i].WithCount(counts[i]);
         }
     }
 }
