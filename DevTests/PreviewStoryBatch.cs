@@ -58,10 +58,13 @@ public sealed class PreviewStoryBatch : Batch
 
         ModHarness.SaveSettings();
         Rules.dropMode = DropMode.ScrapEverything;
-        Rules.onDownedAndStrip = true;
+        Rules.sortWhenArrested = true;
+        Rules.sortWhenStripped = true;
         // Shot before ticket 21: downed raiders drop their gear, scrapped as it drops, and the drop scene's pirate drops his rifle.
         Rules.downedGear = DownedGear.DropWeapon;
-        ctx.Setup("Developer set the drop mode to scrap everything with downed and strip on and downed pawns dropping the weapon, so every raider's gear becomes scrap");
+        // Shot before ticket 24 made everything on the body the default: the scrap lies beside the bodies.
+        Settings.values.deathDrop = DeathDrop.Ground;
+        ctx.Setup("Developer set the drop mode to scrap everything, downed pawns dropping the weapon and loot on the ground at death, so every raider's gear becomes scrap beside him");
 
         var tribe = Tribe ?? throw new SetupException("no hostile neolithic faction in this world");
         var area = Kit.Area(ctx, 64, 18);
@@ -153,9 +156,10 @@ public sealed class PreviewStoryBatch : Batch
         Raider(DefDatabase<PawnKindDef>.GetNamed("Tribal_Archer"), tribe, new IntVec3(x1 + 24, 0, z0 + 8), "Bow_Short", tribal, true, Rot4.West);
         ctx.Setup("Aftermath scene: sandbags, three drafted colonists, a colonist carrying neolithic scrap, and five raiders down with recurve and short bows, an assault rifle, a longsword and a charge rifle");
 
-        // ----- Drop: one pirate downed with the mod's downed handling off, so his rifle drops whole; vest and helmet beside him.
+        // ----- Drop: one pirate downed keeping his rifle, which is laid whole beside him; vest and helmet beside him too.
         // Between the two shots each item is replaced by industrial scrap where it lay. -----
-        Rules.onDownedAndStrip = false;
+        // Since ticket 24 a downing under DropWeapon always sorts the weapon, so this pirate keeps it and it is laid down below.
+        Rules.downedGear = DownedGear.KeepWeapon;
         // Its own area, asked for once the other scenes stand, so it lands clear of their pawns and buildings.
         var dropArea = Kit.Area(ctx, 22, 14);
         var dropCell = dropArea.CenterCell;
@@ -183,7 +187,7 @@ public sealed class PreviewStoryBatch : Batch
             GenPlace.TryPlaceThing(item, dropCell + offset, map, ThingPlaceMode.Direct);
             gear.Add(item);
         }
-        Rules.onDownedAndStrip = true;
+        Rules.downedGear = DownedGear.DropWeapon;
         Point("drop", dropCell);
         ctx.Setup($"Drop scene: a downed pirate at {dropCell} with {string.Join(", ", gear.Select(g => $"{g.def.defName} at {g.Position}"))}");
 

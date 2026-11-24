@@ -47,6 +47,32 @@ public static class SettingsLoad
         return halved;
     }
 
+    // "Also when stripped or arrested", saved before 0.5.2 under this key and split by ticket 24. Still read, not written.
+    public const string OldDownedAndStripKey = "onDownedAndStrip"; // not translated
+
+    /// <summary>
+    /// Carries a file's old "Also when stripped or arrested" into the two toggles that replaced it: each one the file does not
+    /// hold itself takes the old value and counts as present, so <see cref="FillMissing"/> leaves it. <paramref name="old"/>
+    /// is null when the file did not hold the old key; then nothing changes and the missing toggles take the baseline.
+    /// </summary>
+    public static void MigrateDownedAndStrip(SettingValues values, ICollection<string> presentKeys, bool? old)
+    {
+        if (old == null || presentKeys == null)
+            return;
+        string arrested = SettingKeys.KeyFor(SettingNames.SortWhenArrested);
+        if (!presentKeys.Contains(arrested))
+        {
+            values.rules.sortWhenArrested = old.Value;
+            presentKeys.Add(arrested);
+        }
+        string stripped = SettingKeys.KeyFor(SettingNames.SortWhenStripped);
+        if (!presentKeys.Contains(stripped))
+        {
+            values.rules.sortWhenStripped = old.Value;
+            presentKeys.Add(stripped);
+        }
+    }
+
     /// <summary>
     /// The value a missing key is filled with. The mod's own save writes every key, a value equal to the default too (ticket
     /// 18), so a later change to this baseline never moves a saved choice. Only a file written before 0.5.2, which left out a

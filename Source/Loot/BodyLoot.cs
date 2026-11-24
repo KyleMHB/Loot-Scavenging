@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using LootScavenging.Model;
 using RimWorld;
 using Verse;
@@ -10,19 +9,19 @@ namespace LootScavenging.Loot;
 /// <summary>
 /// Loot kept on a pawn's body for the "where loot lands at death" setting. Pawn.Kill drops the weapon and inventory
 /// beside the corpse, so what should stay is taken off the pawn before that drop and put back into the dead pawn's
-/// inventory after it, where stripping, butchering or cremating the corpse finds it. A covered pawn's downing drops
-/// nothing under "Keep his weapon" (ticket 23, the default) or "everything stays on the body": he keeps his weapon in hand
-/// and his pack, as the game does for a pawn downed in a bed. The first judges nothing then; the second judges first and
-/// keeps what the rules kept.
+/// inventory after it, where stripping, butchering or cremating the corpse finds it. The setting applies at death only
+/// (ticket 24). A colonist under "Colonists keep their gear" keeps his weapon and pack in his corpse, unsorted. A covered
+/// pawn's downing drops nothing under "Keep his weapon" (ticket 23, the default), and nor does a colonist's under "Colonists
+/// keep their gear": he keeps his weapon in hand and his pack, unjudged, as the game does for a pawn downed in a bed.
 /// </summary>
 internal static class BodyLoot
 {
-    // Things taken off a pawn for the length of its Kill or MakeDowned call: a dying pawn's weapon and pack, and the scrap
-    // and disassembly products made for a pawn whose loot all stays on the body.
+    // Things taken off a pawn for the length of its Kill call: a dying pawn's weapon and pack, and the scrap and
+    // disassembly products made for a pawn whose loot all stays on the body.
     private static readonly Dictionary<Pawn, List<Thing>> held = new Dictionary<Pawn, List<Thing>>();
 
-    // Pawns dying or being downed whose loot all stays on the body, decided before their gear is sorted so that
-    // disassembly products and ejected charges are held too instead of placed on the ground.
+    // Dying pawns whose loot all stays on the body, decided before their gear is sorted so that disassembly products and
+    // ejected charges are held too instead of placed on the ground; and dying colonists who keep their gear.
     private static readonly HashSet<Pawn> keepsAll = new HashSet<Pawn>();
 
     public static bool KeepsAll(Pawn pawn) => keepsAll.Contains(pawn);
@@ -38,7 +37,7 @@ internal static class BodyLoot
     }
 
     /// <summary>
-    /// Called at the start of a death or a downing, before the gear is sorted: with "everything stays on the body", marks
+    /// Called at the start of a death, before the gear is sorted: with "everything stays on the body", marks
     /// a covered pawn so its loot is held. Pawns whose gear the game destroys on drop (most mechanoids) and pawns that
     /// cannot be stripped drop as usual, so nothing is saved that would otherwise vanish or be stuck on a corpse.
     /// </summary>
@@ -77,7 +76,7 @@ internal static class BodyLoot
     }
 
     // Pawns being downed who keep what the game would drop at the downing, for the length of their MakeDowned call: under
-    // "Keep his weapon", or the gear the rules kept under "everything stays on the body". The skip hooks in GearHooks.cs
+    // "Keep his weapon", or a colonist under "Colonists keep their gear". The skip hooks in GearHooks.cs
     // stop the game's drop of their weapon and pack, as the game itself does for a pawn downed in a bed. Nothing moves, so
     // a trader's not-for-sale marks stay as they are.
     private static readonly HashSet<Pawn> keepingGear = new HashSet<Pawn>();
@@ -102,69 +101,42 @@ internal static class BodyLoot
             map.IsPlayerHome ? MapKind.Home : MapKind.Away);
     }
 
-    /// <summary>Whether this downed pawn kept, at his downing, gear the game would otherwise have dropped: under either
-    /// setting when his loot all stays on the body, or under "Keep his weapon". SpawnDropHook asks KeepsWeaponAtDowning
-    /// first, so there this means "Drop the weapon" with everything on the body.</summary>
-    public static bool KeptGearWhenDowned(Pawn pawn)
+    /// <summary>
+    /// Whether "Colonists keep their gear" (ticket 24) covers this pawn: a colonist or colony slave, whose weapon and pack
+    /// then stay with him, unsorted, when he is downed, set down again or killed. Animals and mechanoids are not covered,
+    /// and nor are pawns whose gear the game destroys on drop or that cannot be stripped.
+    /// </summary>
+    public static bool ColonistKeepsGear(Pawn pawn) =>
+        LootScavengingMod.Settings.values.colonistsKeepGear && (pawn.IsColonist || pawn.IsSlaveOfColony) && CanHoldLoot(pawn);
+
+    /// <summary>At a death: marks a colonist who keeps his gear, so HoldGear takes his weapon and pack off him unsorted and
+    /// PlaceOnBody puts them in his corpse's inventory. Returns whether he was marked.</summary>
+    public static bool BeginKeepingColonistGear(Pawn pawn)
+    {
+        if (!pawn.Spawned || !ColonistKeepsGear(pawn))
+            return false;
+        keepsAll.Add(pawn);
+        return true;
+    }
+
+    /// <summary>Whether the rules cover this pawn where he is (owner group and map).</summary>
+    public static bool Covers(Pawn pawn)
     {
         Map map = pawn.MapHeld;
-        if (map == null || !CanHoldLoot(pawn))
-            return false;
-        SettingValues values = LootScavengingMod.Settings.values;
-        return DownedGears.KeepsGear(values.rules, values.deathDrop, GearSorter.OwnerOf(pawn),
-            map.IsPlayerHome ? MapKind.Home : MapKind.Away);
+        return map != null && LootEvaluator.CoversPawn(GearSorter.OwnerOf(pawn), map.IsPlayerHome ? MapKind.Home : MapKind.Away,
+            LootScavengingMod.Settings.values.rules);
     }
 
-    /// <summary>
-    /// After a downing under "everything stays on the body" sorted a pawn's weapon and pack, marks what is left on him as
-    /// judged, so his later strip, arrest, death or spawn drop leaves it alone. With "Also when stripped or arrested" off
-    /// the downing judged nothing, so nothing is marked and his later death still judges it.
-    /// </summary>
-    public static void MarkJudgedAtDowning(Pawn pawn)
-    {
-        if (!LootScavengingMod.Settings.values.rules.onDownedAndStrip)
-            return;
-        if (pawn.equipment != null)
-        {
-            foreach (ThingWithComps eq in pawn.equipment.AllEquipmentListForReading)
-                MarkJudged(eq);
-        }
-        if (pawn.inventory != null)
-        {
-            foreach (Thing thing in pawn.inventory.innerContainer)
-                MarkJudged(thing);
-        }
-    }
-
-    private static void MarkJudged(Thing thing)
-    {
-        if (!judgedAtDowning.TryGetValue(thing, out _))
-            judgedAtDowning.Add(thing, null);
-    }
-
-    // Things the rules already judged at a downing and left on the pawn: only under "Drop the weapon" with "everything
-    // stays on the body". A later death, strip, arrest or spawn drop would otherwise judge them again: chance re-rolled,
-    // degrade applied twice. Weak keys, so the table empties itself; it is not saved, so after a reload such
-    // things are judged once more.
-    private static readonly ConditionalWeakTable<Thing, object> judgedAtDowning = new ConditionalWeakTable<Thing, object>();
-
-    public static bool WasJudgedAtDowning(Thing thing) => judgedAtDowning.TryGetValue(thing, out _);
-
-    // Called after Pawn.Kill or MakeDowned: the game's drop has run, so things added now stay on the pawn. The entry is
-    // always used up: if the call was cancelled or threw, the pawn simply gets its things back in its inventory.
-    public static void PlaceOnBody(Pawn pawn, bool downed)
+    // Called after Pawn.Kill: the game's drop has run, so things added now stay on the corpse. The entry is always used
+    // up: if the call was cancelled or threw, the pawn simply gets its things back in its inventory.
+    public static void PlaceOnBody(Pawn pawn)
     {
         keepsAll.Remove(pawn);
         if (!held.TryGetValue(pawn, out List<Thing> list))
             return;
         held.Remove(pawn);
         foreach (Thing thing in list)
-        {
-            // Held at a downing: scrap and disassembly products the rules made there, already judged.
-            if (downed)
-                MarkJudged(thing);
             Give(pawn, thing);
-        }
     }
 
     public static void Give(Pawn pawn, Thing thing)

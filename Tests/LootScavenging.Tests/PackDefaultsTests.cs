@@ -82,12 +82,12 @@ public class PackDefaultsTests
         PresetConfig pack = Pack(null, "rules.dropMode", "deathDrop", "rules.weapons");
         SettingValues edited = Presets.Defaults(pack);
         edited.rules.dropMode = DropMode.Off;
-        edited.deathDrop = DeathDrop.AllOnBody;
+        edited.deathDrop = DeathDrop.Ground;
         edited.rules.weapons.outcome = Outcome.Delete;
         edited.rules.apparel.outcome = Outcome.Delete;
         pack.Locks.Enforce(edited, pack.Progression);
         Assert.Equal(DropMode.ScrapOutOfReach, edited.rules.dropMode);
-        Assert.Equal(DeathDrop.Ground, edited.deathDrop);
+        Assert.Equal(DeathDrop.AllOnBody, edited.deathDrop);
         Assert.Equal(Outcome.Keep, edited.rules.weapons.outcome);
         Assert.Equal(Outcome.Delete, edited.rules.apparel.outcome);
         Assert.NotSame(pack.Progression.rules.weapons, edited.rules.weapons);
@@ -126,12 +126,12 @@ public class PackDefaultsTests
         string[] expected =
         {
             "rules.hostile", "rules.nonHostileFaction", "rules.noFaction", "rules.prisoners", "rules.homeMapOnly",
-            "rules.onDownedAndStrip", "rules.downedGear", "rules.prisonerJoinGear", "rules.otherJoinGear", "rules.dropMode", "rules.dropIncludesMedicine", "rules.dropIncludesAmmunition",
+            "rules.sortWhenArrested", "rules.sortWhenStripped", "rules.downedGear", "rules.prisonerJoinGear", "rules.otherJoinGear", "rules.dropMode", "rules.dropIncludesMedicine", "rules.dropIncludesAmmunition",
             "rules.weapons", "rules.apparel", "rules.ammunition", "rules.drugs", "rules.medicine", "rules.food", "rules.other",
             "rules.degradeMin", "rules.degradeMax", "rules.degradeLowersQuality",
             "rules.disassemblyYield", "rules.disassemblyEfficiency", "rules.ejectCharges",
             "corpses.humanlike", "corpses.animal", "corpses.mechanoid", "corpses.chance", "corpses.butcherRemovesApparel",
-            "eraFallback", "scrapMarketValue", "deathDrop", "unfamiliarScope", "studyEras", "recycleOrStudy",
+            "eraFallback", "scrapMarketValue", "deathDrop", "colonistsKeepGear", "unfamiliarScope", "studyEras", "recycleOrStudy",
             "studyTechprintProjects",
             "studyPointsNeolithic", "studyPointsMedieval", "studyPointsIndustrial", "studyPointsSpacer", "studyPointsUltra",
             "studyPointsArchotech", "studyPointsMultiplier",

@@ -105,17 +105,20 @@ public class PresetsTests
     [InlineData(Moment.Death)]
     [InlineData(Moment.Downed)]
     [InlineData(Moment.Strip)]
-    public void ProgressionActsAtDeathDownedAndStrip(Moment moment)
+    [InlineData(Moment.Arrest)]
+    public void ProgressionActsAtDeathDownedStripAndArrest(Moment moment)
     {
         Assert.Equal(Outcome.Scrap, Judge(PresetId.Progression, Drop(moment: moment, outOfReach: true)));
     }
 
     [Fact]
-    public void CleanupActsAtDeathOnly()
+    public void CleanupActsAtDeathAndDowningOnly()
     {
         var poor = Drop(quality: ItemQuality.Poor);
         Assert.Equal(Outcome.Delete, Judge(PresetId.Cleanup, poor));
         poor.Moment = Moment.Downed;
+        Assert.Equal(Outcome.Delete, Judge(PresetId.Cleanup, poor));
+        poor.Moment = Moment.Arrest;
         Assert.Equal(DecisionReason.MomentOff, LootEvaluator.Evaluate(poor, Presets.Build(PresetId.Cleanup).rules).Reason);
         poor.Moment = Moment.Strip;
         Assert.Equal(DecisionReason.MomentOff, LootEvaluator.Evaluate(poor, Presets.Build(PresetId.Cleanup).rules).Reason);

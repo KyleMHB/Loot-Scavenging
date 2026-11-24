@@ -44,9 +44,15 @@ public sealed class LootRules
     // Place (step 2).
     public bool homeMapOnly;
 
-    // Moment (step 3). Death always applies; this extends the rules to strip and arrest, and to downing under DropWeapon.
-    // The key keeps its old name so saved files and pack locks still work.
-    public bool onDownedAndStrip = true;
+    // Moment (step 3, ticket 24). Death, downing and joining are always sorted; these two extend the rules to an arrest (or a
+    // trade), where the weapon and pack drop, and to a strip.
+    public bool sortWhenArrested = true;
+    public bool sortWhenStripped = true;
+
+    // The single toggle both replaced, as a pack's patch of the settings defaults Def written before 0.5.2 may still set it.
+    // Not public, so it is neither saved, copied nor compared; ApplyOldDownedAndStrip applies it once the Def is read.
+    // Settings files and locks naming it are converted in SettingsLoad and SettingLocks.
+    internal string onDownedAndStrip;
 
     // Downing (tickets 21 and 23): by default the pawn keeps his weapon in hand and nothing is judged until a later moment.
     public DownedGear downedGear = DownedGear.KeepWeapon;
@@ -93,6 +99,17 @@ public sealed class LootRules
     // Lists hold item def names, so a removed mod's entries do nothing and break nothing.
     public List<string> keepList = new List<string>();
     public List<string> removeList = new List<string>();
+
+    /// <summary>An old "Also when stripped or arrested" set to false in the Def turns both of its replacements off.</summary>
+    internal void ApplyOldDownedAndStrip()
+    {
+        if (bool.TryParse(onDownedAndStrip?.Trim(), out bool old) && !old)
+        {
+            sortWhenArrested = false;
+            sortWhenStripped = false;
+        }
+        onDownedAndStrip = null;
+    }
 
     public bool IsGroupOn(OwnerGroup group)
     {

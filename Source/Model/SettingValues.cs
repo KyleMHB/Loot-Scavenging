@@ -21,8 +21,13 @@ public sealed class SettingValues
     // Market value per scrap unit: near zero so stockpiled scrap does not raise wealth or sell for silver.
     public float scrapMarketValue = DefaultScrapMarketValue;
 
-    // Where a covered pawn's weapon, inventory and scrap land when it dies (and, for AllOnBody, when it is downed).
-    public DeathDrop deathDrop = DeathDrop.Ground;
+    // Where a covered pawn's weapon, inventory and scrap land when it dies. Only at death: a downing that drops anything
+    // drops it to the ground (ticket 24).
+    public DeathDrop deathDrop = DeathDrop.AllOnBody;
+
+    // A downed colonist or colony slave keeps his weapon in hand, and a dead one keeps his weapon and pack in the corpse
+    // (ticket 24). Colony animals and mechanoids are left to the game. Colony gear is never sorted either way.
+    public bool colonistsKeepGear = true;
 
     public UnfamiliarScope unfamiliarScope = UnfamiliarScope.AllOutOfReach;
 

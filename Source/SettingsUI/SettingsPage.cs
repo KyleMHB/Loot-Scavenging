@@ -181,8 +181,10 @@ internal sealed class SettingsPage
             "LootScavenging_PrisonersOn".Translate(), "LootScavenging_PrisonersOff".Translate(), SettingNames.Prisoners);
         Toggle(ls, "LootScavenging_HomeMapOnly".Translate(), ref r.homeMapOnly,
             "LootScavenging_HomeMapOnlyOn".Translate(), "LootScavenging_HomeMapOnlyOff".Translate(), SettingNames.HomeMapOnly);
-        Toggle(ls, "LootScavenging_DownedAndStrip".Translate(), ref r.onDownedAndStrip,
-            "LootScavenging_DownedAndStripOn".Translate(), "LootScavenging_DownedAndStripOff".Translate(), SettingNames.OnDownedAndStrip);
+        Toggle(ls, "LootScavenging_SortWhenArrested".Translate(), ref r.sortWhenArrested,
+            "LootScavenging_SortWhenArrestedOn".Translate(), "LootScavenging_SortWhenArrestedOff".Translate(), SettingNames.SortWhenArrested);
+        Toggle(ls, "LootScavenging_SortWhenStripped".Translate(), ref r.sortWhenStripped,
+            "LootScavenging_SortWhenStrippedOn".Translate(), "LootScavenging_SortWhenStrippedOff".Translate(), SettingNames.SortWhenStripped);
         if (!r.hostile && !r.nonHostileFaction && !r.noFaction && !r.prisoners)
             Explain(ls, "LootScavenging_NoGroupOn".Translate());
 
@@ -192,6 +194,8 @@ internal sealed class SettingsPage
         Explain(ls, r.downedGear == DownedGear.KeepWeapon
             ? "LootScavenging_DownedKeepWeaponExplain".Translate()
             : "LootScavenging_DownedDropWeaponExplain".Translate());
+        Toggle(ls, "LootScavenging_ColonistsKeepGear".Translate(), ref s.values.colonistsKeepGear,
+            "LootScavenging_ColonistsKeepGearOn".Translate(), "LootScavenging_ColonistsKeepGearOff".Translate(), SettingNames.ColonistsKeepGear);
         Choice(ls, "LootScavenging_JoinPrisoners".Translate(), r.prisonerJoinGear, JoinOptions, JoinName,
             v => settings.values.rules.prisonerJoinGear = v, SettingNames.PrisonerJoinGear);
         Explain(ls, JoinSentence(r.prisonerJoinGear));

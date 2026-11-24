@@ -7,8 +7,11 @@ public enum Moment
     Downed,
     Strip,
 
-    /// <summary>A pawn joining the colony (ticket 20). The "downed and strip" toggle does not gate it: its own setting does.</summary>
+    /// <summary>A pawn joining the colony (ticket 20). Its own setting gates it, not the arrest and strip toggles.</summary>
     Join,
+
+    /// <summary>A living pawn taken prisoner or traded, who drops his weapon and pack but keeps his apparel (ticket 24).</summary>
+    Arrest,
 }
 
 /// <summary>Where the pawn is (spec, "Loot rules", step 2).</summary>

@@ -58,9 +58,6 @@
 	<LootScavenging_HomeMapOnly>Только домашняя карта</LootScavenging_HomeMapOnly>
 	<LootScavenging_HomeMapOnlyOn>Добыча на картах караванов, заданий и аванпостов не затрагивается.</LootScavenging_HomeMapOnlyOn>
 	<LootScavenging_HomeMapOnlyOff>Правила действуют на всех картах.</LootScavenging_HomeMapOnlyOff>
-	<LootScavenging_DownedAndStrip>Также при раздевании и аресте</LootScavenging_DownedAndStrip>
-	<LootScavenging_DownedAndStripOn>Правила действуют, когда персонаж погибает, раздет или арестован, поэтому снаряжение вне досягаемости нельзя забрать целым у захваченного налётчика или раздетого пленника. При варианте «Бросить оружие» они действуют и при обездвиживании.</LootScavenging_DownedAndStripOn>
-	<LootScavenging_DownedAndStripOff>Правила действуют только при гибели персонажа. Снаряжение раздетых и арестованных персонажей, а при варианте «Бросить оружие» и обездвиженных, выпадает как обычно. Присоединившиеся следуют своим настройкам ниже.</LootScavenging_DownedAndStripOff>
 	<LootScavenging_NoGroupOn>Не отмечена ни одна группа персонажей, поэтому мод не меняет ни добычу, ни трупы.</LootScavenging_NoGroupOn>
 	<LootScavenging_SectionItems>Правила для предметов</LootScavenging_SectionItems>
 	<LootScavenging_ItemsNoteScrapOutOfReach>Снаряжение вне досягаемости поселения сначала становится ломом (см. режим выпадения). Эти правила решают, что будет с остальным.</LootScavenging_ItemsNoteScrapOutOfReach>
@@ -146,7 +143,7 @@
 	<LootScavenging_DeathDropAllOnBody>Всё остаётся на трупе</LootScavenging_DeathDropAllOnBody>
 	<LootScavenging_DeathDropGroundExplain>Оружие, инвентарь и лом выпадают рядом с трупом, как в базовой игре.</LootScavenging_DeathDropGroundExplain>
 	<LootScavenging_DeathDropScrapOnBodyExplain>Лом с погибших остаётся на трупе и выпадает, когда труп раздевают, разделывают или кремируют. Оружие и инвентарь выпадают рядом с трупом как обычно.</LootScavenging_DeathDropScrapOnBodyExplain>
-	<LootScavenging_DeathDropAllOnBodyExplain>Когда персонаж, на которого распространяются эти правила, погибает, ничего не выпадает. Оружие, медикаменты, продовольствие, серебро и лом остаются на трупе, пока его не разденут, не разделают или не кремируют. При варианте «Бросить оружие» обездвиженный персонаж, на которого распространяются эти правила, не роняет добычу, оставленную правилами, а сохраняет её при себе: оружие в руках, остальное в инвентаре. Механоиды, чьё снаряжение игра уничтожает, не меняются.</LootScavenging_DeathDropAllOnBodyExplain>
+	<LootScavenging_DeathDropAllOnBodyExplain>Когда персонаж, на которого распространяются эти правила, погибает, ничего не выпадает. Оружие, медикаменты, продовольствие, серебро и лом остаются на трупе, пока его не разденут, не разделают или не кремируют. Это действует только при гибели. Механоиды, чьё снаряжение игра уничтожает, не меняются.</LootScavenging_DeathDropAllOnBodyExplain>
 	<LootScavenging_EraFallback>Снаряжение без собственного уровня</LootScavenging_EraFallback>
 	<LootScavenging_EraFallbackCarrier>Уровень фракции владельца</LootScavenging_EraFallbackCarrier>
 	<LootScavenging_EraFallbackColony>Уровень поселения</LootScavenging_EraFallbackColony>
@@ -234,5 +231,14 @@
 	<LootScavenging_DownedKeepWeapon>Оставить ему оружие</LootScavenging_DownedKeepWeapon>
 	<LootScavenging_DownedDropWeapon>Бросить оружие</LootScavenging_DownedDropWeapon>
 	<LootScavenging_DownedKeepWeaponExplain>Ничего не выпадает и ничего не обрабатывается. Оружие остаётся у него в руках, а инвентарь не меняется; всё это обрабатывается, когда его раздевают, арестовывают, когда он присоединяется к поселению или погибает. Он держит оружие и после того, как его перенесут и положат, спасут и уложат в кровать или загрузят сохранение. Налётчик, который снова встанет на ноги, по-прежнему вооружён.</LootScavenging_DownedKeepWeaponExplain>
-	<LootScavenging_DownedDropWeaponExplain>Его оружие и инвентарь выпадают рядом с ним, как в базовой игре. Если включено «Также при раздевании и аресте», они обрабатываются при выпадении.</LootScavenging_DownedDropWeaponExplain>
+	<LootScavenging_DownedDropWeaponExplain>Его оружие и инвентарь выпадают рядом с ним, как в базовой игре, и обрабатываются при выпадении.</LootScavenging_DownedDropWeaponExplain>
+	<LootScavenging_SortWhenArrested>Обрабатывать при аресте</LootScavenging_SortWhenArrested>
+	<LootScavenging_SortWhenArrestedOn>Оружие и инвентарь, которые персонаж роняет при аресте или продаже, обрабатываются, поэтому снаряжение вне досягаемости поселения нельзя забрать целым у захваченного налётчика.</LootScavenging_SortWhenArrestedOn>
+	<LootScavenging_SortWhenArrestedOff>Оружие и инвентарь, которые персонаж роняет при аресте или продаже, выпадают целыми, как в базовой игре.</LootScavenging_SortWhenArrestedOff>
+	<LootScavenging_SortWhenStripped>Обрабатывать при раздевании</LootScavenging_SortWhenStripped>
+	<LootScavenging_SortWhenStrippedOn>Снаряжение, снятое с раздетого персонажа, обрабатывается, поэтому одежду вне досягаемости поселения нельзя забрать целой у пленника.</LootScavenging_SortWhenStrippedOn>
+	<LootScavenging_SortWhenStrippedOff>Снаряжение, снятое с раздетого персонажа, выпадает целым, как в базовой игре. Трупы по-прежнему обрабатываются при гибели.</LootScavenging_SortWhenStrippedOff>
+	<LootScavenging_ColonistsKeepGear>Поселенцы сохраняют снаряжение</LootScavenging_ColonistsKeepGear>
+	<LootScavenging_ColonistsKeepGearOn>Обездвиженный поселенец или раб поселения держит оружие в руках и сохраняет инвентарь, в том числе когда его переносят, спасают или загружают сохранение. Погибший сохраняет их на трупе. Снаряжение поселения никогда не обрабатывается.</LootScavenging_ColonistsKeepGearOn>
+	<LootScavenging_ColonistsKeepGearOff>Обездвиженный или погибший поселенец роняет оружие и инвентарь, как в базовой игре. Снаряжение поселения никогда не обрабатывается.</LootScavenging_ColonistsKeepGearOff>
 </LanguageData>

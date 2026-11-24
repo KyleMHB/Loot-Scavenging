@@ -43,11 +43,11 @@ public class JoinerGearTests
     }
 
     [Theory]
-    [InlineData(Moment.Downed)]
+    [InlineData(Moment.Arrest)]
     [InlineData(Moment.Strip)]
-    public void JoiningIsNotGatedByTheDownedAndStripSetting(Moment gated)
+    public void JoiningIsNotGatedByTheArrestAndStripSettings(Moment gated)
     {
-        var rules = TestRules.Basic(r => { r.onDownedAndStrip = false; });
+        var rules = TestRules.Basic(r => { r.sortWhenArrested = false; r.sortWhenStripped = false; });
         var drop = new DropCandidate { Owner = OwnerGroup.Hostile, Moment = Moment.Join, Map = MapKind.Home, Category = ItemCategory.Weapon };
         Assert.Equal(Outcome.Delete, LootEvaluator.Evaluate(drop, rules).Outcome);
 

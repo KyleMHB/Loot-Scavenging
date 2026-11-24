@@ -272,6 +272,80 @@ public class SettingsLoadTests
         Assert.Equal(12.5f, result.studyPointsSpacer);
     }
 
+    // Ticket 24: "Also when stripped or arrested" split into two toggles. A file from before keeps its choice in both.
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void AnOldDownedAndStripValueCarriesIntoBothToggles(bool old)
+    {
+        PresetConfig pack = Pack(null);
+        SettingValues loaded = Presets.CodeProgression();
+        var present = Keys("activePreset", "dropMode");
+
+        SettingsLoad.MigrateDownedAndStrip(loaded, present, old);
+        SettingValues result = SettingsLoad.Resolve(loaded, false, present, pack, out _);
+
+        Assert.Equal(old, result.rules.sortWhenArrested);
+        Assert.Equal(old, result.rules.sortWhenStripped);
+    }
+
+    [Fact]
+    public void WithoutTheOldKeyBothTogglesTakeTheDefault()
+    {
+        PresetConfig pack = Pack(null);
+        SettingValues loaded = Presets.CodeProgression();
+        var present = Keys("activePreset", "dropMode");
+
+        SettingsLoad.MigrateDownedAndStrip(loaded, present, null);
+        SettingValues result = SettingsLoad.Resolve(loaded, false, present, pack, out _);
+
+        Assert.True(result.rules.sortWhenArrested);
+        Assert.True(result.rules.sortWhenStripped);
+    }
+
+    [Fact]
+    public void ANewToggleTheFileHoldsWinsOverTheOldKey()
+    {
+        SettingValues loaded = Presets.CodeProgression();
+        loaded.rules.sortWhenStripped = true;
+        var present = Keys("sortWhenStripped");
+
+        SettingsLoad.MigrateDownedAndStrip(loaded, present, false);
+
+        Assert.False(loaded.rules.sortWhenArrested);
+        Assert.True(loaded.rules.sortWhenStripped);
+    }
+
+    [Fact]
+    public void ALockOnTheOldKeyLocksBothToggles()
+    {
+        PresetConfig pack = Pack(v => { v.rules.sortWhenArrested = false; v.rules.sortWhenStripped = false; }, "rules.onDownedAndStrip");
+        SettingValues loaded = Presets.CodeProgression();
+
+        SettingValues result = SettingsLoad.Resolve(loaded, true, Keys("sortWhenArrested", "sortWhenStripped"), pack, out _);
+
+        Assert.True(pack.Locks.IsLocked(SettingNames.SortWhenArrested));
+        Assert.True(pack.Locks.IsLocked(SettingNames.SortWhenStripped));
+        Assert.Empty(pack.Locks.Unknown);
+        Assert.False(result.rules.sortWhenArrested);
+        Assert.False(result.rules.sortWhenStripped);
+    }
+
+    [Theory]
+    [InlineData("false", false)]
+    [InlineData("true", true)]
+    [InlineData(null, true)]
+    public void AnOldDefNodeSetsBothToggles(string node, bool expected)
+    {
+        var rules = new LootRules { onDownedAndStrip = node };
+
+        rules.ApplyOldDownedAndStrip();
+
+        Assert.Equal(expected, rules.sortWhenArrested);
+        Assert.Equal(expected, rules.sortWhenStripped);
+        Assert.Null(rules.onDownedAndStrip);
+    }
+
     private static bool LeafEqual(SettingValues a, SettingValues b, string path)
     {
         var fa = ValueWalk.Resolve(a, path, out object oa);

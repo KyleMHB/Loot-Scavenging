@@ -50,7 +50,7 @@ public sealed class OutcomesBatch : Batch
     public override IEnumerable<Wait> Segment(int index, BatchContext ctx)
     {
         long modErrorsAtStart = CaseErrors.ModMark;
-        ModHarness.SaveSettings();
+        ModHarness.SaveSettings(ModHarness.LootOnGround);
         var area = Kit.Area(ctx, 84, 22);
         yield return Wait.Ticks(1);
         var map = ctx.Map;

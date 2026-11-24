@@ -164,6 +164,9 @@ Vanilla uses "study" for Anomaly's entity study. This mod's study is the same ac
 | the base game | 原版游戏 | базовая игра |
 | cremated | 火化 | кремирован |
 | disassembly efficiency | 拆解效率 | эффективность разборки |
+| sort / sorted (the rules judge gear) | 处理 | обрабатывать / обрабатывается |
+| drops whole | 完整掉落 | выпадает целым |
+| sold (a pawn, by trade) | 被出售 | продажа (при аресте или продаже) |
 
 ## Style
 

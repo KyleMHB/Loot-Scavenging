@@ -58,9 +58,6 @@
 	<LootScavenging_HomeMapOnly>仅限主地图</LootScavenging_HomeMapOnly>
 	<LootScavenging_HomeMapOnlyOn>远行队、任务和哨所地图上的战利品不受影响。</LootScavenging_HomeMapOnlyOn>
 	<LootScavenging_HomeMapOnlyOff>规则适用于所有地图。</LootScavenging_HomeMapOnlyOff>
-	<LootScavenging_DownedAndStrip>被剥光或被拘捕时也适用</LootScavenging_DownedAndStrip>
-	<LootScavenging_DownedAndStripOn>角色死亡、被剥光或被拘捕时都适用规则，因此无法从被俘的袭击者或被剥光的囚犯身上完整获取超出殖民地能力范围的装备。选择「丢下武器」时，倒地时也适用。</LootScavenging_DownedAndStripOn>
-	<LootScavenging_DownedAndStripOff>规则仅在角色死亡时适用。被剥光或被拘捕的角色的装备，以及选择「丢下武器」时倒地角色的装备，照常掉落。加入者遵循下方各自的设置。</LootScavenging_DownedAndStripOff>
 	<LootScavenging_NoGroupOn>未勾选任何角色群体，因此本Mod不会改变任何战利品和尸体。</LootScavenging_NoGroupOn>
 	<LootScavenging_SectionItems>物品规则</LootScavenging_SectionItems>
 	<LootScavenging_ItemsNoteScrapOutOfReach>超出殖民地能力范围的装备会先变为废料（见掉落模式）。这些规则决定其余装备如何处理。</LootScavenging_ItemsNoteScrapOutOfReach>
@@ -146,7 +143,7 @@
 	<LootScavenging_DeathDropAllOnBody>全部留在尸体上</LootScavenging_DeathDropAllOnBody>
 	<LootScavenging_DeathDropGroundExplain>武器、随身物品和废料都掉落在尸体旁，与原版游戏相同。</LootScavenging_DeathDropGroundExplain>
 	<LootScavenging_DeathDropScrapOnBodyExplain>死者的废料留在尸体上，在尸体被剥光、屠宰或火化时掉落。武器和随身物品照常掉落在尸体旁。</LootScavenging_DeathDropScrapOnBodyExplain>
-	<LootScavenging_DeathDropAllOnBodyExplain>当受这些规则约束的角色死亡时，不会掉落任何东西。死者的武器、医疗药品、食物、白银和废料留在尸体上，直到尸体被剥光、屠宰或火化。选择「丢下武器」时，受这些规则约束的倒地角色会把规则保留下来的战利品留在身上，武器握在手中，其余留在背包里，而不是掉落。游戏会销毁其装备的机械族不受影响。</LootScavenging_DeathDropAllOnBodyExplain>
+	<LootScavenging_DeathDropAllOnBodyExplain>当受这些规则约束的角色死亡时，不会掉落任何东西。死者的武器、医疗药品、食物、白银和废料留在尸体上，直到尸体被剥光、屠宰或火化。此设置仅在死亡时适用。游戏会销毁其装备的机械族不受影响。</LootScavenging_DeathDropAllOnBodyExplain>
 	<LootScavenging_EraFallback>没有自身时代的装备</LootScavenging_EraFallback>
 	<LootScavenging_EraFallbackCarrier>携带者派系的时代</LootScavenging_EraFallbackCarrier>
 	<LootScavenging_EraFallbackColony>殖民地的时代</LootScavenging_EraFallbackColony>
@@ -234,5 +231,14 @@
 	<LootScavenging_DownedKeepWeapon>保留他的武器</LootScavenging_DownedKeepWeapon>
 	<LootScavenging_DownedDropWeapon>丢下武器</LootScavenging_DownedDropWeapon>
 	<LootScavenging_DownedKeepWeaponExplain>不会掉落任何东西，也不做任何处理。他手中的武器和背包保持原样，在他被剥光、被拘捕、加入殖民地或死亡时再处理。他被搬运后放下、被救援到床上或读取存档后，仍然握着武器。重新站起来的袭击者仍然持有武器。</LootScavenging_DownedKeepWeaponExplain>
-	<LootScavenging_DownedDropWeaponExplain>他的武器和背包会掉落在身旁，与原版游戏相同。开启「被剥光或被拘捕时也适用」后，会在掉落时处理。</LootScavenging_DownedDropWeaponExplain>
+	<LootScavenging_DownedDropWeaponExplain>他的武器和背包会掉落在身旁，与原版游戏相同，并在掉落时处理。</LootScavenging_DownedDropWeaponExplain>
+	<LootScavenging_SortWhenArrested>被拘捕时处理</LootScavenging_SortWhenArrested>
+	<LootScavenging_SortWhenArrestedOn>角色被拘捕或被出售时掉落的武器和背包会被处理，因此无法从被俘的袭击者身上完整获取超出殖民地能力范围的装备。</LootScavenging_SortWhenArrestedOn>
+	<LootScavenging_SortWhenArrestedOff>角色被拘捕或被出售时掉落的武器和背包会完整掉落，与原版游戏相同。</LootScavenging_SortWhenArrestedOff>
+	<LootScavenging_SortWhenStripped>被剥光时处理</LootScavenging_SortWhenStripped>
+	<LootScavenging_SortWhenStrippedOn>从被剥光的角色身上取下的装备会被处理，因此无法从囚犯身上完整获取超出殖民地能力范围的衣物。</LootScavenging_SortWhenStrippedOn>
+	<LootScavenging_SortWhenStrippedOff>从被剥光的角色身上取下的装备会完整掉落，与原版游戏相同。尸体仍会在死亡时处理。</LootScavenging_SortWhenStrippedOff>
+	<LootScavenging_ColonistsKeepGear>殖民者保留装备</LootScavenging_ColonistsKeepGear>
+	<LootScavenging_ColonistsKeepGearOn>倒地的殖民者或殖民地奴隶会把武器握在手中并保留背包，被搬运、被救援或读取存档后也是如此。死亡的殖民者会把它们留在尸体上。殖民地的装备永远不会被处理。</LootScavenging_ColonistsKeepGearOn>
+	<LootScavenging_ColonistsKeepGearOff>倒地或死亡的殖民者会掉落武器和背包，与原版游戏相同。殖民地的装备永远不会被处理。</LootScavenging_ColonistsKeepGearOff>
 </LanguageData>

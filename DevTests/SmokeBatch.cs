@@ -28,7 +28,7 @@ public sealed class SmokeBatch : Batch
     {
         new PlannedCase(Defaults, Levels.Mechanical, "a fresh config holds the Progression preset, not marked changed"),
         new PlannedCase(Fixture, Levels.Mechanical, "colony era Neolithic, revolver research unfinished, hostile pirates, no scrap"),
-        new PlannedCase(TribalScrap, Levels.Mechanical, "a dead pirate's revolver becomes industrial scrap by the value-capped ScrapAmounts.Units; colony and wild deaths change nothing"),
+        new PlannedCase(TribalScrap, Levels.Mechanical, "a dead pirate's revolver becomes industrial scrap by the value-capped ScrapAmounts.Units, kept in his corpse with his silver and steel; a colonist keeps his revolver whole in his corpse; a wild death changes nothing"),
         new PlannedCase(TribalMedicine, Levels.Mechanical, "ticket 16: industrial medicine drops whole by default; scrap of its era with dropIncludesMedicine on"),
         new PlannedCase(Cleanup, Levels.Mechanical, "poor weapon deleted, good weapon kept, corpse removed, kept apparel on the ground"),
         new PlannedCase(Recycling, Levels.Mechanical, "machining table recycles three tiers, smithy no industrial, vanilla bills kept, products from the pool"),
@@ -57,6 +57,10 @@ public sealed class SmokeBatch : Batch
             c.Step(!s.PresetChanged, "the preset is not marked changed");
             c.Step(s.values.SameAs(Presets.Build(PresetId.Progression)), "every value equals the Progression preset");
             c.Step(s.values.rules.dropMode == DropMode.ScrapOutOfReach, "out-of-reach gear becomes scrap");
+            c.Observe("deathDrop", s.values.deathDrop).Observe("colonistsKeepGear", s.values.colonistsKeepGear)
+                .Observe("sortWhenArrested", s.values.rules.sortWhenArrested).Observe("sortWhenStripped", s.values.rules.sortWhenStripped);
+            c.Step(s.values.deathDrop == DeathDrop.AllOnBody && s.values.colonistsKeepGear && s.values.rules.sortWhenArrested && s.values.rules.sortWhenStripped,
+                "everything stays on the body at death, colonists keep their gear, and arrests and strips are sorted");
             c.Conclude();
         }
 
@@ -95,30 +99,34 @@ public sealed class SmokeBatch : Batch
             c.Subject(pirate);
             float value = gun.MarketValue;
             int expected = ExpectedScrap(gun, pirates);
-            int silver = Kit.CountOnMap(map, ThingDefOf.Silver), steel = Kit.CountOnMap(map, ThingDefOf.Steel);
+            var silverBefore = Kit.StackIds(map, ThingDefOf.Silver);
+            var steelBefore = Kit.StackIds(map, ThingDefOf.Steel);
             var before = Kit.StackIds(map, industrial);
-            c.Note($"A pirate with only a revolver (market value {value:0.#}), 50 silver and 30 steel dies");
+            c.Note($"A pirate with only a revolver (market value {value:0.#}), 50 silver and 30 steel dies (default settings: everything stays on the body)");
+            c.Step(Settings.values.deathDrop == DeathDrop.AllOnBody, "by default everything stays on the body at death");
             pirate.Kill(null);
             var corpse = pirate.Corpse;
-            var near = corpse?.Position ?? sites[0];
-            var made = Kit.NewStacks(map, industrial, before).ToList();
-            int units = made.Sum(t => t.stackCount);
-            c.Expect("industrialScrap", expected).Observe("industrialScrap", units)
-                .Observe("scrapDistances", string.Join(",", made.Select(t => t.Position.DistanceTo(near).ToString("0.#"))));
+            int InCorpse(Pawn dead, ThingDef def) => dead.Corpse?.InnerPawn?.inventory?.innerContainer.Where(t => t.def == def).Sum(t => t.stackCount) ?? 0;
+            int units = InCorpse(pirate, industrial), onGround = Kit.NewStacks(map, industrial, before).Sum(t => t.stackCount);
+            c.Expect("industrialScrap", expected).Observe("industrialScrap", units).Observe("scrapOnGround", onGround)
+                .Observe("silverInCorpse", InCorpse(pirate, ThingDefOf.Silver)).Observe("steelInCorpse", InCorpse(pirate, ThingDefOf.Steel));
             c.Step(gun.Destroyed, "the revolver is gone");
-            c.Step(units == expected, $"industrial scrap appears: {units} units, expected {expected}");
-            c.Step(made.Count > 0 && made.All(t => t.Position.DistanceTo(near) <= 4f), "the scrap lies near the corpse");
+            c.Step(units == expected && onGround == 0, $"industrial scrap is in the corpse: {units} units, expected {expected}, {onGround} on the ground");
             c.Step(corpse != null && corpse.Spawned, "the pirate's corpse stays (Progression keeps corpses)");
-            c.Step(Kit.CountOnMap(map, ThingDefOf.Silver) == silver && Kit.CountOnMap(map, ThingDefOf.Steel) == steel,
-                "the silver and steel he carried drop untouched");
+            c.Step(InCorpse(pirate, ThingDefOf.Silver) == 50 && InCorpse(pirate, ThingDefOf.Steel) == 30
+                && !Kit.NewStacks(map, ThingDefOf.Silver, silverBefore).Any() && !Kit.NewStacks(map, ThingDefOf.Steel, steelBefore).Any(),
+                "the silver and steel he carried stay untouched in the corpse, none on the ground");
 
-            // The same gun on a colonist: colony gear is never sorted.
+            // The same gun on a colonist: colony gear is never sorted, and colonists keep their gear (ticket 24).
             var colonist = Spawn(ctx, PawnKindDefOf.Colonist, Faction.OfPlayer, sites[1]);
             var ownGun = Arm(colonist, revolver, null);
             int scrapBefore = ScrapOnMap(map);
             colonist.Kill(null);
-            c.Step(!ownGun.Destroyed && ownGun.Spawned && ownGun.def == revolver && ScrapOnMap(map) == scrapBefore,
-                "a colonist who dies with the same revolver drops it whole, with no scrap");
+            var inner = colonist.Corpse?.InnerPawn;
+            bool gunInCorpse = inner != null && (inner.equipment?.Primary == ownGun || inner.inventory.innerContainer.Contains(ownGun));
+            c.Observe("colonistRevolverInCorpse", gunInCorpse);
+            c.Step(Settings.values.colonistsKeepGear && !ownGun.Destroyed && gunInCorpse && ScrapOnMap(map) == scrapBefore,
+                "a colonist who dies with the same revolver keeps it whole in his corpse, with no scrap");
 
             var hare = Spawn(ctx, DefDatabase<PawnKindDef>.GetNamed("Hare"), null, sites[2]);
             scrapBefore = ScrapOnMap(map);
@@ -134,6 +142,9 @@ public sealed class SmokeBatch : Batch
             var industrial = Scrap(ScrapTier.Industrial);
             var mercenary = DefDatabase<PawnKindDef>.GetNamed("Mercenary_Gunner");
             c.Step(!Settings.values.rules.dropIncludesMedicine, "by default the drop mode leaves medicine out");
+            // Counts what lands on the map, so the loot goes to the ground rather than the default, everything on the body.
+            Settings.values.deathDrop = DeathDrop.Ground;
+            c.Note("Loot lands on the ground at death");
 
             var medic = Spawn(ctx, mercenary, pirates, sites[6]);
             var gun = Arm(medic, revolver, null);

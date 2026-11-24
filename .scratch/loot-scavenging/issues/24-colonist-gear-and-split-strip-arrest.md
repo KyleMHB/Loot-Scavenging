@@ -1,6 +1,6 @@
 # 24: Colonists keep their gear; loot stays on the body by default; arrest and strip split
 
-Status: ready-for-agent
+Status: done
 
 **Recommended model:** `opus`. It changes saved settings (a split key and a new default) and when gear is judged at the core hooks; a mistake silently changes a player's choice or scraps a colonist's gun.
 
@@ -53,3 +53,26 @@ Status: ready-for-agent
 CHANGELOG 0.5.2 (no version bump; read `E:\Coding\Templates\writing-copy.md`), `spec.md` (moments and settings), `steam-description.md` where it describes downing, death or the strip/arrest setting (it is near the 8,000-character cap), TESTING.md. Rewrite ticket 21/23 notes they contradict with a one-line pointer here.
 
 Filming the raid GIF again under the new defaults is a separate step after this merges.
+
+## What was built
+
+- **Settings.** `deathDrop` defaults to AllOnBody in `SettingsDefaults.xml`; no preset sets it, so every preset and `packs/progression` inherit it, and the Auto Mod Config reference comments name the new default. `colonistsKeepGear` (default true) lives on the settings, saved and lockable as `colonistsKeepGear`. `rules.sortWhenArrested` and `rules.sortWhenStripped` (default true) replace `rules.onDownedAndStrip`. Presets: Progression both toggles on, Cleanup both off with colonists keeping gear, Vanilla both off with `colonistsKeepGear` off.
+- **Migration.** A settings file with `onDownedAndStrip` and neither new key sets both toggles from it (`SettingsLoad.MigrateDownedAndStrip`) and is saved again without it. A Def or pack patch that sets `<onDownedAndStrip>` is still read (`LootRules.ApplyOldDownedAndStrip`), and a lock on `rules.onDownedAndStrip` locks both new toggles.
+- **Hooks.** Under "Drop the weapon" the downing always drops the weapon and pack and sorts them as `Moment.Downed`, whatever the other settings say; when Hospitality skips the game's drop, the postfix forces it. `LootEvaluator` gates only Arrest and Strip on the two toggles; a lost grip is sorted as a downing. `BodyLoot.WasJudgedAtDowning` and its paths are removed. `BodyLoot.ColonistKeepsGear` (colonists and colony slaves, setting on) blocks the downing drop, the spawn drop and the death drop, so the weapon stays in hand or in the corpse; colony pawns never reach `GearSorter` while it is on.
+- **Settings page.** "Colonists keep their gear" sits below the downed choice; "Sort when arrested" and "Sort when stripped" replace "Also when stripped or arrested", each with an explain line. English Keyed text, ChineseSimplified and Russian updated; status 0/0.
+- **Tests.** Unit tests for the migration, presets and defaults (370 pass). DevTests: moments `colonist-downed-rescued-keeps-gear`, `colonist-killed-keeps-gear`, `colonist-gear-toggle-off`, `visitor-drop-weapon-sorted` and the arrest and strip toggles on and off; saves `downed-colonist-reload-keeps-weapon`; settings `old-downed-and-strip-key` and the round trip with the new keys. The older batches set Ground as their baseline; smoke checks the new defaults. Run ids are in TESTING.md.
+- **Docs.** CHANGELOG 0.5.2, `spec.md` (moments, settings, a Colonists section), `steam-description.md`, TESTING.md, and pointers in tickets 21 and 23.
+
+## Choices made while building
+
+1. **Vanilla turns "Colonists keep their gear" off**, since the base game drops a colonist's gear; Cleanup keeps it on, as it changes only hostile loot.
+2. **A trade counts as an arrest.** Selling a pawn goes through the same `DropAndForbidEverything` path, so "Sort when arrested" covers it and its text says "arrested or sold". A pawn dropping his weapon after losing his arms is sorted as a downing, under neither toggle.
+3. **Ticket 23 choice 2 is replaced.** "Drop the weapon" with everything on the body now drops to the ground and sorts at the downing; nothing is kept in hand or pack to judge later.
+4. **The old Def node is still read**, so a pack patch written for 0.5.1 keeps working; settings files never write it again.
+5. **With "Colonists keep their gear" off**, a colonist falls through to the game's own drop, and gear the game sends past `GearSorter` is left whole because colony pawns are never covered.
+6. **Edge cases left to the game:** a kidnapped colonist keeps his weapon (the kidnapper takes him whole), a buried colonist's corpse keeps his gear in the grave, and a resurrected colonist finds his weapon in his inventory where the corpse held it.
+7. **`DropAndForbidEverything` callers.** An arrest and a trade reach it on their own and are sorted as an arrest. Death, downing and stripping call it inside their own sorted drop, which marks the pawn so nothing is judged twice.
+8. **DevTests baseline.** The moments, outcomes, settings and saves batches set loot on the ground (`ModHarness.LootOnGround`) so their older cases keep testing what they were written for; smoke keeps the real defaults. PreviewStory uses "Keep his weapon" for its drop scene.
+9. **Changelog.** The 0.5.2 "judged again with everything on the body" fix line was removed, since that path no longer exists.
+
+Not verified in game: a colony slave (needs Ideology; it takes the same check as a colonist), the ui and milestone batches, 1.6 (compiled only), PreviewStory and WorkshopClips (compiled, not filmed).

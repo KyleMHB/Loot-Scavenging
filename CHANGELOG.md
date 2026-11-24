@@ -8,12 +8,14 @@
 
 - Two new settings choose what happens to the gear of pawns who join your colony: one for recruited or enslaved prisoners, one for wanderers, refugees, quest joiners and anyone else. Each can mark out-of-reach gear unfamiliar, follow the drop mode, or leave the gear alone. Both cover the joiner's pack too: following the drop mode sorts it, and marking marks the weapons and apparel in it but leaves his medicine and other items alone. A marked item stays on its wearer, and once it comes off, no colonist can use it until its research is finished. This works in every drop mode. Prisoners follow the drop mode by default and everyone else is marked. Modpacks can set and lock them as `rules.prisonerJoinGear` and `rules.otherJoinGear`.
 - New setting, "When a non-colony pawn is downed": keep his weapon, or drop the weapon. Modpacks can set and lock it as `rules.downedGear`.
+- New setting, "Colonists keep their gear", on by default. A downed colonist or colony slave keeps his weapon in his hand and his pack, also when he is carried, rescued into a bed or loaded from a save. One who dies keeps his weapon and pack in his corpse. Turn it off to have colonists drop their gear as in the base game. Colonists' gear is never scrapped either way. The Vanilla preset turns it off. Modpacks can set and lock it as `colonistsKeepGear`.
 
 ### Changed
 
 - A downed raider now keeps his weapon in his hand by default, and nothing drops. His gear is not judged until he is stripped, arrested, joins your colony or dies, so a raider you capture and recruit is sorted once. He keeps it when he is carried and put down, rescued into a bed, or loaded from a save, and if he gets back up, he is still armed. Choose "Drop the weapon" for the old behaviour.
-- With "Drop the weapon" and "Everything stays on the body", a downed pawn's weapon stays in his hand again instead of going into his pack. If he is carried and put down, even into a bed when he is rescued, the game makes him drop it, and it lands whole. Loading a save no longer makes him drop it.
-- "Also when downed or stripped" is now "Also when stripped or arrested". With it off, stripping and arresting leave gear whole, and so does downing if downed pawns drop the weapon. Pawns who join your colony follow the joiner settings whatever this setting says.
+- "Where loot lands at death" now defaults to "Everything stays on the body": the dead keep their weapon, pack and scrap until the corpse is stripped, butchered or cremated. It applies at death only. If you had changed it from "On the ground", your choice is kept.
+- With "Drop the weapon", a downed pawn always drops his weapon and pack, and they are sorted as they drop, whatever the other settings say. What is kept lands whole on the ground. This covers friendly visitors too when non-hostile factions are on, Hospitality guests included.
+- "Also when downed or stripped" is split into two settings, "Sort when arrested" and "Sort when stripped", both on by default. With one off, that moment's gear drops whole. A settings file or modpack that turned the old setting off turns both off, and a lock on it locks both. Pawns who join your colony follow the joiner settings whatever these say.
 - Weapons and apparel in a pawn's pack are now judged by the weapon and apparel rules instead of the "Other inventory" rule.
 - Scrap is cheaper, so gear gives about twice as many units, and cheap gear that used to leave nothing now leaves some. A unit is worth half as much, recycles into half as much and studies for half the research points. Scrap now stacks to 1,000.
 - Scrap already in a save is doubled the first time the save loads, so it keeps its value. That covers scrap on your maps, in pawns' packs, in caravans and in transport pods.
@@ -24,7 +26,7 @@
 
 ### Fixed
 
-- With "Also when stripped or arrested" on, arresting a standing pawn, such as a visitor, a trader's guard or a wild man, now sorts his weapon and pack. So does trading a pawn away, and a pawn dropping his weapon because he lost the use of his arms. Out-of-reach gear used to drop whole in these cases.
+- With "Sort when arrested" on, arresting a standing pawn, such as a visitor, a trader's guard or a wild man, now sorts his weapon and pack, and so does trading a pawn away. A pawn who drops his weapon because he lost the use of his arms now has it sorted as if he were downed. Out-of-reach gear used to drop whole in these cases.
 - A captured raider who is recruited or enslaved now has his gear handled as he joins, by the setting for prisoners. He used to join still wearing out-of-reach apparel, and could then take it off whole.
 - Materials such as devilstrand, steel and modded stone are never beyond your colony's reach any more, so raiders drop them whole instead of turning them into scrap. A mod recipe that makes a material could give it that recipe's era, and a tribal raider's 53 devilstrand became 53 spacer scrap.
 - Wood, beer, thrumbo horns, tusks and other items the game lets a pawn swing as a club no longer count as weapons. A raider's wood or beer used to be judged by his faction's era, so it could turn into scrap at a tribal colony, and a horn worth 800 silver could be scrapped or deleted by a weapon rule. Grenades and javelins that stack still count as weapons.
@@ -33,7 +35,6 @@
 - With "Keep the original item", quest items, unique, persona and relic weapons and items on the always-keep list are never unfamiliar, so a quest-reward persona monosword can be used straight away.
 - Items on the always-remove list are now removed in every drop mode. An out-of-reach item on the list used to be kept whole by "Keep the original item", or scrapped instead of deleted.
 - Apparel the game locks on a pawn, as on some raiders and quest pawns, is now sorted at death like the rest. It used to drop whole from the corpse.
-- With "Everything stays on the body", gear kept when a pawn is downed is no longer judged again when the pawn dies or is stripped. A kept weapon could be deleted at death by the "Other inventory" rule, and chance and degrade applied twice. After a save is loaded, that gear is judged once more.
 - A pawn who has ever been a colonist now counts as the colony's, so a colonist who runs wild, or is raised as a shambler, keeps the colony's gear. A recruit who later turns hostile is left alone too.
 - If a game update breaks one of the mod's patches, only that part of the mod stops, with an error naming it. Before, the whole mod could fail to load.
 

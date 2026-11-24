@@ -21,7 +21,8 @@ public sealed class SavesBatch : Batch
 {
     private const string P = "lootscavenging.saves.";
     private const string Before = P + "looted-marker-set", Reload = P + "reload-keeps-state", File_ = P + "save-contents",
-        Doubled = P + "old-scrap-doubled", DoubledOnce = P + "old-scrap-doubled-once", DownedReload = P + "downed-reload-keeps-weapon";
+        Doubled = P + "old-scrap-doubled", DoubledOnce = P + "old-scrap-doubled-once", DownedReload = P + "downed-reload-keeps-weapon",
+        ColonistReload = P + "downed-colonist-reload-keeps-weapon";
 
     public override string Id => "lootscavenging-saves";
     public override int SegmentCount => 4;
@@ -32,6 +33,7 @@ public sealed class SavesBatch : Batch
         new PlannedCase(Reload, Levels.Mechanical, "after save and load: scrap and studied scrap stacks, the study bench and its bill, and the rifle's marker are intact"),
         new PlannedCase(File_, Levels.Mechanical, "the save holds the marker once and names no mod class for the bench"),
         new PlannedCase(DownedReload, Levels.Mechanical, "a pirate downed holding his revolver is saved and loaded: he still holds it, none lies on the ground, and he gets up holding it"),
+        new PlannedCase(ColonistReload, Levels.Mechanical, "a colonist downed holding his revolver is saved and loaded: he still holds it and none lies on the ground"),
         new PlannedCase(Doubled, Levels.Mechanical, "a game at scrap scale 1 loads with its scrap doubled: 600 on the ground become 1000 and 200 beside them, 7 in a colonist's pack 14, 12 in a caravan 24"),
         new PlannedCase(DoubledOnce, Levels.Mechanical, "a second load doubles nothing"),
     };
@@ -69,7 +71,7 @@ public sealed class SavesBatch : Batch
         var map = ctx.Map;
         if (index == 0)
         {
-            ModHarness.SaveSettings();
+            ModHarness.SaveSettings(ModHarness.LootOnGround);
             var area = Kit.Area(ctx, 30, 12);
             yield return Wait.Ticks(1);
             MakeTribal(ctx);
@@ -120,6 +122,18 @@ public sealed class SavesBatch : Batch
                 "before the save he is down holding his revolver, and the setting covers him");
             ctx.Remember("raider", raider.thingIDNumber.ToString());
             ctx.Remember("raiderGun", revolver.thingIDNumber.ToString());
+
+            // Ticket 24: a downed colonist holding his weapon when the game is saved.
+            var own = ctx.Begin(ColonistReload);
+            var colonistDown = Spawn(ctx, PawnKindDefOf.Colonist, Faction.OfPlayer, sites[1] + new IntVec3(0, 0, 4));
+            var ownGun = Arm(colonistDown, Kit.Def("Gun_Revolver"), QualityCategory.Normal);
+            HealthUtility.TryAnesthetize(colonistDown);
+            own.Subject(colonistDown);
+            own.Note("Colonists keep their gear (the default). A colonist holding a revolver is downed, then the game is saved and loaded");
+            own.Step(colonistDown.Downed && colonistDown.equipment.Primary == ownGun && Settings.values.colonistsKeepGear,
+                "before the save he is down holding his revolver, and colonists keep their gear");
+            ctx.Remember("colonistDown", colonistDown.thingIDNumber.ToString());
+            ctx.Remember("colonistGun", ownGun.thingIDNumber.ToString());
             yield return Wait.Reload();
             yield break;
         }
@@ -188,6 +202,25 @@ public sealed class SavesBatch : Batch
                 c.Conclude();
                 // Gone before he can attack the colonists.
                 raider.Destroy();
+                if (held != null && !held.Destroyed) held.Destroy();
+            }
+        }
+
+        if (index == 1)
+        {
+            var c = ctx.Begin(ColonistReload);
+            var colonist = map.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.thingIDNumber.ToString() == ctx.Recall("colonistDown"));
+            if (colonist == null) { c.SetupFailed("the downed colonist is not on the loaded map"); }
+            else
+            {
+                c.Subject(colonist);
+                var held = colonist.equipment.Primary;
+                var onGround = map.listerThings.ThingsOfDef(Kit.Def("Gun_Revolver")).Where(t => t.Spawned && t.Position.DistanceTo(colonist.Position) <= 5f).ToList();
+                c.Observe("primary", held == null ? "none" : held.def.defName + " " + held.thingIDNumber).Observe("revolversOnGround", onGround.Count);
+                c.Step(colonist.Downed && held != null && held.thingIDNumber.ToString() == ctx.Recall("colonistGun") && onGround.Count == 0,
+                    "after the load he is still down holding the same revolver, and none lies on the ground");
+                c.Conclude();
+                colonist.Destroy();
                 if (held != null && !held.Destroyed) held.Destroy();
             }
         }

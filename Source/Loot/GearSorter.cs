@@ -8,8 +8,8 @@ namespace LootScavenging.Loot;
 
 /// <summary>
 /// Walks a pawn's gear at one moment, describes each item for the evaluator, applies the outcome and logs the decision.
-/// Callers pass only the gear that moment actually drops. Gear the rules kept at a downing and put back in the pack
-/// ("everything stays on the body") is skipped later, so no item is judged twice in a session.
+/// Callers pass only the gear that moment actually drops, so gear the rules kept drops whole and is not judged again by the
+/// same pawn's later drop.
 /// </summary>
 internal static class GearSorter
 {
@@ -74,7 +74,7 @@ internal static class GearSorter
     private static void Judge(Pawn pawn, Thing thing, OwnerGroup owner, Moment moment, MapKind mapKind, ItemCategory category, LootRules rules)
     {
         // Scrap already on the pawn (including scrap made earlier in this pass) is never judged again.
-        if (ScrapDefs.IsScrap(thing.def) || BodyLoot.WasJudgedAtDowning(thing))
+        if (ScrapDefs.IsScrap(thing.def))
             return;
 
         EraResult era = EraReader.ItemEra(thing.def, pawn.Faction);
