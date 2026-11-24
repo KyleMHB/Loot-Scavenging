@@ -11,8 +11,8 @@
 
 ### Changed
 
-- A downed raider now keeps his weapon in his hand by default, and nothing drops. His gear is not judged until he is stripped, arrested, joins your colony or dies, so a raider you capture and recruit is sorted once. If he gets back up, he is still armed. Choose "Drop the weapon" for the old behaviour.
-- With "Drop the weapon" and "Everything stays on the body", a downed pawn's weapon stays in his hand again instead of going into his pack. If a downed pawn who kept his weapon is carried and put down, even into a bed when he is rescued, the game makes him drop it, and the mod sorts it as it lands. Loading a save no longer makes him drop it.
+- A downed raider now keeps his weapon in his hand by default, and nothing drops. His gear is not judged until he is stripped, arrested, joins your colony or dies, so a raider you capture and recruit is sorted once. He keeps it when he is carried and put down, rescued into a bed, or loaded from a save, and if he gets back up, he is still armed. Choose "Drop the weapon" for the old behaviour.
+- With "Drop the weapon" and "Everything stays on the body", a downed pawn's weapon stays in his hand again instead of going into his pack. If he is carried and put down, even into a bed when he is rescued, the game makes him drop it, and it lands whole. Loading a save no longer makes him drop it.
 - "Also when downed or stripped" is now "Also when stripped or arrested". With it off, stripping and arresting leave gear whole, and so does downing if downed pawns drop the weapon. Pawns who join your colony follow the joiner settings whatever this setting says.
 - Weapons and apparel in a pawn's pack are now judged by the weapon and apparel rules instead of the "Other inventory" rule.
 - Scrap is cheaper, so gear gives about twice as many units, and cheap gear that used to leave nothing now leaves some. A unit is worth half as much, recycles into half as much and studies for half the research points. Scrap now stacks to 1,000.
