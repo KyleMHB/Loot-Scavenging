@@ -151,7 +151,7 @@
  "Keyed:LootScavenging_PresetCleanup": "Cleanup",
  "Keyed:LootScavenging_PresetCleanupExplain": "No era handling. From hostile dead only, weapons below normal quality, apparel below good quality and either one below 50% hit points are deleted, and so is all their ammunition; the rest drops as normal. Every hostile humanlike corpse is removed.",
  "Keyed:LootScavenging_PresetProgression": "Progression",
- "Keyed:LootScavenging_PresetProgressionExplain": "Gear beyond your colony's research becomes scrap when any non-colony pawn dies, is downed or is stripped, prisoners included. Gear within reach drops as normal, and corpses are left.",
+ "Keyed:LootScavenging_PresetProgressionExplain": "Gear beyond your colony's research becomes scrap when any non-colony pawn dies, is stripped or is arrested, prisoners included. Gear within reach drops as normal, and corpses are left.",
  "Keyed:LootScavenging_PresetReset": "Reset to defaults",
  "Keyed:LootScavenging_PresetVanilla": "Vanilla",
  "Keyed:LootScavenging_PresetVanillaExplain": "No pawn group is affected, so loot and corpses behave as in the base game.",

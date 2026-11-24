@@ -22,7 +22,7 @@
   <incompatibleWith>
     <li>CarnySenpai.LootingManager</li>
   </incompatibleWith>
-  <description>Loot Scavenging decides what happens to the gear of raiders, visitors and other non-colony pawns when they die, are downed or are stripped. By default, gear beyond your colony's research turns into scrap of its era. Recycle the scrap at benches you already have for materials of that era, or study it at a research bench for points toward your current project.
+  <description>Loot Scavenging decides what happens to the gear of raiders, visitors and other non-colony pawns when they die, are stripped or are arrested. By default, gear beyond your colony's research turns into scrap of its era. Recycle the scrap at benches you already have for materials of that era, or study it at a research bench for points toward your current project.
 
 Each item category has its own rule: keep, degrade, scrap, disassemble or delete, with a chance and optional quality, hit point and research limits. Presets cover progression play, raid cleanup and vanilla behaviour. Quest items, unique weapons, persona weapons and relics are protected, and corpses can be removed after a fight.
 

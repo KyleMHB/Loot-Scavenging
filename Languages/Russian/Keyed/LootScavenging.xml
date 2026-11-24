@@ -38,7 +38,7 @@
 	<LootScavenging_LockedReason>Заблокировано сборкой: эта настройка всегда берёт значение сборки, поэтому её нельзя изменить здесь.</LootScavenging_LockedReason>
 	<LootScavenging_LockedSummary>Некоторые настройки заблокированы сборкой. Они сохраняют значения сборки при любом пресете.</LootScavenging_LockedSummary>
 	<LootScavenging_PresetReset>Восстановить по умолчанию</LootScavenging_PresetReset>
-	<LootScavenging_PresetProgressionExplain>Снаряжение, опережающее исследования поселения, становится ломом, когда любой персонаж не из поселения погибает, обездвижен или раздет, включая пленников. Снаряжение в пределах досягаемости выпадает как обычно, трупы остаются.</LootScavenging_PresetProgressionExplain>
+	<LootScavenging_PresetProgressionExplain>Снаряжение, опережающее исследования поселения, становится ломом, когда любой персонаж не из поселения погибает, раздет или арестован, включая пленников. Снаряжение в пределах досягаемости выпадает как обычно, трупы остаются.</LootScavenging_PresetProgressionExplain>
 	<LootScavenging_PresetCleanupExplain>Без учёта эпох. Только с погибших врагов удаляются оружие с качеством ниже «нормально», одежда с качеством ниже «хорошо», любое из них с прочностью ниже 50%, а также все их боеприпасы; остальное выпадает как обычно. Все трупы людей из числа врагов убираются.</LootScavenging_PresetCleanupExplain>
 	<LootScavenging_PresetVanillaExplain>Ни одна группа персонажей не затронута, поэтому добыча и трупы ведут себя как в базовой игре.</LootScavenging_PresetVanillaExplain>
 	<LootScavenging_ResetConfirm>Вернуть все настройки по умолчанию (пресет «Прогрессия») и очистить списки «Всегда оставлять» и «Всегда удалять»?</LootScavenging_ResetConfirm>
