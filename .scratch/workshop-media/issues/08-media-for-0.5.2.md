@@ -24,7 +24,7 @@ Status: ready-for-human
 - The new description paragraph says the first GIF was filmed under "Drop the weapon". The paragraph under the raid GIF says a downed pawn keeps his weapon in his pack, and the GIF shows it scrapped at the downing, so the pairing needed a note. Kyle may prefer to refilm the raid under the default (his autopistol would then become scrap only at the strip or death).
 - The study GIF is one continuous segment now: the job runs 13 s, not 25 s, so there is no need to join a mid-job cut to a result cut.
 - The downed GIF is one 5 s segment: the pirate stands, goes down, and the Gear tab opens with the autopistol under "Inventory".
-- Refilmed for ticket 23 (2026-11-24), when the downed raider started keeping his weapon in hand: run `20261124-161503-lootscavenging-workshop-clips-s1` feeds the downed GIF and the promo's downed segment (`DOWNED_RUN`), whose caption is now "a downed raider keeps his weapon". The Gear tab shows the autopistol under "Equipment". The same crops and offsets fit. The study, raid, recycle and on-body footage is unchanged.
+- Refilmed for ticket 23 (2026-11-24), when the downed raider started keeping his weapon in hand: run `20261124-161503-lootscavenging-workshop-clips-s1` feeds the downed GIF and the promo's downed segment (`DOWNED_RUN`), whose caption is now "a downed raider keeps his weapon". The Gear tab shows the autopistol under "Equipment". The same crops and offsets fit. The study, raid, recycle and on-body footage is unchanged. The paragraph under the raid GIF now says "in his hand", and the note about the raid GIF's "Drop the weapon" still holds.
 
 ## Stone knife check
 
