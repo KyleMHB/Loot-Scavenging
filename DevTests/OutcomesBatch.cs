@@ -585,7 +585,8 @@ public sealed class OutcomesBatch : Batch
                 c.Expect(def.defName, expected).Observe(def.defName, got).Observe(def.defName + "UnitValue", stack.MarketValue.ToString("0.##")).Observe(def.defName + "Tier", tier);
                 c.Step(era.Source == EraSource.Unknown, $"{def.label} has no era, so its scrap is the colony's tier ({tier})");
                 c.Step(stack.Destroyed && got == expected, $"{count} {def.label} become {got} {tier} scrap (expected {expected} from the stack's value)");
-                c.Step(got < count / 2, $"far fewer than one scrap per item ({got} for {count})");
+                // Rounding each item would give at least one per item; since 0.5.2 a unit is cheap enough that a stack can give over half.
+                c.Step(got < count, $"fewer than one scrap per item ({got} for {count})");
                 c.Observe(def.defName + "ScrapWorth", got * ScrapWorth(tier)).Observe(def.defName + "StackValue", stackValue);
                 c.Step(got * ScrapWorth(tier) <= stackValue + 0.001f, $"the {got} scrap is worth {got * ScrapWorth(tier):0.#}, no more than the stack's {stackValue:0.#}");
                 if (withGun)
