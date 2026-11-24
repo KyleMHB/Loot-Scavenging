@@ -58,9 +58,9 @@
 	<LootScavenging_HomeMapOnly>Только домашняя карта</LootScavenging_HomeMapOnly>
 	<LootScavenging_HomeMapOnlyOn>Добыча на картах караванов, заданий и аванпостов не затрагивается.</LootScavenging_HomeMapOnlyOn>
 	<LootScavenging_HomeMapOnlyOff>Правила действуют на всех картах.</LootScavenging_HomeMapOnlyOff>
-	<LootScavenging_DownedAndStrip>Также при обездвиживании и раздевании</LootScavenging_DownedAndStrip>
-	<LootScavenging_DownedAndStripOn>Правила действуют, когда персонаж погибает, обездвижен или раздет, поэтому снаряжение вне досягаемости нельзя забрать целым у обездвиженного налётчика или раздетого пленника.</LootScavenging_DownedAndStripOn>
-	<LootScavenging_DownedAndStripOff>Правила действуют только при гибели персонажа. Снаряжение обездвиженных и раздетых персонажей выпадает как обычно.</LootScavenging_DownedAndStripOff>
+	<LootScavenging_DownedAndStrip>Также при раздевании и аресте</LootScavenging_DownedAndStrip>
+	<LootScavenging_DownedAndStripOn>Правила действуют, когда персонаж погибает, раздет или арестован, поэтому снаряжение вне досягаемости нельзя забрать целым у захваченного налётчика или раздетого пленника. При варианте «Бросить оружие» они действуют и при обездвиживании.</LootScavenging_DownedAndStripOn>
+	<LootScavenging_DownedAndStripOff>Правила действуют только при гибели персонажа. Снаряжение раздетых и арестованных персонажей, а при варианте «Бросить оружие» и обездвиженных, выпадает как обычно. Присоединившиеся следуют своим настройкам ниже.</LootScavenging_DownedAndStripOff>
 	<LootScavenging_NoGroupOn>Не отмечена ни одна группа персонажей, поэтому мод не меняет ни добычу, ни трупы.</LootScavenging_NoGroupOn>
 	<LootScavenging_SectionItems>Правила для предметов</LootScavenging_SectionItems>
 	<LootScavenging_ItemsNoteScrapOutOfReach>Снаряжение вне досягаемости поселения сначала становится ломом (см. режим выпадения). Эти правила решают, что будет с остальным.</LootScavenging_ItemsNoteScrapOutOfReach>
@@ -146,7 +146,7 @@
 	<LootScavenging_DeathDropAllOnBody>Всё остаётся на трупе</LootScavenging_DeathDropAllOnBody>
 	<LootScavenging_DeathDropGroundExplain>Оружие, инвентарь и лом выпадают рядом с трупом, как в базовой игре.</LootScavenging_DeathDropGroundExplain>
 	<LootScavenging_DeathDropScrapOnBodyExplain>Лом с погибших остаётся на трупе и выпадает, когда труп раздевают, разделывают или кремируют. Оружие и инвентарь выпадают рядом с трупом как обычно.</LootScavenging_DeathDropScrapOnBodyExplain>
-	<LootScavenging_DeathDropAllOnBodyExplain>Когда персонаж, на которого распространяются эти правила, погибает или обездвижен, ничего не выпадает. Обездвиженный персонаж сохраняет оружие, медикаменты, продовольствие, серебро и лом в инвентаре. У погибшего они остаются на трупе, пока его не разденут, не разделают или не кремируют. Механоиды, чьё снаряжение игра уничтожает, не меняются.</LootScavenging_DeathDropAllOnBodyExplain>
+	<LootScavenging_DeathDropAllOnBodyExplain>Когда персонаж, на которого распространяются эти правила, погибает, ничего не выпадает. Оружие, медикаменты, продовольствие, серебро и лом остаются на трупе, пока его не разденут, не разделают или не кремируют. При варианте «Бросить оружие» обездвиженный персонаж, на которого распространяются эти правила, сохраняет оставленную добычу в инвентаре, а не роняет её. Механоиды, чьё снаряжение игра уничтожает, не меняются.</LootScavenging_DeathDropAllOnBodyExplain>
 	<LootScavenging_EraFallback>Снаряжение без собственного уровня</LootScavenging_EraFallback>
 	<LootScavenging_EraFallbackCarrier>Уровень фракции владельца</LootScavenging_EraFallbackCarrier>
 	<LootScavenging_EraFallbackColony>Уровень поселения</LootScavenging_EraFallbackColony>
@@ -223,11 +223,16 @@
 	<LootScavenging_JoinMark>Помечать снаряжение вне досягаемости как незнакомое</LootScavenging_JoinMark>
 	<LootScavenging_JoinFollow>Следовать режиму выпадения</LootScavenging_JoinFollow>
 	<LootScavenging_JoinLeave>Не трогать их снаряжение</LootScavenging_JoinLeave>
-	<LootScavenging_JoinMarkExplain>Они продолжают носить и держать то, с чем пришли. Снаряжение вне досягаемости поселения получает пометку «незнакомая технология», и после того как его снимут, никто из поселенцев не сможет им пользоваться, пока не завершено исследование. Работает в любом режиме выпадения.</LootScavenging_JoinMarkExplain>
-	<LootScavenging_JoinFollowExplain>В момент присоединения их одежда и оружие в руках обрабатываются так, как будто персонажей раздели, по режиму выпадения и правилам для предметов, для отмеченных выше групп.</LootScavenging_JoinFollowExplain>
+	<LootScavenging_JoinMarkExplain>Они продолжают носить и держать то, с чем пришли, и сохраняют инвентарь. Снаряжение вне досягаемости поселения, в том числе в инвентаре, получает пометку «незнакомая технология», и после того как его снимут, никто из поселенцев не сможет им пользоваться, пока не завершено исследование. Медикаменты и прочие вещи в инвентаре не затрагиваются. Работает в любом режиме выпадения.</LootScavenging_JoinMarkExplain>
+	<LootScavenging_JoinFollowExplain>В момент присоединения их одежда, оружие в руках и инвентарь обрабатываются так, как будто персонажей раздели, по режиму выпадения и правилам для предметов, для отмеченных выше групп.</LootScavenging_JoinFollowExplain>
 	<LootScavenging_JoinLeaveExplain>Их снаряжение при присоединении не затрагивается.</LootScavenging_JoinLeaveExplain>
 	<LootScavenging_RecycleBulkLabel>переработать {0} x10</LootScavenging_RecycleBulkLabel>
 	<LootScavenging_StudyBulkLabel>изучить {0} x10</LootScavenging_StudyBulkLabel>
 	<LootScavenging_BulkBillNote>Выполняет работу десяти заданий за один раз и начинается, только когда в наличии не меньше единиц: {0}.</LootScavenging_BulkBillNote>
 	<LootScavenging_StudyPointsHalvedNote>В версии 0.5.2 лом стал дешевле, поэтому ваши очки исследования за единицу уменьшены вдвое, чтобы итог остался прежним.</LootScavenging_StudyPointsHalvedNote>
+	<LootScavenging_Downed>Когда обездвижен персонаж не из поселения</LootScavenging_Downed>
+	<LootScavenging_DownedKeepInPack>Убрать оружие в инвентарь</LootScavenging_DownedKeepInPack>
+	<LootScavenging_DownedDropWeapon>Бросить оружие</LootScavenging_DownedDropWeapon>
+	<LootScavenging_DownedKeepInPackExplain>Ничего не выпадает и ничего не обрабатывается. Его оружие отправляется в инвентарь вместе с остальным, и всё это обрабатывается, когда его раздевают, арестовывают, когда он присоединяется к поселению или погибает. Налётчик, который снова встанет на ноги, по-прежнему при оружии.</LootScavenging_DownedKeepInPackExplain>
+	<LootScavenging_DownedDropWeaponExplain>Его оружие и инвентарь выпадают рядом с ним, как в базовой игре. Если включено «Также при раздевании и аресте», они обрабатываются при выпадении.</LootScavenging_DownedDropWeaponExplain>
 </LanguageData>

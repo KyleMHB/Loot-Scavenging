@@ -44,8 +44,12 @@ public sealed class LootRules
     // Place (step 2).
     public bool homeMapOnly;
 
-    // Moment (step 3). Death always applies; this extends the rules to downed and strip.
+    // Moment (step 3). Death always applies; this extends the rules to strip and arrest, and to downing under DropWeapon.
+    // The key keeps its old name so saved files and pack locks still work.
     public bool onDownedAndStrip = true;
+
+    // Downing (ticket 21): by default the weapon goes into the pack and nothing is judged until a later moment.
+    public DownedGear downedGear = DownedGear.KeepInPack;
 
     // The gear of pawns who join the colony (ticket 20): recruited or enslaved prisoners, and everyone else who joins.
     public JoinerGear prisonerJoinGear = JoinerGear.FollowDropMode;

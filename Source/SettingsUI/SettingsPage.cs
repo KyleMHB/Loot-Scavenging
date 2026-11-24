@@ -187,6 +187,11 @@ internal sealed class SettingsPage
             Explain(ls, "LootScavenging_NoGroupOn".Translate());
 
         LootScavengingSettings settings = s;
+        Choice(ls, "LootScavenging_Downed".Translate(), r.downedGear, DownedOptions, DownedName,
+            v => settings.values.rules.downedGear = v, SettingNames.DownedGear);
+        Explain(ls, r.downedGear == DownedGear.KeepInPack
+            ? "LootScavenging_DownedKeepInPackExplain".Translate()
+            : "LootScavenging_DownedDropWeaponExplain".Translate());
         Choice(ls, "LootScavenging_JoinPrisoners".Translate(), r.prisonerJoinGear, JoinOptions, JoinName,
             v => settings.values.rules.prisonerJoinGear = v, SettingNames.PrisonerJoinGear);
         Explain(ls, JoinSentence(r.prisonerJoinGear));
@@ -194,6 +199,12 @@ internal sealed class SettingsPage
             v => settings.values.rules.otherJoinGear = v, SettingNames.OtherJoinGear);
         Explain(ls, JoinSentence(r.otherJoinGear));
     }
+
+    private static readonly DownedGear[] DownedOptions = { DownedGear.KeepInPack, DownedGear.DropWeapon };
+
+    private static string DownedName(DownedGear gear) => gear == DownedGear.DropWeapon
+        ? "LootScavenging_DownedDropWeapon".Translate()
+        : "LootScavenging_DownedKeepInPack".Translate();
 
     private static readonly JoinerGear[] JoinOptions = { JoinerGear.MarkUnfamiliar, JoinerGear.FollowDropMode, JoinerGear.LeaveAlone };
 

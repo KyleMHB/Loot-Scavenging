@@ -24,6 +24,7 @@ public class SettingKeysTests
             ["rules.prisoners"] = "prisoners",
             ["rules.homeMapOnly"] = "homeMapOnly",
             ["rules.onDownedAndStrip"] = "onDownedAndStrip",
+            ["rules.downedGear"] = "downedGear",
             ["rules.prisonerJoinGear"] = "prisonerJoinGear",
             ["rules.otherJoinGear"] = "otherJoinGear",
             ["rules.dropMode"] = "dropMode",
