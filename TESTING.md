@@ -82,6 +82,19 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 
 ## Result recording
 
+### 2026-11-24 - Full tier on the 0.5.2 release candidate
+
+- Change: everything for 0.5.2 together: the materials and horn rules, the review fixes (remove list before the drop mode, protected items never unfamiliar, locked apparel at death, judged once after an on-body downing, former colonists, patching class by class, with four new moments cases), the scrap value cap, and ticket 18 (entries below). Tested `8117a64`.
+- Version/environment: RimWorld 1.7.5014, seed 1, English. `deploy.ps1` and the DevTests build first, the display woken with a mouse nudge before each run-all.
+- Runs:
+  - `dotnet test`: 331 passed. 1.7, 1.6 and DevTests builds clean. `rwtranslate status`: 0 untranslated, 0 outdated for ChineseSimplified and Russian.
+  - Run-all default `20261124-123313-run-all-s1-21f64a7d`: 81 pass, 0 fail, 2 skip (ammunition needs an ammo mod; techprints need Royalty).
+  - Run-all `dlcs` `20261124-123346-run-all-s1-2d21a7be`: 82 pass, 0 fail, 1 skip (ammunition).
+  - Progression `20261124-123428-lootscavenging-progression-s1-38cfc98e`: 6/6. Perf `20261124-123446-perf-s1-6e313f3a`: passed.
+  - Removal check on the default run-all's saves-batch save: exit 0, all PASS, only the expected missing-def errors.
+  - The review fixes alone (`054260b`) passed the same tier earlier: run-all default `20261124-120158-run-all-s1-fcb0249e` 77 pass, 2 skip; `dlcs` `20261124-120219-run-all-s1-db0d2070` 78 pass, 1 skip; progression `20261124-120304-lootscavenging-progression-s1-c82d37ed` 6/6; perf `20261124-120323-perf-s1-3c886699`; removal check all PASS. The new moments cases' first run (`20261124-115836-lootscavenging-moments-s1-1cca2793`) failed `former-colonist-keeps-gear` because the case could not add to a time record, so the pawn had no colonist time and his revolver was scrapped, as before the fix. With the record advanced through the tracker's update the batch passed 18/18 (`20261124-115929-lootscavenging-moments-s1-ab6b58f0`). That run also showed patching every class made Harmony run `Presets.Cleanup` as a patch hook; only classes with `[HarmonyPatch]` are processed now.
+- Status: Passed. Not run in game: the trade path (same hook as arrest), the zero-unit scrap path (unit-tested), and the ammunition case's new worth check (needs an ammo mod).
+
 ### 2026-11-24 - Unhooked drops and saved defaults (ticket 18)
 
 - Change: new hooks on `Pawn.DropAndForbidEverything` (arrest, trade), `Pawn_EquipmentTracker.TryDropEquipment` (lost manipulation), `RecruitUtility.Recruit` and `Pawn_GuestTracker.SetGuestStatus(Slave)` (a prisoner joining keeps no out-of-reach apparel), with a per-pawn mark from the Kill, MakeDowned, Strip and DropAndForbidEverything prefixes to their finalizers so no item is judged twice. Settings save every key (`forceSave`). Four new moments cases; `settings.cleanup-round-trip` now expects the key equal to the default in the file and a changed default not to move it.
