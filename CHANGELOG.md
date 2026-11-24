@@ -2,7 +2,7 @@
 
 <!-- Agent read route: read only the newest relevant release; locate older versions by searching `^## ` headings. -->
 
-## 0.5.2 - 2026-11-24
+## 0.5.2 - 2026-11-25
 
 ### Added
 
