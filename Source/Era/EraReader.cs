@@ -98,11 +98,14 @@ public static class EraReader
     /// </summary>
     public static bool IsGear(ThingDef def) => def != null && def.category == ThingCategory.Item && (def.IsApparel || IsRealWeapon(def));
 
-    // The game counts anything with melee tools as a weapon: wood logs (a club) and beer (a bottle) among them. Only
-    // equippable weapons count here, and nothing eaten or used as a material, so carried wood is not judged as gear and
-    // given its carrier's era.
+    // The game counts anything with melee tools as a weapon: wood logs (a club), beer (a bottle), and thrumbo horns and
+    // other animal trophies, which stack to 10 and can be swung. Only equippable weapons count here, and nothing eaten,
+    // used as a material, or stacking with no weapon tags. Raiders only spawn holding tagged weapons, so stackable
+    // grenades and javelins stay gear while horns and tusks are kept like other valuables (checked 2026-11-24 against
+    // 1,559 Workshop mods: 37 untagged stackable trophies, 25 tagged stackable weapons).
     private static bool IsRealWeapon(ThingDef def) =>
-        def.IsWeapon && def.equipmentType == EquipmentType.Primary && !def.IsIngestible && !def.IsStuff;
+        def.IsWeapon && def.equipmentType == EquipmentType.Primary && !def.IsIngestible && !def.IsStuff
+        && !(def.stackLimit > 1 && def.weaponTags.NullOrEmpty());
 
     private static IEnumerable<Era> FinishedProjectEras()
     {

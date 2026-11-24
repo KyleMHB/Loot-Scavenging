@@ -40,7 +40,7 @@ public sealed class OutcomesBatch : Batch
         new PlannedCase(Charges, Levels.Mechanical, "a smokepop belt's chemfuel is ejected for scrap, delete and disassemble with the setting on, not with it off"),
         new PlannedCase(Ammo, Levels.Mechanical, "out-of-reach ammunition drops whole by default; with dropIncludesAmmunition on, a stack becomes scrap rounded once per stack (needs an ammo mod)"),
         new PlannedCase(Materials, Levels.Mechanical, "a stack of devilstrand that a modded recipe puts behind unfinished spacer research drops whole, with steel and plasteel and no scrap, while the revolver still becomes scrap"),
-        new PlannedCase(ToolMaterials, Levels.Mechanical, "known gap: wood (a material that also has melee tools) behind the same spacer recipe still drops whole"),
+        new PlannedCase(ToolMaterials, Levels.Mechanical, "wood, beer, thrumbo horns and tusks (melee tools, but not gear) are not gear; grenades and a revolver still are; wood behind the spacer recipe and carried horns drop whole"),
         new PlannedCase(StackScrap, Levels.Mechanical, "with the other-items rule on Scrap, 53 devilstrand or 50 cloth become StackUnits of the colony's tier, not one scrap per item; a lone revolver still gives Units"),
         new PlannedCase(Sample, Levels.Mechanical, "200 industrial units recycle to about 2200 silver of pool materials, components and chemfuel included; studied scrap pays half"),
         new PlannedCase(Pools, Levels.Mechanical, "every tier def loads with no config errors"),
@@ -513,6 +513,16 @@ public sealed class OutcomesBatch : Batch
                     c.Observe("woodEra", woodEra.Era + "/" + woodEra.Source).Observe("woodIsGear", EraReader.IsGear(wood)).Observe("woodDropped", woodGot).Observe("woodSpacerScrap", woodSpacer);
                     ThingDef beer = DefDatabase<ThingDef>.GetNamedSilentFail("Beer");
                     c.Step(!EraReader.IsGear(wood) && (beer == null || !EraReader.IsGear(beer)), "wood and beer, which the game counts as melee weapons, are not gear");
+                    // Thrumbo horns and tusks stack and carry no weapon tags: trophies, not gear. Grenades are tagged and stay gear.
+                    ThingDef horn = Kit.Def("ThrumboHorn"), tusk = Kit.Def("ElephantTusk"), frag = Kit.Def("Weapon_GrenadeFrag");
+                    c.Observe("hornIsGear", EraReader.IsGear(horn)).Observe("tuskIsGear", EraReader.IsGear(tusk)).Observe("fragIsGear", EraReader.IsGear(frag));
+                    c.Step(!EraReader.IsGear(horn) && !EraReader.IsGear(tusk), "a thrumbo horn and an elephant tusk are not gear");
+                    c.Step(EraReader.IsGear(frag) && EraReader.IsGear(revolver), "frag grenades and a revolver are still gear");
+                    int hornBefore = Kit.CountOnMap(map, horn);
+                    KillPirate(p => p.inventory.innerContainer.TryAdd(Stack(horn, 2)), out _);
+                    int hornGot = Kit.CountOnMap(map, horn) - hornBefore;
+                    c.Observe("hornsDropped", hornGot);
+                    c.Step(hornGot == 2, $"a pirate's 2 thrumbo horns drop whole ({hornGot})");
                     c.Step(woodGot == 50 && woodSpacer == 0 && woodEra.Source == EraSource.Unknown,
                         $"a pirate's 50 wood behind the same spacer recipe drop whole ({woodGot} dropped, {woodSpacer} spacer scrap, era {woodEra.Era}/{woodEra.Source})");
                     RemoveRecipe();
