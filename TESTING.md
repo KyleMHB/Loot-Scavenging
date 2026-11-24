@@ -82,6 +82,11 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 
 ## Result recording
 
+### 2026-11-24 - Scrap never worth more than its source (0.5.2)
+
+- Change: `ScrapAmounts.CapUnits`/`CappedUnits`/`CappedStackUnits` and `WorthPerUnit` cap scrap units at the item's or stack's value; `ItemClassifier.ScrapUnits` takes the tier. 0 units makes no scrap. Harness expectations now come from `Fixtures.ExpectedScrap*` (the capped model functions), and `stack-scrap-by-value` and the ammunition case assert scrap worth is at most the stack's value.
+- Ran: `dotnet test` 329 passed; both Release builds and the DevTests build clean. Deployed, then outcomes `20261124-121128-lootscavenging-outcomes-s1-e4b02cfb` (18 pass, 0 fail, 1 skip: ammunition needs an ammo mod, so the run reports NOT PASSED for coverage), smoke `20261124-121140-lootscavenging-smoke-s1-6f8319bb` 9/9, moments `20261124-121143-lootscavenging-moments-s1-80c2ea96` 18/18. Full tier not run. The ammunition case's new assertion and the 0-unit path are unit-tested only, not run in game.
+
 ### 2026-11-24 - Materials stay whole, stacks scrap by value (0.5.2)
 
 - Change: three new outcomes cases and two case fixes. Tested the 0.5.2 code (`2232e6f`); the commits after it touch only `.scratch/`.

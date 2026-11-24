@@ -22,13 +22,17 @@ internal static class ItemClassifier
         return ItemCategory.Other;
     }
 
-    /// <summary>The scrap units a thing is worth. Anything that stacks is rounded per stack, so 53 devilstrand do not become
-    /// 53 scrap; single items (gear) get at least one unit each.</summary>
-    public static int ScrapUnits(Thing thing)
+    /// <summary>
+    /// The scrap units a thing makes in <paramref name="tier"/>. Anything that stacks is rounded per stack, so 53 devilstrand do
+    /// not become 53 scrap; single items (gear) get at least one unit each. Never worth more than the item or stack itself, so it
+    /// is 0 for one worth less than a unit: the caller then makes no scrap.
+    /// </summary>
+    public static int ScrapUnits(Thing thing, ScrapTier tier)
     {
+        float worth = ScrapDefs.WorthPerUnit(tier);
         return thing.def.stackLimit > 1
-            ? ScrapAmounts.StackUnits(thing.MarketValue, thing.stackCount)
-            : ScrapAmounts.Units(thing.MarketValue, thing.stackCount);
+            ? ScrapAmounts.CappedStackUnits(thing.MarketValue, thing.stackCount, worth)
+            : ScrapAmounts.CappedUnits(thing.MarketValue, thing.stackCount, worth);
     }
 
     // Ammo is recognised by item category name, so no ammo mod is referenced: vanilla-style mods and Combat Extended

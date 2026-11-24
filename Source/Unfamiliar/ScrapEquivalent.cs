@@ -32,8 +32,9 @@ internal static class ScrapEquivalent
             era = EraReader.ItemEra(thing.def, null).Era;
 
         tier = ScrapTiers.TierFor(era, EraReader.ColonyEra());
-        units = ItemClassifier.ScrapUnits(thing);
-        return true;
+        units = ItemClassifier.ScrapUnits(thing, tier);
+        // Worth less than one unit of its scrap: it has no scrap equivalent to recycle or study.
+        return units >= 1;
     }
 
     /// <summary>

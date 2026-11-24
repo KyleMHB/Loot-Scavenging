@@ -28,7 +28,7 @@ public sealed class SmokeBatch : Batch
     {
         new PlannedCase(Defaults, Levels.Mechanical, "a fresh config holds the Progression preset, not marked changed"),
         new PlannedCase(Fixture, Levels.Mechanical, "colony era Neolithic, revolver research unfinished, hostile pirates, no scrap"),
-        new PlannedCase(TribalScrap, Levels.Mechanical, "a dead pirate's revolver becomes industrial scrap by ScrapAmounts.Units; colony and wild deaths change nothing"),
+        new PlannedCase(TribalScrap, Levels.Mechanical, "a dead pirate's revolver becomes industrial scrap by the value-capped ScrapAmounts.Units; colony and wild deaths change nothing"),
         new PlannedCase(TribalMedicine, Levels.Mechanical, "ticket 16: industrial medicine drops whole by default; scrap of its era with dropIncludesMedicine on"),
         new PlannedCase(Cleanup, Levels.Mechanical, "poor weapon deleted, good weapon kept, corpse removed, kept apparel on the ground"),
         new PlannedCase(Recycling, Levels.Mechanical, "machining table recycles three tiers, smithy no industrial, vanilla bills kept, products from the pool"),
@@ -94,7 +94,7 @@ public sealed class SmokeBatch : Batch
             pirate.inventory.innerContainer.TryAdd(Stack(ThingDefOf.Steel, 30));
             c.Subject(pirate);
             float value = gun.MarketValue;
-            int expected = ScrapAmounts.Units(value, 1);
+            int expected = ExpectedScrap(gun, pirates);
             int silver = Kit.CountOnMap(map, ThingDefOf.Silver), steel = Kit.CountOnMap(map, ThingDefOf.Steel);
             var before = Kit.StackIds(map, industrial);
             c.Note($"A pirate with only a revolver (market value {value:0.#}), 50 silver and 30 steel dies");
@@ -140,7 +140,7 @@ public sealed class SmokeBatch : Batch
             var kit = Stack(medicine, 3);
             medic.inventory.innerContainer.TryAdd(kit);
             c.Subject(medic);
-            int expectedGun = ScrapAmounts.Units(gun.MarketValue, 1);
+            int expectedGun = ExpectedScrap(gun, pirates);
             int medsBefore = Kit.CountOnMap(map, medicine);
             var before = Kit.StackIds(map, industrial);
             c.Note("A pirate with a revolver and 3 industrial medicine dies (default settings)");
@@ -159,7 +159,7 @@ public sealed class SmokeBatch : Batch
             float medValue = kit2.MarketValue;
             medic2.inventory.innerContainer.TryAdd(kit2);
             c.Subject(medic2);
-            int expectedMed = ScrapAmounts.StackUnits(medValue, 3); // stackable items round once per stack (0.5.2)
+            int expectedMed = ExpectedScrap(kit2, pirates); // stackable items round once per stack and are capped by value
             medsBefore = Kit.CountOnMap(map, medicine);
             before = Kit.StackIds(map, industrial);
             medic2.Kill(null);

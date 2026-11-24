@@ -94,6 +94,19 @@ public static class Fixtures
     public static string Describe(IEnumerable<Thing> things) =>
         string.Join(", ", things.GroupBy(t => t.def.defName).Select(g => g.Sum(t => t.stackCount) + " " + g.Key));
 
+    // What one unit of a tier's scrap is worth: the larger of its recycle value and its market value setting (the same rule the mod uses).
+    public static float ScrapWorth(ScrapTier tier) => ScrapAmounts.WorthPerUnit(TierDef(tier).valuePerUnit, Settings.values.scrapMarketValue);
+
+    // The tier a thing's scrap is in, for the colony as it is now.
+    public static ScrapTier TierOf(ThingDef def, Faction owner) => ScrapTiers.TierFor(EraReader.ItemEra(def, owner).Era, EraReader.ColonyEra());
+
+    // The scrap units a thing (its whole stack) makes: the model's curve, capped so the scrap is never worth more than the thing.
+    // Anything that stacks is rounded once per stack, gear per item, as ItemClassifier.ScrapUnits does.
+    public static int ExpectedScrapIn(Thing thing, ScrapTier tier) => thing.def.stackLimit > 1
+        ? ScrapAmounts.CappedStackUnits(thing.MarketValue, thing.stackCount, ScrapWorth(tier))
+        : ScrapAmounts.CappedUnits(thing.MarketValue, thing.stackCount, ScrapWorth(tier));
+    public static int ExpectedScrap(Thing thing, Faction owner) => ExpectedScrapIn(thing, TierOf(thing.def, owner));
+
     // Total market value of things, at base value, for comparing recycling yields with the tier's value per unit.
     public static float BaseValue(IEnumerable<Thing> things) => things.Sum(t => t.def.BaseMarketValue * t.stackCount);
 }

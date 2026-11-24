@@ -39,7 +39,7 @@ internal static class DisassembleApplier
     {
         LootRules rules = LootScavengingMod.Settings.values.rules;
         ScrapTier tier = ScrapTiers.TierFor(era.Era, EraReader.ColonyEra());
-        int units = ItemClassifier.ScrapUnits(thing);
+        int units = ItemClassifier.ScrapUnits(thing, tier);
 
         List<Thing> made;
         string source;
@@ -47,7 +47,10 @@ internal static class DisassembleApplier
         {
             // Gear with no era: break it into components, scaled by what its scrap would have been.
             source = "components";
-            made = TierFor(new[] { new YieldAmount<ThingDef>(ThingDefOf.ComponentIndustrial, Disassembly.ComponentsFor(units)) });
+            // An item worth less than one scrap unit yields nothing, like its scrap would.
+            made = units < 1
+                ? new List<Thing>()
+                : TierFor(new[] { new YieldAmount<ThingDef>(ThingDefOf.ComponentIndustrial, Disassembly.ComponentsFor(units)) });
         }
         else
         {

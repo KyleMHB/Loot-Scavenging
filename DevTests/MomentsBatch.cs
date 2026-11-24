@@ -124,7 +124,7 @@ public sealed class MomentsBatch : Batch
             var cell = sites.Dequeue();
             var p = Spawn(ctx, Mercenary, Pirates, cell);
             var gun = Arm(p, revolver, QualityCategory.Normal);
-            int expected = ScrapAmounts.Units(gun.MarketValue, 1);
+            int expected = ExpectedScrap(gun, Pirates);
             var before = Kit.StackIds(map, industrial);
             p.Kill(null);
             var corpse = p.Corpse;
@@ -147,7 +147,7 @@ public sealed class MomentsBatch : Batch
             var cell = sites.Dequeue();
             var p = Spawn(ctx, Mercenary, Pirates, cell);
             var gun = Arm(p, revolver, QualityCategory.Normal);
-            int expected = ScrapAmounts.Units(gun.MarketValue, 1);
+            int expected = ExpectedScrap(gun, Pirates);
             var before = Kit.StackIds(map, industrial);
             p.Kill(null);
             int onGround = Units(NewNear(map, industrial, before, cell));
@@ -173,7 +173,7 @@ public sealed class MomentsBatch : Batch
             var belt = Dress(p, Kit.Def("Apparel_SmokepopBelt"));
             p.inventory.innerContainer.TryAdd(Stack(silver, 50));
             c.Subject(p);
-            int expectedScrap = ScrapAmounts.Units(gun.MarketValue, 1) + ScrapAmounts.Units(belt.MarketValue, 1);
+            int expectedScrap = ExpectedScrap(gun, Pirates) + ExpectedScrap(belt, Pirates);
             var watched = AllScrap.Concat(new[] { silver, chemfuel }).ToList();
             var before = watched.ToDictionary(d => d, d => Kit.StackIds(map, d));
             int Ground() => watched.Sum(d => Units(NewNear(map, d, before[d], cell)));
@@ -228,7 +228,7 @@ public sealed class MomentsBatch : Batch
             var gun = Arm(p, revolver, QualityCategory.Normal);
             p.inventory.innerContainer.TryAdd(Stack(silver, 50));
             c.Subject(p);
-            int expected = ScrapAmounts.Units(gun.MarketValue, 1);
+            int expected = ExpectedScrap(gun, Pirates);
             var beforeScrap = Kit.StackIds(map, industrial);
             var beforeSilver = Kit.StackIds(map, silver);
             p.Kill(null);
@@ -264,7 +264,7 @@ public sealed class MomentsBatch : Batch
                     break;
                 }
                 var tierDef = Scrap(ScrapTiers.TierFor(EraReader.ItemEra(weapon.def, mech.Faction).Era, EraReader.ColonyEra()));
-                int expected = ScrapAmounts.Units(weapon.MarketValue, 1);
+                int expected = ExpectedScrap(weapon, mech.Faction);
                 // Totals near the cell, not new stacks: the second lancer's scrap merges into the first one's pile.
                 int Near() => map.listerThings.ThingsOfDef(tierDef).Where(t => t.Spawned && t.Position.DistanceTo(cell) <= 5f).Sum(t => t.stackCount);
                 int start = Near();
@@ -300,7 +300,7 @@ public sealed class MomentsBatch : Batch
                 c.Note($"Everything stays on the body; downed and strip {(downedHandling ? "on" : "off")}. A pirate with a club in hand and a revolver and 50 silver in his pack is downed, then despawned and spawned again");
                 c.Step(!EraReader.ItemEra(club, Pirates).OutOfReach && EraReader.ItemEra(revolver, Pirates).OutOfReach,
                     "the club is in reach of the tribal colony and the revolver is not");
-                int expectedScrap = ScrapAmounts.Units(carried.MarketValue, 1);
+                int expectedScrap = ExpectedScrap(carried, Pirates);
                 var watched = AllScrap.Concat(new[] { silver, club, revolver }).ToList();
                 var before = watched.ToDictionary(d => d, d => Kit.StackIds(map, d));
                 int Ground() => watched.Sum(d => Units(NewNear(map, d, before[d], cell)));

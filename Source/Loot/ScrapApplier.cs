@@ -31,6 +31,13 @@ internal static class ScrapDefs
         return false;
     }
 
+    /// <summary>What one unit of a tier's scrap is worth: the larger of its recycle value and its market value setting.</summary>
+    public static float WorthPerUnit(ScrapTier tier)
+    {
+        float market = LootScavengingMod.Settings?.values.scrapMarketValue ?? SettingValues.DefaultScrapMarketValue;
+        return ScrapAmounts.WorthPerUnit(ScrapTierTable.For(tier)?.valuePerUnit ?? 0f, market);
+    }
+
     /// <summary>
     /// Writes the scrap value setting onto the scrap defs. Called again whenever the value may have changed: once the settings
     /// defaults load, when the page's slider, a preset or Reset changes it, and when the settings window closes.
@@ -54,9 +61,17 @@ internal static class ScrapApplier
     {
         ScrapTier tier = ScrapTiers.TierFor(era.Era, EraReader.ColonyEra());
         ThingDef scrapDef = ScrapDefs.For(tier);
-        int units = ItemClassifier.ScrapUnits(thing);
+        int units = ItemClassifier.ScrapUnits(thing, tier);
 
         OutcomeApplier.Delete(pawn, thing);
+
+        if (units < 1)
+        {
+            // Worth less than one unit of its scrap: nothing in its place, as with Delete.
+            if (Prefs.DevMode)
+                Log.Message($"[Loot Scavenging] {thing} is worth less than one {scrapDef.defName}, so it was removed and left no scrap"); // not translated
+            return;
+        }
 
         bool keepOnBody = BodyLoot.KeepsAll(pawn)
             || moment == Moment.Death && LootScavengingMod.Settings.values.deathDrop != DeathDrop.Ground && BodyLoot.CanHoldLoot(pawn);

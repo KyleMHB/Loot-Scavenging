@@ -267,7 +267,7 @@ public sealed class BenchBatch : Batch
             var bill = AddBill(fab, "LS_RecycleOriginal");
             bill.repeatMode = BillRepeatModeDefOf.Forever;
             var rifle = GenSpawn.Spawn(Make(rifleDef, QualityCategory.Normal), fab.Position + new IntVec3(0, 0, -4), map);
-            int units = ScrapAmounts.Units(rifle.MarketValue, 1);
+            int units = ExpectedScrap(rifle, null);
             c.Step(Unfamiliar.IsUnfamiliar(rifle), "the charge rifle is unfamiliar");
             c.Step(!bill.IsFixedOrAllowedIngredient(rifle), "the bill does not allow it until it is ticked");
             bool sawJob = false;

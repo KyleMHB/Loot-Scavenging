@@ -29,7 +29,7 @@ public sealed class OutcomesBatch : Batch
         new PlannedCase(DeleteKeepsApparel, Levels.Mechanical, "weapon rule Delete with drop mode Off: weapon gone, apparel stays on the corpse"),
         new PlannedCase(Mech, Levels.Mechanical, "a hostile mechanoid's weapon becomes scrap of its era near the corpse"),
         new PlannedCase(Fallback, Levels.Mechanical, "gear with no research and no tech level follows each era fallback; components fallback disassembles it"),
-        new PlannedCase(Amounts, Levels.Mechanical, "stone knife and charge rifle amounts match ScrapAmounts.Units; scrap everything scraps in-reach gear; Off keeps out-of-reach gear"),
+        new PlannedCase(Amounts, Levels.Mechanical, "stone knife and charge rifle amounts match the value-capped ScrapAmounts.Units; scrap everything scraps in-reach gear; Off keeps out-of-reach gear"),
         new PlannedCase(Raid, Levels.Mechanical, "ten pirates killed in a cluster leave fewer piles than bodies"),
         new PlannedCase(Quest, Levels.Mechanical, "a quest-tagged out-of-reach weapon stays whole"),
         new PlannedCase(Animal, Levels.Mechanical, "with animal corpse removal on, a wild hare's corpse is removed"),
@@ -97,7 +97,7 @@ public sealed class OutcomesBatch : Batch
             {
                 var era = EraReader.ItemEra(weapon.def, mech.Faction);
                 var tierDef = Scrap(ScrapTiers.TierFor(era.Era, EraReader.ColonyEra()));
-                int expected = ScrapAmounts.Units(weapon.MarketValue, 1);
+                int expected = ExpectedScrap(weapon, mech.Faction);
                 var before = Kit.StackIds(map, tierDef);
                 mech.Kill(null);
                 var made = NewNear(map, tierDef, before, mech.Corpse?.Position ?? cell);
@@ -133,10 +133,11 @@ public sealed class OutcomesBatch : Batch
                     ThingWithComps gun = null;
                     int units = 0;
                     var before = Kit.StackIds(map, ThingDefOf.ComponentIndustrial);
-                    var at = KillPirate(p => { gun = Arm(p, def, null); units = ScrapAmounts.Units(gun.MarketValue, 1); }, out _);
+                    var at = KillPirate(p => { gun = Arm(p, def, null); units = ExpectedScrapIn(gun, ScrapTiers.TierFor(components.Era, EraReader.ColonyEra())); }, out _);
                     var comps = NewNear(map, ThingDefOf.ComponentIndustrial, before, at);
-                    c.Expect("components", Disassembly.ComponentsFor(units)).Observe("components", Units(comps));
-                    c.Step(gun.Destroyed && Units(comps) == Disassembly.ComponentsFor(units), $"with the components fallback a pirate's {def.label} breaks into {Units(comps)} components");
+                    int expectedComps = units < 1 ? 0 : Disassembly.ComponentsFor(units);
+                    c.Expect("components", expectedComps).Observe("components", Units(comps));
+                    c.Step(gun.Destroyed && Units(comps) == expectedComps, $"with the components fallback a pirate's {def.label} breaks into {Units(comps)} components");
                 }
                 else c.Note($"{def.defName} is not a primary weapon, so the components kill was not run");
                 c.Conclude();
@@ -152,7 +153,7 @@ public sealed class OutcomesBatch : Batch
             ThingWithComps rifle = null;
             int rifleUnits = 0;
             var before = Kit.StackIds(map, spacer);
-            var at = KillPirate(p => { rifle = Arm(p, rifleDef, QualityCategory.Normal); rifleUnits = ScrapAmounts.Units(rifle.MarketValue, 1); }, out _);
+            var at = KillPirate(p => { rifle = Arm(p, rifleDef, QualityCategory.Normal); rifleUnits = ExpectedScrapIn(rifle, ScrapTier.Spacer); }, out _);
             var made = NewNear(map, spacer, before, at);
             c.Expect("chargeRifleUnits", rifleUnits).Observe("chargeRifleUnits", Units(made));
             c.Step(rifle.Destroyed && Units(made) == rifleUnits, $"a charge rifle becomes {Units(made)} spacer scrap (expected {rifleUnits})");
@@ -169,7 +170,7 @@ public sealed class OutcomesBatch : Batch
                 knife = (ThingWithComps)ThingMaker.MakeThing(knifeDef, Kit.Def("BlocksGranite"));
                 knife.TryGetComp<CompQuality>()?.SetQuality(QualityCategory.Normal, ArtGenerationContext.Outsider);
                 p.equipment.AddEquipment(knife);
-                knifeUnits = ScrapAmounts.Units(knife.MarketValue, 1);
+                knifeUnits = ExpectedScrapIn(knife, ScrapTier.Neolithic);
             }, out _);
             made = NewNear(map, neolithic, before, at);
             c.Expect("stoneKnifeUnits", knifeUnits).Observe("stoneKnifeUnits", Units(made)).Observe("knifeInReach", inReach);
@@ -197,7 +198,7 @@ public sealed class OutcomesBatch : Batch
                 Arm(p, revolver, QualityCategory.Normal);
                 raiders.Add(p);
             }
-            int expected = raiders.Sum(p => ScrapAmounts.Units(p.equipment.Primary.MarketValue, 1));
+            int expected = raiders.Sum(p => ExpectedScrap(p.equipment.Primary, Pirates));
             foreach (var p in raiders) p.Kill(null);
             var made = Kit.NewStacks(map, industrial, before).ToList();
             c.Observe("bodies", raiders.Count).Observe("piles", made.Count).Expect("units", expected).Observe("units", Units(made));
@@ -409,7 +410,8 @@ public sealed class OutcomesBatch : Batch
                 ModHarness.RestoreSettings();
                 int count = Math.Min(ammo.stackLimit, 50);
                 var era = EraReader.ItemEra(ammo, Pirates);
-                var tierDef = Scrap(ScrapTiers.TierFor(era.Era, EraReader.ColonyEra()));
+                var ammoTier = ScrapTiers.TierFor(era.Era, EraReader.ColonyEra());
+                var tierDef = Scrap(ammoTier);
                 c.Observe("ammoDef", ammo.defName).Observe("ammoEra", era.Era).Observe("loadedAmmo", string.Join(", ", ammoDefs.Select(d => d.defName)));
                 c.Step(!Rules.dropIncludesAmmunition && Rules.dropMode == DropMode.ScrapOutOfReach,
                     "by default the drop mode is out-of-reach and leaves ammunition out");
@@ -424,15 +426,18 @@ public sealed class OutcomesBatch : Batch
                 Rules.dropIncludesAmmunition = true;
                 c.Note("The player turns on \"drop mode includes ammunition\"");
                 var stack = Stack(ammo, count);
-                int expected = ScrapAmounts.StackUnits(stack.MarketValue, count);
+                int expected = ExpectedScrapIn(stack, ammoTier);
                 int perItem = ScrapAmounts.Units(stack.MarketValue, count);
+                float stackValue = stack.MarketValue * count;
                 before = Kit.StackIds(map, ammo);
                 scrapBefore = Kit.StackIds(map, tierDef);
                 at = KillPirate(p => p.inventory.innerContainer.TryAdd(stack), out _);
                 int left = Units(NewNear(map, ammo, before, at)), scrap = Units(NewNear(map, tierDef, scrapBefore, at));
                 c.Expect("scrapIncluded", expected).Observe("scrapIncluded", scrap).Observe("ammoLeft", left).Observe("perItemRounding", perItem);
                 c.Step(stack.Destroyed && left == 0, $"a second pirate's {count} {ammo.label} are gone ({left} left)");
-                c.Step(scrap == expected, $"they become {scrap} {tierDef.defName}, rounded once per stack (expected {expected}; per-item rounding gives {perItem})");
+                c.Step(scrap == expected, $"they become {scrap} {tierDef.defName}, rounded once per stack and capped by value (expected {expected}; per-item rounding gives {perItem})");
+                c.Expect("scrapWorthAtMostStackValue", true).Observe("scrapWorth", scrap * ScrapWorth(ammoTier)).Observe("stackValue", stackValue);
+                c.Step(scrap * ScrapWorth(ammoTier) <= stackValue + 0.001f, $"the {scrap} scrap is worth {scrap * ScrapWorth(ammoTier):0.#}, no more than the stack's {stackValue:0.#}");
                 ModHarness.RestoreSettings();
                 c.Conclude();
             }
@@ -486,7 +491,7 @@ public sealed class OutcomesBatch : Batch
                     KillPirate(p =>
                     {
                         gun = Arm(p, revolver, QualityCategory.Normal);
-                        gunUnits = ScrapAmounts.Units(gun.MarketValue, 1);
+                        gunUnits = ExpectedScrapIn(gun, ScrapTier.Industrial);
                         p.inventory.innerContainer.TryAdd(Stack(devilstrand, 53));
                         p.inventory.innerContainer.TryAdd(Stack(steel, 30));
                         p.inventory.innerContainer.TryAdd(Stack(plasteel, 20));
@@ -555,7 +560,8 @@ public sealed class OutcomesBatch : Batch
                 var stack = Stack(def, count);
                 var era = EraReader.ItemEra(def, Pirates);
                 var tier = ScrapTiers.TierFor(era.Era, EraReader.ColonyEra());
-                int expected = ScrapAmounts.StackUnits(stack.MarketValue, count);
+                int expected = ExpectedScrapIn(stack, tier);
+                float stackValue = stack.MarketValue * count;
                 int tierBefore = ScrapOf(tier), industrialBefore = ScrapOf(ScrapTier.Industrial);
                 KillPirate(p =>
                 {
@@ -563,7 +569,7 @@ public sealed class OutcomesBatch : Batch
                     if (withGun)
                     {
                         gun = Arm(p, revolver, QualityCategory.Normal);
-                        gunUnits = ScrapAmounts.Units(gun.MarketValue, 1);
+                        gunUnits = ExpectedScrapIn(gun, ScrapTier.Industrial);
                     }
                 }, out _);
                 int got = ScrapOf(tier) - tierBefore;
@@ -571,11 +577,13 @@ public sealed class OutcomesBatch : Batch
                 c.Step(era.Source == EraSource.Unknown, $"{def.label} has no era, so its scrap is the colony's tier ({tier})");
                 c.Step(stack.Destroyed && got == expected, $"{count} {def.label} become {got} {tier} scrap (expected {expected} from the stack's value)");
                 c.Step(got < count / 2, $"far fewer than one scrap per item ({got} for {count})");
+                c.Observe(def.defName + "ScrapWorth", got * ScrapWorth(tier)).Observe(def.defName + "StackValue", stackValue);
+                c.Step(got * ScrapWorth(tier) <= stackValue + 0.001f, $"the {got} scrap is worth {got * ScrapWorth(tier):0.#}, no more than the stack's {stackValue:0.#}");
                 if (withGun)
                 {
                     int industrialGot = ScrapOf(ScrapTier.Industrial) - industrialBefore;
                     c.Expect("revolver", gunUnits).Observe("revolver", industrialGot);
-                    c.Step(gun.Destroyed && industrialGot == gunUnits, $"the pirate's lone revolver still gives ScrapAmounts.Units ({industrialGot}, expected {gunUnits}), at least one unit per item");
+                    c.Step(gun.Destroyed && industrialGot == gunUnits, $"the pirate's lone revolver still gives the capped ScrapAmounts.Units ({industrialGot}, expected {gunUnits}), at least one unit per item");
                 }
             }
             ModHarness.RestoreSettings();

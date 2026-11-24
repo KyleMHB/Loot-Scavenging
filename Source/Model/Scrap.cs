@@ -78,6 +78,50 @@ public static class ScrapAmounts
         return Math.Max(1, (int)Math.Round(total, MidpointRounding.AwayFromZero));
     }
 
+    /// <summary>
+    /// What one unit of a tier's scrap is worth: the larger of the silver its recycling returns (the tier's value per unit) and
+    /// its market value from the settings. Either way a player can sell it for, or turn it into, this much.
+    /// </summary>
+    public static float WorthPerUnit(float recycleValuePerUnit, float scrapMarketValue)
+    {
+        float recycle = float.IsNaN(recycleValuePerUnit) || recycleValuePerUnit < 0f ? 0f : recycleValuePerUnit;
+        float market = float.IsNaN(scrapMarketValue) || scrapMarketValue < 0f ? 0f : scrapMarketValue;
+        return Math.Max(recycle, market);
+    }
+
+    /// <summary>
+    /// Limits <paramref name="units"/> so the scrap is never worth more than the item or stack it came from: whole units of
+    /// <paramref name="worthPerUnit"/> that fit in <paramref name="totalMarketValue"/>. Returns 0 when the item is worth less than
+    /// one unit; the caller then makes no scrap. A worth of 0 or less sets no cap.
+    /// </summary>
+    public static int CapUnits(int units, float totalMarketValue, float worthPerUnit)
+    {
+        if (units <= 0)
+            return 0;
+        if (float.IsNaN(worthPerUnit) || worthPerUnit <= 0f)
+            return units;
+        double total = float.IsNaN(totalMarketValue) || totalMarketValue < 0f ? 0.0 : totalMarketValue;
+        double fits = Math.Floor(total / worthPerUnit);
+        return fits >= units ? units : (int)fits;
+    }
+
+    /// <summary><see cref="Units"/> capped to what the stack is worth. 0 means the stack makes no scrap.</summary>
+    public static int CappedUnits(float unitMarketValue, int count, float worthPerUnit) =>
+        CapUnits(Units(unitMarketValue, count), TotalValue(unitMarketValue, count), worthPerUnit);
+
+    /// <summary><see cref="StackUnits"/> capped to what the stack is worth. 0 means the stack makes no scrap.</summary>
+    public static int CappedStackUnits(float unitMarketValue, int count, float worthPerUnit) =>
+        CapUnits(StackUnits(unitMarketValue, count), TotalValue(unitMarketValue, count), worthPerUnit);
+
+    private static float TotalValue(float unitMarketValue, int count)
+    {
+        if (count < 1)
+            count = 1;
+        if (float.IsNaN(unitMarketValue) || unitMarketValue < 0f)
+            unitMarketValue = 0f;
+        return unitMarketValue * count;
+    }
+
     /// <summary>Splits an amount into stacks no larger than the stack limit.</summary>
     public static int[] SplitIntoStacks(int units, int stackLimit)
     {
