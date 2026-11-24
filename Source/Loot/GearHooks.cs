@@ -12,8 +12,8 @@ namespace LootScavenging.Loot;
 // gear the game is about to drop at that moment. Call order and signatures: spec, "Unverified".
 // An exception here would stop the game method itself (a pawn that cannot die), so each hook logs and carries on.
 //
-// The game also drops a living pawn's gear outside those three (ticket 18): an arrest or a trade (DropAndForbidEverything)
-// and a lost grip (TryDropEquipment). Those count as the downed-and-strip moment. A pawn joining the colony keeps his gear
+// The game also drops a living pawn's gear outside those three (ticket 18): an arrest or a trade (DropAndForbidEverything),
+// sorted as an arrest, and a lost grip (TryDropEquipment), always sorted like a downing. A pawn joining the colony keeps his gear
 // as a colony pawn; JoinerHooks.cs handles that (ticket 20). Death, downing and stripping call DropAndForbidEverything or TryDropEquipment themselves,
 // so a pawn whose drop this mod is already sorting is marked for the length of that call and the inner hooks leave it
 // alone: no item is judged twice.
@@ -64,6 +64,12 @@ internal static class PawnKillHook
         __state = true;
         try
         {
+            // A colonist's weapon and pack stay in his corpse, unsorted (ticket 24).
+            if (BodyLoot.BeginKeepingColonistGear(__instance))
+            {
+                BodyLoot.HoldGear(__instance);
+                return;
+            }
             // Death drops equipment and inventory; apparel stays on the corpse, so this is its last sorting too.
             // Does not depend on stripping, so pawns that cannot be stripped are still sorted.
             BodyLoot.BeginDrop(__instance);
@@ -86,7 +92,7 @@ internal static class PawnKillHook
     {
         try
         {
-            BodyLoot.PlaceOnBody(__instance, downed: false);
+            BodyLoot.PlaceOnBody(__instance);
         }
         catch (Exception e)
         {
@@ -104,7 +110,7 @@ internal static class PawnKillHook
             return;
         try
         {
-            BodyLoot.PlaceOnBody(__instance, downed: false);
+            BodyLoot.PlaceOnBody(__instance);
         }
         catch (Exception e)
         {
@@ -127,22 +133,18 @@ internal static class PawnDownedHook
         __state = true;
         try
         {
-            // "Keep his weapon" (ticket 23): nothing drops and nothing is judged. He keeps his weapon in hand and his pack,
-            // to be sorted at his strip, arrest, join or death; SpawnDropHook keeps the weapon in hand when he is put down again.
-            if (BodyLoot.KeepsWeaponAtDowning(___pawn))
+            // "Keep his weapon" (ticket 23), or a colonist under "Colonists keep their gear" (ticket 24): nothing drops and
+            // nothing is judged. He keeps his weapon in hand and his pack; SpawnDropHook keeps the weapon in hand when he is
+            // put down again. A covered pawn's gear is sorted at his strip, arrest, join or death; a colonist's never is.
+            if (BodyLoot.ColonistKeepsGear(___pawn) || BodyLoot.KeepsWeaponAtDowning(___pawn))
             {
                 BodyLoot.BeginKeepingGear(___pawn);
                 return;
             }
-            // "Drop the weapon": downing drops equipment and inventory, never apparel, sorted as they drop. With
-            // "everything stays on the body" the rules judge it here and what they kept stays in his hands and pack.
-            BodyLoot.BeginDrop(___pawn);
+            // "Drop the weapon": downing drops equipment and inventory, never apparel, sorted as they drop, whatever the
+            // arrest and strip toggles say (ticket 24). What the rules kept drops whole, to the ground under every death
+            // setting: those only say where loot lands at death.
             GearSorter.Sort(___pawn, Moment.Downed, equipment: true, apparel: false, inventory: true);
-            if (BodyLoot.KeepsAll(___pawn))
-            {
-                BodyLoot.MarkJudgedAtDowning(___pawn);
-                BodyLoot.BeginKeepingGear(___pawn);
-            }
         }
         catch (Exception e)
         {
@@ -150,38 +152,36 @@ internal static class PawnDownedHook
         }
     }
 
-    // After the downed drop, a pawn whose loot all stays on the body gets the scrap and disassembly products made for him
-    // in his inventory. A pawn downed in a bed keeps everything in the game (the keep flag), and his later arrest is sorted
-    // by the hook on DropAndForbidEverything.
-    private static void Postfix(Pawn ___pawn)
+    // Under "Drop the weapon" the gear must drop (ticket 24). Another mod can stop the game's drop at a downing: Hospitality
+    // skips it for a friendly guest, by default. What the rules kept of a covered pawn is then dropped here, as the game
+    // would have, while he is still marked, so nothing is judged twice. Without such a mod the game has already dropped
+    // everything and this does nothing. A pawn downed in a bed keeps everything in the game (the keep flag), and his later
+    // arrest is sorted by the hook on DropAndForbidEverything.
+    private static void Postfix(Pawn ___pawn, bool __state)
     {
-        try
-        {
-            BodyLoot.PlaceOnBody(___pawn, downed: true);
-        }
-        catch (Exception e)
-        {
-            Log.Error($"[Loot Scavenging] Leaving loot on downed {___pawn} failed: {e}"); // not translated
-        }
-    }
-
-    private static void Finalizer(Pawn ___pawn, Exception __exception, bool __state)
-    {
-        if (__state)
-        {
-            SortedDrop.Exit(___pawn);
-            BodyLoot.EndKeepingGear(___pawn);
-        }
-        if (__exception == null)
+        if (!__state || BodyLoot.IsKeepingGear(___pawn))
             return;
         try
         {
-            BodyLoot.PlaceOnBody(___pawn, downed: true);
+            if (!___pawn.Spawned || ___pawn.InBed() || ___pawn.kindDef.destroyGearOnDrop || !BodyLoot.Covers(___pawn))
+                return;
+            if (___pawn.equipment != null && ___pawn.equipment.HasAnything())
+                ___pawn.equipment.DropAllEquipment(___pawn.PositionHeld, forbid: true, rememberPrimary: true);
+            if (___pawn.inventory != null && ___pawn.inventory.innerContainer.TotalStackCount > 0)
+                ___pawn.inventory.DropAllNearPawn(___pawn.PositionHeld, forbid: true);
         }
         catch (Exception e)
         {
-            Log.Error($"[Loot Scavenging] Returning held loot to downed {___pawn} failed: {e}"); // not translated
+            Log.Error($"[Loot Scavenging] Dropping the gear of downed {___pawn} failed: {e}"); // not translated
         }
+    }
+
+    private static void Finalizer(Pawn ___pawn, bool __state)
+    {
+        if (!__state)
+            return;
+        SortedDrop.Exit(___pawn);
+        BodyLoot.EndKeepingGear(___pawn);
     }
 }
 
@@ -216,9 +216,9 @@ internal static class PawnStripHook
     }
 }
 
-// Arresting a standing pawn (Pawn_GuestTracker.SetGuestStatus) and trading one (Pawn.PreTraded) drop his weapon and
-// inventory through this call. Death and downing call it too, from inside the hooks above, so dead, downed and marked pawns
-// are skipped. Apparel stays on, as in the game.
+// Arresting a pawn (Pawn_GuestTracker.SetGuestStatus) and trading one (Pawn.PreTraded) drop his weapon and inventory
+// through this call: the arrest moment, gated by "Sort when arrested". Death and downing call it too, from inside the hooks
+// above, so dead and marked pawns are skipped; so is a distress call's corpse, already dead. Apparel stays on, as in the game.
 [HarmonyPatch(typeof(Pawn), nameof(Pawn.DropAndForbidEverything))]
 internal static class DropEverythingHook
 {
@@ -234,7 +234,7 @@ internal static class DropEverythingHook
         try
         {
             // A carried thing is not the pawn's gear (a thief's loot, a kidnapped colonist) and drops as the game drops it.
-            GearSorter.Sort(__instance, Moment.Downed, equipment: true, apparel: false, inventory: true);
+            GearSorter.Sort(__instance, Moment.Arrest, equipment: true, apparel: false, inventory: true);
         }
         catch (Exception e)
         {
@@ -263,8 +263,8 @@ internal static class DropEquipmentHook
             return true;
         try
         {
-            // Includes the drop the game makes as a downed pawn still holding his weapon under "everything stays on the
-            // body" is spawned outside a bed (see SpawnDropHook): sorted here like any other living pawn's drop.
+            // A lost grip is no arrest or strip: always sorted, as a downing is. Includes the drop the game makes as a
+            // downed pawn still holding his weapon is spawned outside a bed under "Drop the weapon" (see SpawnDropHook).
             GearSorter.SortEquipment(pawn, eq, Moment.Downed);
         }
         catch (Exception e)
@@ -280,7 +280,7 @@ internal static class DropEquipmentHook
     }
 }
 
-// A covered pawn being downed under "Keep his weapon", or whose kept loot stays on the body, keeps his weapon and pack:
+// A covered pawn being downed under "Keep his weapon", or a colonist under "Colonists keep their gear", keeps his weapon and pack:
 // these skip exactly the two drops MakeDowned makes through DropAndForbidEverything, as the game does for a pawn downed
 // in a bed. A carried thing (a kidnapped colonist, a thief's silver) still drops. First, so no other mod sorts or moves a
 // drop that is not going to happen.
@@ -301,43 +301,28 @@ internal static class KeepInventoryAtDowningHook
 // The game drops a downed pawn's weapon whenever he is spawned outside a bed: carried and put down, rescued to a bed (the
 // tuck drops him on the bed's cell before he lies down), brought in by a caravan or shuttle, or a reload.
 // - Under "Keep his weapon" (Kyle, 2026-11-24) that drop never happens for a pawn the setting covers: he holds his weapon
-//   until he is stripped, arrested, joins or dies, wherever he is set down, and gets up still holding it.
-// - Under "Drop the weapon" the game's drop goes ahead. Only "everything stays on the body" leaves a weapon in his hands
-//   there; DropEquipmentHook sorts its drop, which leaves it whole when the downing judged it. He then remembers it, as he
-//   would have after the game's own drop at his downing, so he picks it up again if he gets up. During a load or map setup
-//   that drop is skipped: a save and load does not move his gear.
+//   until he is stripped, arrested, joins or dies, wherever he is set down, and gets up still holding it. The same goes for
+//   a colonist or colony slave under "Colonists keep their gear" (ticket 24).
+// - Otherwise the game's drop goes ahead, and DropEquipmentHook sorts it for a covered pawn. Under "Drop the weapon" he
+//   rarely holds one by then: only if he was downed where the game does not drop it, such as off the map.
 [HarmonyPatch(typeof(Pawn_EquipmentTracker), nameof(Pawn_EquipmentTracker.Notify_PawnSpawned))]
 internal static class SpawnDropHook
 {
     [HarmonyPriority(Priority.Last)]
-    private static bool Prefix(Pawn_EquipmentTracker __instance, bool __runOriginal, out ThingWithComps __state)
+    private static bool Prefix(Pawn_EquipmentTracker __instance, bool __runOriginal)
     {
-        __state = null;
         Pawn pawn = __instance.pawn;
         if (!__runOriginal || pawn == null || !pawn.Downed || pawn.Dead || pawn.GetPosture().InBed() || __instance.Primary == null)
             return true;
         try
         {
-            if (BodyLoot.KeepsWeaponAtDowning(pawn))
+            if (BodyLoot.ColonistKeepsGear(pawn) || BodyLoot.KeepsWeaponAtDowning(pawn))
                 return false;
-            if (!BodyLoot.KeptGearWhenDowned(pawn))
-                return true;
-            if (Current.ProgramState != ProgramState.Playing)
-                return false;
-            __state = __instance.Primary;
         }
         catch (Exception e)
         {
             Log.Error($"[Loot Scavenging] Checking the weapon of spawned downed {pawn} failed: {e}"); // not translated
         }
         return true;
-    }
-
-    private static void Postfix(Pawn_EquipmentTracker __instance, ThingWithComps __state)
-    {
-        Pawn pawn = __instance.pawn;
-        if (__state == null || pawn?.mindState == null || !__state.Spawned || __state.Destroyed || __state.Map != pawn.Map)
-            return;
-        pawn.mindState.droppedWeapon = __state;
     }
 }
