@@ -34,7 +34,7 @@ Example: a player on Cleanup has `corpseAnimal=false` left out. A pack that late
 
 ## Decisions (Kyle, 2026-11-24)
 
-- Part 1: build all of it. Arrest of a standing pawn and trade: hook `Pawn.DropAndForbidEverything`. Recruit or enslave of a downed raider: sort worn apparel with strip's rules as a prisoner joins the player's faction, before the change, so he is judged as the prisoner he was. Lost manipulation: prefix `Pawn_EquipmentTracker.TryDropEquipment`, non-colony pawns only. All count as the downed-and-strip moment, so that toggle turns them off.
+- Part 1: build all of it. Arrest of a standing pawn and trade: hook `Pawn.DropAndForbidEverything`. Recruit or enslave of a downed raider: sort worn apparel (strip semantics) when a non-colony pawn's faction changes to the player's, before it changes, so he is judged as the group he was. Lost manipulation: prefix `Pawn_EquipmentTracker.TryDropEquipment`, non-colony pawns only. All count as the downed-and-strip moment, so that toggle turns them off.
 - Part 2: the mod's own save writes every key (`forceSave: true`), so a player's file never follows a changed default. Partial files from other tools, and files from before 0.5.2, still fill missing keys from the baseline.
 - Corpse loss stays expected. The list below stays unscheduled.
 
@@ -43,7 +43,7 @@ Example: a player on Cleanup has `corpseAnimal=false` left out. A pack that late
 - `Source/Loot/GearHooks.cs`:
   - `DropEverythingHook` (prefix and finalizer on `Pawn.DropAndForbidEverything`): sorts weapon and inventory at the downed moment. Covers arrest (`SetGuestStatus(Prisoner)`) and trade (`PreTraded`). Skips the carried thing, an in-bed call with the keep flag, and dead or downed pawns.
   - `DropEquipmentHook` (prefix on `TryDropEquipment`): sorts the one weapon; when the outcome removes it, it skips the drop and returns true, so callers such as `MakeRoomFor` see the room made.
-  - `RecruitHook` (prefix on `RecruitUtility.Recruit`) and `EnslaveHook` (prefix on `Pawn_GuestTracker.SetGuestStatus`, Slave only): worn apparel of a colony prisoner joining the player's faction, at the strip moment. `Recruit` clears the prisoner status before `SetFaction`, so a `SetFaction` prefix would have judged him as hostile; these two run while he is still a prisoner. Pawns who join through a quest are not prisoners and are not sorted.
+  - `RecruitHook` (prefix on `RecruitUtility.Recruit`) and `EnslaveHook` (prefix on `Pawn_GuestTracker.SetGuestStatus`, Slave only): worn apparel of a colony prisoner joining the player's faction, at the strip moment. `Recruit` clears the prisoner status before `SetFaction`, so a `SetFaction` prefix would have judged him as hostile; these two run while he is still a prisoner. Pawns who join through a quest are not prisoners and are not sorted. This prisoner-only scope is the implementer's reading of the decision, not Kyle's ruling: open for Kyle to confirm or widen.
   - `SortedDrop`: no item is judged twice. Kill, MakeDowned, Strip and DropAndForbidEverything mark the pawn from prefix to finalizer, and the two new drop hooks skip a marked pawn. They also skip dead and downed pawns, since Kill and MakeDowned set those states before their own drop.
 - `Source/LootScavengingSettings.cs`: `forceSave: true` on every setting key and `activePreset`. `SettingsLoad` is unchanged: a missing key still takes the baseline.
 

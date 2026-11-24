@@ -11,7 +11,7 @@
 ### Fixed
 
 - With "Also when downed or stripped" on, arresting a standing pawn, such as a visitor, a trader's guard or a wild man, now sorts his weapon and pack as a downing does. So does trading a pawn away, and a pawn dropping his weapon because he lost the use of his arms. Out-of-reach gear used to drop whole in these cases.
-- A captured raider who is recruited or enslaved now has his out-of-reach apparel sorted as he joins, as stripping him would. He used to join still wearing it, and could then take it off whole.
+- With the same setting on, a captured raider who is recruited or enslaved now has his out-of-reach apparel sorted as he joins, as stripping him would. He used to join still wearing it, and could then take it off whole.
 
 - Materials such as devilstrand, steel and modded stone are never beyond your colony's reach any more, so raiders drop them whole instead of turning them into scrap. A mod recipe that makes a material could give it that recipe's era, and a tribal raider's 53 devilstrand became 53 spacer scrap.
 - Wood, beer, thrumbo horns, tusks and other items the game lets a pawn swing as a club no longer count as weapons. A raider's wood or beer used to be judged by his faction's era, so it could turn into scrap at a tribal colony, and a horn worth 800 silver could be scrapped or deleted by a weapon rule. Grenades and javelins that stack still count as weapons.
