@@ -6,10 +6,14 @@
 
 ### Added
 
-- Two new settings choose what happens to the gear of pawns who join your colony: one for recruited or enslaved prisoners, one for wanderers, refugees, quest joiners and anyone else. Each can mark out-of-reach gear unfamiliar, follow the drop mode, or leave the gear alone. A marked item stays on its wearer, and once it comes off, no colonist can use it until its research is finished. This works in every drop mode. Prisoners follow the drop mode by default and everyone else is marked. Modpacks can set and lock them as `rules.prisonerJoinGear` and `rules.otherJoinGear`.
+- Two new settings choose what happens to the gear of pawns who join your colony: one for recruited or enslaved prisoners, one for wanderers, refugees, quest joiners and anyone else. Each can mark out-of-reach gear unfamiliar, follow the drop mode, or leave the gear alone. Both cover the joiner's pack too: following the drop mode sorts it, and marking marks the weapons and apparel in it but leaves his medicine and other items alone. A marked item stays on its wearer, and once it comes off, no colonist can use it until its research is finished. This works in every drop mode. Prisoners follow the drop mode by default and everyone else is marked. Modpacks can set and lock them as `rules.prisonerJoinGear` and `rules.otherJoinGear`.
+- New setting, "When a non-colony pawn is downed": keep the weapon in his pack, or drop the weapon. Modpacks can set and lock it as `rules.downedGear`.
 
 ### Changed
 
+- A downed pawn now keeps his weapon whole in his pack by default, and nothing drops. His gear is sorted later, when he is stripped, arrested, joins your colony or dies, so a raider you capture and recruit is sorted once. Choose "Drop the weapon" for the old behaviour.
+- "Also when downed or stripped" is now "Also when stripped or arrested". With it off, stripping and arresting leave gear whole, and so does downing if downed pawns drop the weapon. Pawns who join your colony follow the joiner settings whatever this setting says.
+- Weapons and apparel in a pawn's pack are now judged by the weapon and apparel rules instead of the "Other inventory" rule.
 - Scrap is cheaper, so gear gives about twice as many units, and cheap gear that used to leave nothing now leaves some. A unit is worth half as much, recycles into half as much and studies for half the research points. Scrap now stacks to 1,000.
 - Scrap already in a save is doubled the first time the save loads, so it keeps its value. That covers scrap on your maps, in pawns' packs, in caravans and in transport pods.
 - Research points per unit that you set yourself are halved once, so your doubled scrap still pays the same research in total. The settings page shows a note when this happens.
@@ -19,8 +23,8 @@
 
 ### Fixed
 
-- With "Also when downed or stripped" on, arresting a standing pawn, such as a visitor, a trader's guard or a wild man, now sorts his weapon and pack as a downing does. So does trading a pawn away, and a pawn dropping his weapon because he lost the use of his arms. Out-of-reach gear used to drop whole in these cases.
-- With the same setting on, a captured raider who is recruited or enslaved now has his out-of-reach apparel sorted as he joins, as stripping him would. He used to join still wearing it, and could then take it off whole.
+- With "Also when stripped or arrested" on, arresting a standing pawn, such as a visitor, a trader's guard or a wild man, now sorts his weapon and pack. So does trading a pawn away, and a pawn dropping his weapon because he lost the use of his arms. Out-of-reach gear used to drop whole in these cases.
+- A captured raider who is recruited or enslaved now has his gear handled as he joins, by the setting for prisoners. He used to join still wearing out-of-reach apparel, and could then take it off whole.
 - Materials such as devilstrand, steel and modded stone are never beyond your colony's reach any more, so raiders drop them whole instead of turning them into scrap. A mod recipe that makes a material could give it that recipe's era, and a tribal raider's 53 devilstrand became 53 spacer scrap.
 - Wood, beer, thrumbo horns, tusks and other items the game lets a pawn swing as a club no longer count as weapons. A raider's wood or beer used to be judged by his faction's era, so it could turn into scrap at a tribal colony, and a horn worth 800 silver could be scrapped or deleted by a weapon rule. Grenades and javelins that stack still count as weapons.
 - A stack that does get scrapped is now counted as a whole and rounded once, as ammunition already was. Before, every item in the stack gave at least one scrap, so 53 devilstrand gave at least 53.

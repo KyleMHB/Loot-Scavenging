@@ -236,6 +236,8 @@ public sealed class SettingsBatch : Batch
             // Ticket 20: one joiner setting equal to its default and one set by Cleanup, both read back as saved.
             written.values.rules.prisonerJoinGear = pack.Progression.rules.prisonerJoinGear;
             written.values.rules.otherJoinGear = JoinerGear.LeaveAlone;
+            // Ticket 21: the downed setting away from its default.
+            written.values.rules.downedGear = DownedGear.DropWeapon;
             LoadedModManager.WriteModSettings(DevMod, "Cleanup", written);
             var file = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_Cleanup*.xml").FirstOrDefault();
             string text = file != null ? File.ReadAllText(file) : "";
@@ -260,6 +262,9 @@ public sealed class SettingsBatch : Batch
                 && text.Contains("<otherJoinGear>LeaveAlone</otherJoinGear>")
                 && read.values.rules.prisonerJoinGear == pack.Progression.rules.prisonerJoinGear && read.values.rules.otherJoinGear == JoinerGear.LeaveAlone,
                 "both joiner settings are saved, the one equal to its default too, and read back as saved");
+            c.Observe("downedGearRead", read.values.rules.downedGear);
+            c.Step(text.Contains("<downedGear>DropWeapon</downedGear>") && read.values.rules.downedGear == DownedGear.DropWeapon,
+                "the downed setting is saved as Drop the weapon and read back as saved");
             foreach (var f in Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_*")) File.Delete(f);
             ModHarness.RestoreSettings();
             c.Conclude();

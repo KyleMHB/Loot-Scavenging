@@ -103,6 +103,8 @@ Vanilla uses "study" for Anomaly's entity study. This mod's study is the same ac
 | tainted apparel | 死者衣物 | одежда с трупов | SpecialThingFilterDef `AllowDeadmansApparel.label` |
 | downed | 倒地 | обездвижен | Keyed `DownedLower` |
 | strip / stripped | 剥光 / 被剥光 | раздеть / раздет | Keyed `Strip`, `GoodwillChangedReason_PawnStripped` |
+| arrest / arrested | 拘捕 / 被拘捕 | арестовать / арестован | Keyed `Arrest`, `TryToArrest` |
+| pack (a pawn's inventory) | 背包 | инвентарь | This mod's earlier Keyed texts (`DeathDropAllOnBodyExplain`) |
 | butcher / butchered | 屠宰 | разделать / разделка | RecipeDef `ButcherCorpseFlesh.label`; Keyed `Difficulty_ButcherYieldFactor_Label` |
 | storyteller | 故事叙述者 | рассказчик | Keyed `Storyteller` (Chinese 当前故事叙述者 = "current storyteller") |
 | Options > Mod Settings | 选项 > Mod 设置 | Настройки > Настройки модов | Keyed `Options` (Menus_Main), `ModSettings` (Menu_Options) |

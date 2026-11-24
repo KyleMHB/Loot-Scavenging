@@ -44,7 +44,7 @@
   <LootScavenging_LockedReason>Locked by the modpack: this setting always uses the pack's value, so it cannot be changed here.</LootScavenging_LockedReason>
   <LootScavenging_LockedSummary>Some settings are locked by the modpack. They stay at the pack's values whichever preset you pick.</LootScavenging_LockedSummary>
   <LootScavenging_PresetReset>Reset to defaults</LootScavenging_PresetReset>
-  <LootScavenging_PresetProgressionExplain>Gear beyond your colony's research becomes scrap when any non-colony pawn dies, is downed or is stripped, prisoners included. Gear within reach drops as normal, and corpses are left.</LootScavenging_PresetProgressionExplain>
+  <LootScavenging_PresetProgressionExplain>Gear beyond your colony's research becomes scrap when any non-colony pawn dies, is stripped or is arrested, prisoners included. Gear within reach drops as normal, and corpses are left.</LootScavenging_PresetProgressionExplain>
   <LootScavenging_PresetCleanupExplain>No era handling. From hostile dead only, weapons below normal quality, apparel below good quality and either one below 50% hit points are deleted, and so is all their ammunition; the rest drops as normal. Every hostile humanlike corpse is removed.</LootScavenging_PresetCleanupExplain>
   <LootScavenging_PresetVanillaExplain>No pawn group is affected, so loot and corpses behave as in the base game.</LootScavenging_PresetVanillaExplain>
   <LootScavenging_ResetConfirm>Set every setting back to its default (the Progression preset) and empty the keep and remove lists?</LootScavenging_ResetConfirm>
@@ -65,16 +65,21 @@
   <LootScavenging_HomeMapOnly>Home map only</LootScavenging_HomeMapOnly>
   <LootScavenging_HomeMapOnlyOn>Loot on caravan, quest and outpost maps is left alone.</LootScavenging_HomeMapOnlyOn>
   <LootScavenging_HomeMapOnlyOff>The rules apply on every map.</LootScavenging_HomeMapOnlyOff>
-  <LootScavenging_DownedAndStrip>Also when downed or stripped</LootScavenging_DownedAndStrip>
-  <LootScavenging_DownedAndStripOn>The rules apply when a pawn dies, is downed or is stripped, so out-of-reach gear cannot be taken intact from a downed raider or a stripped prisoner.</LootScavenging_DownedAndStripOn>
-  <LootScavenging_DownedAndStripOff>The rules apply only when a pawn dies. Gear from downed or stripped pawns drops as normal.</LootScavenging_DownedAndStripOff>
+  <LootScavenging_DownedAndStrip>Also when stripped or arrested</LootScavenging_DownedAndStrip>
+  <LootScavenging_DownedAndStripOn>The rules apply when a pawn dies, is stripped or is arrested, so out-of-reach gear cannot be taken intact from a captured raider or a stripped prisoner. Under "Drop the weapon" they apply at a downing too.</LootScavenging_DownedAndStripOn>
+  <LootScavenging_DownedAndStripOff>The rules apply only when a pawn dies. Gear from stripped or arrested pawns, and from downed pawns under "Drop the weapon", drops as normal. Joiners follow their own settings below.</LootScavenging_DownedAndStripOff>
+  <LootScavenging_Downed>When a non-colony pawn is downed</LootScavenging_Downed>
+  <LootScavenging_DownedKeepInPack>Keep the weapon in his pack</LootScavenging_DownedKeepInPack>
+  <LootScavenging_DownedDropWeapon>Drop the weapon</LootScavenging_DownedDropWeapon>
+  <LootScavenging_DownedKeepInPackExplain>Nothing drops and nothing is sorted. His weapon goes into his pack with the rest, and it is all sorted when he is stripped, arrested, joins the colony or dies. A raider who gets back up still carries it.</LootScavenging_DownedKeepInPackExplain>
+  <LootScavenging_DownedDropWeaponExplain>His weapon and pack drop beside him, as in the base game. With "Also when stripped or arrested" on, they are sorted as they drop.</LootScavenging_DownedDropWeaponExplain>
   <LootScavenging_JoinPrisoners>Gear of recruited or enslaved prisoners</LootScavenging_JoinPrisoners>
   <LootScavenging_JoinOthers>Gear of wanderers, refugees and other joiners</LootScavenging_JoinOthers>
   <LootScavenging_JoinMark>Mark out-of-reach gear unfamiliar</LootScavenging_JoinMark>
   <LootScavenging_JoinFollow>Follow the drop mode</LootScavenging_JoinFollow>
   <LootScavenging_JoinLeave>Leave their gear alone</LootScavenging_JoinLeave>
-  <LootScavenging_JoinMarkExplain>They keep wearing and holding what they came with. Gear beyond the colony's research is marked, and once it comes off, no colonist can use it until the research is finished. Works in every drop mode.</LootScavenging_JoinMarkExplain>
-  <LootScavenging_JoinFollowExplain>As they join, their worn apparel and held weapon are sorted as if they were stripped, by the drop mode and the item rules, for the groups ticked above.</LootScavenging_JoinFollowExplain>
+  <LootScavenging_JoinMarkExplain>They keep wearing and holding what they came with, and keep their pack. Gear beyond the colony's research, in the pack too, is marked, and once it comes off, no colonist can use it until the research is finished. Medicine and other pack items are left alone. Works in every drop mode.</LootScavenging_JoinMarkExplain>
+  <LootScavenging_JoinFollowExplain>As they join, their worn apparel, held weapon and pack are sorted as if they were stripped, by the drop mode and the item rules, for the groups ticked above.</LootScavenging_JoinFollowExplain>
   <LootScavenging_JoinLeaveExplain>Their gear is not touched as they join.</LootScavenging_JoinLeaveExplain>
   <LootScavenging_NoGroupOn>No pawn group is ticked, so the mod changes no loot and no corpses.</LootScavenging_NoGroupOn>
   <!-- Settings page: item rules -->
@@ -175,7 +180,7 @@
   <LootScavenging_DeathDropAllOnBody>Everything stays on the body</LootScavenging_DeathDropAllOnBody>
   <LootScavenging_DeathDropGroundExplain>The weapon, inventory and any scrap drop beside the body, as in the base game.</LootScavenging_DeathDropGroundExplain>
   <LootScavenging_DeathDropScrapOnBodyExplain>Scrap from the dead stays on the body, and drops when the corpse is stripped, butchered or cremated. The weapon and inventory drop beside the body as usual.</LootScavenging_DeathDropScrapOnBodyExplain>
-  <LootScavenging_DeathDropAllOnBodyExplain>When a pawn these rules cover dies or is downed, nothing drops. A downed pawn keeps its weapon, medicine, food, silver and scrap in its pack. The dead keep them on the body until the corpse is stripped, butchered or cremated. Mechanoids whose gear the game destroys are unchanged.</LootScavenging_DeathDropAllOnBodyExplain>
+  <LootScavenging_DeathDropAllOnBodyExplain>When a pawn these rules cover dies, nothing drops. The dead keep their weapon, medicine, food, silver and scrap on the body until the corpse is stripped, butchered or cremated. Under "Drop the weapon", a pawn these rules cover who is downed keeps the kept loot in his pack instead of dropping it. Mechanoids whose gear the game destroys are unchanged.</LootScavenging_DeathDropAllOnBodyExplain>
   <LootScavenging_EraFallback>Gear with no era of its own</LootScavenging_EraFallback>
   <LootScavenging_EraFallbackCarrier>The carrier's faction era</LootScavenging_EraFallbackCarrier>
   <LootScavenging_EraFallbackColony>The colony's era</LootScavenging_EraFallbackColony>

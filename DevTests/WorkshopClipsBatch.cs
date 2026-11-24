@@ -100,7 +100,9 @@ public sealed class WorkshopClipsBatch : Batch
         ModHarness.SaveSettings();
         Settings.Apply(Presets.Apply(PresetId.Progression, Settings.Capture()));
         Settings.activePreset = PresetId.Progression;
-        ctx.Setup($"Developer applied the Progression preset: drop mode {Rules.dropMode}, downed and strip {Rules.onDownedAndStrip}, loot at death {Settings.values.deathDrop}");
+        // Filmed before ticket 21: the downed pirate's autopistol is scrapped as he falls.
+        Rules.downedGear = DownedGear.DropWeapon;
+        ctx.Setup($"Developer applied the Progression preset with downed pawns set to drop the weapon: drop mode {Rules.dropMode}, downed and strip {Rules.onDownedAndStrip}, loot at death {Settings.values.deathDrop}");
 
         var tribe = Tribe ?? throw new SetupException("no hostile neolithic faction in this world");
         var neolithic = Scrap(ScrapTier.Neolithic);

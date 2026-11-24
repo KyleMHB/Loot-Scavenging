@@ -1,6 +1,6 @@
 # 21: Downed pawns keep their gear in the pack; joiners' packs are covered
 
-Status: ready
+Status: done
 
 **Recommended model:** `opus`. It changes when gear is judged at the core hooks, and a mistake loses loot or judges it twice.
 
@@ -65,3 +65,26 @@ CHANGELOG 0.5.2 (no version bump). Read `E:\Coding\Templates\writing-copy.md` fi
 - Recruiting now follows its own setting even with stripping off.
 
 Rewrite the ticket 18 and 20 lines where they would contradict these. Update `spec.md` (moments and settings), `steam-description.md` where it describes downing, and add a TESTING.md entry.
+
+## What was built
+
+- `rules.downedGear` (`DownedGear`: `KeepInPack`, `DropWeapon`), saved, lockable, in `SettingsDefaults.xml`, every preset (KeepInPack), both Auto Mod Config files and the settings page beside "Also when stripped or arrested" (the renamed `onDownedAndStrip`). ChineseSimplified and Russian text, with glossary rows for arrest and pack.
+- `PawnDownedHook` under KeepInPack: for a covered pawn the held weapon goes whole into his pack and the game's downed drop is skipped; nothing is judged. The weapon the game drops when a downed pawn is spawned again also goes into the pack. DropWeapon is the old path.
+- Pack weapons and apparel are classed as weapon or apparel for the item rules (`EraReader.IsGear`), not as other inventory, so a stowed weapon is judged at strip, capture, joining or death by the rule that would have judged it in his hands.
+- `JoinerHooks`: Follow sorts the pack too; Mark marks out-of-reach weapons and apparel in the pack and leaves other items alone.
+- Tests: unit tests for the Model rules (`dotnet test` 357). Moments: `downed-keeps-weapon-in-pack` (new: strip, capture, kill, and strip with stripping off), `drop-calls-judged-once` (downing then death and downing then capture, under both values), and the pack checks in `joiner-marked-unfamiliar` and `joiner-follows-drop-mode`. The settings round trip covers `downedGear`.
+- Every DevTests case written for downed gear on the ground now sets "Drop the weapon": moments `downed-and-strip-on`, `downed-and-strip-off`, `all-on-body-downed`, `downed-then-killed-judged-once`, `former-colonist-keeps-gear`; the milestone batch; the showcases `workshop-clips` and `preview-story` (compiled, not filmed).
+- Fix found on the way: the ticket 19 defaults step saved settings read straight from a file, which belong to no mod, and threw in `settings.imported-partial-file`. It now saves only the mod's own settings.
+- Runs are in TESTING.md (2026-11-24, ticket 21).
+
+## Choices made while building
+
+1. Pack gear is a weapon or apparel when `EraReader.IsGear` says so; everything else in the pack keeps its item rule.
+2. A trader's goods keep their not-for-sale mark, and a weapon stowed in a downed trader's pack is marked not for sale while it is there, so it is never offered in trade.
+3. "Keep the weapon in his pack" applies whatever "Also when stripped or arrested" says; that setting only decides whether the later strip or arrest sorts.
+4. A pawn downed in bed keeps his weapon in hand, as the game does. A later arrest sorts it through `DropEverythingHook`: `Pawn_GuestTracker.SetGuestStatus(Prisoner)` calls `DropAndForbidEverything()` without the keep-in-bed flag, so the hook runs. Read in the 1.7 decompile, not run in game.
+5. Pawns the rules do not cover, mechanoids, pawns with no inventory and kinds that cannot be stripped follow "Drop the weapon", so nothing is hidden in a pack nobody can reach.
+6. `BodyLoot.WasJudgedAtDowning` stays, used only by "Drop the weapon" with "everything stays on the body", the one path that still judges at the downing.
+7. The Auto Mod Config preset `<version>` stays 0.5.2, set by ticket 20 for the same release.
+8. A downed raider who gets back up has his weapon in his pack, not on the ground, so the game's `JobGiver_PickupDroppedWeapon` (which looks for `mindState.droppedWeapon`) finds nothing, and he stays unarmed until something equips him. No path takes a weapon out of a non-colony pawn's pack: the callers of `equipment.AddEquipment` are pawn generation, the caravan gear tab, outfit stands, debug tools and `JobDriver_Equip`, which picks a weapon up from the ground. Read in the 1.7 decompile, not run in game.
+9. Classing pack weapons and apparel by their own rules reaches past downing: a raider's spare weapons and apparel carried in his pack are now judged by the weapon and apparel rules at every death, strip and arrest, not by "Other inventory". It follows from the decision that gear stowed at a downing is judged later as it would have been in his hands; Kyle may want to confirm it.

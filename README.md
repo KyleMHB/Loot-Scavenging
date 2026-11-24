@@ -1,6 +1,6 @@
 # Loot Scavenging
 
-A RimWorld mod that decides what non-colony pawns' gear becomes when they die, are downed or are stripped. By default, gear beyond your colony's research turns into scrap of its era, which you recycle for materials or study for research at benches you already have.
+A RimWorld mod that decides what non-colony pawns' gear becomes when they die, are stripped or are arrested. By default, gear beyond your colony's research turns into scrap of its era, which you recycle for materials or study for research at benches you already have.
 
 ## Features
 

@@ -96,7 +96,9 @@ public sealed class MilestoneBatch : Batch
 
         ModHarness.SaveSettings();
         Rules.dropMode = DropMode.ScrapEverything;
-        ctx.Setup("Developer set the drop mode to scrap everything, so every item the raiders drop becomes scrap");
+        // Filmed before ticket 21: a raider who falls drops his gear, and it is scrapped as it drops.
+        Rules.downedGear = DownedGear.DropWeapon;
+        ctx.Setup("Developer set the drop mode to scrap everything and downed pawns to drop the weapon, so every item the raiders drop becomes scrap");
 
         var tribe = Tribe ?? throw new SetupException("no hostile neolithic faction in this world");
         var area = Kit.Area(ctx, 30, 18);

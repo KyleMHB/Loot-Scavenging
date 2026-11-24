@@ -63,8 +63,9 @@ public class LootScavengingSettings : ModSettings
         loadedKeys = null;
         LootScavengingMod.ApplySettingsToDefs();
         // Saved now, not when the settings window next closes, so a crash or a quit cannot leave the old scale on disk and
-        // halve the points a second time on the next start.
-        if (rescaled)
+        // halve the points a second time on the next start. Settings read straight from a file, as the settings tests do,
+        // belong to no mod and have no file of their own to save to.
+        if (rescaled && Mod != null)
             Write();
     }
 

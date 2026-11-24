@@ -38,7 +38,7 @@
 	<LootScavenging_LockedReason>已被整合包锁定：此设置始终使用整合包的值，因此无法在此更改。</LootScavenging_LockedReason>
 	<LootScavenging_LockedSummary>部分设置已被整合包锁定。无论选择哪个预设，它们都保持整合包的值。</LootScavenging_LockedSummary>
 	<LootScavenging_PresetReset>恢复默认</LootScavenging_PresetReset>
-	<LootScavenging_PresetProgressionExplain>当任何非殖民地角色（包括囚犯）死亡、倒地或被剥光时，超出殖民地研究水平的装备会变为废料。在殖民地能力范围内的装备照常掉落，尸体保留。</LootScavenging_PresetProgressionExplain>
+	<LootScavenging_PresetProgressionExplain>当任何非殖民地角色（包括囚犯）死亡、被剥光或被拘捕时，超出殖民地研究水平的装备会变为废料。在殖民地能力范围内的装备照常掉落，尸体保留。</LootScavenging_PresetProgressionExplain>
 	<LootScavenging_PresetCleanupExplain>不处理时代。仅针对敌对死者：品质低于一般的武器、品质低于良好的衣物，以及耐久度低于50%的武器或衣物会被删除，其所有弹药也会被删除；其余照常掉落。所有敌对的人类尸体都会被移除。</LootScavenging_PresetCleanupExplain>
 	<LootScavenging_PresetVanillaExplain>没有受影响的角色群体，因此战利品和尸体的表现与原版游戏相同。</LootScavenging_PresetVanillaExplain>
 	<LootScavenging_ResetConfirm>将所有设置恢复为默认值（「渐进」预设），并清空保留列表和移除列表？</LootScavenging_ResetConfirm>
@@ -58,9 +58,9 @@
 	<LootScavenging_HomeMapOnly>仅限主地图</LootScavenging_HomeMapOnly>
 	<LootScavenging_HomeMapOnlyOn>远行队、任务和哨所地图上的战利品不受影响。</LootScavenging_HomeMapOnlyOn>
 	<LootScavenging_HomeMapOnlyOff>规则适用于所有地图。</LootScavenging_HomeMapOnlyOff>
-	<LootScavenging_DownedAndStrip>倒地或被剥光时也适用</LootScavenging_DownedAndStrip>
-	<LootScavenging_DownedAndStripOn>角色死亡、倒地或被剥光时都适用规则，因此无法从倒地的袭击者或被剥光的囚犯身上完整获取超出殖民地能力范围的装备。</LootScavenging_DownedAndStripOn>
-	<LootScavenging_DownedAndStripOff>规则仅在角色死亡时适用。倒地或被剥光的角色的装备照常掉落。</LootScavenging_DownedAndStripOff>
+	<LootScavenging_DownedAndStrip>被剥光或被拘捕时也适用</LootScavenging_DownedAndStrip>
+	<LootScavenging_DownedAndStripOn>角色死亡、被剥光或被拘捕时都适用规则，因此无法从被俘的袭击者或被剥光的囚犯身上完整获取超出殖民地能力范围的装备。选择「丢下武器」时，倒地时也适用。</LootScavenging_DownedAndStripOn>
+	<LootScavenging_DownedAndStripOff>规则仅在角色死亡时适用。被剥光或被拘捕的角色的装备，以及选择「丢下武器」时倒地角色的装备，照常掉落。加入者遵循下方各自的设置。</LootScavenging_DownedAndStripOff>
 	<LootScavenging_NoGroupOn>未勾选任何角色群体，因此本Mod不会改变任何战利品和尸体。</LootScavenging_NoGroupOn>
 	<LootScavenging_SectionItems>物品规则</LootScavenging_SectionItems>
 	<LootScavenging_ItemsNoteScrapOutOfReach>超出殖民地能力范围的装备会先变为废料（见掉落模式）。这些规则决定其余装备如何处理。</LootScavenging_ItemsNoteScrapOutOfReach>
@@ -146,7 +146,7 @@
 	<LootScavenging_DeathDropAllOnBody>全部留在尸体上</LootScavenging_DeathDropAllOnBody>
 	<LootScavenging_DeathDropGroundExplain>武器、随身物品和废料都掉落在尸体旁，与原版游戏相同。</LootScavenging_DeathDropGroundExplain>
 	<LootScavenging_DeathDropScrapOnBodyExplain>死者的废料留在尸体上，在尸体被剥光、屠宰或火化时掉落。武器和随身物品照常掉落在尸体旁。</LootScavenging_DeathDropScrapOnBodyExplain>
-	<LootScavenging_DeathDropAllOnBodyExplain>当受这些规则约束的角色死亡或倒地时，不会掉落任何东西。倒地的角色会把武器、医疗药品、食物、白银和废料留在背包中。死者的这些物品留在尸体上，直到尸体被剥光、屠宰或火化。游戏会销毁其装备的机械族不受影响。</LootScavenging_DeathDropAllOnBodyExplain>
+	<LootScavenging_DeathDropAllOnBodyExplain>当受这些规则约束的角色死亡时，不会掉落任何东西。死者的武器、医疗药品、食物、白银和废料留在尸体上，直到尸体被剥光、屠宰或火化。选择「丢下武器」时，受这些规则约束的倒地角色会把保留下来的战利品留在背包中，而不是掉落。游戏会销毁其装备的机械族不受影响。</LootScavenging_DeathDropAllOnBodyExplain>
 	<LootScavenging_EraFallback>没有自身时代的装备</LootScavenging_EraFallback>
 	<LootScavenging_EraFallbackCarrier>携带者派系的时代</LootScavenging_EraFallbackCarrier>
 	<LootScavenging_EraFallbackColony>殖民地的时代</LootScavenging_EraFallbackColony>
@@ -223,11 +223,16 @@
 	<LootScavenging_JoinMark>将超出能力范围的装备标为陌生</LootScavenging_JoinMark>
 	<LootScavenging_JoinFollow>遵循掉落模式</LootScavenging_JoinFollow>
 	<LootScavenging_JoinLeave>不处理他们的装备</LootScavenging_JoinLeave>
-	<LootScavenging_JoinMarkExplain>他们会继续穿戴和手持原有的装备。超出殖民地研究进度的装备会被标记，脱下后，在完成其研究前，任何殖民者都无法使用。在任何掉落模式下都有效。</LootScavenging_JoinMarkExplain>
-	<LootScavenging_JoinFollowExplain>他们加入时，身上穿着的衣物和手持的武器会按被剥光时的方式处理，依据掉落模式和物品规则，并仅限上方勾选的群体。</LootScavenging_JoinFollowExplain>
+	<LootScavenging_JoinMarkExplain>他们会继续穿戴和手持原有的装备，并保留背包。超出殖民地研究进度的装备（包括背包中的）会被标记，脱下后，在完成其研究前，任何殖民者都无法使用。医疗药品和背包中的其他物品不受影响。在任何掉落模式下都有效。</LootScavenging_JoinMarkExplain>
+	<LootScavenging_JoinFollowExplain>他们加入时，身上穿着的衣物、手持的武器和背包会按被剥光时的方式处理，依据掉落模式和物品规则，并仅限上方勾选的群体。</LootScavenging_JoinFollowExplain>
 	<LootScavenging_JoinLeaveExplain>他们加入时，其装备不受影响。</LootScavenging_JoinLeaveExplain>
 	<LootScavenging_RecycleBulkLabel>回收{0} x10</LootScavenging_RecycleBulkLabel>
 	<LootScavenging_StudyBulkLabel>调查{0} x10</LootScavenging_StudyBulkLabel>
 	<LootScavenging_BulkBillNote>一次工作完成十个清单的量，库存至少有{0}单位时才会开始。</LootScavenging_BulkBillNote>
 	<LootScavenging_StudyPointsHalvedNote>0.5.2版降低了废料的价值，因此每单位的研究点数已减半，总量保持不变。</LootScavenging_StudyPointsHalvedNote>
+	<LootScavenging_Downed>非殖民地角色倒地时</LootScavenging_Downed>
+	<LootScavenging_DownedKeepInPack>把武器放进背包</LootScavenging_DownedKeepInPack>
+	<LootScavenging_DownedDropWeapon>丢下武器</LootScavenging_DownedDropWeapon>
+	<LootScavenging_DownedKeepInPackExplain>不会掉落任何东西，也不做任何处理。他的武器和其他物品一起放进背包，在他被剥光、被拘捕、加入殖民地或死亡时统一处理。重新站起来的袭击者仍然带着它。</LootScavenging_DownedKeepInPackExplain>
+	<LootScavenging_DownedDropWeaponExplain>他的武器和背包会掉落在身旁，与原版游戏相同。开启「被剥光或被拘捕时也适用」后，会在掉落时处理。</LootScavenging_DownedDropWeaponExplain>
 </LanguageData>

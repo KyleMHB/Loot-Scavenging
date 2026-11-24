@@ -41,9 +41,9 @@ CHANGELOG 0.5.2 (no version bump): a line under Added for the two settings, repl
 
 ## What was built
 
-- `rules.prisonerJoinGear` and `rules.otherJoinGear` (`JoinerGear`: `MarkUnfamiliar`, `FollowDropMode`, `LeaveAlone`), in `LootRules`, `SettingsDefaults.xml`, the presets (Cleanup and Vanilla leave both alone), the lock names, both Auto Mod Config files (preset version 0.5.2), two rows on the settings page after "Also when downed or stripped", and ChineseSimplified and Russian text.
+- `rules.prisonerJoinGear` and `rules.otherJoinGear` (`JoinerGear`: `MarkUnfamiliar`, `FollowDropMode`, `LeaveAlone`), in `LootRules`, `SettingsDefaults.xml`, the presets (Cleanup and Vanilla leave both alone), the lock names, both Auto Mod Config files (preset version 0.5.2), two rows on the settings page after "Also when downed or stripped" (renamed "Also when stripped or arrested" in ticket 21), and ChineseSimplified and Russian text.
 - `Source/Loot/JoinerHooks.cs`: one prefix and finalizer on `Pawn.SetFaction` and one on `RecruitUtility.Recruit` (it unlocks apparel and clears the prisoner status first), both through `JoiningGear.Begin`. `EnslaveHook` and `JoiningPrisoner` are gone: `SetGuestStatus(Slave)` calls `SetFaction` while the pawn is still a prisoner. A pawn handled by `Recruit` is marked in `SortedDrop` so the inner `SetFaction` skips him.
-- Follow uses a new `Moment.Join`, not `Moment.Strip`, so the downed-and-strip toggle no longer gates it; the owner groups and home-map-only still do. Equipment and apparel are sorted, inventory is not; locked apparel stays.
+- Follow uses a new `Moment.Join`, not `Moment.Strip`, so the downed-and-strip toggle no longer gates it; the owner groups and home-map-only still do. Equipment and apparel are sorted, inventory is not; locked apparel stays. Ticket 21 added the pack: Follow sorts it, and Mark marks its weapons and apparel and leaves other items alone.
 - Mark: `CompUnfamiliar.joinedEra`, saved only when set. `Unfamiliar.IsUnfamiliar` honours it in every drop mode (`UnfamiliarRule.JoinMarkHolds`); `ScrapEquivalent` reads either marker's era. Protected items and locked apparel are not marked.
 - Tests: `JoinerGearTests` (unit) and six cases in the moments batch, plus the cleanup round trip in the settings batch (TESTING.md, 2026-11-24).
 

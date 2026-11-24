@@ -310,8 +310,8 @@ public sealed class OutcomesBatch : Batch
             // One revolver is one or two scrap units, and a unit whose pick costs more than the unit's value (a component) returns
             // nothing with probability 1 - value/price, so a single revolver can yield nothing by chance. The pirate also carries
             // 20 revolvers, and the chance that every unit comes back empty is computed from the pool below. A weapon carried in
-            // the inventory is judged by the "other" inventory rule, so that rule disassembles too, and the pack is emptied first
-            // so nothing but revolvers is disassembled.
+            // the inventory is judged by the weapons rule (ticket 21; before that by the "other" rule, which also disassembles
+            // here), and the pack is emptied first so nothing but revolvers is disassembled.
             const int carried = 20;
             Rules.other = new CategoryRule(Outcome.Disassemble);
             var revolversBefore = Kit.StackIds(map, revolver);
