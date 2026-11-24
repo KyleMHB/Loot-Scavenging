@@ -26,6 +26,13 @@ public class LootScavengingSettings : ModSettings
     // saved key (SettingsLoad.IsSeeded); only a config with nothing saved takes the Def's values once the defs are loaded.
     private bool defaultsSeeded;
 
+    // The scrap scale this config's research points were set for (ticket 19). A new config starts at the current one; a file
+    // without the key loads as the old one and has its points halved once in OnDefaultsLoaded.
+    private int scrapScale = SettingsLoad.CurrentScrapScale;
+
+    // Set when that halving changed a value; the page shows a note under the research points until the player next changes them.
+    public bool studyPointsHalvedNote;
+
     // The keys the settings file held, recorded while it loads and used once by OnDefaultsLoaded. Null when no file was read
     // since then, so a later call only enforces the locks.
     private HashSet<string> loadedKeys;
@@ -42,12 +49,23 @@ public class LootScavengingSettings : ModSettings
     /// </summary>
     public void OnDefaultsLoaded()
     {
+        bool rescaled = scrapScale < SettingsLoad.CurrentScrapScale;
+        if (rescaled)
+        {
+            if (SettingsLoad.HalveOldStudyPoints(values, loadedKeys, Presets.Config.Locks))
+                studyPointsHalvedNote = true;
+            scrapScale = SettingsLoad.CurrentScrapScale;
+        }
         Apply(SettingsLoad.Resolve(Capture(), defaultsSeeded, loadedKeys, Presets.Config, out bool kept));
         if (!kept)
             activePreset = PresetId.Progression;
         defaultsSeeded = true;
         loadedKeys = null;
         LootScavengingMod.ApplySettingsToDefs();
+        // Saved now, not when the settings window next closes, so a crash or a quit cannot leave the old scale on disk and
+        // halve the points a second time on the next start.
+        if (rescaled)
+            Write();
     }
 
     /// <summary>The current values. Shares the live objects, so read it, do not keep it.</summary>
@@ -68,6 +86,8 @@ public class LootScavengingSettings : ModSettings
             RecordLoadedKeys();
         Scribe_Values.Look(ref activePreset, SettingsLoad.ActivePresetKey, PresetId.Progression, forceSave: true);
         Scribe_Values.Look(ref defaultsSeeded, SettingsLoad.SeededKey, false);
+        Scribe_Values.Look(ref scrapScale, SettingsLoad.ScrapScaleKey, SettingsLoad.OldScrapScale, forceSave: true);
+        Scribe_Values.Look(ref studyPointsHalvedNote, SettingsLoad.StudyPointsHalvedKey, false);
 
         // Every key is written, a value equal to its default too, so a choice the player made stays put when a pack or an update
         // changes the default (ticket 18). A missing key, in an older file or one another tool wrote, loads as this default, but

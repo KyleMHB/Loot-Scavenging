@@ -5,6 +5,6 @@
   <ModlistConfigurator.ModlistPresetDef>
     <defName>LootScavengingProgression</defName>
     <presetLabel>Loot Scavenging - Progression</presetLabel>
-    <version>0.3.0</version>
+    <version>0.5.2</version>
   </ModlistConfigurator.ModlistPresetDef>
 </Defs>

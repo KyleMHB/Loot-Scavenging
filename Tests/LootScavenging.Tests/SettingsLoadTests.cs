@@ -214,6 +214,64 @@ public class SettingsLoadTests
         Assert.NotSame(baseline.rules.keepList, all.rules.keepList);
     }
 
+    // Ticket 19: a file from before 0.5.2 (no scrapScale key) holds research points for units worth twice today's.
+    [Fact]
+    public void AnOldFilesCustomStudyPointsAreHalvedOnce()
+    {
+        SettingValues values = Presets.CodeProgression();
+        values.studyPointsSpacer = 40f;
+        values.studyPointsUltra = 0f;
+        values.studyPointsMultiplier = 3f;
+        var present = Keys(SettingNames.StudyPoints(ScrapTier.Spacer), SettingNames.StudyPoints(ScrapTier.Ultra));
+
+        Assert.True(SettingsLoad.HalveOldStudyPoints(values, present, new SettingLocks(new string[0])));
+
+        Assert.Equal(20f, values.studyPointsSpacer);
+        Assert.Equal(0f, values.studyPointsUltra);
+        Assert.Equal(3f, values.studyPointsMultiplier); // halving it too would halve the points twice
+    }
+
+    [Fact]
+    public void AFileWithNoStudyPointsAboveZeroReportsNothingHalved()
+    {
+        SettingValues values = Presets.CodeProgression();
+        values.studyPointsSpacer = 0f;
+
+        Assert.False(SettingsLoad.HalveOldStudyPoints(values, Keys(SettingNames.StudyPoints(ScrapTier.Spacer)), new SettingLocks(new string[0])));
+        Assert.False(SettingsLoad.HalveOldStudyPoints(values, null, new SettingLocks(new string[0])));
+        Assert.Equal(0f, values.studyPointsSpacer);
+    }
+
+    [Fact]
+    public void ALockedStudyPointsValueIsNotHalved()
+    {
+        string spacer = SettingNames.StudyPoints(ScrapTier.Spacer);
+        SettingValues values = Presets.CodeProgression();
+        values.studyPointsSpacer = 40f;
+        values.studyPointsIndustrial = 30f;
+
+        SettingsLoad.HalveOldStudyPoints(values, Keys(spacer, SettingNames.StudyPoints(ScrapTier.Industrial)), new SettingLocks(new[] { spacer }));
+
+        Assert.Equal(40f, values.studyPointsSpacer);
+        Assert.Equal(15f, values.studyPointsIndustrial);
+    }
+
+    [Fact]
+    public void AMissingStudyPointsKeyIsNotHalvedAndTakesTheNewDefault()
+    {
+        PresetConfig pack = Pack(null);
+        SettingValues loaded = Presets.CodeProgression();
+        loaded.studyPointsIndustrial = 30f;
+        var present = Keys("activePreset", SettingNames.StudyPoints(ScrapTier.Industrial));
+
+        SettingsLoad.HalveOldStudyPoints(loaded, present, pack.Locks);
+        SettingValues result = SettingsLoad.Resolve(loaded, false, present, pack, out _);
+
+        Assert.Equal(15f, result.studyPointsIndustrial);
+        Assert.Equal(Presets.Defaults(pack).studyPointsSpacer, result.studyPointsSpacer);
+        Assert.Equal(12.5f, result.studyPointsSpacer);
+    }
+
     private static bool LeafEqual(SettingValues a, SettingValues b, string path)
     {
         var fa = ValueWalk.Resolve(a, path, out object oa);

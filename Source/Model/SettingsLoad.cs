@@ -15,6 +15,38 @@ public static class SettingsLoad
     public const string FirstLoadKey = "firstLoadMessageShown"; // not translated
     public const string SeededKey = "defaultsSeeded"; // not translated
 
+    // The scale of the scrap the file's research points were set for (ticket 19). 0.5.2 made scrap cheaper, two units for one,
+    // so a file without the key holds points per unit worth twice what they are now.
+    public const string ScrapScaleKey = "scrapScale"; // not translated
+    public const string StudyPointsHalvedKey = "studyPointsHalvedNote"; // not translated
+    public const int OldScrapScale = 1;
+    public const int CurrentScrapScale = 2;
+
+    /// <summary>
+    /// Halves, once, each tier's research points a file from before 0.5.2 held, so a unit of the cheaper scrap pays half and the
+    /// item it came from pays the same. Only keys in <paramref name="presentKeys"/> are the player's: a missing one takes the new
+    /// default later, in <see cref="FillMissing"/>. A locked value is the pack's and is left alone. The multiplier is not
+    /// touched, or the points would be halved twice. Returns whether any value above 0 was halved, for the page's note.
+    /// </summary>
+    public static bool HalveOldStudyPoints(SettingValues values, ICollection<string> presentKeys, SettingLocks locks)
+    {
+        if (presentKeys == null)
+            return false;
+        bool halved = false;
+        foreach (ScrapTier tier in (ScrapTier[])System.Enum.GetValues(typeof(ScrapTier)))
+        {
+            string name = SettingNames.StudyPoints(tier);
+            if (!presentKeys.Contains(name) || locks.IsLocked(name))
+                continue;
+            float points = values.StudyPoints(tier);
+            if (!(points > 0f))
+                continue;
+            values.SetStudyPoints(tier, points / 2f);
+            halved = true;
+        }
+        return halved;
+    }
+
     /// <summary>
     /// The value a missing key is filled with. The mod's own save writes every key, a value equal to the default too (ticket
     /// 18), so a later change to this baseline never moves a saved choice. Only a file written before 0.5.2, which left out a
