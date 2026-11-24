@@ -95,7 +95,7 @@ All four modes ship in the first release.
 - **Genetics:** genepacks, xenogerms, embryos and ova, and the gene items of Vanilla Genetics Expanded and Alpha Genes.
 - **Body parts:** the game's body parts tree, which holds prosthetics, bionics and implants.
 
-The survey also settled two classification rules. Mortar shells and modded bolts count as ammunition. Anything under the game's drugs category counts as drugs, including serums with no drug effect. Usable items (loot boxes, weapon kits, quest cards, shards) count as other, never as raw materials.
+The survey also settled two classification rules. Mortar shells and modded bolts count as ammunition. Anything under the game's drugs category counts as drugs, including serums with no drug effect. Usable items (loot boxes, weapon kits, quest cards, shards) count as other, never as raw materials. Named exceptions (an item or a thing category that should count as a given inventory category) live in an XML list that packs can patch, not in code, so a renamed or refiled item is fixed with a patch.
 
 **Raw materials** is an inventory category: anything the game counts as a building material (stuff), and items filed under the game's raw resources or manufactured categories (`ResourcesRaw`, `Manufactured`), except mortar shells. It covers devilstrand, steel, plasteel, wood, stone blocks, silver, gold, chemfuel, components and neutroamine. Materials have no era and are never out of reach, because any colony can build and craft with them. With the switch on, "Scrap out-of-reach gear" still leaves them whole, and "Scrap everything" turns them into scrap of the colony's era.
 
