@@ -71,7 +71,7 @@
   <LootScavenging_Downed>When a non-colony pawn is downed</LootScavenging_Downed>
   <LootScavenging_DownedKeepWeapon>Keep his weapon</LootScavenging_DownedKeepWeapon>
   <LootScavenging_DownedDropWeapon>Drop the weapon</LootScavenging_DownedDropWeapon>
-  <LootScavenging_DownedKeepWeaponExplain>Nothing drops and nothing is sorted. He keeps his weapon in hand and his pack as it is, and they are sorted when he is stripped, arrested, joins the colony or dies. If he is carried and put down, even into a bed, the weapon the game drops is sorted then. A raider who gets back up is still armed.</LootScavenging_DownedKeepWeaponExplain>
+  <LootScavenging_DownedKeepWeaponExplain>Nothing drops and nothing is sorted. He keeps his weapon in hand and his pack as it is, and they are sorted when he is stripped, arrested, joins the colony or dies. He still holds it after he is carried and put down, rescued into a bed, or loaded from a save. A raider who gets back up is still armed.</LootScavenging_DownedKeepWeaponExplain>
   <LootScavenging_DownedDropWeaponExplain>His weapon and pack drop beside him, as in the base game. With "Also when stripped or arrested" on, they are sorted as they drop.</LootScavenging_DownedDropWeaponExplain>
   <LootScavenging_JoinPrisoners>Gear of recruited or enslaved prisoners</LootScavenging_JoinPrisoners>
   <LootScavenging_JoinOthers>Gear of wanderers, refugees and other joiners</LootScavenging_JoinOthers>

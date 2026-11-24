@@ -233,6 +233,6 @@
 	<LootScavenging_Downed>Когда обездвижен персонаж не из поселения</LootScavenging_Downed>
 	<LootScavenging_DownedKeepWeapon>Оставить ему оружие</LootScavenging_DownedKeepWeapon>
 	<LootScavenging_DownedDropWeapon>Бросить оружие</LootScavenging_DownedDropWeapon>
-	<LootScavenging_DownedKeepWeaponExplain>Ничего не выпадает и ничего не обрабатывается. Оружие остаётся у него в руках, а инвентарь не меняется; всё это обрабатывается, когда его раздевают, арестовывают, когда он присоединяется к поселению или погибает. Если его перенесут и положат, даже в кровать, оружие, которое при этом роняет игра, обрабатывается тогда же. Налётчик, который снова встанет на ноги, по-прежнему вооружён.</LootScavenging_DownedKeepWeaponExplain>
+	<LootScavenging_DownedKeepWeaponExplain>Ничего не выпадает и ничего не обрабатывается. Оружие остаётся у него в руках, а инвентарь не меняется; всё это обрабатывается, когда его раздевают, арестовывают, когда он присоединяется к поселению или погибает. Он держит оружие и после того, как его перенесут и положат, спасут и уложат в кровать или загрузят сохранение. Налётчик, который снова встанет на ноги, по-прежнему вооружён.</LootScavenging_DownedKeepWeaponExplain>
 	<LootScavenging_DownedDropWeaponExplain>Его оружие и инвентарь выпадают рядом с ним, как в базовой игре. Если включено «Также при раздевании и аресте», они обрабатываются при выпадении.</LootScavenging_DownedDropWeaponExplain>
 </LanguageData>
