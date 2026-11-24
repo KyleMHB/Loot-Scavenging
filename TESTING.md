@@ -83,30 +83,37 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 
 ## Result recording
 
-### 2026-11-24 - Full tier after ticket 24 (0.5.2)
+### 2026-11-25 - Full tier on the 0.5.2 release branch
+
+- Version/environment: RimWorld 1.7, seed 1, English, branch `release/0.5.2` cut at `94e6be1` (cheaper scrap) without tickets 21, 23 and 24, plus main's `6c47de6` and the recycle-sample widening from `957a0aa`. `deploy.ps1` first; `dotnet test` 350 passed; 1.7, 1.6 and DevTests builds clean; translations 0 untranslated, 0 outdated.
+- Runs: default run-all `20261125-002247-run-all-s1-ca6023d7` 90 pass, 2 skip (ammunition needs an ammo mod, techprints need Royalty); dlcs run-all `20261125-002318-run-all-s1-345d2d16` 91 pass, 1 skip; progression `20261125-002400-lootscavenging-progression-s1-680f930b` 6/6; removal check passed; perf `20261125-002441-perf-s1-bc3ce4be` pass.
+- Observed: the first run on the branch (`20261125-001945-run-all-s1-25c96107`) ended the settings batch early with a NullReferenceException in `ModSettings.Write` from `OnDefaultsLoaded`, on settings a test read straight from a file. Main had fixed it in `6c47de6`, which the branch now carries.
+- Status: Passed.
+
+### 2026-11-24 - Full tier after ticket 24 (0.6.0)
 
 - Build: main at `20ac1b4` with the test fixes below. `dotnet test` 370/370; translations 0 untranslated, 0 outdated in both languages.
 - Runs: run-all `20261124-233639-run-all-s1-a6b0a812` 101 pass, 1 fail, 3 skip (`recycle-studied-bill`, below); with `--mods dlcs` `20261124-233715-run-all-s1-e793654c` 103 pass, 2 skip (ammunition and Hospitality not loaded); bench after the fix `20261124-233933-lootscavenging-bench-s1-68ec8675` 10 pass, 1 skip (techprints need Royalty), 20 studied units returned 80 silver against 55. Progression `20261124-232901-lootscavenging-progression-s1-fb86246b` 6/6; removal check passed; perf `20261124-232944-perf-s1-62212c4e` passed.
 - Test fixes, no mod change. The dlcs moments batch stopped at setup ("no clear 94x24 area"; the dlcs map has had no clear 80x24 near its centre since ticket 23): the sites now take 80x14 in two rows and the ward takes the first clear 30x10 beside them. 0.5.2 halved a unit's value, which widened two samples: `recycle-sample` went outside 15% on dlcs (1271 against 1100) and now recycles 400 units; `recycle-studied-bill` drew 83 silver from 10 units against 27.5 and now recycles 20.
 - The first default run-all (`20261124-232731-run-all-s1-e94e660a`) left `downed-captured-weapon-sorted` workflow-inconclusive; it passed in every later run, so it was timing.
 
-### 2026-11-24 - Raid GIF refilmed under the 0.5.2 defaults
+### 2026-11-24 - Raid GIF refilmed under the 0.6.0 defaults
 
 - Change: the raid beat of `workshop-clips` now runs on the Progression preset's defaults: the downed pirate keeps his autopistol, the dead warrior keeps his club on the body, and an archer strips the pirate, which turns the autopistol and his clothes into industrial scrap. The case checks the weapon in hand before the strip, the strip, the scrap and the club.
 - Version/environment: RimWorld 1.7.5014, default mod set, English, seed 1. `deploy.ps1` and the DevTests build first, the display nudged awake, then `python tools/ls_test.py run lootscavenging-workshop-clips --seed 1 --mods default --record --show-ui --frames 12 --quit-on-finish`.
 - Run: `20261124-184041-lootscavenging-workshop-clips-s1` passed with every beat (3 industrial scrap from the strip). `tools/render_workshop_gifs.py` cuts `loot-scavenging-raid.gif` from it.
 - Status: Passed.
 
-### 2026-11-24 - Colonists keep their gear, arrest and strip split (ticket 24, 0.5.2)
+### 2026-11-24 - Colonists keep their gear, arrest and strip split (ticket 24, 0.6.0)
 
 - Change: "Colonists keep their gear" (on by default; Vanilla turns it off) keeps a downed or dead colonist's or colony slave's weapon and pack. "Where loot lands at death" defaults to everything on the body. "Drop the weapon" always drops and sorts a downed non-colony pawn's gear, visitors and Hospitality guests included. "Also when downed or stripped" split into "Sort when arrested" and "Sort when stripped", with the old file key, Def node and lock carried over. New cases: moments `colonist-downed-rescued-keeps-gear`, `colonist-killed-keeps-gear`, `colonist-gear-toggle-off`, `visitor-drop-weapon-sorted`; saves `downed-colonist-reload-keeps-weapon`; settings `old-downed-and-strip-key`. The moments, outcomes, settings and saves batches now set loot on the ground as their baseline; smoke checks the new defaults.
 - Version/environment: RimWorld 1.7, seed 1, English, after `deploy.ps1`; 1.7, 1.6 and DevTests builds clean; `dotnet test` 370 passed; `rwtranslate status` 0 untranslated, 0 outdated for ChineseSimplified and Russian, check passed.
 - Runs: moments `20261124-183115-lootscavenging-moments-s1-cddfaa1b` 37 pass, 1 skip (Hospitality not loaded); saves `20261124-183010-lootscavenging-saves-s1-bb3ab998` 7/7; settings `20261124-183008-lootscavenging-settings-s1-51f746b0` 10/10; smoke `20261124-183104-lootscavenging-smoke-s1-5caca575` 9/9; outcomes `20261124-183002-lootscavenging-outcomes-s1-0a152c3f` 18 pass, 1 skip (ammunition needs an ammo mod). With `--mods compat-hospitality`: moments `20261124-183120-lootscavenging-moments-s1-668582d7` 38/38, `hospitality-downed-guest` included.
 - Earlier smoke run `20261124-182941-lootscavenging-smoke-s1-96e098ca` failed `tribal-scrap`: with everything on the body the silver is in the corpse, and `Kit.CountOnMap` stops counting items a pawn held once he is a corpse. The case now counts new stacks.
-- Not verified in game: a colony slave (needs Ideology; covered by the same check as a colonist), the ui and milestone batches, 1.6 (compiled only), PreviewStory (compiled, not filmed). WorkshopClips was filmed afterwards for the raid GIF (see "Raid GIF refilmed under the 0.5.2 defaults").
+- Not verified in game: a colony slave (needs Ideology; covered by the same check as a colonist), the ui and milestone batches, 1.6 (compiled only), PreviewStory (compiled, not filmed). WorkshopClips was filmed afterwards for the raid GIF (see "Raid GIF refilmed under the 0.6.0 defaults").
 - Status: Passed.
 
-### 2026-11-24 - Downed pawns keep the weapon when set down again (ticket 23, 0.5.2)
+### 2026-11-24 - Downed pawns keep the weapon when set down again (ticket 23, 0.6.0)
 
 - Change: under "Keep his weapon" the game's drop when a downed pawn is spawned outside a bed (carried and set down, rescued, loaded) is blocked, so he holds his weapon until he is stripped, arrested, joins or dies. "Drop the weapon" keeps the game's drop, sorted as before. New cases on the game's own jobs: moments `downed-carried-keeps-weapon`, `downed-rescued-keeps-weapon`, `downed-in-bed-captured-weapon-sorted`, `downed-captured-weapon-sorted`, `hospitality-downed-guest`; saves `downed-reload-keeps-weapon`. The staged carry way left `downed-keeps-weapon-in-hand`.
 - Version/environment: RimWorld 1.7, seed 1, English, after `deploy.ps1`; 1.7, 1.6 and DevTests builds clean; `dotnet test` 358 passed.
@@ -115,7 +122,7 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 - Not verified in game: a downed pawn holding his weapon in a caravan or shuttle (read in the decompile only), the ui and milestone batches, 1.6.
 - Status: Passed.
 
-### 2026-11-24 - Downed pawns keep the weapon in hand (ticket 23, 0.5.2)
+### 2026-11-24 - Downed pawns keep the weapon in hand (ticket 23, 0.6.0)
 
 - Change: `KeepInPack` is now `KeepWeapon`, "Keep his weapon". A downed pawn keeps his weapon in hand and nothing is stowed or judged. The drop the game makes when a downed pawn who kept his gear is spawned again outside a bed is sorted while playing and skipped on load. Under "Drop the weapon" with everything on the body the weapon stays in hand, marked judged. `moments.downed-keeps-weapon-in-pack` became `downed-keeps-weapon-in-hand`, `drop-calls-judged-once` gained two everything-on-the-body ways, and `settings.cleanup-round-trip` also round-trips `KeepWeapon`.
 - Version/environment: RimWorld 1.7, seed 1, English, after `deploy.ps1` (1.7 and 1.6 builds and DevTests clean); `dotnet test` 358 passed; `rwtranslate status` 0 untranslated, 0 outdated for both languages.
@@ -129,7 +136,7 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 - Runs: `20261124-153920-lootscavenging-workshop-clips-s1` (the downed raider's Gear tab covered half of him) and `20261124-154152-lootscavenging-workshop-clips-s1`, which passed with every beat. New `downed` beat: a pirate in a collar shirt, pants and flak vest with an autopistol is anesthetised under "Keep the weapon in his pack"; he stayed down, the autopistol was in his pack, nothing lay within 3 cells, and the Gear tab opened. Study paid +30 points for 6 neolithic scrap (5 per unit); the spacer inspect line reads 12.5 per unit.
 - Status: Passed.
 
-### 2026-11-24 - Downed pawns keep the weapon in the pack (ticket 21, 0.5.2)
+### 2026-11-24 - Downed pawns keep the weapon in the pack (ticket 21, 0.6.0)
 
 - Change: new setting `rules.downedGear`, default "Keep the weapon in his pack": a downed pawn's weapon goes whole into his pack, nothing is judged until strip, arrest, joining or death. Joiners' packs follow the joiner settings. The older downed cases, `milestone`, `workshop-clips` and `preview-story` now set "Drop the weapon". `settings.cleanup-round-trip` also round-trips `downedGear`. Also fixed: the ticket 19 defaults step saved settings that belong to no mod and threw in `imported-partial-file`.
 - Version/environment: RimWorld 1.7, seed 1, English, after `deploy.ps1` (1.7 and 1.6 builds and DevTests clean); `dotnet test` 357 passed; `rwtranslate status` 0 untranslated, 0 outdated for both languages.
