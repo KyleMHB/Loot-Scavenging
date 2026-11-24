@@ -2,7 +2,7 @@ Vanilla raids hand a tribal colony assault rifles long before it could research 
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-raid.gif[/img]
 
-The rules run when a raider, visitor or other non-colony pawn dies, is downed or is stripped. Gear your colony could already make drops as normal.
+The rules run when a raider, visitor or other non-colony pawn dies, is stripped or is arrested. A downed pawn keeps his weapon whole in his pack until then, so his gear is judged only once. Gear your colony could already make drops as normal.
 
 Every part of it is configurable: an outcome and chance for each item category, keep and remove lists, and presets for progression, cleanup or vanilla. Modpacks can set and lock their own defaults.
 
@@ -59,7 +59,7 @@ The mod starts on the Progression preset.
 [h2]Presets[/h2]
 
 [list]
-[*][b]Progression[/b] (default): gear beyond your research becomes scrap when any non-colony pawn dies, is downed or is stripped, prisoners included. Gear within reach drops as normal, and corpses are left.
+[*][b]Progression[/b] (default): gear beyond your research becomes scrap when any non-colony pawn dies, is stripped or is arrested, prisoners included. Gear within reach drops as normal, and corpses are left.
 [*][b]Cleanup[/b]: no era handling. From the hostile dead, weapons below normal quality, apparel below good quality, and either one below 50% hit points are deleted, along with all ammunition. Every hostile humanlike corpse is removed.
 [*][b]Vanilla[/b]: loot and corpses behave as in the base game.
 [/list]
@@ -78,7 +78,7 @@ The settings page shows which preset is active and whether you have changed it. 
 
 Loot Scavenging is not compatible with Looting Manager.
 
-The loot rules run only when a pawn dies, is downed or is stripped, not every tick.
+The loot rules run only when a pawn dies, is downed, is stripped, is arrested or joins your colony, not every tick.
 
 Modpacks can patch the scrap tiers, their benches and materials, and the default settings, which are all XML. A pack can also lock chosen settings. A modlist can ship its own settings through Auto Mod Config, which is optional. The mod's folder has an example preset.
 

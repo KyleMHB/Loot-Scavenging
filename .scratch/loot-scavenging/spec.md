@@ -50,7 +50,7 @@ Every item a pawn drops passes the same ordered checks, and the first check that
 
 1. **Owner.** Colony pawns are never affected, and neither is a pawn that has ever been a colonist (a colonist who ran wild, a shambler raised from one). Other pawns fall into four groups, each with its own toggle: hostile, non-hostile faction, no faction (wild animals, wild people), and the colony's prisoners.
 2. **Place.** An optional "home map only" setting leaves loot alone on caravan, quest and outpost maps.
-3. **Moment.** Rules always apply on death. A setting extends them to gear dropped when a pawn is downed or stripped. The Progression preset turns it on and switches the prisoner group on, so out-of-reach gear cannot be taken intact from a downed raider or a stripped prisoner. The Cleanup preset leaves it off. A pawn joining the colony is a separate moment (see "Pawns who join the colony"); this setting does not gate it.
+3. **Moment.** Rules always apply on death. A setting, "Also when stripped or arrested" (`onDownedAndStrip`, named "Also when downed or stripped" before ticket 21), extends them to gear dropped when a pawn is stripped or arrested. The Progression preset turns it on and switches the prisoner group on, so out-of-reach gear cannot be taken intact from a captured raider or a stripped prisoner. The Cleanup preset leaves it off. A downed pawn keeps his weapon in his pack by default, and nothing is judged until one of those moments (see "Downed pawns"). A pawn joining the colony is a separate moment (see "Pawns who join the colony"); this setting does not gate it.
 4. **Protection.** Quest-tagged items, unique weapons, persona weapons, relics and anything on the player's keep list are never touched. In "Keep the original item" mode they are never unfamiliar either.
    Then the **remove list**: an item on it gets its category's outcome, or Delete when that outcome is Keep, skipping the drop mode, conditions and chance (settled 2026-11-24; before, the drop mode came first and kept or scrapped out-of-reach listed items). Then the **drop mode**, which decides out-of-reach items before the category rule.
 5. **Category.** The item is matched to one category rule: weapons, apparel, or an inventory group (ammunition, drugs, medicine, food, other).
@@ -113,7 +113,7 @@ Out-of-reach gear becomes scrap: one stackable item per era, where the amount ca
 - **One item per era.** Six tiers: neolithic, medieval, industrial, spacer, ultratech and archotech. Animal-era gear becomes neolithic scrap, since no bench sits below the crafting spot. Scrap is generic. It does not remember the item it came from, so it stacks fully and a large raid leaves a few piles.
 - **Amount is value.** A stone knife becomes one unit of neolithic scrap and a charge rifle becomes several units of spacer scrap, scaled by the item's worth, quality and condition.
 - **Low market value.** Scrap is worth close to nothing by default, so a stockpile kept for a later era does not raise colony wealth or sell for silver. A setting changes this.
-- **Where it appears.** On the ground by default, like other drops. The "where loot lands at death" setting (`deathDrop`) can leave the scrap on the body, or leave everything on the body: the weapon, inventory, scrap, disassembly products and ejected charges of a pawn the rules cover, collected when the corpse is stripped, butchered or cremated. Pawns whose gear the game destroys at death, and pawns that cannot be stripped, drop as usual. (Added 2026-11-21.) "Everything on the body" also covers downing: a downed pawn keeps its weapon, inventory and scrap in its pack, as Non uno Pinata players expect. (Added 2026-11-23, from a player report.) The weapon goes into the pack, not the hands: the game drops a weapon a downed pawn holds whenever the pawn is spawned again, after a reload or being carried, and a raider who got back up would be armed at once. (Changed 2026-11-23.)
+- **Where it appears.** On the ground by default, like other drops. The "where loot lands at death" setting (`deathDrop`) can leave the scrap on the body, or leave everything on the body: the weapon, inventory, scrap, disassembly products and ejected charges of a pawn the rules cover, collected when the corpse is stripped, butchered or cremated. Pawns whose gear the game destroys at death, and pawns that cannot be stripped, drop as usual. (Added 2026-11-21.) "Everything on the body" also covers downing: a downed pawn keeps its weapon, inventory and scrap in its pack, as Non uno Pinata players expect. (Added 2026-11-23, from a player report.) The weapon goes into the pack, not the hands: the game drops a weapon a downed pawn holds whenever the pawn is spawned again, after a reload or being carried, and a raider who got back up would be armed at once. (Changed 2026-11-23.) Since ticket 21 this paragraph describes "Drop the weapon"; under the default, "Keep the weapon in his pack", every covered downed pawn keeps his weapon whole in his pack whatever `deathDrop` says, and nothing is judged until he is stripped, arrested, joins or dies.
 - **Original-item mode.** When the drop mode keeps the original item, that item counts as its scrap equivalent at the bench: the same era, amount, yields and points. It is labelled unfamiliar and cannot be equipped until its research finishes. A setting chooses which gear gets the label: all out-of-reach gear from any source (default), or only gear looted from pawns. The default is worked out from research and saves nothing. Looted-only needs a marker saved on each looted item.
 
 ### Recycling
@@ -186,7 +186,7 @@ The page is grouped into six sections.
 | Section | Controls |
 | --- | --- |
 | Presets | Vanilla, Cleanup, Progression, and Reset to defaults |
-| Who and where | Owner groups, prisoners, home map only, on death or on any drop, and the gear of joiners (two rows) |
+| Who and where | Owner groups, prisoners, home map only, downed pawns, on death or also when stripped or arrested, and the gear of joiners (two rows) |
 | Item rules | One row per category: outcome, chance, conditions |
 | Scrap and study | Drop mode, which eras can be studied, recycle or study, study points per tier and their multiplier, scrap value, where scrap appears, era fallback, disassembly yield, techprint projects, unfamiliar label scope |
 | Corpses | Humanlike, animal, mechanoid, chance, butchering option |
@@ -199,7 +199,8 @@ The presets set these values.
 | Setting | Progression | Cleanup | Vanilla |
 | --- | --- | --- | --- |
 | Drop mode | Scrap out-of-reach gear | Off | Off |
-| Moment | Death, downed and strip | Death only | Not used |
+| Moment | Death, strip and arrest | Death only | Not used |
+| Downed pawns | Keep the weapon in his pack | Keep the weapon in his pack | Keep the weapon in his pack |
 | Owner groups | Hostile, non-hostile faction, no faction, prisoners | Hostile only | None |
 | Gear of recruited or enslaved prisoners | Follow the drop mode | Leave alone | Leave alone |
 | Gear of other joiners | Mark out-of-reach gear unfamiliar | Leave alone | Leave alone |
@@ -223,8 +224,8 @@ Settings are global. All text is translatable from the first release.
 
 Added 2026-11-24 (ticket 20, Kyle's decisions). Two settings, `rules.prisonerJoinGear` (recruited or enslaved colony prisoners) and `rules.otherJoinGear` (wanderers, refugees, quest joiners, rescued pawns, creepjoiners and the like), each take one of three values:
 
-- **Mark out-of-reach gear unfamiliar.** The joiner keeps wearing and holding his gear. Each out-of-reach worn apparel and held equipment item gets a join mark (`CompUnfamiliar.joinedEra`, saved only when set). A marked item is unfamiliar in every drop mode, not only "Keep the original item", until its research is finished or the colony's era catches up; once it is off him, no colonist can equip or wear it, and it can be recycled or studied at a bench like other unfamiliar gear. Protected items (quest, unique, persona, relic, keep list) are never marked, and neither is apparel the game has locked on him.
-- **Follow the drop mode.** His worn apparel and held equipment are sorted at the moment `Join`, with the evaluator's ordinary steps and his owner group from before he joined. The downed-and-strip setting does not gate `Join`; the owner groups and home-map setting still apply. Locked apparel stays. Inventory is not covered.
+- **Mark out-of-reach gear unfamiliar.** The joiner keeps wearing and holding his gear. Each out-of-reach worn apparel and held equipment item, and each out-of-reach weapon or apparel in his pack, gets a join mark (`CompUnfamiliar.joinedEra`, saved only when set). A marked item is unfamiliar in every drop mode, not only "Keep the original item", until its research is finished or the colony's era catches up; once it is off him, no colonist can equip or wear it, and it can be recycled or studied at a bench like other unfamiliar gear. Protected items (quest, unique, persona, relic, keep list) are never marked, and neither is apparel the game has locked on him. Medicine and other pack items are never marked. (Pack added 2026-11-24, ticket 21.)
+- **Follow the drop mode.** His worn apparel, held equipment and pack are sorted at the moment `Join`, with the evaluator's ordinary steps and his owner group from before he joined. Weapons and apparel in the pack follow the weapon and apparel rules; everything else follows its item rule. The stripped-or-arrested setting does not gate `Join`; the owner groups and home-map setting still apply. Locked apparel stays. (Pack added 2026-11-24, ticket 21.)
 - **Leave their gear alone.**
 
 Defaults: prisoners follow the drop mode (which 0.5.2 already did, gated by downed-and-strip), everyone else is marked. Cleanup and Vanilla leave both alone, as they have no era handling.
@@ -233,11 +234,22 @@ Not joining: a pawn who was ever a colonist, animals, mechanoids and other non-h
 
 Built as a prefix and finalizer on `Pawn.SetFaction` (new faction is the player's, the pawn is not), which every quest part, rescue, trade and recruit reaches, plus the same on `RecruitUtility.Recruit`, which unlocks apparel and clears the prisoner status before it calls `SetFaction`. A pawn handled by the `Recruit` hook is marked in `SortedDrop` until the call ends, so the `SetFaction` inside skips him and nothing is judged twice. A joiner with no map cannot be sorted by "Follow the drop mode"; the mark still applies.
 
+### Downed pawns
+
+Added 2026-11-24 (ticket 21, Kyle's decisions). `rules.downedGear`, "When a non-colony pawn is downed", takes one of two values:
+
+- **Keep the weapon in his pack** (the default in every preset). Nothing is judged at the downing. The weapon he holds goes whole into his inventory, his apparel stays on and nothing drops. His gear is sorted later, at the moment it changes hands: a strip, an arrest or capture, joining (by the joiner settings) or death. So a raider who is captured and recruited is judged once, at the recruit. The game drops a downed pawn's held weapon when he is spawned again; under this value that weapon goes into the pack too.
+- **Drop the weapon.** The behaviour before ticket 21: the game drops his weapon and inventory, and with "Also when stripped or arrested" on they are sorted as they drop. With it off they drop whole. "Everything on the body" still keeps covered loot in his pack.
+
+A weapon or apparel in a pack counts as a weapon or apparel for the item rules, not as other inventory, so gear stowed at a downing is judged later by the rule that would have judged it in his hands.
+
+Pawns the rules do not cover, mechanoids, pawns with no inventory and kinds that cannot be stripped follow "Drop the weapon". A pawn downed in bed keeps his weapon in hand, as the game does; an arrest then sorts it. A trader's goods keep their not-for-sale mark, and a weapon stowed in a downed trader's pack is marked not for sale while it is there, so it is never offered in trade.
+
 ## Code structure
 
 The mod sorts a pawn's gear just before the game drops it.
 
-The rules run at the moments a pawn's gear changes hands: when it dies (`Pawn.Kill`), when it is downed (`Pawn_HealthTracker.MakeDowned`), and when it is stripped (`Pawn.Strip`). A hook before each of those walks the pawn's equipment, apparel and inventory, applies each item's outcome, and leaves the rest to the game.
+The rules run at the moments a pawn's gear changes hands: when it dies (`Pawn.Kill`), when it is downed (`Pawn_HealthTracker.MakeDowned`, where by default the weapon only moves into the pack; see "Downed pawns"), and when it is stripped (`Pawn.Strip`). A hook before each of those walks the pawn's equipment, apparel and inventory, applies each item's outcome, and leaves the rest to the game.
 
 The rules do not depend on the drop itself. Non uno Pinata keeps gear on the body by replacing the game's drop-everything call, so rules attached to that call would never run beside it. Acting on the gear before any drop works either way.
 
@@ -338,8 +350,8 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Unknown era | The carrying faction's era, with settings for the colony's era or straight to components. |
 | Instant disassembly | Stays, with a setting for era-typical or item-based yields. |
 | Default preset | Progression, with no first-load message. |
-| Downed, stripped and prisoner gear | The Progression preset applies the rules on downed and on strip, with the prisoner group on. Cleanup applies them on death only. |
-| Other ways gear leaves a living pawn | Settled 2026-11-24, ticket 18 (Kyle asked for it built; the hook design is the implementation's). They count as the downed-and-strip moment, so that setting turns them off. Arresting a standing pawn and trading one sort his weapon and inventory as he drops them (`Pawn.DropAndForbidEverything`). A weapon a non-colony pawn drops on its own, as when he loses the use of his arms, is sorted as it drops (`Pawn_EquipmentTracker.TryDropEquipment`). A pawn whose faction changes to the player's has his worn apparel sorted with strip's rules before the change, judged as the group he was. Joiners are now covered by their own settings (ticket 20, see "Pawns who join the colony"), no longer by the downed-and-strip setting. A drop the mod is already sorting (death, downing, strip) is never sorted again by these. Gear lost with a corpse that burns, rots away or is eaten is expected and stays lost. |
+| Downed, stripped and prisoner gear | The Progression preset applies the rules on strip and arrest, with the prisoner group on. Cleanup applies them on death only. A downed pawn keeps his weapon in his pack, unjudged, in every preset (ticket 21, 2026-11-24). |
+| Other ways gear leaves a living pawn | Settled 2026-11-24, ticket 18 (Kyle asked for it built; the hook design is the implementation's). They count as the stripped-or-arrested moment, so that setting turns them off. Arresting a standing pawn and trading one sort his weapon and inventory as he drops them (`Pawn.DropAndForbidEverything`). A weapon a non-colony pawn drops on its own, as when he loses the use of his arms, is sorted as it drops (`Pawn_EquipmentTracker.TryDropEquipment`). A pawn whose faction changes to the player's has his worn apparel sorted with strip's rules before the change, judged as the group he was. Joiners are now covered by their own settings (ticket 20, see "Pawns who join the colony"), no longer by the downed-and-strip setting. A drop the mod is already sorting (death, downing, strip) is never sorted again by these. Gear lost with a corpse that burns, rots away or is eaten is expected and stays lost. |
 | Settings that equal the default | Settled 2026-11-24 (Kyle asked for it fixed), ticket 18. The mod's own save writes every key, a value equal to the default too, so a player's choice never follows a later change to a pack's or the mod's default. A file that lacks keys, written before 0.5.2 or by another tool such as Auto Mod Config, still takes the baseline for each missing key. |
 | Cleanup preset | No era handling. From hostile dead, deletes weapons below Normal quality, apparel below Good, and either one below 50% hit points. Removes every hostile humanlike corpse. Butchering apparel removal stays off. Progression leaves corpses alone. Settled 2026-11-21. Deletes all ammunition from hostile dead, added 2026-11-23 when the other presets started keeping ammo. |
 | Game versions | 1.6 and 1.7. |

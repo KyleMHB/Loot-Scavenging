@@ -52,7 +52,7 @@ Kyle asked for all of C (Part 1 and Part 2) to be built and ruled corpse loss ex
 ## Other review findings, not scheduled
 
 Recorded so they aren't lost. Each needs Kyle's call before it becomes work.
-- **Downed raiders and allies lose an out-of-reach weapon for good** (§3.3). The game would let them pick it up on recovery. One option is to leave the non-hostile group out of the downed moment.
+- **Downed raiders and allies lose an out-of-reach weapon for good** (§3.3). The game would let them pick it up on recovery. One option is to leave the non-hostile group out of the downed moment. Since ticket 21 a downed pawn keeps his weapon whole in his pack by default, so this holds only under "Drop the weapon".
 - **Death acidifier pawns and mechanoids** (§3.4). They pay scrap for gear the game destroys, and mechanoid scrap stops once the colony researches the weapon.
 - **Quest pawns' untagged gear is sorted** (§2.5). The corpse rule checks the pawn's quest tags; protection checks only the item's.
 - **Hunted animals' corpses** (§2.4). With animal corpse removal on, a hunter's kill is removed.
@@ -67,7 +67,7 @@ Recorded so they aren't lost. Each needs Kyle's call before it becomes work.
 ## Acceptance
 
 - [x] Arresting a standing pirate-faction visitor with an out-of-reach revolver at a tribal colony gives scrap, not the revolver.
-- [x] A recruited or enslaved downed raider's out-of-reach armour is sorted, or the loophole is stated in the setting text (Kyle's choice). Sorted.
+- [x] A recruited or enslaved downed raider's out-of-reach armour is sorted, or the loophole is stated in the setting text (Kyle's choice). Sorted. Since tickets 20 and 21 a joining prisoner's gear and pack follow the prisoner joiner setting instead.
 - [x] The Part 2 decision is recorded in the spec's decision table and implemented; if it is `forceSave`, a test shows a value equal to the default is written and survives a baseline change.
 - [x] Harness cases for each hooked path, added to `TESTING.md` with the ticket number. The Full tier before the release that carries it is still to run.
 
