@@ -63,6 +63,12 @@ public static class EraReader
 
     public static EraResult ItemEra(ThingDef def, Faction carrier, EraFallback fallback)
     {
+        // Materials (devilstrand, steel, modded stone) are never out of reach: any colony can build and craft with them.
+        // A modded recipe that produces one would otherwise give it that recipe's research era, and a tribal raider's
+        // stack of devilstrand became spacer scrap.
+        if (def.IsStuff && !IsGear(def))
+            return new EraResult(Era.Undefined, EraSource.Unknown, false);
+
         Era researchEra = Era.Undefined;
         bool unfinished = false;
         List<ResearchProjectDef> projects = PrerequisitesOf(def);

@@ -64,10 +64,11 @@ public static class ScrapAmounts
     }
 
     /// <summary>
-    /// Scrap units for an ammunition stack: the per-item share is kept as a fraction and the stack is rounded once, with at
-    /// least one unit per stack. <see cref="Units"/>'s one-per-item minimum would turn 50 arrows into 50 scrap.
+    /// Scrap units for a stack of stackable items (ammunition, resources, drugs): the per-item share is kept as a fraction and
+    /// the stack is rounded once, with at least one unit per stack. <see cref="Units"/>'s one-per-item minimum would turn 50
+    /// arrows into 50 scrap.
     /// </summary>
-    public static int AmmoUnits(float unitMarketValue, int count)
+    public static int StackUnits(float unitMarketValue, int count)
     {
         if (count < 1)
             count = 1;

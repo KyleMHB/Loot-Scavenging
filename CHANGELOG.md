@@ -2,6 +2,13 @@
 
 <!-- Agent read route: read only the newest relevant release; locate older versions by searching `^## ` headings. -->
 
+## 0.5.2 - 2026-11-24
+
+### Fixed
+
+- Materials such as devilstrand, steel and modded stone are never beyond your colony's reach any more, so raiders drop them whole instead of turning them into scrap. A mod recipe that makes a material could give it that recipe's era, and a tribal raider's 53 devilstrand became 53 spacer scrap.
+- Any stack that does get scrapped now gives about what it's worth, with at least one scrap per stack, as ammunition already did. Before, every item in the stack gave at least one scrap.
+
 ## 0.5.1 - 2026-11-23
 
 ### Changed

@@ -22,11 +22,12 @@ internal static class ItemClassifier
         return ItemCategory.Other;
     }
 
-    /// <summary>The scrap units a stack is worth. Ammunition rounds per stack, everything else per item.</summary>
+    /// <summary>The scrap units a thing is worth. Anything that stacks is rounded per stack, so 53 devilstrand do not become
+    /// 53 scrap; single items (gear) get at least one unit each.</summary>
     public static int ScrapUnits(Thing thing)
     {
-        return IsAmmunition(thing.def)
-            ? ScrapAmounts.AmmoUnits(thing.MarketValue, thing.stackCount)
+        return thing.def.stackLimit > 1
+            ? ScrapAmounts.StackUnits(thing.MarketValue, thing.stackCount)
             : ScrapAmounts.Units(thing.MarketValue, thing.stackCount);
     }
 
