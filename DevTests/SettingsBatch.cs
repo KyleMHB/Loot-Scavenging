@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml;
 using System.Xml.Linq;
 using LootScavenging.Model;
 using RimWorld;
@@ -20,7 +21,7 @@ public sealed class SettingsBatch : Batch
     private const string P = "lootscavenging.settings.";
     private const string PresetsCase = P + "presets-and-changed", Vanilla = P + "vanilla-preset-in-game",
         Locks = P + "locked-setting", Lists = P + "keep-and-remove-lists", RoundTrip = P + "missing-def-list-entry", Picker = P + "item-picker-search",
-        Partial = P + "imported-partial-file", CleanupTrip = P + "cleanup-round-trip", NoErrors = P + "no-mod-errors";
+        Partial = P + "imported-partial-file", CleanupTrip = P + "cleanup-round-trip", OldKey = P + "old-downed-and-strip-key", NoErrors = P + "no-mod-errors";
 
     private const string DevMod = "lootscavenging-devtest"; // not translated
 
@@ -36,7 +37,8 @@ public sealed class SettingsBatch : Batch
         new PlannedCase(RoundTrip, Levels.Mechanical, "a list entry for a missing def saves, loads and is evaluated with no error"),
         new PlannedCase(Picker, Levels.Mechanical, "the item picker's search finds the revolver and skips buildings"),
         new PlannedCase(Partial, Levels.Mechanical, "a hand-written partial file with no seeded flag keeps its keys, fills the rest from a patched Def default and ends a locked key at the pack value"),
-        new PlannedCase(CleanupTrip, Levels.Mechanical, "a Cleanup config with one key at Progression's value saves that key too, and keeps it when the pack's default changes"),
+        new PlannedCase(CleanupTrip, Levels.Mechanical, "a Cleanup config with one key at Progression's value saves that key too, and keeps it when the pack's default changes; the arrest, strip and colonist gear toggles save and read back"),
+        new PlannedCase(OldKey, Levels.Mechanical, "a file or Def from before the split with the shared toggle off turns both toggles off, a resave drops the old key, a lock on it locks both; the defaults are everything on the body and colonists keeping their gear"),
         new PlannedCase(NoErrors, Levels.Mechanical, "no error naming the mod logged during the batch"),
     };
 
@@ -52,7 +54,7 @@ public sealed class SettingsBatch : Batch
     public override IEnumerable<Wait> Segment(int index, BatchContext ctx)
     {
         long modErrorsAtStart = CaseErrors.ModMark;
-        ModHarness.SaveSettings();
+        ModHarness.SaveSettings(ModHarness.LootOnGround);
         var area = Kit.Area(ctx, 40, 12);
         yield return Wait.Ticks(1);
         var map = ctx.Map;
@@ -192,7 +194,7 @@ public sealed class SettingsBatch : Batch
                 var body = doc.Root.Element("ModSettings");
                 body.RemoveNodes();
                 body.Add(new XElement("activePreset", "Cleanup"), new XElement("corpseChance", "0.25"),
-                    new XElement("deathDrop", "AllOnBody"), new XElement("dropMode", "Off"));
+                    new XElement("deathDrop", "Ground"), new XElement("dropMode", "Off"));
                 doc.Save(file);
                 c.Observe("file", body.ToString(SaveOptions.DisableFormatting));
 
@@ -204,12 +206,12 @@ public sealed class SettingsBatch : Batch
                 bool seeded = (bool)typeof(LootScavengingSettings).GetField("defaultsSeeded", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(read);
                 c.Observe("activePreset", read.activePreset).Observe("corpseChance", v.corpses.chance).Observe("deathDrop", v.deathDrop)
                     .Observe("dropMode", v.rules.dropMode).Observe("scrapMarketValue", v.scrapMarketValue).Observe("defaultsSeeded", seeded);
-                c.Step(read.activePreset == PresetId.Cleanup && Math.Abs(v.corpses.chance - 0.25f) < 0.0001f && v.deathDrop == DeathDrop.AllOnBody,
+                c.Step(read.activePreset == PresetId.Cleanup && Math.Abs(v.corpses.chance - 0.25f) < 0.0001f && v.deathDrop == DeathDrop.Ground,
                     "the file's preset and two setting keys are kept although it has no seeded flag");
                 c.Step(Math.Abs(v.scrapMarketValue - 0.5f) < 0.0001f, "a key the file lacks takes the patched Def default, not the compiled-in one");
                 var expected = Presets.Defaults();
                 expected.corpses.chance = 0.25f;
-                expected.deathDrop = DeathDrop.AllOnBody;
+                expected.deathDrop = DeathDrop.Ground;
                 c.Step(v.SameAs(expected), "every other key holds the Def's Progression value");
                 c.Step(v.rules.dropMode == DropMode.KeepOriginal && Presets.Config.Locks.IsLocked(SettingNames.DropMode),
                     "the locked drop mode the file set ends at the pack's value, and the page's lock set names it");
@@ -238,6 +240,9 @@ public sealed class SettingsBatch : Batch
             written.values.rules.otherJoinGear = JoinerGear.LeaveAlone;
             // Tickets 21 and 23: the downed setting away from its default.
             written.values.rules.downedGear = DownedGear.DropWeapon;
+            // Ticket 24: the two toggles apart (Cleanup sets both off) and the colonist toggle off (Cleanup sets it on).
+            written.values.rules.sortWhenArrested = true;
+            written.values.colonistsKeepGear = false;
             LoadedModManager.WriteModSettings(DevMod, "Cleanup", written);
             var file = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_Cleanup*.xml").FirstOrDefault();
             string text = file != null ? File.ReadAllText(file) : "";
@@ -274,7 +279,72 @@ public sealed class SettingsBatch : Batch
             c.Observe("downedGearDefaultRead", keepRead.values.rules.downedGear);
             c.Step(keepText.Contains("<downedGear>KeepWeapon</downedGear>") && keepRead.values.rules.downedGear == DownedGear.KeepWeapon,
                 "the default, Keep his weapon, is saved as KeepWeapon and read back as saved");
+            // Ticket 24: the split toggles and the colonist toggle are saved and read back; the old key is no longer written.
+            string arrestedKey = SettingKeys.KeyFor(SettingNames.SortWhenArrested), strippedKey = SettingKeys.KeyFor(SettingNames.SortWhenStripped),
+                colonistKey = SettingKeys.KeyFor(SettingNames.ColonistsKeepGear);
+            c.Observe("sortWhenArrestedRead", read.values.rules.sortWhenArrested).Observe("sortWhenStrippedRead", read.values.rules.sortWhenStripped)
+                .Observe("colonistsKeepGearRead", read.values.colonistsKeepGear);
+            c.Step(text.Contains("<" + arrestedKey + ">") && text.Contains("<" + strippedKey + ">") && text.Contains("<" + colonistKey + ">")
+                && !text.Contains("<" + SettingsLoad.OldDownedAndStripKey)
+                && read.values.rules.sortWhenArrested == written.values.rules.sortWhenArrested && read.values.rules.sortWhenStripped == written.values.rules.sortWhenStripped
+                && read.values.colonistsKeepGear == written.values.colonistsKeepGear,
+                "the arrest, strip and colonist gear toggles are saved and read back as saved, and the old shared key is not written");
             foreach (var f in Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_*")) File.Delete(f);
+            ModHarness.RestoreSettings();
+            c.Conclude();
+        }
+
+        // ---- 24: the old "Also when stripped or arrested" key ---------------------------------------------------------------
+        {
+            var c = ctx.Begin(OldKey);
+            string arrestedKey = SettingKeys.KeyFor(SettingNames.SortWhenArrested), strippedKey = SettingKeys.KeyFor(SettingNames.SortWhenStripped);
+            LoadedModManager.WriteModSettings(DevMod, "OldKey", new LootScavengingSettings());
+            var file = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_OldKey*.xml").FirstOrDefault();
+            if (file == null) c.SetupFailed("WriteModSettings left no file to edit");
+            else
+            {
+                // A file from 0.5.1 with the shared toggle off.
+                var doc = XDocument.Load(file);
+                var body = doc.Root.Element("ModSettings");
+                body.RemoveNodes();
+                body.Add(new XElement("activePreset", "Progression"), new XElement(SettingsLoad.OldDownedAndStripKey, "False"));
+                doc.Save(file);
+                c.Observe("file", body.ToString(SaveOptions.DisableFormatting));
+                Presets.Configure(PresetConfig.Code());
+                var read = LoadedModManager.ReadModSettings<LootScavengingSettings>(DevMod, "OldKey");
+                read.OnDefaultsLoaded();
+                c.Observe("sortWhenArrested", read.values.rules.sortWhenArrested).Observe("sortWhenStripped", read.values.rules.sortWhenStripped);
+                c.Step(!read.values.rules.sortWhenArrested && !read.values.rules.sortWhenStripped, "an old file with the shared toggle off reads as both new toggles off");
+
+                LoadedModManager.WriteModSettings(DevMod, "OldKeyResave", read);
+                var resaved = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_OldKeyResave*.xml").FirstOrDefault();
+                string text = resaved != null ? File.ReadAllText(resaved) : "";
+                var reread = LoadedModManager.ReadModSettings<LootScavengingSettings>(DevMod, "OldKeyResave");
+                reread.OnDefaultsLoaded();
+                c.Step(!text.Contains("<" + SettingsLoad.OldDownedAndStripKey) && text.Contains("<" + arrestedKey + ">") && text.Contains("<" + strippedKey + ">")
+                    && !reread.values.rules.sortWhenArrested && !reread.values.rules.sortWhenStripped,
+                    "saved again, the file holds both new keys, off, and not the old one");
+            }
+            foreach (var f in Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_*")) File.Delete(f);
+
+            // A pack's Def patch that still sets the old node.
+            var xml = new XmlDocument();
+            xml.LoadXml("<rules><onDownedAndStrip>false</onDownedAndStrip></rules>");
+            var rules = DirectXmlToObject.ObjectFromXml<LootRules>(xml.DocumentElement, false);
+            string bound = (string)typeof(LootRules).GetField("onDownedAndStrip", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(rules);
+            typeof(LootRules).GetMethod("ApplyOldDownedAndStrip", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(rules, null);
+            c.Observe("defNodeBound", bound ?? "null");
+            c.Step(bound == "false" && !rules.sortWhenArrested && !rules.sortWhenStripped, "a Def's old node set to false binds and turns both toggles off");
+
+            // A pack lock on the old name.
+            var locks = new SettingLocks(new[] { "rules.onDownedAndStrip" });
+            c.Step(locks.Unknown.Count == 0 && locks.IsLocked(SettingNames.SortWhenArrested) && locks.IsLocked(SettingNames.SortWhenStripped),
+                "a lock on the old name locks both toggles");
+
+            var d = Presets.Defaults();
+            c.Observe("defaultDeathDrop", d.deathDrop).Observe("defaultColonistsKeepGear", d.colonistsKeepGear);
+            c.Step(d.deathDrop == DeathDrop.AllOnBody && d.colonistsKeepGear && d.rules.sortWhenArrested && d.rules.sortWhenStripped && d.rules.downedGear == DownedGear.KeepWeapon,
+                "the defaults: everything on the body at death, colonists keep their gear, arrests and strips sorted, downed pawns keep their weapon");
             ModHarness.RestoreSettings();
             c.Conclude();
         }

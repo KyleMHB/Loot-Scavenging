@@ -33,19 +33,28 @@ public sealed class ModHarness : HarnessSettings
     private static SettingValues savedValues;
     private static PresetId savedPreset;
     private static PresetConfig savedConfig;
+    // A batch's own starting point over the saved values, applied by every restore during the batch but not at its end.
+    private static Action<SettingValues> baseline;
 
-    public static void SaveSettings()
+    public static void SaveSettings(Action<SettingValues> batchBaseline = null)
     {
         savedValues = LootScavengingMod.Settings.Capture().Clone();
         savedPreset = LootScavengingMod.Settings.activePreset;
         savedConfig = Presets.Config;
+        baseline = batchBaseline;
+        baseline?.Invoke(LootScavengingMod.Settings.values);
     }
+
+    // The cases written before 0.5.2 count loot on the ground at a death, the default then. The default is now everything
+    // on the body (ticket 24); the cases about where loot lands set it themselves.
+    public static void LootOnGround(SettingValues v) => v.deathDrop = DeathDrop.Ground;
 
     public static void RestoreSettings()
     {
         if (savedValues == null) return;
         Presets.Configure(savedConfig);
         LootScavengingMod.Settings.Apply(savedValues);
+        baseline?.Invoke(LootScavengingMod.Settings.values);
         LootScavengingMod.Settings.activePreset = savedPreset;
         Unfamiliar.ResetCache();
     }
@@ -61,6 +70,7 @@ public sealed class ModHarness : HarnessSettings
     public override void OnBatchEnd()
     {
         UiBatch.Unpatch();
+        baseline = null;
         RestoreSettings();
         savedValues = null;
         if (savedPlayerTechLevel.HasValue && Current.Game != null)
