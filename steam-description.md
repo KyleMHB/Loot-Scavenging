@@ -46,6 +46,12 @@ Study bills at a research bench pay a set number of points per unit into the cur
 
 At death, loot can drop on the ground as usual, leave only the scrap on the body, or leave everything on the body (weapon, medicine, food, silver and scrap) until you strip or butcher the corpse.
 
+[h2]Downed raiders keep their weapon[/h2]
+
+[img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-downed.gif[/img]
+
+A raider who goes down keeps his weapon whole in his pack, and nothing drops. His gear is judged once, when he is stripped, arrested, joins your colony or dies. Set [b]When a non-colony pawn is downed[/b] to "Drop the weapon" if you want it on the ground as in the base game. The first GIF above was filmed with that choice.
+
 [h2]How to use[/h2]
 
 The mod starts on the Progression preset.
