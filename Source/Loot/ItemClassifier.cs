@@ -11,6 +11,10 @@ internal static class ItemClassifier
     public static ItemCategory InventoryCategoryOf(Thing thing)
     {
         ThingDef def = thing.def;
+        // A downed pawn's weapon waits in his pack (ticket 21), so it must be judged by the weapon rule there as it would be
+        // in his hands.
+        if (EraReader.IsGear(def))
+            return def.IsApparel ? ItemCategory.Apparel : ItemCategory.Weapon;
         if (IsAmmunition(def))
             return ItemCategory.Ammunition;
         if (def.IsMedicine)

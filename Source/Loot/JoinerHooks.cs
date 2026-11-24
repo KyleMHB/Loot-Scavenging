@@ -7,8 +7,8 @@ using Verse;
 namespace LootScavenging.Loot;
 
 // The gear of a pawn who joins the colony (ticket 20). Everything that makes a pawn a colonist goes through Pawn.SetFaction:
-// the quests of wanderers, refugees, rescued and creepjoiners, recruiting, enslaving, a trade, a rescue. His worn apparel and
-// held equipment are handled just before the faction changes, so he is still judged as the group he was (a prisoner keeps his
+// the quests of wanderers, refugees, rescued and creepjoiners, recruiting, enslaving, a trade, a rescue. His worn apparel,
+// held equipment and pack (ticket 21) are handled just before the faction changes, so he is still judged as the group he was (a prisoner keeps his
 // old faction, a wanderer has none). Two settings choose what happens: one for prisoners and slaves, one for everyone else.
 //
 // RecruitUtility.Recruit is hooked as well. It clears the prisoner status and unlocks his apparel before it calls SetFaction,
@@ -42,8 +42,9 @@ internal static class JoiningGear
                     Unfamiliar.MarkJoining(pawn, pawn.Faction);
                     break;
                 case JoinerGear.FollowDropMode:
-                    // The owner group is the one he had before joining; locked apparel stays, as at a strip.
-                    GearSorter.Sort(pawn, Moment.Join, equipment: true, apparel: true, inventory: false);
+                    // The owner group is the one he had before joining; locked apparel stays, as at a strip. His pack is
+                    // sorted too (ticket 21): a pawn downed under "keep the weapon in his pack" carries his weapon there.
+                    GearSorter.Sort(pawn, Moment.Join, equipment: true, apparel: true, inventory: true);
                     break;
             }
         }

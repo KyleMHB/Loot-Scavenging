@@ -69,8 +69,8 @@ public static class Unfamiliar
     }
 
     /// <summary>
-    /// Marks the out-of-reach apparel a pawn wears and the equipment he holds as he joins the colony ("mark unfamiliar", ticket
-    /// 20). Protected items are never marked. <paramref name="carrier"/> is the faction he came from, whose era reads gear with
+    /// Marks the out-of-reach apparel a pawn wears, the equipment he holds and the gear in his pack as he joins the colony ("mark
+    /// unfamiliar", tickets 20 and 21). Protected items are never marked. <paramref name="carrier"/> is the faction he came from, whose era reads gear with
     /// no research of its own. Locked apparel stays as it is, as at a strip.
     /// </summary>
     public static void MarkJoining(Pawn pawn, Faction carrier)
@@ -89,6 +89,16 @@ public static class Unfamiliar
             {
                 if (!pawn.apparel.IsLocked(ap))
                     MarkJoiningItem(ap, carrier, settings);
+            }
+        }
+        // Weapons and apparel in his pack too (ticket 21): a pawn downed under "keep the weapon in his pack" carries his
+        // weapon there. Medicine, drugs and the rest are not gear and are left as they are.
+        if (pawn.inventory != null)
+        {
+            foreach (Thing thing in pawn.inventory.innerContainer)
+            {
+                if (thing is ThingWithComps withComps)
+                    MarkJoiningItem(withComps, carrier, settings);
             }
         }
     }
