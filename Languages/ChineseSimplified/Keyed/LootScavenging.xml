@@ -233,6 +233,6 @@
 	<LootScavenging_Downed>非殖民地角色倒地时</LootScavenging_Downed>
 	<LootScavenging_DownedKeepWeapon>保留他的武器</LootScavenging_DownedKeepWeapon>
 	<LootScavenging_DownedDropWeapon>丢下武器</LootScavenging_DownedDropWeapon>
-	<LootScavenging_DownedKeepWeaponExplain>不会掉落任何东西，也不做任何处理。他手中的武器和背包保持原样，在他被剥光、被拘捕、加入殖民地或死亡时再处理。如果他被搬运后放下，即使是放到床上，游戏让他丢下的武器也会在那时处理。重新站起来的袭击者仍然持有武器。</LootScavenging_DownedKeepWeaponExplain>
+	<LootScavenging_DownedKeepWeaponExplain>不会掉落任何东西，也不做任何处理。他手中的武器和背包保持原样，在他被剥光、被拘捕、加入殖民地或死亡时再处理。他被搬运后放下、被救援到床上或读取存档后，仍然握着武器。重新站起来的袭击者仍然持有武器。</LootScavenging_DownedKeepWeaponExplain>
 	<LootScavenging_DownedDropWeaponExplain>他的武器和背包会掉落在身旁，与原版游戏相同。开启「被剥光或被拘捕时也适用」后，会在掉落时处理。</LootScavenging_DownedDropWeaponExplain>
 </LanguageData>

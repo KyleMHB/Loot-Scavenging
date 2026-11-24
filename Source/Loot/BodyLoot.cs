@@ -89,9 +89,9 @@ internal static class BodyLoot
     public static void EndKeepingGear(Pawn pawn) => keepingGear.Remove(pawn);
 
     /// <summary>
-    /// Whether a downing leaves this pawn's weapon in his hands and his pack as it is, unjudged ("Keep his weapon"). Pawns
-    /// the rules do not cover, and pawns whose gear the game destroys on drop or that cannot be stripped (most mechanoids),
-    /// drop as before.
+    /// Whether a downing leaves this pawn's weapon in his hands and his pack as it is, unjudged ("Keep his weapon"), and
+    /// whether he keeps holding the weapon when he is spawned again while down. Pawns the rules do not cover, and pawns whose
+    /// gear the game destroys on drop or that cannot be stripped (most mechanoids), drop as before.
     /// </summary>
     public static bool KeepsWeaponAtDowning(Pawn pawn)
     {
@@ -103,7 +103,8 @@ internal static class BodyLoot
     }
 
     /// <summary>Whether this downed pawn kept, at his downing, gear the game would otherwise have dropped: under either
-    /// setting when his loot all stays on the body, or under "Keep his weapon".</summary>
+    /// setting when his loot all stays on the body, or under "Keep his weapon". SpawnDropHook asks KeepsWeaponAtDowning
+    /// first, so there this means "Drop the weapon" with everything on the body.</summary>
     public static bool KeptGearWhenDowned(Pawn pawn)
     {
         Map map = pawn.MapHeld;

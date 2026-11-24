@@ -128,7 +128,7 @@ internal static class PawnDownedHook
         try
         {
             // "Keep his weapon" (ticket 23): nothing drops and nothing is judged. He keeps his weapon in hand and his pack,
-            // to be sorted at his strip, arrest, join or death, or as the game drops the weapon when he is put down again.
+            // to be sorted at his strip, arrest, join or death; SpawnDropHook keeps the weapon in hand when he is put down again.
             if (BodyLoot.KeepsWeaponAtDowning(___pawn))
             {
                 BodyLoot.BeginKeepingGear(___pawn);
@@ -263,8 +263,8 @@ internal static class DropEquipmentHook
             return true;
         try
         {
-            // Includes the drop the game makes as a downed pawn still holding his weapon is spawned outside a bed (see
-            // SpawnDropHook): sorted here like any other living pawn's drop.
+            // Includes the drop the game makes as a downed pawn still holding his weapon under "everything stays on the
+            // body" is spawned outside a bed (see SpawnDropHook): sorted here like any other living pawn's drop.
             GearSorter.SortEquipment(pawn, eq, Moment.Downed);
         }
         catch (Exception e)
@@ -299,10 +299,13 @@ internal static class KeepInventoryAtDowningHook
 }
 
 // The game drops a downed pawn's weapon whenever he is spawned outside a bed: carried and put down, rescued to a bed (the
-// tuck drops him first), or a reload. A pawn who kept his weapon at his downing (ticket 23) hits this. While the game is
-// playing the drop goes ahead and DropEquipmentHook sorts it; the pawn then remembers what is left, as he does at a
-// downing in the game, so he picks it up again if he gets up. During a load or map setup the rules cannot run, so the drop
-// is skipped and he keeps holding his weapon, as he was when saved.
+// tuck drops him on the bed's cell before he lies down), brought in by a caravan or shuttle, or a reload.
+// - Under "Keep his weapon" (Kyle, 2026-11-24) that drop never happens for a pawn the setting covers: he holds his weapon
+//   until he is stripped, arrested, joins or dies, wherever he is set down, and gets up still holding it.
+// - Under "Drop the weapon" the game's drop goes ahead. Only "everything stays on the body" leaves a weapon in his hands
+//   there; DropEquipmentHook sorts its drop, which leaves it whole when the downing judged it. He then remembers it, as he
+//   would have after the game's own drop at his downing, so he picks it up again if he gets up. During a load or map setup
+//   that drop is skipped: a save and load does not move his gear.
 [HarmonyPatch(typeof(Pawn_EquipmentTracker), nameof(Pawn_EquipmentTracker.Notify_PawnSpawned))]
 internal static class SpawnDropHook
 {
@@ -315,6 +318,8 @@ internal static class SpawnDropHook
             return true;
         try
         {
+            if (BodyLoot.KeepsWeaponAtDowning(pawn))
+                return false;
             if (!BodyLoot.KeptGearWhenDowned(pawn))
                 return true;
             if (Current.ProgramState != ProgramState.Playing)

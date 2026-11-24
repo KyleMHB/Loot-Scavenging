@@ -27,6 +27,8 @@ public sealed class MomentsBatch : Batch
         FormerColonist = P + "former-colonist-keeps-gear", ProtectedFamiliar = P + "protected-never-unfamiliar",
         Arrest = P + "arrest-standing", Recruit = P + "recruit-downed-raider", Manipulation = P + "lost-manipulation",
         DropCallsOnce = P + "drop-calls-judged-once", KeepsWeapon = P + "downed-keeps-weapon-in-hand",
+        Carried = P + "downed-carried-keeps-weapon", Rescued = P + "downed-rescued-keeps-weapon", CapturedGround = P + "downed-captured-weapon-sorted",
+        CapturedInBed = P + "downed-in-bed-captured-weapon-sorted", HospitalityGuest = P + "hospitality-downed-guest",
         JoinMark = P + "joiner-marked-unfamiliar", JoinLeave = P + "joiner-left-alone", JoinFollow = P + "joiner-follows-drop-mode",
         JoinPrisonerRules = P + "joiner-prisoner-setting", JoinProtected = P + "joiner-protected-never-marked", JoinFormer = P + "joiner-former-colonist-untouched";
 
@@ -43,7 +45,12 @@ public sealed class MomentsBatch : Batch
         new PlannedCase(Recruit, Levels.Mechanical, "recruiting (and, with Ideology, enslaving) a downed, captured raider scraps his out-of-reach flak vest"),
         new PlannedCase(Manipulation, Levels.Mechanical, "a standing pirate who loses both arms has his out-of-reach revolver scrapped, not dropped whole"),
         new PlannedCase(DropCallsOnce, Levels.Mechanical, "a Degrade weapon rule judges the weapon once at death, downing then death (kept in hand, and dropped, each also with everything on the body), downing then capture, arrest and strip"),
-        new PlannedCase(KeepsWeapon, Levels.Mechanical, "a downed pirate keeps his out-of-reach revolver whole in hand and his medicine, nothing on the ground; a strip, a capture or his death scraps it, with stripping off a strip drops it whole, carried and put down it is scrapped, and he gets up still holding it"),
+        new PlannedCase(KeepsWeapon, Levels.Mechanical, "a downed pirate keeps his out-of-reach revolver whole in hand and his medicine, nothing on the ground; a strip, a capture or his death scraps it, with stripping off a strip drops it whole, and he gets up still holding it"),
+        new PlannedCase(Carried, Levels.PlayerWorkflow, "a drafted colonist carries a downed pirate and is undrafted, which sets him down, twice: he keeps his out-of-reach revolver in hand, nothing lands, and he gets up holding it"),
+        new PlannedCase(Rescued, Levels.PlayerWorkflow, "a colonist rescues a downed visitor from a friendly faction into a medical bed: he keeps his out-of-reach revolver in hand and nothing is scrapped"),
+        new PlannedCase(CapturedGround, Levels.PlayerWorkflow, "a colonist captures a downed pirate into a prison bed: the arrest scraps his out-of-reach revolver"),
+        new PlannedCase(CapturedInBed, Levels.PlayerWorkflow, "a colonist captures the rescued visitor from his medical bed into a prison bed: the arrest scraps his out-of-reach revolver"),
+        new PlannedCase(HospitalityGuest, Levels.PlayerWorkflow, "with Hospitality (--mods compat-hospitality): a downed friendly visitor keeps his revolver in hand and is rescued into a bed holding it; with downed pawns dropping the weapon the outcome is recorded; no error is logged"),
         new PlannedCase(JoinMark, Levels.Mechanical, "a wanderer joins in out-of-reach armour and a revolver and keeps them; both are unfamiliar in the scrap drop mode and in Off, even off him; a revolver in his pack is marked and his medicine is not"),
         new PlannedCase(JoinLeave, Levels.Mechanical, "with joiner gear left alone, a wanderer's vest carries no mark"),
         new PlannedCase(JoinFollow, Levels.Mechanical, "a wanderer, a recruited prisoner and (with Ideology) an enslaved one have vest, revolver and a pack revolver scrapped once and their medicine kept, with stripping off"),
@@ -80,7 +87,10 @@ public sealed class MomentsBatch : Batch
     {
         long modErrorsAtStart = CaseErrors.ModMark;
         ModHarness.SaveSettings();
-        var area = Kit.Area(ctx, 80, 14);
+        // The sites take the first 14 rows; the ward for the carry, rescue and capture cases takes the rest.
+        var layout = Kit.Area(ctx, 80, 24);
+        var area = new CellRect(layout.minX, layout.minZ, 80, 14);
+        var ward = new CellRect(layout.minX, layout.minZ + 14, 30, 10);
         Kit.RemoveStartingColonists(ctx);
         yield return Wait.Ticks(1);
         var map = ctx.Map;
@@ -616,12 +626,12 @@ public sealed class MomentsBatch : Batch
         // ---- review 2026-11-24: protected items are never unfamiliar --------------------------------------------------
         // ---- 21/23: a downed pawn keeps his weapon in hand ------------------------------------------------------------------
         // The default (ticket 23): nothing drops or is judged at the downing; the gear is sorted when he is stripped, captured
-        // or dies, or when the game drops his weapon as he is carried and put down outside a bed.
+        // or dies. Being carried and set down, rescued and captured through the game's own jobs follow this case.
         {
             var c = ctx.Begin(KeepsWeapon);
             bool ready = true;
             var cell = sites.Dequeue();
-            foreach (string way in new[] { "strip", "capture", "kill", "strip with stripping off", "carried and put down", "gets up" })
+            foreach (string way in new[] { "strip", "capture", "kill", "strip with stripping off", "gets up" })
             {
                 ModHarness.RestoreSettings();
                 Settings.values.deathDrop = DeathDrop.Ground;
@@ -659,11 +669,6 @@ public sealed class MomentsBatch : Batch
                 {
                     case "capture": p.guest.SetGuestStatus(Faction.OfPlayer, GuestStatus.Prisoner); break;
                     case "kill": p.Kill(null); break;
-                    case "carried and put down":
-                        // Picked up and set down again outside a bed: the game drops the weapon of a downed pawn as he spawns.
-                        p.DeSpawn();
-                        GenSpawn.Spawn(p, cell, map);
-                        break;
                     case "gets up":
                         p.health.RemoveHediff(p.health.hediffSet.GetFirstHediffOfDef(HediffDefOf.Anesthetic));
                         yield return Wait.Ticks(60);
@@ -678,8 +683,6 @@ public sealed class MomentsBatch : Batch
                         $"{way}: he is up, still holding the whole revolver, with his medicine");
                 else if (stripOff) c.Step(!gun.Destroyed && gun.Spawned && made == 0, $"{way}: the strip drops the revolver whole");
                 else c.Step(gun.Destroyed && made == expected, $"{way}: the revolver becomes {made} industrial scrap (expected {expected})");
-                if (way == "carried and put down")
-                    c.Step(p.Downed && Medicine() == 3 && p.mindState.droppedWeapon == null, $"{way}: he is still down with his medicine, and no weapon is left to pick up");
                 p.Corpse?.Destroy();
                 if (!p.Destroyed) p.Destroy();
                 if (gun.Spawned) gun.Destroy();
@@ -687,6 +690,334 @@ public sealed class MomentsBatch : Batch
                 foreach (var t in map.listerThings.ThingsOfDef(ThingDefOf.MedicineIndustrial).Where(t => t.Spawned && t.Position.DistanceTo(cell) <= 5f).ToList()) t.Destroy();
             }
             if (ready) c.Conclude();
+        }
+
+        // ---- 23: carried, rescued and captured through the game's own jobs ---------------------------------------------------
+        // A colonist with only cleaning on is handed the player's orders: carry while drafted, rescue, capture. The game drops a
+        // downed pawn's weapon as he is set down outside a bed; under "Keep his weapon" the mod skips that drop.
+        if (new[] { Carried, Rescued, CapturedGround, CapturedInBed, HospitalityGuest }.Any(ctx.Selected))
+        {
+            IntVec3 W(int dx, int dz) => new IntVec3(ward.minX + dx, 0, ward.minZ + dz);
+            Building_Bed prisonBed = null, prisonBed2 = null, medBed = null, medBed2 = null;
+            Pawn worker = null;
+            string wardProblem = null;
+            try
+            {
+                Kit.Room(ctx, new CellRect(ward.minX, ward.minZ, 6, 6), W(5, 2));
+                prisonBed = (Building_Bed)Kit.Place(ctx, "Bed", W(1, 2));
+                prisonBed2 = (Building_Bed)Kit.Place(ctx, "Bed", W(3, 2));
+                prisonBed.ForPrisoners = true;
+                prisonBed2.ForPrisoners = true;
+                // Setting ForPrisoners in code only marks the room's stats dirty; the room decides it is a prison cell when its
+                // shape or beds change, as when the player's bed button or a newly built bed notifies it.
+                prisonBed.GetRoom()?.Notify_RoomShapeChanged();
+                medBed = (Building_Bed)Kit.Place(ctx, "Bed", W(9, 2));
+                medBed2 = (Building_Bed)Kit.Place(ctx, "Bed", W(11, 2));
+                medBed.Medical = true;
+                medBed2.Medical = true;
+                ctx.Setup("Developer set the two beds in the room for prisoners, told the room its beds changed, and set the two outside as medical beds");
+                worker = Kit.Worker(ctx, W(14, 5), DefDatabase<WorkTypeDef>.GetNamed("Cleaning"));
+            }
+            catch (SetupException e) { wardProblem = e.Message; }
+            yield return Wait.Ticks(1);
+            var friendly = Find.FactionManager.AllFactionsListForReading.FirstOrDefault(f => !f.IsPlayer && !f.Hidden && !f.temporary
+                && f.def.humanlikeFaction && !f.def.permanentEnemy && !f.HostileTo(Faction.OfPlayer));
+            var downCell = W(20, 5);
+            float anaesthetic = 1f;
+
+            // Holds a pawn under anaesthetic for as long as a job takes, so he stays down whatever its length.
+            Action KeepDown(Pawn pawn) => () =>
+            {
+                var h = pawn.health.hediffSet.GetFirstHediffOfDef(HediffDefOf.Anesthetic);
+                if (h != null && h.Severity < anaesthetic) h.Severity = anaesthetic;
+            };
+            Pawn Downed(BatchContext context, PawnKindDef kind, Faction faction, ThingWithComps[] armed)
+            {
+                var pawn = Spawn(context, kind, faction, downCell);
+                armed[0] = Arm(pawn, revolver, QualityCategory.Normal);
+                pawn.inventory.innerContainer.TryAdd(Stack(ThingDefOf.MedicineIndustrial, 3));
+                HealthUtility.TryAnesthetize(pawn);
+                anaesthetic = pawn.health.hediffSet.GetFirstHediffOfDef(HediffDefOf.Anesthetic)?.Severity ?? 1f;
+                return pawn;
+            }
+            int MedicineOf(Pawn pawn) => pawn.inventory.innerContainer.Where(t => t.def == ThingDefOf.MedicineIndustrial).Sum(t => t.stackCount);
+            bool Ordered(JobDef def, Pawn takee, LocalTargetInfo b)
+            {
+                var job = b.IsValid ? JobMaker.MakeJob(def, takee, b) : JobMaker.MakeJob(def, takee);
+                job.count = 1;
+                return worker.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+            }
+            // What the capture job checks of its prison bed, recorded so a stalled capture says why.
+            string PrisonBedState(Building_Bed bed, Pawn pawn) =>
+                $"forPrisoners={bed.ForPrisoners}, inPrisonCell={bed.Position.IsInPrisonCell(map)}, room={bed.GetRoom()?.Role?.defName ?? "none"}, "
+                + $"usableAsPrisoner={RestUtility.CanUseBedNow(bed, pawn, false, false, GuestStatus.Prisoner)}, "
+                + $"validAsPrisoner={RestUtility.IsValidBedFor(bed, pawn, worker, false, guestStatus: GuestStatus.Prisoner)}";
+            void Retire(Pawn pawn)
+            {
+                if (pawn == null || pawn.Destroyed) return;
+                if (pawn.Spawned) pawn.DeSpawn();
+                // Decide, not Discard: a captured pawn is named in a tale and the battle log, and discarding him logs a warning.
+                Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Decide);
+            }
+
+            // -- carried and set down twice: by the drafted carrier's drop button, then by undrafting him --
+            Pawn rescued = null;
+            ThingWithComps rescuedGun = null;
+            if (ctx.Selected(Carried))
+            {
+                var c = ctx.Begin(Carried);
+                if (wardProblem != null) c.SetupFailed(wardProblem);
+                else
+                {
+                    ModHarness.RestoreSettings();
+                    var armed = new ThingWithComps[1];
+                    var p = Downed(ctx, Mercenary, Pirates, armed);
+                    var gun = armed[0];
+                    c.Subject(p, worker);
+                    c.Note("Downed pawns keep their weapon (the default). A pirate with a revolver and 3 industrial medicine is downed; a drafted colonist carries him and sets him down, twice");
+                    c.Step(p.Downed && DownedGears.KeepsWeapon(Rules, OwnerGroup.Hostile, MapKind.Home) && EraReader.ItemEra(revolver, Pirates).OutOfReach,
+                        "he is down, the setting covers him and his revolver is out of reach");
+                    int scrapBefore = Kit.CountOnMap(map, industrial);
+                    var gunsBefore = Kit.StackIds(map, revolver);
+                    worker.drafter.Drafted = true;
+                    bool finished = true;
+                    foreach (var (round, dest) in new[] { ("the drop button", W(26, 8)), ("undrafting", W(26, 2)) })
+                    {
+                        c.Note($"The colonist is ordered to carry him to {dest}, then sets him down by {round}");
+                        if (!Ordered(JobDefOf.CarryDownedPawnDrafted, p, LocalTargetInfo.Invalid)) { finished = false; break; }
+                        var picked = Wait.Until(() => worker.carryTracker.CarriedThing == p, 1500, Kit.All(KeepDown(p), Kit.KeepRested(worker)));
+                        yield return picked;
+                        if (picked.TimedOut) { finished = false; break; }
+                        c.Step(p.ParentHolder is Pawn_CarryTracker && p.equipment.Primary == gun && !gun.Spawned, $"{round}: carried, he holds his revolver");
+                        worker.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, dest), JobTag.Misc);
+                        var walked = Wait.Until(() => worker.Position == dest, 1500, Kit.All(KeepDown(p), Kit.KeepRested(worker)));
+                        yield return walked;
+                        if (walked.TimedOut || worker.carryTracker.CarriedThing != p) { finished = false; break; }
+                        if (round == "the drop button")
+                        {
+                            var drop = worker.carryTracker.GetGizmos().OfType<Command_Action>().FirstOrDefault(g => g.icon == TexCommand.DropCarriedPawn);
+                            c.Step(drop != null, "the drafted carrier has the drop button");
+                            drop?.action();
+                        }
+                        else worker.drafter.Drafted = false;
+                        if (worker.carryTracker.CarriedThing == p)
+                        {
+                            c.Note("still carried after " + round + "; set down with the same call the game makes");
+                            worker.carryTracker.TryDropCarriedThing(worker.Position, ThingPlaceMode.Near, out _);
+                        }
+                        yield return Wait.Ticks(30, KeepDown(p));
+                        int scrap = Kit.CountOnMap(map, industrial) - scrapBefore, guns = Kit.NewStacks(map, revolver, gunsBefore).Count();
+                        c.Observe(round + ": primary", p.equipment.Primary?.def.defName ?? "none").Observe(round + ": scrap", scrap).Observe(round + ": revolversOnGround", guns);
+                        c.Step(p.Spawned && p.Downed && !p.InBed() && p.equipment.Primary == gun && !gun.Spawned && !gun.Destroyed && p.mindState.droppedWeapon == null,
+                            $"{round}: set down on the ground, he still holds his revolver");
+                        c.Step(scrap == 0 && guns == 0 && MedicineOf(p) == 3, $"{round}: nothing is scrapped or lands, and his medicine stays in his pack");
+                    }
+                    if (!finished)
+                        c.WorkflowInconclusive("the colonist did not carry or set down the pirate in time",
+                            (worker.Spawned && !worker.Downed, "the colonist is spawned and able"), (p.Spawned || p.ParentHolder is Pawn_CarryTracker, "the pirate is on the map"),
+                            (worker.CanReach(p, PathEndMode.ClosestTouch, Danger.Deadly) || p.ParentHolder is Pawn_CarryTracker, "the colonist can reach him"));
+                    else
+                    {
+                        // Gets up with no colonist about: a standing pirate would otherwise attack.
+                        if (worker.Drafted) worker.drafter.Drafted = false;
+                        worker.DeSpawn();
+                        p.health.RemoveHediff(p.health.hediffSet.GetFirstHediffOfDef(HediffDefOf.Anesthetic));
+                        var up = Wait.Until(() => !p.Downed, 600);
+                        yield return up;
+                        c.Observe("gets up: primary", p.equipment.Primary?.def.defName ?? "none");
+                        c.Step(!up.TimedOut && !p.Downed && p.equipment.Primary == gun && !gun.Destroyed, "he gets up still holding his revolver");
+                        c.Conclude();
+                        p.Destroy();
+                        GenSpawn.Spawn(worker, W(14, 5), map);
+                    }
+                    if (!p.Destroyed) p.Destroy();
+                    if (!gun.Destroyed) gun.Destroy();
+                    if (worker.Drafted) worker.drafter.Drafted = false;
+                    worker.jobs.StopAll();
+                }
+            }
+
+            // -- a friendly visitor rescued into a medical bed --
+            if (ctx.Selected(Rescued) || ctx.Selected(CapturedInBed))
+            {
+                var c = ctx.Begin(Rescued);
+                if (wardProblem != null) c.SetupFailed(wardProblem);
+                else if (friendly == null) c.EnvironmentUnavailable("the world has no faction friendly to the colony");
+                else
+                {
+                    ModHarness.RestoreSettings();
+                    Rules.nonHostileFaction = true;
+                    var armed = new ThingWithComps[1];
+                    var p = Downed(ctx, friendly.def.basicMemberKind ?? PawnKindDefOf.Villager, friendly, armed);
+                    var gun = armed[0];
+                    c.Subject(p, worker);
+                    c.Note($"Downed pawns keep their weapon; friendly factions on. A visitor of {friendly.Name} with a revolver and 3 industrial medicine is downed; a colonist rescues him into a medical bed");
+                    c.Step(p.Downed && p.equipment.Primary == gun && DownedGears.KeepsWeapon(Rules, OwnerGroup.NonHostileFaction, MapKind.Home) && EraReader.ItemEra(revolver, friendly).OutOfReach,
+                        "he is down holding the revolver, the setting covers him and the revolver is out of reach");
+                    int scrapBefore = Kit.CountOnMap(map, industrial);
+                    var gunsBefore = Kit.StackIds(map, revolver);
+                    if (Kit.Require(ctx, Rescued, (RestUtility.IsValidBedFor(medBed, p, worker, false), "the medical bed is valid for him")))
+                    {
+                        bool taken = Ordered(JobDefOf.Rescue, p, medBed);
+                        var inBed = Wait.Until(() => p.CurrentBed() == medBed, 2500, Kit.All(KeepDown(p), Kit.KeepRested(worker)));
+                        yield return inBed;
+                        if (inBed.TimedOut)
+                            c.WorkflowInconclusive("the colonist did not rescue the visitor in time", (taken, "the colonist took the rescue order"),
+                                (worker.CanReach(p, PathEndMode.ClosestTouch, Danger.Deadly), "the colonist can reach him"));
+                        else
+                        {
+                            yield return Wait.Ticks(30, KeepDown(p));
+                            int scrap = Kit.CountOnMap(map, industrial) - scrapBefore, guns = Kit.NewStacks(map, revolver, gunsBefore).Count();
+                            c.Observe("primary", p.equipment.Primary?.def.defName ?? "none").Observe("scrap", scrap).Observe("revolversOnGround", guns)
+                                .Observe("guestStatus", p.GuestStatus?.ToString() ?? "none");
+                            c.Step(p.CurrentBed() == medBed && p.equipment.Primary == gun && !gun.Spawned && !gun.Destroyed && p.mindState.droppedWeapon == null,
+                                "in the medical bed, he still holds his revolver");
+                            c.Step(scrap == 0 && guns == 0 && MedicineOf(p) == 3, "nothing is scrapped or lands, and his medicine stays in his pack");
+                            c.Conclude();
+                            rescued = p;
+                            rescuedGun = gun;
+                        }
+                    }
+                    if (rescued == null) { if (!p.Destroyed) p.Destroy(); if (!gun.Destroyed) gun.Destroy(); }
+                    worker.jobs.StopAll();
+                }
+            }
+
+            // -- Hospitality: friendly gear drops are off by default there too; runs only with --mods compat-hospitality --
+            if (ctx.Selected(HospitalityGuest))
+            {
+                var c = ctx.Begin(HospitalityGuest);
+                var settingsType = AccessTools.TypeByName("Hospitality.ModSettings_Hospitality");
+                if (!ModsConfig.IsActive("Orion.Hospitality") || settingsType == null)
+                    c.EnvironmentUnavailable("Hospitality is not loaded; run with --mods compat-hospitality");
+                else if (wardProblem != null) c.SetupFailed(wardProblem);
+                else if (friendly == null) c.EnvironmentUnavailable("the world has no faction friendly to the colony");
+                else
+                {
+                    long errors = CaseErrors.Mark;
+                    var drops = AccessTools.Field(settingsType, "disableFriendlyGearDrops")?.GetValue(null);
+                    c.Observe("hospitality.disableFriendlyGearDrops", drops ?? "missing");
+                    c.Note("Hospitality is loaded with its friendly gear drops setting " + (drops ?? "missing"));
+                    foreach (var keep in new[] { true, false })
+                    {
+                        ModHarness.RestoreSettings();
+                        Rules.nonHostileFaction = true;
+                        Rules.downedGear = keep ? DownedGear.KeepWeapon : DownedGear.DropWeapon;
+                        string label = keep ? "keep his weapon" : "drop the weapon";
+                        var armed = new ThingWithComps[1];
+                        int scrapBefore = Kit.CountOnMap(map, industrial);
+                        var gunsBefore = Kit.StackIds(map, revolver);
+                        var p = Downed(ctx, friendly.def.basicMemberKind ?? PawnKindDefOf.Villager, friendly, armed);
+                        var gun = armed[0];
+                        c.Subject(p);
+                        yield return Wait.Ticks(30, KeepDown(p));
+                        string Where() => gun.Destroyed ? "destroyed" : gun.Spawned ? "on ground" : p.equipment.Primary == gun ? "in hand" : "elsewhere";
+                        c.Observe(label + ": revolver at downing", Where()).Observe(label + ": scrap at downing", Kit.CountOnMap(map, industrial) - scrapBefore);
+                        if (keep)
+                        {
+                            c.Step(p.Downed && p.equipment.Primary == gun && !gun.Spawned, $"{label}: downed, the visitor holds his revolver");
+                            bool taken = Kit.Require(ctx, HospitalityGuest, (RestUtility.IsValidBedFor(medBed2, p, worker, false), "the second medical bed is valid for him"))
+                                && Ordered(JobDefOf.Rescue, p, medBed2);
+                            if (!taken) { if (!p.Destroyed) p.Destroy(); break; }
+                            var inBed = Wait.Until(() => p.CurrentBed() == medBed2, 2500, Kit.All(KeepDown(p), Kit.KeepRested(worker)));
+                            yield return inBed;
+                            c.Observe(label + ": revolver after rescue", Where());
+                            c.Step(!inBed.TimedOut && p.equipment.Primary == gun && !gun.Spawned && Kit.CountOnMap(map, industrial) == scrapBefore
+                                && !Kit.NewStacks(map, revolver, gunsBefore).Any(), $"{label}: rescued into a bed, he still holds it and nothing is scrapped or dropped");
+                            worker.jobs.StopAll();
+                        }
+                        else c.Note($"{label}: the revolver is {Where()} at the downing (recorded, not checked: Hospitality's own setting decides)");
+                        if (!p.Destroyed) p.Destroy();
+                        if (!gun.Destroyed) gun.Destroy();
+                        foreach (var t in Kit.NewStacks(map, industrial, new HashSet<int>()).Where(t => t.Position.DistanceTo(downCell) <= 5f).ToList()) t.Destroy();
+                    }
+                    c.Observe("errorsLogged", CaseErrors.Mark - errors);
+                    c.Step(CaseErrors.Mark == errors, "no error is logged");
+                    if (ctx.ResultOf(HospitalityGuest) == Results.Running || ctx.ResultOf(HospitalityGuest) == null) c.Conclude();
+                }
+            }
+
+            // -- the rescued visitor captured from his medical bed --
+            if (ctx.Selected(CapturedInBed) && !ctx.SkipUnlessPassed(CapturedInBed, Rescued))
+            {
+                var c = ctx.Begin(CapturedInBed);
+                var p = rescued;
+                var gun = rescuedGun;
+                ModHarness.RestoreSettings();
+                Rules.nonHostileFaction = true;
+                c.Subject(p, worker);
+                c.Note("The rescued visitor, still holding his revolver in the medical bed, is captured into a prison bed");
+                int expected = ScrapAmounts.Units(gun.MarketValue, 1);
+                int scrapBefore = Kit.CountOnMap(map, industrial);
+                var gunsBefore = Kit.StackIds(map, revolver);
+                c.Observe("prisonBed", PrisonBedState(prisonBed, p));
+                if (Kit.Require(ctx, CapturedInBed, (p.Downed && p.CurrentBed() == medBed && p.equipment.Primary == gun, "he is down in the medical bed holding the revolver"),
+                    (RestUtility.IsValidBedFor(prisonBed, p, worker, false, guestStatus: GuestStatus.Prisoner), "the prison bed is valid for him as a prisoner")))
+                {
+                    bool taken = Ordered(JobDefOf.Capture, p, prisonBed);
+                    var inBed = Wait.Until(() => p.CurrentBed() == prisonBed, 2500, Kit.All(KeepDown(p), Kit.KeepRested(worker)));
+                    yield return inBed;
+                    if (inBed.TimedOut)
+                        c.WorkflowInconclusive("the colonist did not capture the visitor in time", (taken, "the colonist took the capture order"),
+                            (worker.CanReach(prisonBed, PathEndMode.OnCell, Danger.Deadly), "the colonist can reach the prison bed"));
+                    else
+                    {
+                        yield return Wait.Ticks(30, KeepDown(p));
+                        int made = Kit.CountOnMap(map, industrial) - scrapBefore;
+                        c.Observe("revolver", gun.Destroyed ? "destroyed" : gun.Spawned ? "on ground" : "in hand").Observe("scrap", made).Expect("scrap", expected);
+                        c.Step(p.IsPrisonerOfColony, "he is the colony's prisoner");
+                        c.Step(gun.Destroyed && made == expected && !Kit.NewStacks(map, revolver, gunsBefore).Any(), $"the arrest turns the revolver into {made} industrial scrap (expected {expected})");
+                        c.Conclude();
+                    }
+                }
+                Retire(p);
+                if (!gun.Destroyed) gun.Destroy();
+                worker.jobs.StopAll();
+            }
+            else Retire(rescued);
+
+            // -- a downed pirate captured from the ground --
+            if (ctx.Selected(CapturedGround))
+            {
+                var c = ctx.Begin(CapturedGround);
+                if (wardProblem != null) c.SetupFailed(wardProblem);
+                else
+                {
+                    ModHarness.RestoreSettings();
+                    var armed = new ThingWithComps[1];
+                    var p = Downed(ctx, Mercenary, Pirates, armed);
+                    var gun = armed[0];
+                    c.Subject(p, worker);
+                    c.Note("Downed pawns keep their weapon. A downed pirate holding a revolver is captured into a prison bed");
+                    int expected = ScrapAmounts.Units(gun.MarketValue, 1);
+                    int scrapBefore = Kit.CountOnMap(map, industrial);
+                    var gunsBefore = Kit.StackIds(map, revolver);
+                    c.Step(p.Downed && p.equipment.Primary == gun, "he is down holding the revolver");
+                    c.Observe("prisonBed", PrisonBedState(prisonBed2, p));
+                    bool valid = Kit.Require(ctx, CapturedGround, (RestUtility.IsValidBedFor(prisonBed2, p, worker, false, guestStatus: GuestStatus.Prisoner), "the prison bed is valid for him as a prisoner"));
+                    bool taken = valid && Ordered(JobDefOf.Capture, p, prisonBed2);
+                    var inBed = Wait.Until(() => !valid || p.CurrentBed() == prisonBed2, 2500, Kit.All(KeepDown(p), Kit.KeepRested(worker)));
+                    yield return inBed;
+                    if (!valid) { }
+                    else if (inBed.TimedOut)
+                        c.WorkflowInconclusive("the colonist did not capture the pirate in time", (taken, "the colonist took the capture order"),
+                            (worker.CanReach(p, PathEndMode.ClosestTouch, Danger.Deadly), "the colonist can reach him"));
+                    else
+                    {
+                        yield return Wait.Ticks(30, KeepDown(p));
+                        int made = Kit.CountOnMap(map, industrial) - scrapBefore;
+                        c.Observe("revolver", gun.Destroyed ? "destroyed" : gun.Spawned ? "on ground" : "in hand").Observe("scrap", made).Expect("scrap", expected);
+                        c.Step(p.IsPrisonerOfColony, "he is the colony's prisoner");
+                        c.Step(gun.Destroyed && made == expected && !Kit.NewStacks(map, revolver, gunsBefore).Any(), $"the arrest turns the revolver into {made} industrial scrap (expected {expected})");
+                        c.Conclude();
+                    }
+                    Retire(p);
+                    if (!gun.Destroyed) gun.Destroy();
+                }
+            }
+            if (worker != null) Retire(worker);
+            foreach (var t in map.listerThings.ThingsOfDef(industrial).Where(t => t.Spawned && ward.Contains(t.Position)).ToList()) t.Destroy();
+            foreach (var t in map.listerThings.ThingsOfDef(ThingDefOf.MedicineIndustrial).Where(t => t.Spawned && ward.Contains(t.Position)).ToList()) t.Destroy();
         }
 
         {

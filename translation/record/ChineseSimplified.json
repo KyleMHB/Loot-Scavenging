@@ -73,7 +73,7 @@
  "Keyed:LootScavenging_DownedKeepInPack": "Keep the weapon in his pack",
  "Keyed:LootScavenging_DownedKeepInPackExplain": "Nothing drops and nothing is sorted. His weapon goes into his pack with the rest, and it is all sorted when he is stripped, arrested, joins the colony or dies. A raider who gets back up still carries it.",
  "Keyed:LootScavenging_DownedKeepWeapon": "Keep his weapon",
- "Keyed:LootScavenging_DownedKeepWeaponExplain": "Nothing drops and nothing is sorted. He keeps his weapon in hand and his pack as it is, and they are sorted when he is stripped, arrested, joins the colony or dies. If he is carried and put down, even into a bed, the weapon the game drops is sorted then. A raider who gets back up is still armed.",
+ "Keyed:LootScavenging_DownedKeepWeaponExplain": "Nothing drops and nothing is sorted. He keeps his weapon in hand and his pack as it is, and they are sorted when he is stripped, arrested, joins the colony or dies. He still holds it after he is carried and put down, rescued into a bed, or loaded from a save. A raider who gets back up is still armed.",
  "Keyed:LootScavenging_DropIncludesAmmunition": "Drop mode includes ammunition",
  "Keyed:LootScavenging_DropIncludesAmmunitionOff": "Ammunition drops untouched unless its own item rule says otherwise, even when it is beyond reach.",
  "Keyed:LootScavenging_DropIncludesAmmunitionOn": "Ammunition beyond reach is handled by the drop mode like any other item.",
