@@ -96,7 +96,13 @@ public static class EraReader
     /// Weapons and apparel, judged by the def, so a sidearm carried in inventory still counts. The era fallbacks, the unfamiliar
     /// label and the original-item bills cover gear only. This class has no startup constructor, so the implied-def pass can call it.
     /// </summary>
-    public static bool IsGear(ThingDef def) => def != null && def.category == ThingCategory.Item && (def.IsWeapon || def.IsApparel);
+    public static bool IsGear(ThingDef def) => def != null && def.category == ThingCategory.Item && (def.IsApparel || IsRealWeapon(def));
+
+    // The game counts anything with melee tools as a weapon: wood logs (a club) and beer (a bottle) among them. Only
+    // equippable weapons count here, and nothing eaten or used as a material, so carried wood is not judged as gear and
+    // given its carrier's era.
+    private static bool IsRealWeapon(ThingDef def) =>
+        def.IsWeapon && def.equipmentType == EquipmentType.Primary && !def.IsIngestible && !def.IsStuff;
 
     private static IEnumerable<Era> FinishedProjectEras()
     {
