@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using LootScavenging.Model;
 using RimWorld;
 using RimWorld.Planet;
@@ -23,7 +24,9 @@ public sealed class MomentsBatch : Batch
         AllOnBodySkips = P + "all-on-body-skips", AllOnBodyDowned = P + "all-on-body-downed",
         Butcher = P + "butchering-removes-apparel", HomeOnly = P + "home-map-only", NoErrors = P + "no-mod-errors",
         JudgedOnce = P + "downed-then-killed-judged-once", LockedApparel = P + "locked-apparel-at-death",
-        FormerColonist = P + "former-colonist-keeps-gear", ProtectedFamiliar = P + "protected-never-unfamiliar";
+        FormerColonist = P + "former-colonist-keeps-gear", ProtectedFamiliar = P + "protected-never-unfamiliar",
+        Arrest = P + "arrest-standing", Recruit = P + "recruit-downed-raider", Manipulation = P + "lost-manipulation",
+        DropCallsOnce = P + "drop-calls-judged-once";
 
     public override string Id => "lootscavenging-moments";
     public override int SegmentCount => 1;
@@ -34,6 +37,10 @@ public sealed class MomentsBatch : Batch
         new PlannedCase(DownStripOn, Levels.Mechanical, "downing scraps an out-of-reach weapon and stripping scraps out-of-reach apparel"),
         new PlannedCase(DownStripOff, Levels.Mechanical, "with downed and strip off, both drop whole"),
         new PlannedCase(Prisoner, Levels.Mechanical, "stripping a living colony prisoner scraps out-of-reach apparel"),
+        new PlannedCase(Arrest, Levels.Mechanical, "arresting a standing pirate scraps his out-of-reach revolver; with downed and strip off it drops whole"),
+        new PlannedCase(Recruit, Levels.Mechanical, "recruiting (and, with Ideology, enslaving) a downed, captured raider scraps his out-of-reach flak vest"),
+        new PlannedCase(Manipulation, Levels.Mechanical, "a standing pirate who loses both arms has his out-of-reach revolver scrapped, not dropped whole"),
+        new PlannedCase(DropCallsOnce, Levels.Mechanical, "a Degrade weapon rule judges the weapon once at death, downing then death, arrest and strip"),
         new PlannedCase(OnBody, Levels.Mechanical, "scrap left on the body is in the corpse; stripping it drops the scrap"),
         new PlannedCase(OnBodyRemoved, Levels.Mechanical, "with corpse removal on, scrap left on the body lands on the ground"),
         new PlannedCase(AllOnBody, Levels.Mechanical, "everything on the body: scrap, ejected charges and inventory stay in the corpse; stripping drops them"),
@@ -50,6 +57,15 @@ public sealed class MomentsBatch : Batch
         new PlannedCase(HomeOnly, Levels.Mechanical, "home-map-only leaves gear whole on an away map; off, it is scrapped there"),
         new PlannedCase(NoErrors, Levels.Mechanical, "no error naming the mod logged during the batch"),
     };
+
+    // Outcomes the mod applied per item, while the judged-once case patches OutcomeApplier.Apply.
+    private static readonly Dictionary<Thing, int> judged = new Dictionary<Thing, int>();
+
+    private static void CountJudged(Thing thing)
+    {
+        judged.TryGetValue(thing, out int n);
+        judged[thing] = n + 1;
+    }
 
     public override IEnumerable<Wait> Segment(int index, BatchContext ctx)
     {
@@ -114,6 +130,154 @@ public sealed class MomentsBatch : Batch
                 c.Conclude();
             }
             p.Destroy();
+        }
+
+        // ---- 18: arrest of a standing pawn -------------------------------------------------------------------------------
+        // The game's arrest path (Pawn_GuestTracker.SetGuestStatus) drops the weapon and pack through DropAndForbidEverything.
+        {
+            var c = ctx.Begin(Arrest);
+            foreach (bool on in new[] { true, false })
+            {
+                ModHarness.RestoreSettings();
+                Rules.onDownedAndStrip = on;
+                string tag = on ? "On" : "Off";
+                var cell = sites.Dequeue();
+                var p = Spawn(ctx, Mercenary, Pirates, cell);
+                var gun = Arm(p, revolver, QualityCategory.Normal);
+                int expected = ScrapAmounts.Units(gun.MarketValue, 1);
+                p.inventory.innerContainer.TryAdd(Stack(ThingDefOf.Silver, 30));
+                c.Subject(p);
+                var before = Kit.StackIds(map, industrial);
+                var beforeSilver = Kit.StackIds(map, ThingDefOf.Silver);
+                p.guest.SetGuestStatus(Faction.OfPlayer, GuestStatus.Prisoner);
+                int made = Units(NewNear(map, industrial, before, cell)), silverOut = Units(NewNear(map, ThingDefOf.Silver, beforeSilver, cell));
+                c.Observe("scrap" + tag, made).Observe("silver" + tag, silverOut).Observe("revolver" + tag, gun.Destroyed ? "destroyed" : gun.Spawned ? "on ground" : "elsewhere");
+                c.Step(p.IsPrisonerOfColony && !p.Downed, $"{tag}: the pirate is a standing colony prisoner");
+                if (on) c.Step(gun.Destroyed && made == expected, $"{tag}: the revolver becomes {made} industrial scrap on the ground (expected {expected})");
+                else c.Step(!gun.Destroyed && gun.Spawned && made == 0, $"{tag}: the revolver drops whole");
+                c.Step(silverOut == 30, $"{tag}: the carried silver drops untouched ({silverOut})");
+                p.Destroy();
+            }
+            c.Conclude();
+        }
+
+        // Recruiting and lost manipulation share a site: neither leaves anything on the ground, and both destroy their pawns.
+        var sharedCell = sites.Dequeue();
+
+        // ---- 18: recruiting or enslaving a downed raider -------------------------------------------------------------------
+        // Downing never drops apparel, and a colony pawn's gear is never sorted, so a recruit's armour is sorted as he joins.
+        {
+            var c = ctx.Begin(Recruit);
+            bool ready = true;
+            var cell = sharedCell;
+            var ways = ModsConfig.IdeologyActive ? new[] { "recruit", "enslave" } : new[] { "recruit" };
+            if (!ModsConfig.IdeologyActive) c.Note("Enslaving needs Ideology; only recruiting runs on this mod set");
+            foreach (string way in ways)
+            {
+                ModHarness.RestoreSettings();
+                var p = Spawn(ctx, Mercenary, Pirates, cell);
+                var worn = Dress(p, vest, QualityCategory.Normal);
+                int expected = ScrapAmounts.Units(worn.MarketValue, 1);
+                c.Subject(p);
+                HealthUtility.TryAnesthetize(p);
+                p.guest.SetGuestStatus(Faction.OfPlayer, GuestStatus.Prisoner);
+                if (!Kit.Require(ctx, Recruit, (p.Downed && p.IsPrisonerOfColony && p.apparel.Contains(worn), "the pirate is a downed colony prisoner still wearing the vest")))
+                {
+                    ready = false;
+                    break;
+                }
+                if (way == "recruit") RecruitUtility.Recruit(p, Faction.OfPlayer);
+                else p.guest.SetGuestStatus(Faction.OfPlayer, GuestStatus.Slave); // what GenGuest.EnslavePrisoner calls
+                int inPack = p.inventory.innerContainer.Where(t => t.def == industrial).Sum(t => t.stackCount);
+                c.Observe(way + "Faction", p.Faction?.Name ?? "none").Observe(way + "ScrapInPack", inPack)
+                    .Observe(way + "Vest", worn.Destroyed ? "destroyed" : p.apparel.Contains(worn) ? "worn" : "elsewhere");
+                c.Step(p.Faction == Faction.OfPlayer, $"{way}: he joins the colony");
+                c.Step(worn.Destroyed && inPack == expected, $"{way}: the vest becomes {inPack} industrial scrap in his pack (expected {expected})");
+                p.Destroy();
+            }
+            if (ready) c.Conclude();
+        }
+
+        // ---- 18: lost manipulation ------------------------------------------------------------------------------------------
+        // Pawn_HealthTracker drops the weapon of a pawn that can no longer manipulate, without downing him.
+        {
+            var c = ctx.Begin(Manipulation);
+            ModHarness.RestoreSettings();
+            var cell = sharedCell;
+            var p = Spawn(ctx, Mercenary, Pirates, cell);
+            var gun = Arm(p, revolver, QualityCategory.Normal);
+            int expected = ScrapAmounts.Units(gun.MarketValue, 1);
+            c.Subject(p);
+            var before = Kit.StackIds(map, revolver);
+            foreach (var shoulder in p.RaceProps.body.AllParts.Where(x => x.def == BodyPartDefOf.Shoulder).ToList())
+            {
+                var missing = (Hediff_MissingPart)HediffMaker.MakeHediff(HediffDefOf.MissingBodyPart, p, shoulder);
+                missing.IsFresh = false;
+                p.health.AddHediff(missing, shoulder);
+            }
+            ctx.Setup($"Developer removed both shoulders of {p.LabelShort} (not fresh, so no bleeding)");
+            if (Kit.Require(ctx, Manipulation, (!p.Dead && !p.Downed, "the pirate is alive and standing"),
+                (!p.health.capacities.CapableOf(PawnCapacityDefOf.Manipulation), "the pirate can no longer manipulate")))
+            {
+                int inPack = p.inventory.innerContainer.Where(t => t.def == industrial).Sum(t => t.stackCount);
+                int whole = NewNear(map, revolver, before, cell).Count;
+                c.Observe("primary", p.equipment.Primary?.def.defName ?? "none").Observe("scrapInPack", inPack).Observe("revolversOnGround", whole);
+                c.Step(p.equipment.Primary == null, "he no longer holds a weapon");
+                c.Step(gun.Destroyed && inPack == expected && whole == 0, $"the revolver became {inPack} industrial scrap in his pack (expected {expected}), none dropped whole");
+                c.Conclude();
+            }
+            p.Destroy();
+        }
+
+        // ---- 18: no item judged twice ---------------------------------------------------------------------------------------
+        // Death and downing call DropAndForbidEverything and TryDropEquipment, and stripping calls TryDropEquipment, from inside
+        // the moments the mod already sorted. Each outcome the mod applies is counted per item.
+        {
+            var c = ctx.Begin(DropCallsOnce);
+            var club = Kit.Def("MeleeWeapon_Club");
+            var apply = AccessTools.Method("LootScavenging.Loot.OutcomeApplier:Apply");
+            if (apply == null) c.SetupFailed("OutcomeApplier.Apply not found");
+            else
+            {
+                var harmony = new Harmony(ModHarness.HarmonyIdMoments);
+                judged.Clear();
+                harmony.Patch(apply, prefix: new HarmonyMethod(typeof(MomentsBatch), nameof(CountJudged)));
+                try
+                {
+                    var cell = sites.Dequeue();
+                    foreach (string way in new[] { "death", "downed then death", "arrest", "strip" })
+                    {
+                        ModHarness.RestoreSettings();
+                        Settings.values.deathDrop = DeathDrop.Ground;
+                        Rules.weapons = new CategoryRule(Outcome.Degrade);
+                        var p = Spawn(ctx, Mercenary, Pirates, cell);
+                        var weapon = Arm(p, club, QualityCategory.Normal);
+                        c.Subject(p);
+                        int downed = -1;
+                        switch (way)
+                        {
+                            case "death": p.Kill(null); break;
+                            case "downed then death":
+                                HealthUtility.TryAnesthetize(p);
+                                downed = judged.TryGetValue(weapon, out int n) ? n : 0;
+                                p.Kill(null);
+                                break;
+                            case "arrest": p.guest.SetGuestStatus(Faction.OfPlayer, GuestStatus.Prisoner); break;
+                            case "strip": p.Strip(); break;
+                        }
+                        int times = judged.TryGetValue(weapon, out int t) ? t : 0;
+                        c.Observe(way, times);
+                        if (downed >= 0) c.Observe("atDowning", downed);
+                        c.Step(times == 1 && (downed < 0 || downed == 1), $"{way}: the club is judged once ({times}{(downed >= 0 ? $", {downed} at the downing" : "")})");
+                        c.Step(!weapon.Destroyed && weapon.HitPoints < weapon.MaxHitPoints, $"{way}: the club is degraded ({weapon.HitPoints}/{weapon.MaxHitPoints}), not destroyed");
+                        p.Corpse?.Destroy();
+                        if (!p.Destroyed) p.Destroy();
+                        if (weapon.Spawned) weapon.Destroy();
+                    }
+                    c.Conclude();
+                }
+                finally { harmony.UnpatchAll(ModHarness.HarmonyIdMoments); }
+            }
         }
 
         // ---- 03/10: scrap on the body ------------------------------------------------------------------------------------

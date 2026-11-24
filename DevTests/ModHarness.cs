@@ -56,6 +56,7 @@ public sealed class ModHarness : HarnessSettings
     public static void SavePlayerTechLevel() => savedPlayerTechLevel = Faction.OfPlayer.def.techLevel;
 
     public const string HarmonyIdUi = "kylemhb.lootscavenging.devtests.ui";
+    public const string HarmonyIdMoments = "kylemhb.lootscavenging.devtests.moments";
 
     public override void OnBatchEnd()
     {

@@ -48,6 +48,16 @@ internal static class GearSorter
         }
     }
 
+    /// <summary>Sorts one weapon a living pawn is about to drop on its own, outside the moments that drop everything.</summary>
+    public static void SortEquipment(Pawn pawn, ThingWithComps eq, Moment moment)
+    {
+        Map map = pawn.MapHeld;
+        if (map == null)
+            return;
+        Judge(pawn, eq, OwnerOf(pawn), moment, map.IsPlayerHome ? MapKind.Home : MapKind.Away, ItemCategory.Weapon,
+            LootScavengingMod.Settings.values.rules);
+    }
+
     public static OwnerGroup OwnerOf(Pawn pawn)
     {
         // Faction-level hostility, because Thing.HostileTo is always false for a destroyed (dead) pawn.
