@@ -75,4 +75,4 @@ Filming the raid GIF again under the new defaults is a separate step after this 
 8. **DevTests baseline.** The moments, outcomes, settings and saves batches set loot on the ground (`ModHarness.LootOnGround`) so their older cases keep testing what they were written for; smoke keeps the real defaults. PreviewStory uses "Keep his weapon" for its drop scene.
 9. **Changelog.** The 0.5.2 "judged again with everything on the body" fix line was removed, since that path no longer exists.
 
-Not verified in game: a colony slave (needs Ideology; it takes the same check as a colonist), the ui and milestone batches, 1.6 (compiled only), PreviewStory and WorkshopClips (compiled, not filmed).
+Not verified in game: a colony slave (needs Ideology; it takes the same check as a colonist), the ui and milestone batches, 1.6 (compiled only), PreviewStory (compiled, not filmed). WorkshopClips was filmed afterwards for the raid GIF (see "Raid GIF refilmed under the 0.5.2 defaults").

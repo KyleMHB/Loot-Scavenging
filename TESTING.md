@@ -96,7 +96,7 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 - Version/environment: RimWorld 1.7, seed 1, English, after `deploy.ps1`; 1.7, 1.6 and DevTests builds clean; `dotnet test` 370 passed; `rwtranslate status` 0 untranslated, 0 outdated for ChineseSimplified and Russian, check passed.
 - Runs: moments `20261124-183115-lootscavenging-moments-s1-cddfaa1b` 37 pass, 1 skip (Hospitality not loaded); saves `20261124-183010-lootscavenging-saves-s1-bb3ab998` 7/7; settings `20261124-183008-lootscavenging-settings-s1-51f746b0` 10/10; smoke `20261124-183104-lootscavenging-smoke-s1-5caca575` 9/9; outcomes `20261124-183002-lootscavenging-outcomes-s1-0a152c3f` 18 pass, 1 skip (ammunition needs an ammo mod). With `--mods compat-hospitality`: moments `20261124-183120-lootscavenging-moments-s1-668582d7` 38/38, `hospitality-downed-guest` included.
 - Earlier smoke run `20261124-182941-lootscavenging-smoke-s1-96e098ca` failed `tribal-scrap`: with everything on the body the silver is in the corpse, and `Kit.CountOnMap` stops counting items a pawn held once he is a corpse. The case now counts new stacks.
-- Not verified in game: a colony slave (needs Ideology; covered by the same check as a colonist), the ui and milestone batches, 1.6 (compiled only), PreviewStory and WorkshopClips (compiled, not filmed).
+- Not verified in game: a colony slave (needs Ideology; covered by the same check as a colonist), the ui and milestone batches, 1.6 (compiled only), PreviewStory (compiled, not filmed). WorkshopClips was filmed afterwards for the raid GIF (see "Raid GIF refilmed under the 0.5.2 defaults").
 - Status: Passed.
 
 ### 2026-11-24 - Downed pawns keep the weapon when set down again (ticket 23, 0.5.2)
