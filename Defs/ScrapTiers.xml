@@ -29,13 +29,13 @@
     <benches>
       <li>CraftingSpot</li>
     </benches>
-    <valuePerUnit>6</valuePerUnit>
+    <valuePerUnit>3</valuePerUnit>
     <pool>
       <li><thing>WoodLog</thing><weight>40</weight></li>
       <li><thing>Leather_Plain</thing><weight>30</weight></li>
       <li><thing>Cloth</thing><weight>30</weight></li>
     </pool>
-    <workPerUnit>80</workPerUnit>
+    <workPerUnit>40</workPerUnit>
   </LootScavenging.ScrapTierDef>
 
   <LootScavenging.ScrapTierDef>
@@ -47,7 +47,7 @@
       <li>FueledSmithy</li>
       <li>ElectricSmithy</li>
     </benches>
-    <valuePerUnit>9</valuePerUnit>
+    <valuePerUnit>4.5</valuePerUnit>
     <pool>
       <li><thing>Steel</thing><weight>60</weight></li>
       <li><thing>Silver</thing><weight>25</weight></li>
@@ -56,7 +56,7 @@
       <li><thing>Cloth</thing><weight>6</weight></li>
       <li><thing>Leather_Plain</thing><weight>3</weight></li>
     </pool>
-    <workPerUnit>100</workPerUnit>
+    <workPerUnit>50</workPerUnit>
   </LootScavenging.ScrapTierDef>
 
   <LootScavenging.ScrapTierDef>
@@ -67,7 +67,7 @@
     <benches>
       <li>TableMachining</li>
     </benches>
-    <valuePerUnit>11</valuePerUnit>
+    <valuePerUnit>5.5</valuePerUnit>
     <pool>
       <li><thing>Steel</thing><weight>40</weight></li>
       <li><thing>ComponentIndustrial</thing><weight>25</weight></li>
@@ -78,7 +78,7 @@
       <li><thing>WoodLog</thing><weight>4</weight></li>
       <li><thing>Leather_Plain</thing><weight>5</weight></li>
     </pool>
-    <workPerUnit>120</workPerUnit>
+    <workPerUnit>60</workPerUnit>
   </LootScavenging.ScrapTierDef>
 
   <LootScavenging.ScrapTierDef>
@@ -89,7 +89,7 @@
     <benches>
       <li>FabricationBench</li>
     </benches>
-    <valuePerUnit>33</valuePerUnit>
+    <valuePerUnit>16.5</valuePerUnit>
     <pool>
       <li><thing>Plasteel</thing><weight>40</weight></li>
       <li><thing>Gold</thing><weight>15</weight></li>
@@ -99,7 +99,7 @@
       <li><thing>Steel</thing><weight>9</weight></li>
       <li><thing>ComponentIndustrial</thing><weight>6</weight></li>
     </pool>
-    <workPerUnit>150</workPerUnit>
+    <workPerUnit>75</workPerUnit>
   </LootScavenging.ScrapTierDef>
 
   <!-- Vanilla has no ultratech or archotech bench, so both use the fabrication bench until a pack names its own. -->
@@ -111,7 +111,7 @@
     <benches>
       <li>FabricationBench</li>
     </benches>
-    <valuePerUnit>48</valuePerUnit>
+    <valuePerUnit>24</valuePerUnit>
     <pool>
       <li><thing>Plasteel</thing><weight>35</weight></li>
       <li><thing>Uranium</thing><weight>15</weight></li>
@@ -121,7 +121,7 @@
       <li><thing>Steel</thing><weight>6</weight></li>
       <li><thing>ComponentIndustrial</thing><weight>9</weight></li>
     </pool>
-    <workPerUnit>180</workPerUnit>
+    <workPerUnit>90</workPerUnit>
   </LootScavenging.ScrapTierDef>
 
   <LootScavenging.ScrapTierDef>
@@ -132,7 +132,7 @@
     <benches>
       <li>FabricationBench</li>
     </benches>
-    <valuePerUnit>65</valuePerUnit>
+    <valuePerUnit>32.5</valuePerUnit>
     <pool>
       <li><thing>Plasteel</thing><weight>35</weight></li>
       <li><thing>Gold</thing><weight>25</weight></li>
@@ -141,7 +141,7 @@
       <li><thing>Uranium</thing><weight>8</weight></li>
       <li><thing>Steel</thing><weight>7</weight></li>
     </pool>
-    <workPerUnit>220</workPerUnit>
+    <workPerUnit>110</workPerUnit>
   </LootScavenging.ScrapTierDef>
 
 </Defs>

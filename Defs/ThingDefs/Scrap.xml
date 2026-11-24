@@ -20,7 +20,7 @@
     <drawerType>MapMeshOnly</drawerType>
     <selectable>true</selectable>
     <altitudeLayer>Item</altitudeLayer>
-    <stackLimit>500</stackLimit>
+    <stackLimit>1000</stackLimit>
     <useHitPoints>false</useHitPoints>
     <healthAffectsPrice>false</healthAffectsPrice>
     <alwaysHaulable>true</alwaysHaulable>
@@ -32,7 +32,7 @@
     <soundDrop>Metal_Drop</soundDrop>
     <statBases>
       <MarketValue>0.01</MarketValue>
-      <Mass>0.1</Mass>
+      <Mass>0.05</Mass>
       <Flammability>0</Flammability>
     </statBases>
     <comps>

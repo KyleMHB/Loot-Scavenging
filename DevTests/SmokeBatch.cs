@@ -32,7 +32,7 @@ public sealed class SmokeBatch : Batch
         new PlannedCase(TribalMedicine, Levels.Mechanical, "ticket 16: industrial medicine drops whole by default; scrap of its era with dropIncludesMedicine on"),
         new PlannedCase(Cleanup, Levels.Mechanical, "poor weapon deleted, good weapon kept, corpse removed, kept apparel on the ground"),
         new PlannedCase(Recycling, Levels.Mechanical, "machining table recycles three tiers, smithy no industrial, vanilla bills kept, products from the pool"),
-        new PlannedCase(Study, Levels.Mechanical, "5 medieval units pay 75 points at factor 1; factor 0 and industrial scrap pay nothing"),
+        new PlannedCase(Study, Levels.Mechanical, "5 medieval units pay 37.5 points at factor 1; factor 0 and industrial scrap pay nothing"),
         new PlannedCase(KeepOriginal, Levels.Mechanical, "out-of-reach charge rifle unfamiliar and not equippable until ChargedShot finishes"),
         new PlannedCase(NoErrors, Levels.Mechanical, "no error naming the mod logged during the batch"),
     };

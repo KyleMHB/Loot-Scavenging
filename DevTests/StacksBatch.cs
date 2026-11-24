@@ -8,7 +8,7 @@ using Verse;
 namespace LootScavenging.DevTests;
 
 // A scene for looking at the scrap art by hand with --keep-open: one column per era, neolithic to archotech, with piles
-// of 1, 10 and 500 (the three textures Graphic_StackCount picks between) and a full stack of studied scrap on top.
+// of 1, 10 and 1000 (the three textures Graphic_StackCount picks between) and a full stack of studied scrap on top.
 // Not a gameplay test: the case passes when every pile was placed. Not part of run-all.
 public sealed class StacksBatch : Batch
 {
@@ -18,7 +18,7 @@ public sealed class StacksBatch : Batch
     public override TimeSpan WallLimit => TimeSpan.FromMinutes(5);
     public override IReadOnlyList<PlannedCase> Plan { get; } = new[] { new PlannedCase("stacks.placed", Levels.Evidence) };
 
-    private static readonly int[] Counts = { 1, 10, 500 };
+    private static readonly int[] Counts = { 1, 10, 1000 };
 
     // Camera size: the 26 by 16 cell area fills a 16:9 frame.
     private const float Zoom = 8f;
@@ -53,7 +53,7 @@ public sealed class StacksBatch : Batch
             expected++;
             if (GenPlace.TryPlaceThing(Fixtures.Stack(studied, studied.stackLimit), new IntVec3(x, 0, area.minZ + 12), map, ThingPlaceMode.Direct)) piles++;
         }
-        ctx.Setup($"Developer laid concrete over {area} and placed {piles} scrap piles: 1, 10 and 500 of each era, and a full studied stack");
+        ctx.Setup($"Developer laid concrete over {area} and placed {piles} scrap piles: 1, 10 and 1000 of each era, and a full studied stack");
 
         var look = area.CenterCell.ToVector3Shifted();
         var config = Find.CameraDriver.config;

@@ -1,6 +1,6 @@
 # 19: Cheaper scrap, with old saves and settings converted once
 
-Status: ready
+Status: done
 
 **Recommended model:** `opus`. It changes saved games and saved settings, and a mistake would silently double or halve a player's scrap or research.
 
@@ -40,3 +40,27 @@ Status: ready
 ## Docs
 
 CHANGELOG 0.5.2 (no version bump), under Changed: scrap is cheaper and comes in larger numbers; existing scrap is doubled once so it keeps its value; custom research values are halved once; ×10 bills. Read `E:\Coding\Templates\writing-copy.md` first. Update `spec.md` wherever it quotes scrap values or study points, and add a TESTING.md line for the new cases.
+
+## What was built
+
+- `valuePerUnit` halved in `Defs/ScrapTiers.xml`; `ScrapAmounts` divides the square root of the value by 4 instead of 8, so an item gives about twice the units. Scrap stacks to 1,000 and weighs half as much per unit.
+- Default study points halved in `Defs/SettingsDefaults.xml` and `SettingValues.DefaultStudyPoints` (5, 7.5, 7.5, 12.5, 17.5, 25).
+- Recycle work stays the same per silver: each tier's `workPerUnit` is halved (80 to 40 through 220 to 110).
+- x10 bills: `LS_Recycle_Bulk_<tier>`, `LS_RecycleStudied_Bulk_<tier>` and `LS_Study_Bulk_<tier>` at every bench with the x1 bill, with translated labels and a description. Ten units per job, ten times the yield or points and work.
+- `DisassembleApplier`: gear with no era worth less than one industrial component gives capped scrap of its tier (possibly none) instead of components. `Disassembly.ComponentsFor` takes a quarter of the units instead of half, so dearer gear gives the same components as before.
+- `ScrapScaleComponent` (GameComponent, key `scrapScale`): a new game starts at 2. A loaded game at 1 doubles every raw and studied scrap stack once (maps recursively, the world's holders including caravans and travelling pods, and world pawns), places overflow beside the stack or in the same container, logs one dev-mode line and sets 2.
+- Settings: a file without `scrapScale` has each saved, unlocked `studyPoints<Tier>` above 0 halved once, is written back at once, and shows the translated note under the research points until the player changes those settings. The Extras preset version is 0.5.2 and both its settings files carry `scrapScale` 2.
+- Tests: four settings-halving unit tests; scrap, recycling and disassembly tests updated. DevTests: `saves.old-scrap-doubled`, `saves.old-scrap-doubled-once`, `bench.recycle-bulk-bill`; bench study and smoke values halved; `outcomes.components-fallback` checks the cheap-gear scrap path.
+
+## Choices made while building
+
+- Units use `sqrt(value)/4`; the scrap market value setting is unchanged, since it already sits below every tier's new value.
+- The settings note shows only when a value above 0 was actually halved.
+- x10 bills start only with at least ten units and take up to ten units from the stacks the game picks. Original-item bills get no x10 variant. Labels use "x10", not "×10", to match the game's own label text.
+- The Extras settings files hold no study-point values, so nothing in them was halved; `packs/progression` and `Presets.cs` use `DefaultStudyPoints` and needed no edit.
+- `ComponentsFor` went from a half to a quarter of the units, so a components-fallback item gives the same components as before the cheaper units. Not in the ticket; it keeps the player's yield.
+- Overflow is placed only after every stack is doubled, so a new stack that merges into a neighbour is never doubled twice. If no spot or container takes it, the stack goes over its limit rather than lose units.
+- The scale is set to 2 even if the doubling throws, so a save is never doubled twice; the error is logged.
+- The game component is the mod's first data in the game file, so loading a save without the mod logs one more missing-class error. `spec.md` and the Workshop text say so.
+- The `outcomes.stack-scrap-by-value` bound "fewer than half a unit per item" became "fewer than one per item": cheaper units make 53 devilstrand give 31, which is correct.
+- The Workshop scrap gallery image was not regenerated.

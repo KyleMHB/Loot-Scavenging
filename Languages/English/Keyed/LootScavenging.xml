@@ -9,6 +9,9 @@
   <!-- Study (ticket 05) -->
   <LootScavenging_StudyPointsPerUnit>Study: {0} research points per unit.</LootScavenging_StudyPointsPerUnit>
   <LootScavenging_StudyNow>Can be studied now for {0}, with a study bill at a research bench.</LootScavenging_StudyNow>
+  <LootScavenging_RecycleBulkLabel>recycle {0} x10</LootScavenging_RecycleBulkLabel>
+  <LootScavenging_StudyBulkLabel>study {0} x10</LootScavenging_StudyBulkLabel>
+  <LootScavenging_BulkBillNote>Does ten bills' work in one job, and starts only when at least {0} units are on hand.</LootScavenging_BulkBillNote>
   <LootScavenging_StudyLabel>study {0}</LootScavenging_StudyLabel>
   <LootScavenging_StudyJob>Studying {0}.</LootScavenging_StudyJob>
   <LootScavenging_StudyDescription>Study {0} for research points toward the current project. Each bill uses up to {1} units, each worth {2} points, and takes longer the more points it pays. The bill waits when the project cannot take this scrap. "Do until you have X" keeps X units in stock.</LootScavenging_StudyDescription>
@@ -162,6 +165,7 @@
   <LootScavenging_StudyPointsMultiplierOff>Scrap cannot be studied: every unit pays 0 points.</LootScavenging_StudyPointsMultiplierOff>
   <LootScavenging_StudyPointsPerTier>Research points per unit, by era</LootScavenging_StudyPointsPerTier>
   <LootScavenging_StudyPointsPerTierExplain>Before the multiplier above. Set an era to 0 and its scrap cannot be studied.</LootScavenging_StudyPointsPerTierExplain>
+  <LootScavenging_StudyPointsHalvedNote>Scrap was made cheaper in 0.5.2, so your research points per unit were halved to keep the same total.</LootScavenging_StudyPointsHalvedNote>
   <LootScavenging_ScrapValue>Scrap market value: {0} silver per unit</LootScavenging_ScrapValue>
   <LootScavenging_ScrapValueLow>Scrap is worth almost nothing, so a stockpile kept for later does not raise colony wealth or sell for silver.</LootScavenging_ScrapValueLow>
   <LootScavenging_ScrapValueHigh>Each unit of scrap is worth {0} silver: stockpiled scrap counts toward colony wealth and can be sold.</LootScavenging_ScrapValueHigh>

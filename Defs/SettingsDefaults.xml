@@ -135,12 +135,12 @@
       <studyEras>ColonyEraAndBelow</studyEras>
       <recycleOrStudy>OneOrTheOther</recycleOrStudy>
       <studyTechprintProjects>false</studyTechprintProjects>
-      <studyPointsNeolithic>10</studyPointsNeolithic>
-      <studyPointsMedieval>15</studyPointsMedieval>
-      <studyPointsIndustrial>15</studyPointsIndustrial>
-      <studyPointsSpacer>25</studyPointsSpacer>
-      <studyPointsUltra>35</studyPointsUltra>
-      <studyPointsArchotech>50</studyPointsArchotech>
+      <studyPointsNeolithic>5</studyPointsNeolithic>
+      <studyPointsMedieval>7.5</studyPointsMedieval>
+      <studyPointsIndustrial>7.5</studyPointsIndustrial>
+      <studyPointsSpacer>12.5</studyPointsSpacer>
+      <studyPointsUltra>17.5</studyPointsUltra>
+      <studyPointsArchotech>25</studyPointsArchotech>
       <studyPointsMultiplier>1</studyPointsMultiplier>
     </values>
     <locked />

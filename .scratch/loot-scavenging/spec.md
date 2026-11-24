@@ -131,14 +131,14 @@ Recycling is a bill at an existing bench, with no new building.
 
 | Scrap tier | Proposed bench | Proposed pool | Proposed value per unit |
 | --- | --- | --- | --- |
-| Neolithic | Crafting spot | Wood, leather, cloth | About 6 silver |
-| Medieval | Smithy | Steel, cloth, wood, silver, with neolithic materials | About 9 silver |
-| Industrial | Machining table | Steel, chemfuel, silver, components, with lower-tier materials | About 11 silver |
-| Spacer | Fabrication bench | Plasteel, gold, uranium, advanced components, with steel and components | About 33 silver |
-| Ultratech | Fabrication bench | Plasteel, uranium, gold, advanced components, with spacer materials | About 48 silver |
-| Archotech | Fabrication bench | Plasteel, gold, advanced components, with spacer materials | About 65 silver |
+| Neolithic | Crafting spot | Wood, leather, cloth | About 3 silver |
+| Medieval | Smithy | Steel, cloth, wood, silver, with neolithic materials | About 4.5 silver |
+| Industrial | Machining table | Steel, chemfuel, silver, components, with lower-tier materials | About 5.5 silver |
+| Spacer | Fabrication bench | Plasteel, gold, uranium, advanced components, with steel and components | About 16.5 silver |
+| Ultratech | Fabrication bench | Plasteel, uranium, gold, advanced components, with spacer materials | About 24 silver |
+| Archotech | Fabrication bench | Plasteel, gold, advanced components, with spacer materials | About 32.5 silver |
 
-Vanilla has no ultratech or archotech bench, so both name the fabrication bench until a pack supplies its own. These are vanilla starting values, set close to the total value of the earlier fixed yields. Weights are set when the table is written. The Progression pack's own benches and materials need checking before the table is fixed.
+Vanilla has no ultratech or archotech bench, so both name the fabrication bench until a pack supplies its own. These are vanilla starting values, set close to the total value of the earlier fixed yields, then halved in 0.5.2 so cheap gear makes scrap instead of nothing (ticket 19). A unit stacks to 1,000. Each recycle and study bill has a x10 variant that handles ten units per job. Weights are set when the table is written. The Progression pack's own benches and materials need checking before the table is fixed.
 
 ### Study
 
@@ -151,11 +151,11 @@ Study is a job in the Research work type: a researcher carries scrap to a resear
 | Nothing eligible | When no project is active, or the active project is a higher era than the scrap, the study job waits and the scrap stays in storage. Its inspect text says why. |
 | Which scrap can be studied | A setting. By default the colony's current era and below, so higher scrap waits until the colony advances. |
 | Recycle or study | A setting. By default each unit is used for one or the other. The alternative studies it first and then recycles the remains at reduced value. |
-| How much | A set number of points per unit for each tier: a setting per tier (default 10, 15, 15, 25, 35, 50; 10, 20, 30, 50, 70, 100 before 2026-11-23) and one multiplier for all (default 100%, 0 to 300%). Zero stops that tier being studied. |
+| How much | A set number of points per unit for each tier: a setting per tier (default 5, 7.5, 7.5, 12.5, 17.5, 25; 10, 15, 15, 25, 35, 50 before 0.5.2; 10, 20, 30, 50, 70, 100 before 2026-11-23) and one multiplier for all (default 100%, 0 to 300%). Zero stops that tier being studied. |
 | Techprint projects | A setting, off by default. Off, projects that need techprints receive nothing. On, study pays into them even before the techprints are applied. Projects with a special study source never receive anything. |
 | Time and skill | Study time scales with the points paid. Research speed applies and the researcher gains Intellectual experience. |
 
-In the two scrap modes the mod saves nothing in the game file and adds no data to items, so it can be removed mid-game by first clearing the scrap.
+In the two scrap modes the mod adds no data to items, so it can be removed mid-game by first clearing the scrap. From 0.5.2 the game file holds one game component with the scrap scale, so a save from before 0.5.2 has its scrap doubled once when it loads; without the mod that component is dropped with one error.
 
 ### Requirements learned from Technology Blueprints & Reverse Engineering
 
@@ -318,7 +318,7 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Raw materials category | Stuff plus the `ResourcesRaw` and `Manufactured` thing categories (mortar shells excluded; components, chemfuel and neutroamine sit under `Manufactured`), a new inventory category kept by default. Settled 2026-11-24. |
 | Materials and eras | Stuff (devilstrand, steel, stone) has no era and is never out of reach, because any colony can build and craft with it. Settled 2026-11-24, after a player's tribal raider dropped 53 spacer scrap from a stack of devilstrand a modded recipe had given a spacer era. |
 | Scrap amount for stacks | Anything that stacks is rounded once per stack, at least one scrap per stack. Single items keep at least one scrap each. Settled 2026-11-24; ammunition alone had this from 2026-11-23. |
-| Scrap is never worth more than its source | Settled 2026-11-24 (Kyle). A unit of a tier is worth the larger of the tier's `valuePerUnit` and the scrap market value setting. After the curve, units are cut to `floor(item or stack value / worth per unit)`, where the value is the thing's market value times its count. Zero means no scrap: the item is removed as with Delete, era-typical and components disassembly yield nothing, and an unfamiliar original has no scrap equivalent to recycle or study. Gear already worth more than its scrap (a 1,650 charge rifle gives 5 spacer units, 165) is unchanged. Studied scrap's research points are not part of its worth. |
+| Scrap is never worth more than its source | Settled 2026-11-24 (Kyle). A unit of a tier is worth the larger of the tier's `valuePerUnit` and the scrap market value setting. After the curve, units are cut to `floor(item or stack value / worth per unit)`, where the value is the thing's market value times its count. Zero means no scrap: the item is removed as with Delete, era-typical and components disassembly yield nothing, and an unfamiliar original has no scrap equivalent to recycle or study. Gear already worth more than its scrap (a 1,650 charge rifle gives 10 spacer units, 165) is unchanged. Studied scrap's research points are not part of its worth. |
 | Recycling yields | A weighted loot pool per tier in XML, with a value per unit. One pick per unit, amount by market value. Lower tiers at about 15% weight. Static. No fixed lines, no keep-in-stock count, and bill text that names no materials. Changed from a fixed table 2026-11-21, because fixed yields oversupplied basic materials. |
 | Recycling gate | The bench alone. A bench handles its tier and below. |
 | Recycling place | Existing benches, no new building. |

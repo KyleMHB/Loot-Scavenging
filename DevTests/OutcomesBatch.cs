@@ -132,12 +132,21 @@ public sealed class OutcomesBatch : Batch
                     Settings.values.eraFallback = EraFallback.Components;
                     ThingWithComps gun = null;
                     int units = 0;
+                    var scrapDef = Scrap(ScrapTiers.TierFor(components.Era, EraReader.ColonyEra()));
                     var before = Kit.StackIds(map, ThingDefOf.ComponentIndustrial);
-                    var at = KillPirate(p => { gun = Arm(p, def, null); units = ExpectedScrapIn(gun, ScrapTiers.TierFor(components.Era, EraReader.ColonyEra())); }, out _);
+                    var beforeScrap = Kit.StackIds(map, scrapDef);
+                    float worth = 0f;
+                    var at = KillPirate(p => { gun = Arm(p, def, null); worth = gun.MarketValue; units = ExpectedScrapIn(gun, ScrapTiers.TierFor(components.Era, EraReader.ColonyEra())); }, out _);
                     var comps = NewNear(map, ThingDefOf.ComponentIndustrial, before, at);
-                    int expectedComps = units < 1 ? 0 : Disassembly.ComponentsFor(units);
-                    c.Expect("components", expectedComps).Observe("components", Units(comps));
-                    c.Step(gun.Destroyed && Units(comps) == expectedComps, $"with the components fallback a pirate's {def.label} breaks into {Units(comps)} components");
+                    var scrapMade = NewNear(map, scrapDef, beforeScrap, at);
+                    // Ticket 19: gear worth less than one component gives its capped scrap instead.
+                    bool cheap = worth < ThingDefOf.ComponentIndustrial.BaseMarketValue;
+                    int expectedComps = units < 1 || cheap ? 0 : Disassembly.ComponentsFor(units);
+                    int expectedScrap = units >= 1 && cheap ? units : 0;
+                    c.Expect("components", expectedComps).Observe("components", Units(comps)).Expect("scrap", expectedScrap).Observe("scrap", Units(scrapMade))
+                        .Observe("value", worth);
+                    c.Step(gun.Destroyed && Units(comps) == expectedComps && Units(scrapMade) == expectedScrap,
+                        $"with the components fallback a pirate's {def.label} breaks into {Units(comps)} components and {Units(scrapMade)} scrap");
                 }
                 else c.Note($"{def.defName} is not a primary weapon, so the components kill was not run");
                 c.Conclude();
@@ -576,7 +585,8 @@ public sealed class OutcomesBatch : Batch
                 c.Expect(def.defName, expected).Observe(def.defName, got).Observe(def.defName + "UnitValue", stack.MarketValue.ToString("0.##")).Observe(def.defName + "Tier", tier);
                 c.Step(era.Source == EraSource.Unknown, $"{def.label} has no era, so its scrap is the colony's tier ({tier})");
                 c.Step(stack.Destroyed && got == expected, $"{count} {def.label} become {got} {tier} scrap (expected {expected} from the stack's value)");
-                c.Step(got < count / 2, $"far fewer than one scrap per item ({got} for {count})");
+                // Rounding each item would give at least one per item; since 0.5.2 a unit is cheap enough that a stack can give over half.
+                c.Step(got < count, $"fewer than one scrap per item ({got} for {count})");
                 c.Observe(def.defName + "ScrapWorth", got * ScrapWorth(tier)).Observe(def.defName + "StackValue", stackValue);
                 c.Step(got * ScrapWorth(tier) <= stackValue + 0.001f, $"the {got} scrap is worth {got * ScrapWorth(tier):0.#}, no more than the stack's {stackValue:0.#}");
                 if (withGun)

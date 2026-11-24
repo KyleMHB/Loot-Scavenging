@@ -53,7 +53,8 @@ public class DisassemblyTests
     public void ComponentsFallbackScalesWithScrapUnits()
     {
         Assert.Equal(1, Disassembly.ComponentsFor(1));
-        Assert.Equal(3, Disassembly.ComponentsFor(6));
+        Assert.Equal(1, Disassembly.ComponentsFor(6));
+        Assert.Equal(3, Disassembly.ComponentsFor(12));
     }
 
     [Fact]

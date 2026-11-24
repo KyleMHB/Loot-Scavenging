@@ -67,10 +67,11 @@ public static class Disassembly
     }
 
     /// <summary>
-    /// Components for gear with no era when the era fallback is "break it into components": half the scrap units it would
-    /// have made, at least one.
+    /// Components for gear with no era when the era fallback is "break it into components": a quarter of the scrap units it
+    /// would have made, at least one. A half before 0.5.2, when a unit was worth twice as much (ticket 19), so an item gives
+    /// the same components as before.
     /// </summary>
-    public static int ComponentsFor(int scrapUnits) => Math.Max(1, scrapUnits / 2);
+    public static int ComponentsFor(int scrapUnits) => Math.Max(1, scrapUnits / 4);
 
     /// <summary>
     /// Whether an outcome ejects the loaded charges first: with the setting on, every outcome that destroys or replaces the

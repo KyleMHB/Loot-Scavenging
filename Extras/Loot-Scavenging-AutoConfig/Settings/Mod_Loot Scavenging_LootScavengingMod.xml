@@ -2,6 +2,7 @@
 <SettingsBlock>
   <ModSettings Class="LootScavenging.LootScavengingSettings">
     <activePreset>Progression</activePreset>
+    <scrapScale>2</scrapScale>
 
     <!-- How this file works.
          Auto Mod Config copies this file into the game's Config folder, replacing the player's saved Loot Scavenging settings.
@@ -11,6 +12,8 @@
          does not give Cleanup's rows: list those rows too, or write a full file.
          A setting a modpack locks always ends at the pack's value, whatever this file says.
          Do not write defaultsSeeded. The mod sets it.
+         Keep scrapScale at 2. A file without it counts as written before 0.5.2, when scrap was worth twice as much, and
+           the mod halves its studyPoints values once.
          Booleans are true or false. Enum values are written exactly as listed. Fractions are 0 to 1.
 
          activePreset: Progression, Cleanup, Vanilla. It only sets which preset the settings page names. The values below

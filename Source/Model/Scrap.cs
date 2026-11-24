@@ -44,10 +44,11 @@ public static class ScrapTiers
 public static class ScrapAmounts
 {
     /// <summary>
-    /// Divides the square root of an item's market value. The root keeps a charge rifle (about 1650) to a handful of units
-    /// instead of hundreds while a stone knife (about 12) stays at one. Tuning knob.
+    /// Divides the square root of an item's market value. The root keeps a charge rifle (about 1650) to about ten units
+    /// instead of hundreds while a stone knife (about 12) stays at one. Tuning knob. 8 before 0.5.2: halving it with the
+    /// tiers' value per unit (ticket 19) gives about twice the units, each worth half as much.
     /// </summary>
-    public const float ValueScale = 8f;
+    public const float ValueScale = 4f;
 
     /// <summary>
     /// Scrap units for a stack. <paramref name="unitMarketValue"/> is the game's market value of one item, which already

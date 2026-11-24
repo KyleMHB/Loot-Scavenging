@@ -45,14 +45,15 @@ public sealed class SettingValues
     public const float MaxStudyPoints = 1000f;
     public const float MaxStudyPointsMultiplier = 3f;
 
+    // Halved in 0.5.2 with the scrap value (ticket 19): twice the units at half the points keeps the research per item.
     public static float DefaultStudyPoints(ScrapTier tier) => tier switch
     {
-        ScrapTier.Neolithic => 10f,
-        ScrapTier.Medieval => 15f,
-        ScrapTier.Industrial => 15f,
-        ScrapTier.Spacer => 25f,
-        ScrapTier.Ultra => 35f,
-        _ => 50f,
+        ScrapTier.Neolithic => 5f,
+        ScrapTier.Medieval => 7.5f,
+        ScrapTier.Industrial => 7.5f,
+        ScrapTier.Spacer => 12.5f,
+        ScrapTier.Ultra => 17.5f,
+        _ => 25f,
     };
 
     /// <summary>The points set for a tier, before the multiplier.</summary>

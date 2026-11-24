@@ -226,4 +226,8 @@
 	<LootScavenging_JoinMarkExplain>他们会继续穿戴和手持原有的装备。超出殖民地研究进度的装备会被标记，脱下后，在完成其研究前，任何殖民者都无法使用。在任何掉落模式下都有效。</LootScavenging_JoinMarkExplain>
 	<LootScavenging_JoinFollowExplain>他们加入时，身上穿着的衣物和手持的武器会按被剥光时的方式处理，依据掉落模式和物品规则，并仅限上方勾选的群体。</LootScavenging_JoinFollowExplain>
 	<LootScavenging_JoinLeaveExplain>他们加入时，其装备不受影响。</LootScavenging_JoinLeaveExplain>
+	<LootScavenging_RecycleBulkLabel>回收{0} x10</LootScavenging_RecycleBulkLabel>
+	<LootScavenging_StudyBulkLabel>调查{0} x10</LootScavenging_StudyBulkLabel>
+	<LootScavenging_BulkBillNote>一次工作完成十个清单的量，库存至少有{0}单位时才会开始。</LootScavenging_BulkBillNote>
+	<LootScavenging_StudyPointsHalvedNote>0.5.2版降低了废料的价值，因此每单位的研究点数已减半，总量保持不变。</LootScavenging_StudyPointsHalvedNote>
 </LanguageData>

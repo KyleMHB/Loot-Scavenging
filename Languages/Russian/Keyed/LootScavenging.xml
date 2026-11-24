@@ -226,4 +226,8 @@
 	<LootScavenging_JoinMarkExplain>Они продолжают носить и держать то, с чем пришли. Снаряжение вне досягаемости поселения получает пометку «незнакомая технология», и после того как его снимут, никто из поселенцев не сможет им пользоваться, пока не завершено исследование. Работает в любом режиме выпадения.</LootScavenging_JoinMarkExplain>
 	<LootScavenging_JoinFollowExplain>В момент присоединения их одежда и оружие в руках обрабатываются так, как будто персонажей раздели, по режиму выпадения и правилам для предметов, для отмеченных выше групп.</LootScavenging_JoinFollowExplain>
 	<LootScavenging_JoinLeaveExplain>Их снаряжение при присоединении не затрагивается.</LootScavenging_JoinLeaveExplain>
+	<LootScavenging_RecycleBulkLabel>переработать {0} x10</LootScavenging_RecycleBulkLabel>
+	<LootScavenging_StudyBulkLabel>изучить {0} x10</LootScavenging_StudyBulkLabel>
+	<LootScavenging_BulkBillNote>Выполняет работу десяти заданий за один раз и начинается, только когда в наличии не меньше единиц: {0}.</LootScavenging_BulkBillNote>
+	<LootScavenging_StudyPointsHalvedNote>В версии 0.5.2 лом стал дешевле, поэтому ваши очки исследования за единицу уменьшены вдвое, чтобы итог остался прежним.</LootScavenging_StudyPointsHalvedNote>
 </LanguageData>

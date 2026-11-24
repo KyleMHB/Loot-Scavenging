@@ -16,11 +16,14 @@ namespace LootScavenging;
 internal static class StudyRecipes
 {
     public const string DefNamePrefix = "LS_Study_"; // not translated
+    // The ×10 bills (ticket 19), e.g. LS_Study_Bulk_Spacer.
+    public const string BulkDefNamePrefix = "LS_Study_Bulk_"; // not translated
     public const string WorkGiverDefName = "LS_DoBillsStudy"; // not translated
 
     private static readonly Dictionary<RecipeDef, ScrapTier> tierOf = new Dictionary<RecipeDef, ScrapTier>();
+    private static readonly HashSet<RecipeDef> bulk = new HashSet<RecipeDef>();
 
-    /// <summary>The scrap tier a study recipe is for; false for every other recipe.</summary>
+    /// <summary>The scrap tier a study recipe, ×1 or ×10, is for; false for every other recipe.</summary>
     public static bool TryGetTier(RecipeDef recipe, out ScrapTier tier)
     {
         if (recipe != null && tierOf.TryGetValue(recipe, out tier))
@@ -28,6 +31,9 @@ internal static class StudyRecipes
         tier = default;
         return false;
     }
+
+    /// <summary>How many ×1 batches one iteration of the recipe studies: 10 for a ×10 bill, otherwise 1.</summary>
+    public static int Factor(RecipeDef recipe) => recipe != null && bulk.Contains(recipe) ? BulkBills.Factor : 1;
 
     private static void Postfix(bool hotReload)
     {
@@ -49,18 +55,20 @@ internal static class StudyRecipes
 
             foreach (ScrapTier tier in (ScrapTier[])Enum.GetValues(typeof(ScrapTier)))
             {
-                string defName = DefNamePrefix + tier;
-                RecipeDef existing = DefDatabase<RecipeDef>.GetNamedSilentFail(defName);
-                if (existing != null)
+                foreach (bool isBulk in new[] { false, true })
                 {
-                    tierOf[existing] = tier;
-                    continue;
+                    string defName = (isBulk ? BulkDefNamePrefix : DefNamePrefix) + tier;
+                    RecipeDef existing = DefDatabase<RecipeDef>.GetNamedSilentFail(defName);
+                    if (existing != null)
+                    {
+                        Register(existing, tier, isBulk);
+                        continue;
+                    }
+                    RecipeDef recipe = Build(tier, defName, benches, isBulk);
+                    if (recipe == null)
+                        continue;
+                    DefGenerator.AddImpliedDef(recipe, hotReload);
                 }
-                RecipeDef recipe = Build(tier, defName, benches);
-                if (recipe == null)
-                    continue;
-                tierOf[recipe] = tier;
-                DefGenerator.AddImpliedDef(recipe, hotReload);
             }
         }
         catch (Exception e)
@@ -86,10 +94,21 @@ internal static class StudyRecipes
     private static void ApplyPoints(RecipeDef recipe, ScrapTier tier, ThingDef scrap)
     {
         float pointsPerUnit = ScrapStudy.PointsPerUnit(tier);
-        int batch = StudyRules.BatchUnits(pointsPerUnit);
-        recipe.description = "LootScavenging_StudyDescription".Translate(scrap.label, batch.ToString(), pointsPerUnit.ToString("0.#"));
-        // Nominal, one unit's worth: the real work is set per iteration from the points it pays (BillWorkPatch).
-        recipe.workAmount = Math.Max(1f, pointsPerUnit) * StudyRules.TicksPerPoint;
+        int factor = Factor(recipe);
+        int batch = StudyRules.BatchUnits(pointsPerUnit) * factor;
+        string description = "LootScavenging_StudyDescription".Translate(scrap.label, batch.ToString(), pointsPerUnit.ToString("0.#"));
+        if (factor > 1)
+            description += " " + "LootScavenging_BulkBillNote".Translate(BulkBills.MinUnits.ToString());
+        recipe.description = description;
+        // Nominal, one unit's worth per ×1 batch: the real work is set per iteration from the points it pays (BillWorkPatch).
+        recipe.workAmount = Math.Max(1f, pointsPerUnit) * StudyRules.TicksPerPoint * factor;
+    }
+
+    private static void Register(RecipeDef recipe, ScrapTier tier, bool isBulk)
+    {
+        tierOf[recipe] = tier;
+        if (isBulk)
+            bulk.Add(recipe);
     }
 
     private static ThingDef ScrapFor(ScrapTier tier) =>
@@ -113,19 +132,23 @@ internal static class StudyRecipes
         return benches;
     }
 
-    private static RecipeDef Build(ScrapTier tier, string defName, List<ThingDef> benches)
+    private static RecipeDef Build(ScrapTier tier, string defName, List<ThingDef> benches, bool isBulk)
     {
         // Built even when the tier's points are zero, so raising them in the settings needs no restart.
         ThingDef scrap = ScrapFor(tier);
         if (scrap == null)
             return null;
 
-        RecipeDef recipe = BillRecipes.New(defName, new List<ThingDef>(benches), ScrapStudy.IngredientDefs(scrap), 1f, allowedByDefault: true);
-        recipe.label = "LootScavenging_StudyLabel".Translate(scrap.label);
+        // The ×10 bill names ten units, so it waits until ten are on hand and a smaller pile is left to the ×1 bill; the cap
+        // patch then lets it take up to ten ×1 batches (BillIngredientCapPatch).
+        RecipeDef recipe = BillRecipes.New(defName, new List<ThingDef>(benches), ScrapStudy.IngredientDefs(scrap),
+            isBulk ? BulkBills.MinUnits : 1f, allowedByDefault: true);
+        recipe.label = (isBulk ? "LootScavenging_StudyBulkLabel" : "LootScavenging_StudyLabel").Translate(scrap.label);
         recipe.jobString = "LootScavenging_StudyJob".Translate(scrap.label);
+        Register(recipe, tier, isBulk);
         ApplyPoints(recipe, tier, scrap);
-        // A whole stack of any size, so a lone unit is studied too; an iteration uses at most a batch of it.
-        recipe.ignoreIngredientCountTakeEntireStacks = true;
+        // The ×1 bill takes a whole stack of any size, so a lone unit is studied too; an iteration uses at most a batch of it.
+        recipe.ignoreIngredientCountTakeEntireStacks = !isBulk;
         recipe.workerClass = typeof(RecipeWorker_Study);
         recipe.workerCounterClass = typeof(RecipeWorkerCounter_Study);
         BillRecipes.LikeResearch(recipe);

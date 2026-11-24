@@ -64,6 +64,9 @@ internal sealed class SettingsPage
             if (defValuesAfter[i] != defValuesBefore[i])
             {
                 LootScavengingMod.ApplySettingsToDefs();
+                // Index 0 is the scrap value; the rest are the research points the 0.5.2 note is about.
+                if (i > 0)
+                    s.studyPointsHalvedNote = false;
                 break;
             }
         }
@@ -84,6 +87,7 @@ internal sealed class SettingsPage
     private void ValuesReplaced()
     {
         Array.Clear(pointBuffers, 0, pointBuffers.Length);
+        s.studyPointsHalvedNote = false;
         LootScavengingMod.ApplySettingsToDefs();
     }
 
@@ -461,6 +465,8 @@ internal sealed class SettingsPage
         }
         Outdent(ls);
         Explain(ls, "LootScavenging_StudyPointsPerTierExplain".Translate());
+        if (s.studyPointsHalvedNote)
+            Explain(ls, "LootScavenging_StudyPointsHalvedNote".Translate());
     }
 
     private static string DeathDropName(DeathDrop drop)
