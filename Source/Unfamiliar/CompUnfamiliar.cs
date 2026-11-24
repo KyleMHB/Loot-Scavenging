@@ -6,7 +6,7 @@ namespace LootScavenging;
 
 /// <summary>
 /// Added to every weapon and apparel def at startup (see <see cref="Unfamiliar"/>). It carries the unfamiliar label and
-/// inspect line, and the looted marker for the looted-only scope. The marker is saved only when set, so the default scope
+/// inspect line, and the looted marker for the looted-only scope and the join mark for gear its wearer joined in. Each is saved only when set, so the default scope
 /// writes nothing to a save.
 /// </summary>
 public class CompProperties_Unfamiliar : CompProperties
@@ -22,11 +22,24 @@ public class CompUnfamiliar : ThingComp
     /// <summary>The era the item had when it was looted; Undefined means the item carries no marker.</summary>
     public Era lootedEra = Era.Undefined;
 
+    /// <summary>
+    /// The era the item had when its wearer joined the colony wearing it (ticket 20); Undefined means no join mark. Unlike
+    /// the looted marker it makes the item unfamiliar in every drop mode.
+    /// </summary>
+    public Era joinedEra = Era.Undefined;
+
+    /// <summary>The era either marker saved, for the scrap an unfamiliar item counts as.</summary>
+    public Era MarkedEra => lootedEra != Era.Undefined ? lootedEra : joinedEra;
+
     public override void PostExposeData()
     {
         int saved = (int)lootedEra;
         Scribe_Values.Look(ref saved, "lootScavengingLootedEra", 0);
         lootedEra = (Era)saved;
+
+        int joined = (int)joinedEra;
+        Scribe_Values.Look(ref joined, "lootScavengingJoinedEra", 0);
+        joinedEra = (Era)joined;
     }
 
     public override string TransformLabel(string label)

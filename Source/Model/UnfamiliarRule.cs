@@ -30,6 +30,21 @@ public static class UnfamiliarRule
         return outOfReachNow || markedEra > colonyEra;
     }
 
+    /// <summary>
+    /// Whether a join mark (ticket 20) still holds. It does in every drop mode and scope: the mark is the player's choice for
+    /// that item, not a consequence of the drop mode. Like the looted marker, it keeps the era the item had when its owner
+    /// joined, so gear whose era came only from its carrier clears once the colony catches up.
+    /// </summary>
+    public static bool JoinMarkHolds(Era joinedEra, bool outOfReachNow, Era colonyEra)
+    {
+        if (joinedEra == Era.Undefined)
+            return false;
+        return outOfReachNow || joinedEra > colonyEra;
+    }
+
+    /// <summary>Whether a worn or held item gets the join mark: only gear that is out of reach as its owner joins, and it never gets one when the setting leaves it alone.</summary>
+    public static bool ShouldMarkJoining(JoinerGear setting, bool outOfReach) => setting == JoinerGear.MarkUnfamiliar && outOfReach;
+
     /// <summary>Whether a kept item gets the looted marker: only in looted-only scope, for gear from a pawn outside the colony.</summary>
     public static bool ShouldMark(DropMode mode, UnfamiliarScope scope, OwnerGroup owner, bool outOfReach)
     {

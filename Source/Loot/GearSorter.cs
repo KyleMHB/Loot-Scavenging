@@ -32,10 +32,10 @@ internal static class GearSorter
 
         if (apparel && pawn.apparel != null)
         {
-            // A living pawn keeps locked apparel when stripped. At death it is sorted like the rest: the Kill prefix runs
-            // before the pawn is dead, so this tests the moment, not pawn.Dead.
+            // A living pawn keeps locked apparel when stripped or joining. At death it is sorted like the rest: the Kill
+            // prefix runs before the pawn is dead, so this tests the moment, not pawn.Dead.
             IEnumerable<Apparel> worn = pawn.apparel.WornApparel.ToList();
-            if (moment == Moment.Strip)
+            if (moment == Moment.Strip || moment == Moment.Join)
                 worn = worn.Where(ap => !pawn.apparel.IsLocked(ap));
             foreach (Apparel ap in worn)
                 Judge(pawn, ap, owner, moment, mapKind, ItemCategory.Apparel, rules);

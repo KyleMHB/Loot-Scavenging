@@ -90,6 +90,9 @@ public static class Presets
         r.other = Keep();
         r.dropIncludesMedicine = false;
         r.dropIncludesAmmunition = false;
+        // No era handling in Cleanup and Vanilla, so nobody's gear is touched as they join.
+        r.prisonerJoinGear = JoinerGear.LeaveAlone;
+        r.otherJoinGear = JoinerGear.LeaveAlone;
         v.corpses.humanlike = false;
         v.corpses.animal = false;
         v.corpses.mechanoid = false;
@@ -129,6 +132,8 @@ public static class Presets
         r.homeMapOnly = false;
         r.dropIncludesMedicine = false;
         r.dropIncludesAmmunition = false;
+        r.prisonerJoinGear = JoinerGear.FollowDropMode;
+        r.otherJoinGear = JoinerGear.MarkUnfamiliar;
         r.weapons = Keep();
         r.apparel = Keep();
         r.ammunition = Keep();

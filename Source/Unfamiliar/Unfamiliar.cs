@@ -38,19 +38,26 @@ public static class Unfamiliar
     public static bool IsUnfamiliar(Thing thing)
     {
         LootScavengingSettings settings = LootScavengingMod.Settings;
-        if (settings == null || settings.values.rules.dropMode != DropMode.KeepOriginal || thing == null
-            || Current.ProgramState != ProgramState.Playing || !IsGear(thing.def) || IsProtected(thing, settings))
-        {
+        if (settings == null || thing == null || Current.ProgramState != ProgramState.Playing)
             return false;
-        }
+
+        // Labels ask for every weapon and apparel item each frame, so the common case (no join mark, drop mode other than
+        // keep-original) answers before any research or protection lookup.
+        var comp = (thing as ThingWithComps)?.GetComp<CompUnfamiliar>();
+        bool joinMarked = comp != null && comp.joinedEra != Era.Undefined;
+        bool keepsOriginals = settings.values.rules.dropMode == DropMode.KeepOriginal;
+        if (!joinMarked && !keepsOriginals || !IsGear(thing.def) || IsProtected(thing, settings))
+            return false;
 
         Refresh(settings);
         EraResult reach = ReachOf(thing.def);
-        Era marked = Era.Undefined;
-        if (settings.values.unfamiliarScope == UnfamiliarScope.LootedOnly && thing is ThingWithComps withComps)
-        {
-            marked = withComps.GetComp<CompUnfamiliar>()?.lootedEra ?? Era.Undefined;
-        }
+        // A join mark (ticket 20) holds in every drop mode: the player chose it for gear its wearer joined in.
+        if (joinMarked && UnfamiliarRule.JoinMarkHolds(comp.joinedEra, reach.OutOfReach, colonyEra))
+            return true;
+        if (!keepsOriginals)
+            return false;
+
+        Era marked = settings.values.unfamiliarScope == UnfamiliarScope.LootedOnly ? comp?.lootedEra ?? Era.Undefined : Era.Undefined;
         return UnfamiliarRule.IsUnfamiliar(settings.values.rules.dropMode, settings.values.unfamiliarScope, reach.OutOfReach, marked, colonyEra);
     }
 
@@ -59,6 +66,41 @@ public static class Unfamiliar
     {
         // Raiders and other factions' pawns pick up whatever they like; only the colony is held back.
         return pawn != null && pawn.Faction != null && pawn.Faction.IsPlayer && IsUnfamiliar(thing);
+    }
+
+    /// <summary>
+    /// Marks the out-of-reach apparel a pawn wears and the equipment he holds as he joins the colony ("mark unfamiliar", ticket
+    /// 20). Protected items are never marked. <paramref name="carrier"/> is the faction he came from, whose era reads gear with
+    /// no research of its own. Locked apparel stays as it is, as at a strip.
+    /// </summary>
+    public static void MarkJoining(Pawn pawn, Faction carrier)
+    {
+        LootScavengingSettings settings = LootScavengingMod.Settings;
+        if (settings == null)
+            return;
+        if (pawn.equipment != null)
+        {
+            foreach (ThingWithComps eq in pawn.equipment.AllEquipmentListForReading)
+                MarkJoiningItem(eq, carrier, settings);
+        }
+        if (pawn.apparel != null)
+        {
+            foreach (Apparel ap in pawn.apparel.WornApparel)
+            {
+                if (!pawn.apparel.IsLocked(ap))
+                    MarkJoiningItem(ap, carrier, settings);
+            }
+        }
+    }
+
+    private static void MarkJoiningItem(ThingWithComps thing, Faction carrier, LootScavengingSettings settings)
+    {
+        CompUnfamiliar comp = thing.GetComp<CompUnfamiliar>();
+        if (comp == null || !IsGear(thing.def) || IsProtected(thing, settings))
+            return;
+        EraResult reach = EraReader.ItemEra(thing.def, carrier);
+        if (UnfamiliarRule.ShouldMarkJoining(JoinerGear.MarkUnfamiliar, reach.OutOfReach))
+            comp.joinedEra = UnfamiliarRule.MarkerEra(reach);
     }
 
     /// <summary>Called for each item the sorter keeps. Sets the looted marker when the scope calls for it.</summary>

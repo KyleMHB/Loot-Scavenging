@@ -109,6 +109,9 @@ Vanilla uses "study" for Anomaly's entity study. This mod's study is the same ac
 | caravan | 远行队 | караван | Keyed `Caravan` |
 | outpost | 哨所 | лагерь | SitePartDef `Outpost.label` |
 | OK (button) | 确定 | OK (Latin letters, as vanilla) | Keyed `OK` |
+| recruit | 招募 | вербовать (вербовка) | Keyed `RecruitSuccess`; Russian `RecruitDifficulty` |
+| enslave / slave | 奴役 / 奴隶 | поработить / раб | Keyed `OptionalEnslaveDesc`, `Slave` (Ideology) |
+| wanderer / refugee | 流浪者 / 难民 | странник / беженец | Keyed `ChooseNewWanderers` (Russian), `Refugee` |
 
 ## Mod terms
 

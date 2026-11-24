@@ -12,9 +12,9 @@ namespace LootScavenging.Loot;
 // gear the game is about to drop at that moment. Call order and signatures: spec, "Unverified".
 // An exception here would stop the game method itself (a pawn that cannot die), so each hook logs and carries on.
 //
-// The game also drops a living pawn's gear outside those three (ticket 18): an arrest or a trade (DropAndForbidEverything),
-// a lost grip (TryDropEquipment), and a prisoner recruited or enslaved keeps his apparel as a colony pawn. Those count as
-// the downed-and-strip moment. Death, downing and stripping call DropAndForbidEverything or TryDropEquipment themselves,
+// The game also drops a living pawn's gear outside those three (ticket 18): an arrest or a trade (DropAndForbidEverything)
+// and a lost grip (TryDropEquipment). Those count as the downed-and-strip moment. A pawn joining the colony keeps his gear
+// as a colony pawn; JoinerHooks.cs handles that (ticket 20). Death, downing and stripping call DropAndForbidEverything or TryDropEquipment themselves,
 // so a pawn whose drop this mod is already sorting is marked for the length of that call and the inner hooks leave it
 // alone: no item is judged twice.
 
@@ -258,47 +258,5 @@ internal static class DropEquipmentHook
         resultingEq = null;
         __result = true;
         return false;
-    }
-}
-
-// Recruiting a prisoner. RecruitUtility.Recruit clears the prisoner status before it changes the faction, so this runs
-// first, while he is still judged as the prisoner he was. Worn apparel is sorted with strip's rules: a downed raider's armour
-// is never dropped while he is downed, and once he is a colony pawn it would never be sorted. Only prisoners: a pawn who
-// joins through a quest is not loot.
-[HarmonyPatch(typeof(RecruitUtility), nameof(RecruitUtility.Recruit))]
-internal static class RecruitHook
-{
-    [HarmonyPriority(Priority.Last)]
-    private static void Prefix(Pawn pawn, Faction faction, bool __runOriginal) => JoiningPrisoner.Sort(pawn, faction, __runOriginal);
-}
-
-// Enslaving a prisoner sets the slave status, which moves him to the player's faction.
-[HarmonyPatch(typeof(Pawn_GuestTracker), nameof(Pawn_GuestTracker.SetGuestStatus))]
-internal static class EnslaveHook
-{
-    [HarmonyPriority(Priority.Last)]
-    private static void Prefix(Pawn ___pawn, Faction newHost, GuestStatus guestStatus, bool __runOriginal)
-    {
-        if (guestStatus == GuestStatus.Slave)
-            JoiningPrisoner.Sort(___pawn, newHost, __runOriginal);
-    }
-}
-
-internal static class JoiningPrisoner
-{
-    public static void Sort(Pawn pawn, Faction newFaction, bool runOriginal)
-    {
-        // A downed prisoner counts too: downing never sorts apparel.
-        if (!runOriginal || Current.ProgramState != ProgramState.Playing || newFaction == null || !newFaction.IsPlayer
-            || pawn == null || pawn.Dead || pawn.Faction is { IsPlayer: true } || !pawn.IsPrisonerOfColony || pawn.apparel == null)
-            return;
-        try
-        {
-            GearSorter.Sort(pawn, Moment.Strip, equipment: false, apparel: true, inventory: false);
-        }
-        catch (Exception e)
-        {
-            Log.Error($"[Loot Scavenging] Sorting the apparel of {pawn}, joining the colony, failed: {e}"); // not translated
-        }
     }
 }

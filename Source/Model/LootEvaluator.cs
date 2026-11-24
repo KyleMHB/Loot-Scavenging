@@ -90,7 +90,7 @@ public static class LootEvaluator
     // Step 3.
     private static LootDecision? CheckMoment(DropCandidate item, LootRules rules)
     {
-        if (item.Moment != Moment.Death && !rules.onDownedAndStrip)
+        if ((item.Moment == Moment.Downed || item.Moment == Moment.Strip) && !rules.onDownedAndStrip)
             return LootDecision.Leave(DecisionReason.MomentOff);
         return null;
     }

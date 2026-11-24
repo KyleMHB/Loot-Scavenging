@@ -78,6 +78,8 @@ public static class SettingNames
     public const string Prisoners = "rules.prisoners"; // not translated
     public const string HomeMapOnly = "rules.homeMapOnly"; // not translated
     public const string OnDownedAndStrip = "rules.onDownedAndStrip"; // not translated
+    public const string PrisonerJoinGear = "rules.prisonerJoinGear"; // not translated
+    public const string OtherJoinGear = "rules.otherJoinGear"; // not translated
     public const string DropMode = "rules.dropMode"; // not translated
     public const string DropIncludesMedicine = "rules.dropIncludesMedicine"; // not translated
     public const string DropIncludesAmmunition = "rules.dropIncludesAmmunition"; // not translated

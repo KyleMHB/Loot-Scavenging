@@ -20,6 +20,8 @@
            hostile, nonHostileFaction, noFaction, prisoners: true, false (which groups' gear is sorted)
            homeMapOnly: true, false
            onDownedAndStrip: true, false (also sort when a pawn is downed or stripped, not only at death)
+           prisonerJoinGear, otherJoinGear: MarkUnfamiliar, FollowDropMode, LeaveAlone (gear of a recruited or enslaved
+             prisoner, and of anyone else who joins)
          What out-of-reach gear becomes
            dropMode: ScrapOutOfReach, ScrapEverything, KeepOriginal, Off
            dropIncludesMedicine: true, false

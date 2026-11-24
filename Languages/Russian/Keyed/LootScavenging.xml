@@ -218,4 +218,12 @@
 	<LootScavenging_DropIncludesAmmunition>Режим выпадения затрагивает боеприпасы</LootScavenging_DropIncludesAmmunition>
 	<LootScavenging_DropIncludesAmmunitionOn>Боеприпасы вне досягаемости обрабатываются режимом выпадения, как любой другой предмет.</LootScavenging_DropIncludesAmmunitionOn>
 	<LootScavenging_DropIncludesAmmunitionOff>Боеприпасы выпадают нетронутыми, если их собственное правило не велит иного, даже вне досягаемости.</LootScavenging_DropIncludesAmmunitionOff>
+	<LootScavenging_JoinPrisoners>Снаряжение завербованных или порабощённых пленников</LootScavenging_JoinPrisoners>
+	<LootScavenging_JoinOthers>Снаряжение странников, беженцев и других присоединившихся</LootScavenging_JoinOthers>
+	<LootScavenging_JoinMark>Помечать снаряжение вне досягаемости как незнакомое</LootScavenging_JoinMark>
+	<LootScavenging_JoinFollow>Следовать режиму выпадения</LootScavenging_JoinFollow>
+	<LootScavenging_JoinLeave>Не трогать их снаряжение</LootScavenging_JoinLeave>
+	<LootScavenging_JoinMarkExplain>Они продолжают носить и держать то, с чем пришли. Снаряжение вне досягаемости поселения получает пометку «незнакомая технология», и после того как его снимут, никто из поселенцев не сможет им пользоваться, пока не завершено исследование. Работает в любом режиме выпадения.</LootScavenging_JoinMarkExplain>
+	<LootScavenging_JoinFollowExplain>В момент присоединения их одежда и оружие в руках обрабатываются так, как будто персонажей раздели, по режиму выпадения и правилам для предметов, для отмеченных выше групп.</LootScavenging_JoinFollowExplain>
+	<LootScavenging_JoinLeaveExplain>Их снаряжение при присоединении не затрагивается.</LootScavenging_JoinLeaveExplain>
 </LanguageData>

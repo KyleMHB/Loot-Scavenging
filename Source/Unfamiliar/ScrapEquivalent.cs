@@ -24,10 +24,10 @@ internal static class ScrapEquivalent
         if (thing == null || !Unfamiliar.IsUnfamiliar(thing))
             return false;
 
-        // The era the scrap would have had: the looted marker when the item carries one, else the item's own era.
+        // The era the scrap would have had: the looted or join marker when the item carries one, else the item's own era.
         Era era = Era.Undefined;
         if (thing is ThingWithComps withComps)
-            era = withComps.GetComp<CompUnfamiliar>()?.lootedEra ?? Era.Undefined;
+            era = withComps.GetComp<CompUnfamiliar>()?.MarkedEra ?? Era.Undefined;
         if (era == Era.Undefined)
             era = EraReader.ItemEra(thing.def, null).Era;
 

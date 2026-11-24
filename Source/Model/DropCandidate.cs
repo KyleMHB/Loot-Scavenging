@@ -6,6 +6,9 @@ public enum Moment
     Death,
     Downed,
     Strip,
+
+    /// <summary>A pawn joining the colony (ticket 20). The "downed and strip" toggle does not gate it: its own setting does.</summary>
+    Join,
 }
 
 /// <summary>Where the pawn is (spec, "Loot rules", step 2).</summary>

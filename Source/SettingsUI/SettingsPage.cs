@@ -181,6 +181,36 @@ internal sealed class SettingsPage
             "LootScavenging_DownedAndStripOn".Translate(), "LootScavenging_DownedAndStripOff".Translate(), SettingNames.OnDownedAndStrip);
         if (!r.hostile && !r.nonHostileFaction && !r.noFaction && !r.prisoners)
             Explain(ls, "LootScavenging_NoGroupOn".Translate());
+
+        LootScavengingSettings settings = s;
+        Choice(ls, "LootScavenging_JoinPrisoners".Translate(), r.prisonerJoinGear, JoinOptions, JoinName,
+            v => settings.values.rules.prisonerJoinGear = v, SettingNames.PrisonerJoinGear);
+        Explain(ls, JoinSentence(r.prisonerJoinGear));
+        Choice(ls, "LootScavenging_JoinOthers".Translate(), r.otherJoinGear, JoinOptions, JoinName,
+            v => settings.values.rules.otherJoinGear = v, SettingNames.OtherJoinGear);
+        Explain(ls, JoinSentence(r.otherJoinGear));
+    }
+
+    private static readonly JoinerGear[] JoinOptions = { JoinerGear.MarkUnfamiliar, JoinerGear.FollowDropMode, JoinerGear.LeaveAlone };
+
+    private static string JoinName(JoinerGear gear)
+    {
+        switch (gear)
+        {
+            case JoinerGear.FollowDropMode: return "LootScavenging_JoinFollow".Translate();
+            case JoinerGear.LeaveAlone: return "LootScavenging_JoinLeave".Translate();
+            default: return "LootScavenging_JoinMark".Translate();
+        }
+    }
+
+    private static string JoinSentence(JoinerGear gear)
+    {
+        switch (gear)
+        {
+            case JoinerGear.FollowDropMode: return "LootScavenging_JoinFollowExplain".Translate();
+            case JoinerGear.LeaveAlone: return "LootScavenging_JoinLeaveExplain".Translate();
+            default: return "LootScavenging_JoinMarkExplain".Translate();
+        }
     }
 
     // Item rules

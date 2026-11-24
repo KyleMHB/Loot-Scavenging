@@ -218,4 +218,12 @@
 	<LootScavenging_DropIncludesAmmunition>掉落模式包括弹药</LootScavenging_DropIncludesAmmunition>
 	<LootScavenging_DropIncludesAmmunitionOn>超出能力范围的弹药与其他物品一样由掉落模式处理。</LootScavenging_DropIncludesAmmunitionOn>
 	<LootScavenging_DropIncludesAmmunitionOff>弹药原样掉落，除非其自身的物品规则另有规定，即使超出能力范围也是如此。</LootScavenging_DropIncludesAmmunitionOff>
+	<LootScavenging_JoinPrisoners>被招募或被奴役的囚犯的装备</LootScavenging_JoinPrisoners>
+	<LootScavenging_JoinOthers>流浪者、难民及其他加入者的装备</LootScavenging_JoinOthers>
+	<LootScavenging_JoinMark>将超出能力范围的装备标为陌生</LootScavenging_JoinMark>
+	<LootScavenging_JoinFollow>遵循掉落模式</LootScavenging_JoinFollow>
+	<LootScavenging_JoinLeave>不处理他们的装备</LootScavenging_JoinLeave>
+	<LootScavenging_JoinMarkExplain>他们会继续穿戴和手持原有的装备。超出殖民地研究进度的装备会被标记，脱下后，在完成其研究前，任何殖民者都无法使用。在任何掉落模式下都有效。</LootScavenging_JoinMarkExplain>
+	<LootScavenging_JoinFollowExplain>他们加入时，身上穿着的衣物和手持的武器会按被剥光时的方式处理，依据掉落模式和物品规则，并仅限上方勾选的群体。</LootScavenging_JoinFollowExplain>
+	<LootScavenging_JoinLeaveExplain>他们加入时，其装备不受影响。</LootScavenging_JoinLeaveExplain>
 </LanguageData>
