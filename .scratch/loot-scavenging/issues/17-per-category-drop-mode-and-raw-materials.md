@@ -55,7 +55,18 @@ Mod authors can refile items between categories in an update. This check makes t
 - DevTests: `DevTests/SmokeBatch.cs` (`tribal-medicine`, ~lines 32, 136, 155) and `DevTests/OutcomesBatch.cs` (ammunition case, ~lines 40, 410, 420) use `rules.dropIncludesMedicine` / `rules.dropIncludesAmmunition`; move them to `rules.medicine.inDropMode` / `rules.ammunition.inDropMode`. `TESTING.md` rows at ~lines 51 and 107 updated to match.
 - Version 0.6.0 in `About/About.xml` `<modVersion>`, the `[b]Mod version:[/b]` line in `steam-description.md`, and a new top `CHANGELOG.md` heading `## 0.6.0 - <date>` (read `writing-copy.md` and `template-routing.md` first). The changelog says: drop mode now has a per-category switch, weapons and apparel on; medicine and ammunition settings became those switches and old settings carry over; new Raw materials category; techprints, components, survival meals and go-juice are no longer scrapped by default. Add ticket 17 to the spec's ticket list if it has one, and update the spec's Presets table row text only if the implementation differs.
 
-Out of scope: any change to the era logic or scrap amounts, and new categories beyond the four above.
+**Review findings to fold in (review of 2026-11-24, `work/reviews/2026-11-24-mod-review.md` §6.1, 1.3, 3.1, 4.2)**
+- **"Scrap everything" must not change meaning for existing configs.** Today it scraps every inventory item except medicine and ammunition. After this ticket a saved config with `dropMode=ScrapEverything` and none of the new keys would load with every inventory switch off and start dropping food, drugs, silver and the rest whole. In the settings move: when a loaded file has `ScrapEverything` and no `<category>InDropMode` key, switch on Food, Drugs, Other, Raw materials, Knowledge, Genetics and Body parts, and Medicine and Ammunition only if their old key was true. Unit-test it and say so in the 0.6.0 changelog. Packs are unaffected (their baseline is the XML).
+- **Keep-original and non-gear switches.** In "Keep the original item" an out-of-reach item of a switched-on non-gear category would return Keep before its rule and can't carry the unfamiliar label (only gear can). In that mode, non-gear categories fall through to their category rule whatever the switch says; the switch row says so (or is disabled) in that mode.
+- **The "Only gear beyond the colony's reach" condition** (`LootScavenging_OnlyBeyondReach`, `SettingsPage.cs` ~247) can't match for a category the drop mode handles in "Scrap out-of-reach gear" or "Keep the original item": out-of-reach items never reach the conditions step. With the switch, it is live exactly when the category's switch is off (or the drop mode is Off). Disable it with a one-line note when the switch is on in those two modes. Rename the label to "Only items beyond the colony's reach", since it shows under food, drugs and medicine too.
+- **Strings this ticket must also rewrite** (and translate):
+  - `LootScavenging_ItemsNoteScrapEverything` ("turns all gear into scrap, so these rules are not used"): wrong for every switched-off category.
+  - The three `LootScavenging_DropMode*Explain` texts (~lines 132 to 134) and the Progression preset sentence: they say "gear" without the switch.
+  - Labels and section texts for Knowledge, Genetics and Body parts, not just `LootScavenging_CategoryRawMaterials`. Add glossary rows first.
+- **Stack scrap amounts: decided 2026-11-24 (Kyle), done in 0.5.2.** Scrap is never worth more than the item or stack it came from. Build on the 0.5.2 `ScrapAmounts` rule; the raw-materials switch adds no new risk.
+- **Carried gear judged twice:** settled in 0.5.2. Gear kept at a downing under "Everything stays on the body" is skipped later (`BodyLoot.WasJudgedAtDowning`), so classifying carried gear as Weapon or Apparel no longer makes a second pass apply the weapon rule twice. Also fix `InventoryCategoryOf`'s doc comment, which says the opposite of the code.
+
+Out of scope: any change to the era logic, scrap amounts (settled in 0.5.2), and new categories beyond the four above.
 
 ## Acceptance
 
@@ -70,6 +81,9 @@ Out of scope: any change to the era logic or scrap amounts, and new categories b
 - [ ] The three presets all ship weapons and apparel on and every inventory category off; both Auto Mod Config settings files list the new keys and no old ones; `Preset.xml` version is 0.6.0.
 - [ ] In-game harness cases exist and pass, written to `E:\Coding\Rimworld\RimWorldDevTests\AGENTS.md` (read it and the topics it routes to first): (1) per-category drop mode: a tribal raider with weapon, medicine, ammunition, a survival meal, go-juice, components and devilstrand under default, then with switches on, in "Scrap out-of-reach gear" and "Scrap everything"; (2) the Raw materials category: classification of steel, wood, devilstrand, components, chemfuel and a stone block, default Keep and a non-default rule applied; (3) the settings move: a settings file written with `dropIncludesMedicine` and `dropIncludesAmmunition` loads as the new switches, and a pack that locks the old key holds the lock. Add them to `TESTING.md` with the ticket number.
 - [ ] Before the Workshop release of 0.6.0, the new and moved cases and the full batch (TESTING.md Full tier) are run and recorded in `TESTING.md`; translation `status` is clean for both languages.
+- [ ] A saved config with `dropMode=ScrapEverything` and no new keys still scraps food, drugs and other inventory after the update; medicine and ammunition follow their old keys.
+- [ ] In "Keep the original item", an out-of-reach survival meal follows the food rule whatever the food switch says.
+- [ ] The beyond-reach condition is disabled with a note where the drop mode makes it unreachable, and reads "items", not "gear".
 - [ ] Both the 1.7 and 1.6 builds compile, `dotnet test` passes and the translation check passes.
 
 ## Comments
