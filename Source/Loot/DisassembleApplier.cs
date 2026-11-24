@@ -48,9 +48,17 @@ internal static class DisassembleApplier
             // Gear with no era: break it into components, scaled by what its scrap would have been.
             source = "components";
             // An item worth less than one scrap unit yields nothing, like its scrap would.
-            made = units < 1
-                ? new List<Thing>()
-                : TierFor(new[] { new YieldAmount<ThingDef>(ThingDefOf.ComponentIndustrial, Disassembly.ComponentsFor(units)) });
+            if (units < 1)
+                made = new List<Thing>();
+            else if (thing.MarketValue * thing.stackCount < ThingDefOf.ComponentIndustrial.BaseMarketValue)
+            {
+                // Worth less than one component: a component would be worth more than the item, so it gives its capped
+                // scrap instead (ticket 19).
+                source = "scrap";
+                made = ScrapThings(ScrapDefs.For(tier), units);
+            }
+            else
+                made = TierFor(new[] { new YieldAmount<ThingDef>(ThingDefOf.ComponentIndustrial, Disassembly.ComponentsFor(units)) });
         }
         else
         {
@@ -102,6 +110,18 @@ internal static class DisassembleApplier
     }
 
     private static List<Thing> TierFor(IEnumerable<YieldAmount<ThingDef>> amounts) => ScrapTierTable.MakeThings(amounts).ToList();
+
+    private static List<Thing> ScrapThings(ThingDef scrapDef, int units)
+    {
+        var things = new List<Thing>();
+        foreach (int count in ScrapAmounts.SplitIntoStacks(units, scrapDef.stackLimit))
+        {
+            Thing scrap = ThingMaker.MakeThing(scrapDef);
+            scrap.stackCount = count;
+            things.Add(scrap);
+        }
+        return things;
+    }
 
     // Loaded ammo of reloadable gear, as things. Vanilla never does this, so it is the mod's own feature.
     internal static IEnumerable<Thing> EjectedCharges(Thing thing)
