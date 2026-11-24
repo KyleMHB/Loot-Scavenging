@@ -89,20 +89,44 @@ public sealed class MomentsBatch : Batch
         judged[thing] = n + 1;
     }
 
+    // Above, below, right, then left of the sites, two cells off; plants and loose things in it are cleared, as Kit.Area does.
+    private static CellRect WardBeside(BatchContext ctx, CellRect sites)
+    {
+        var map = ctx.Map;
+        bool Free(IntVec3 c) =>
+            c.InBounds(map) && !c.Fogged(map) && !c.Roofed(map) && c.GetEdifice(map) == null && c.GetFirstPawn(map) == null &&
+            c.GetThingList(map).All(t => t.def.category is ThingCategory.Item or ThingCategory.Filth or ThingCategory.Plant) &&
+            map.terrainGrid.TerrainAt(c).affordances.Contains(TerrainAffordanceDefOf.Heavy);
+        var candidates = new[]
+        {
+            new CellRect(sites.minX, sites.maxZ + 1, 30, 10), new CellRect(sites.minX, sites.minZ - 12, 30, 10),
+            new CellRect(sites.maxX + 3, sites.minZ, 30, 10), new CellRect(sites.minX - 32, sites.minZ, 30, 10),
+        };
+        foreach (var ward in candidates)
+        {
+            if (!ward.Cells.All(Free)) continue;
+            var things = ward.Cells.SelectMany(c => c.GetThingList(map)).Distinct().ToList();
+            foreach (var t in things) t.Destroy();
+            ctx.Setup($"Ward area {ward}; {things.Count} plants and loose things removed");
+            return ward;
+        }
+        throw new SetupException("no clear 30x10 ward beside the sites");
+    }
+
     public override IEnumerable<Wait> Segment(int index, BatchContext ctx)
     {
         long modErrorsAtStart = CaseErrors.ModMark;
         ModHarness.SaveSettings(ModHarness.LootOnGround);
-        // The sites take the first 14 rows; the ward for the carry, rescue and capture cases takes the rest.
-        var layout = Kit.Area(ctx, 94, 24);
-        var area = new CellRect(layout.minX, layout.minZ, 94, 14);
-        var ward = new CellRect(layout.minX, layout.minZ + 14, 30, 10);
+        // The sites take an 80x14 area; the ward for the carry, rescue and capture cases goes in the first clear 30x10 beside
+        // it. The dlcs map has no clear 80x24 near its centre, so the ward cannot always sit on top.
+        var area = Kit.Area(ctx, 80, 14);
+        var ward = WardBeside(ctx, area);
         Kit.RemoveStartingColonists(ctx);
         yield return Wait.Ticks(1);
         var map = ctx.Map;
         MakeTribal(ctx);
-        // Two rows 6 cells apart: the first row's sites ran out.
-        var sites = new Queue<IntVec3>(Sites(area, 13, 7).Concat(Sites(area, 13, 7).Select(c => c + new IntVec3(0, 0, -6))));
+        // Two rows of 13, 6 cells apart each way: the first row's sites ran out.
+        var sites = new Queue<IntVec3>(Sites(area, 13, 6).Concat(Sites(area, 13, 6).Select(c => c + new IntVec3(0, 0, -6))));
         var revolver = Kit.Def("Gun_Revolver");
         var vest = Kit.Def("Apparel_FlakVest");
         var industrial = Scrap(ScrapTier.Industrial);

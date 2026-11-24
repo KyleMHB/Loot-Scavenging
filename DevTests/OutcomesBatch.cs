@@ -603,12 +603,15 @@ public sealed class OutcomesBatch : Batch
         // ---- 04/15: recycling sample -------------------------------------------------------------------------------------
         {
             var c = ctx.Begin(Sample);
+            // 400, not 200: 0.5.2 halved a unit's value, and 200 units drew so few products that the unseeded sample fell
+            // outside 15% by chance (1271 against 1100).
+            const int Units = 400;
             var tier = TierDef(ScrapTier.Industrial);
             var pool = tier.pool.Where(e => e.thing != null).Select(e => new PoolEntry<ThingDef>(e.thing, e.weight)).ToList();
-            var expected = LootPool.Expected(pool, tier.valuePerUnit, 200, t => t.BaseMarketValue);
+            var expected = LootPool.Expected(pool, tier.valuePerUnit, Units, t => t.BaseMarketValue);
             List<Thing> Recycle(ThingDef def, int? seed)
             {
-                var scrap = (ScrapThing)Stack(def, 200);
+                var scrap = (ScrapThing)Stack(def, Units);
                 if (seed.HasValue) Rand.PushState(seed.Value);
                 try { return scrap.SmeltProducts(1f).ToList(); }
                 finally { if (seed.HasValue) Rand.PopState(); }
@@ -619,19 +622,19 @@ public sealed class OutcomesBatch : Batch
             int Count(List<Thing> l, ThingDef d) => l.Where(t => t.def == d).Sum(t => t.stackCount);
             foreach (var e in expected)
                 c.Expect(e.Item.defName, e.Amount.ToString("0.#")).Observe(e.Item.defName, Count(seeded, e.Item) + " seeded, " + Count(unseeded, e.Item) + " unseeded");
-            c.Expect("value", 200 * tier.valuePerUnit).Observe("value", $"{BaseValue(seeded):0} seeded, {BaseValue(unseeded):0} unseeded")
-                .Expect("studiedValue", 200 * tier.valuePerUnit * tier.studiedYieldFactor).Observe("studiedValue", BaseValue(studied));
+            c.Expect("value", Units * tier.valuePerUnit).Observe("value", $"{BaseValue(seeded):0} seeded, {BaseValue(unseeded):0} unseeded")
+                .Expect("studiedValue", Units * tier.valuePerUnit * tier.studiedYieldFactor).Observe("studiedValue", BaseValue(studied));
             var component = ThingDefOf.ComponentIndustrial;
             var chemfuel = ThingDefOf.Chemfuel;
             c.Step(seeded.Concat(unseeded).All(t => pool.Any(p => p.Item == t.def)), "every product is an industrial pool material");
             c.Step(Count(seeded, component) > 0 && Count(unseeded, component) > 0, "components appear in both samples");
             c.Step(Count(seeded, chemfuel) > 0 && Count(unseeded, chemfuel) > 0, "chemfuel appears in both samples");
-            float target = 200 * tier.valuePerUnit;
+            float target = Units * tier.valuePerUnit;
             c.Step(Math.Abs(BaseValue(seeded) - target) <= 0.15f * target && Math.Abs(BaseValue(unseeded) - target) <= 0.15f * target,
-                "200 units return within 15% of their value");
+                $"{Units} units return within 15% of their value");
             float ratio = BaseValue(studied) / Math.Max(1f, BaseValue(seeded));
             c.Observe("studiedRatio", ratio);
-            c.Step(ratio >= 0.35f && ratio <= 0.65f, $"200 studied units return about half as much ({ratio:0.00})");
+            c.Step(ratio >= 0.35f && ratio <= 0.65f, $"{Units} studied units return about half as much ({ratio:0.00})");
             c.Conclude();
         }
 
