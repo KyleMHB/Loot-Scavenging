@@ -233,6 +233,9 @@ public sealed class SettingsBatch : Batch
             written.Apply(Presets.Apply(PresetId.Cleanup, written.Capture()));
             written.activePreset = PresetId.Cleanup;
             written.values.rules.dropMode = pack.Progression.rules.dropMode; // Cleanup sets Off
+            // Ticket 20: one joiner setting equal to its default and one set by Cleanup, both read back as saved.
+            written.values.rules.prisonerJoinGear = pack.Progression.rules.prisonerJoinGear;
+            written.values.rules.otherJoinGear = JoinerGear.LeaveAlone;
             LoadedModManager.WriteModSettings(DevMod, "Cleanup", written);
             var file = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_Cleanup*.xml").FirstOrDefault();
             string text = file != null ? File.ReadAllText(file) : "";
@@ -252,6 +255,11 @@ public sealed class SettingsBatch : Batch
                 "the save holds every setting key");
             c.Step(read.activePreset == PresetId.Cleanup && read.values.SameAs(written.values),
                 "read back and through the defaults step, every value matches what was saved, the drop mode included");
+            c.Observe("prisonerJoinGearRead", read.values.rules.prisonerJoinGear).Observe("otherJoinGearRead", read.values.rules.otherJoinGear);
+            c.Step(text.Contains("<prisonerJoinGear>" + pack.Progression.rules.prisonerJoinGear + "</prisonerJoinGear>")
+                && text.Contains("<otherJoinGear>LeaveAlone</otherJoinGear>")
+                && read.values.rules.prisonerJoinGear == pack.Progression.rules.prisonerJoinGear && read.values.rules.otherJoinGear == JoinerGear.LeaveAlone,
+                "both joiner settings are saved, the one equal to its default too, and read back as saved");
             foreach (var f in Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_*")) File.Delete(f);
             ModHarness.RestoreSettings();
             c.Conclude();

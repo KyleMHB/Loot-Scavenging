@@ -1,6 +1,6 @@
 # 20: Rules for gear on pawns who join the colony
 
-Status: ready
+Status: done
 
 **Recommended model:** `sonnet`
 
@@ -38,3 +38,18 @@ Status: ready
 ## Docs
 
 CHANGELOG 0.5.2 (no version bump): a line under Added for the two settings, replacing or adjusting the ticket 18 recruit line. Read `E:\Coding\Templates\writing-copy.md` first. Update `spec.md` (moments and settings) and add a TESTING.md line for the new cases.
+
+## What was built
+
+- `rules.prisonerJoinGear` and `rules.otherJoinGear` (`JoinerGear`: `MarkUnfamiliar`, `FollowDropMode`, `LeaveAlone`), in `LootRules`, `SettingsDefaults.xml`, the presets (Cleanup and Vanilla leave both alone), the lock names, both Auto Mod Config files (preset version 0.5.2), two rows on the settings page after "Also when downed or stripped", and ChineseSimplified and Russian text.
+- `Source/Loot/JoinerHooks.cs`: one prefix and finalizer on `Pawn.SetFaction` and one on `RecruitUtility.Recruit` (it unlocks apparel and clears the prisoner status first), both through `JoiningGear.Begin`. `EnslaveHook` and `JoiningPrisoner` are gone: `SetGuestStatus(Slave)` calls `SetFaction` while the pawn is still a prisoner. A pawn handled by `Recruit` is marked in `SortedDrop` so the inner `SetFaction` skips him.
+- Follow uses a new `Moment.Join`, not `Moment.Strip`, so the downed-and-strip toggle no longer gates it; the owner groups and home-map-only still do. Equipment and apparel are sorted, inventory is not; locked apparel stays.
+- Mark: `CompUnfamiliar.joinedEra`, saved only when set. `Unfamiliar.IsUnfamiliar` honours it in every drop mode (`UnfamiliarRule.JoinMarkHolds`); `ScrapEquivalent` reads either marker's era. Protected items and locked apparel are not marked.
+- Tests: `JoinerGearTests` (unit) and six cases in the moments batch, plus the cleanup round trip in the settings batch (TESTING.md, 2026-11-24).
+
+## Join paths not covered
+
+- A pawn generated straight into the player's faction with no `SetFaction`: the "game ended, new wanderers" incident (`IncidentWorker_WandererJoin`), and pawns at game start or born in the colony (the latter two are meant to be left alone).
+- "Follow the drop mode" for a joiner with no map (some quest arrivals still in pods or in a quest's holding): the sorter needs a map, so nothing is sorted; the mark still works there.
+- Quest lodgers are left out on purpose, since they leave again.
+- The two new settings-page rows were not seen drawn: the ui batch could not draw on the test machine (TESTING.md).

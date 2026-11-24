@@ -26,7 +26,9 @@ public sealed class MomentsBatch : Batch
         JudgedOnce = P + "downed-then-killed-judged-once", LockedApparel = P + "locked-apparel-at-death",
         FormerColonist = P + "former-colonist-keeps-gear", ProtectedFamiliar = P + "protected-never-unfamiliar",
         Arrest = P + "arrest-standing", Recruit = P + "recruit-downed-raider", Manipulation = P + "lost-manipulation",
-        DropCallsOnce = P + "drop-calls-judged-once";
+        DropCallsOnce = P + "drop-calls-judged-once",
+        JoinMark = P + "joiner-marked-unfamiliar", JoinLeave = P + "joiner-left-alone", JoinFollow = P + "joiner-follows-drop-mode",
+        JoinPrisonerRules = P + "joiner-prisoner-setting", JoinProtected = P + "joiner-protected-never-marked", JoinFormer = P + "joiner-former-colonist-untouched";
 
     public override string Id => "lootscavenging-moments";
     public override int SegmentCount => 1;
@@ -41,6 +43,12 @@ public sealed class MomentsBatch : Batch
         new PlannedCase(Recruit, Levels.Mechanical, "recruiting (and, with Ideology, enslaving) a downed, captured raider scraps his out-of-reach flak vest"),
         new PlannedCase(Manipulation, Levels.Mechanical, "a standing pirate who loses both arms has his out-of-reach revolver scrapped, not dropped whole"),
         new PlannedCase(DropCallsOnce, Levels.Mechanical, "a Degrade weapon rule judges the weapon once at death, downing then death, arrest and strip"),
+        new PlannedCase(JoinMark, Levels.Mechanical, "a wanderer joins in out-of-reach armour and a revolver and keeps them; both are unfamiliar in the scrap drop mode and in Off, even off him"),
+        new PlannedCase(JoinLeave, Levels.Mechanical, "with joiner gear left alone, a wanderer's vest carries no mark"),
+        new PlannedCase(JoinFollow, Levels.Mechanical, "a wanderer, a recruited prisoner and (with Ideology) an enslaved one have vest and revolver scrapped once, with downed and strip off"),
+        new PlannedCase(JoinPrisonerRules, Levels.Mechanical, "a recruit follows the prisoner setting, not the other one: marked or left alone"),
+        new PlannedCase(JoinProtected, Levels.Mechanical, "a quest-tagged vest on a joiner is never marked or scrapped"),
+        new PlannedCase(JoinFormer, Levels.Mechanical, "a former colonist rejoining keeps his vest unmarked and unsorted"),
         new PlannedCase(OnBody, Levels.Mechanical, "scrap left on the body is in the corpse; stripping it drops the scrap"),
         new PlannedCase(OnBodyRemoved, Levels.Mechanical, "with corpse removal on, scrap left on the body lands on the ground"),
         new PlannedCase(AllOnBody, Levels.Mechanical, "everything on the body: scrap, ejected charges and inventory stay in the corpse; stripping drops them"),
@@ -612,6 +620,152 @@ public sealed class MomentsBatch : Batch
                 c.Note("Royalty is not loaded, so the persona weapon was not checked");
             c.Conclude();
             Unfamiliar.ResetCache();
+        }
+
+        // ---- 20: pawns who join the colony -----------------------------------------------------------------------------------
+        // A wanderer has no faction; a recruited prisoner keeps his old one. Both go through Pawn.SetFaction. Nothing lands on
+        // the ground, so the cases share a site.
+        {
+            var c = ctx.Begin(JoinMark);
+            ModHarness.RestoreSettings();
+            Rules.dropMode = DropMode.ScrapOutOfReach;
+            Rules.prisonerJoinGear = JoinerGear.FollowDropMode;
+            Rules.otherJoinGear = JoinerGear.MarkUnfamiliar;
+            var club = Kit.Def("MeleeWeapon_Club");
+            var p = Spawn(ctx, Mercenary, null, sharedCell);
+            var worn = Dress(p, vest, QualityCategory.Normal);
+            var gun = Arm(p, revolver, QualityCategory.Normal);
+            var control = Make(vest, QualityCategory.Normal);
+            c.Subject(p);
+            c.Step(EraReader.ItemEra(vest, null).OutOfReach && EraReader.ItemEra(revolver, null).OutOfReach && p.Faction == null,
+                "a wanderer with no faction wears an out-of-reach vest and holds an out-of-reach revolver");
+            p.SetFaction(Faction.OfPlayer);
+            Unfamiliar.ResetCache();
+            c.Observe("vest", worn.Destroyed ? "destroyed" : p.apparel.Contains(worn) ? "worn" : "elsewhere")
+                .Observe("revolver", gun.Destroyed ? "destroyed" : p.equipment.Contains(gun) ? "held" : "elsewhere");
+            c.Step(p.Faction == Faction.OfPlayer && p.apparel.Contains(worn) && p.equipment.Contains(gun), "he joins the colony still wearing the vest and holding the revolver");
+            c.Step(Unfamiliar.IsUnfamiliar(worn) && Unfamiliar.IsUnfamiliar(gun), "both are unfamiliar although the drop mode is scrap out-of-reach");
+            c.Step(Unfamiliar.Blocks(worn, p) && Unfamiliar.Blocks(gun, p), "no colonist, himself included, can equip them");
+            c.Step(!Unfamiliar.IsUnfamiliar(control), "a vest nobody joined in is not unfamiliar");
+            p.apparel.Remove(worn);
+            c.Step(Unfamiliar.IsUnfamiliar(worn), "the vest stays unfamiliar once it is off him");
+            Rules.dropMode = DropMode.Off;
+            Unfamiliar.ResetCache();
+            c.Step(Unfamiliar.IsUnfamiliar(worn), "and in drop mode Off");
+            p.Destroy();
+            worn.Destroy();
+            control.Destroy();
+            c.Conclude();
+        }
+        {
+            var c = ctx.Begin(JoinLeave);
+            ModHarness.RestoreSettings();
+            Rules.otherJoinGear = JoinerGear.LeaveAlone;
+            var p = Spawn(ctx, Mercenary, null, sharedCell);
+            var worn = Dress(p, vest, QualityCategory.Normal);
+            c.Subject(p);
+            p.SetFaction(Faction.OfPlayer);
+            Unfamiliar.ResetCache();
+            c.Step(p.apparel.Contains(worn) && !worn.Destroyed, "he keeps the vest");
+            c.Step(!Unfamiliar.IsUnfamiliar(worn) && worn.GetComp<CompUnfamiliar>().joinedEra == Era.Undefined, "and it carries no mark");
+            p.Destroy();
+            c.Conclude();
+        }
+        {
+            var c = ctx.Begin(JoinFollow);
+            bool ready = true;
+            var ways = new List<string> { "wanderer" };
+            ways.Add("recruit");
+            if (ModsConfig.IdeologyActive) ways.Add("enslave");
+            else c.Note("Enslaving needs Ideology; only the wanderer and the recruit run on this mod set");
+            foreach (string way in ways)
+            {
+                ModHarness.RestoreSettings();
+                Rules.onDownedAndStrip = false; // the join settings decide on their own
+                Rules.prisonerJoinGear = JoinerGear.FollowDropMode;
+                Rules.otherJoinGear = JoinerGear.FollowDropMode;
+                var p = Spawn(ctx, Mercenary, way == "wanderer" ? null : Pirates, sharedCell);
+                var worn = Dress(p, vest, QualityCategory.Normal);
+                if (way != "wanderer")
+                    p.guest.SetGuestStatus(Faction.OfPlayer, GuestStatus.Prisoner); // the arrest drops nothing: he holds nothing yet
+                var gun = Arm(p, revolver, QualityCategory.Normal);
+                int expectedVest = ScrapAmounts.Units(worn.MarketValue, 1), expectedGun = ScrapAmounts.Units(gun.MarketValue, 1);
+                c.Subject(p);
+                if (!Kit.Require(ctx, JoinFollow, (way == "wanderer" ? p.Faction == null : p.IsPrisonerOfColony, "he is a " + (way == "wanderer" ? "wanderer" : "colony prisoner")),
+                    (p.apparel.Contains(worn) && p.equipment.Contains(gun), "he wears the vest and holds the revolver")))
+                {
+                    ready = false;
+                    break;
+                }
+                if (way == "recruit") RecruitUtility.Recruit(p, Faction.OfPlayer);
+                else if (way == "enslave") p.guest.SetGuestStatus(Faction.OfPlayer, GuestStatus.Slave);
+                else p.SetFaction(Faction.OfPlayer);
+                int inPack = p.inventory.innerContainer.Where(t => t.def == industrial).Sum(t => t.stackCount);
+                c.Observe(way + "ScrapInPack", inPack).Observe(way + "Faction", p.Faction?.Name ?? "none");
+                c.Step(p.Faction == Faction.OfPlayer, $"{way}: he joins the colony");
+                c.Step(worn.Destroyed && gun.Destroyed && inPack == expectedVest + expectedGun,
+                    $"{way}: vest and revolver become {inPack} industrial scrap in his pack, rolled once (expected {expectedVest + expectedGun})");
+                p.Destroy();
+            }
+            if (ready) c.Conclude();
+        }
+        {
+            var c = ctx.Begin(JoinPrisonerRules);
+            // The prisoner setting, not the one for everyone else, decides for a recruit.
+            foreach (JoinerGear setting in new[] { JoinerGear.MarkUnfamiliar, JoinerGear.LeaveAlone })
+            {
+                ModHarness.RestoreSettings();
+                Rules.prisonerJoinGear = setting;
+                Rules.otherJoinGear = JoinerGear.FollowDropMode;
+                var p = Spawn(ctx, Mercenary, Pirates, sharedCell);
+                var worn = Dress(p, vest, QualityCategory.Normal);
+                p.guest.SetGuestStatus(Faction.OfPlayer, GuestStatus.Prisoner);
+                c.Subject(p);
+                RecruitUtility.Recruit(p, Faction.OfPlayer);
+                Unfamiliar.ResetCache();
+                bool marked = setting == JoinerGear.MarkUnfamiliar;
+                c.Observe(setting.ToString(), worn.Destroyed ? "destroyed" : Unfamiliar.IsUnfamiliar(worn) ? "unfamiliar" : "plain");
+                c.Step(!worn.Destroyed && p.apparel.Contains(worn), $"{setting}: the recruit keeps wearing the vest");
+                c.Step(Unfamiliar.IsUnfamiliar(worn) == marked, $"{setting}: the vest is {(marked ? "" : "not ")}unfamiliar");
+                p.Destroy();
+            }
+            c.Conclude();
+        }
+        {
+            var c = ctx.Begin(JoinProtected);
+            foreach (JoinerGear setting in new[] { JoinerGear.MarkUnfamiliar, JoinerGear.FollowDropMode })
+            {
+                ModHarness.RestoreSettings();
+                Rules.otherJoinGear = setting;
+                var p = Spawn(ctx, Mercenary, null, sharedCell);
+                var worn = Dress(p, vest, QualityCategory.Normal);
+                worn.questTags = new List<string> { "LootTest" };
+                c.Subject(p);
+                p.SetFaction(Faction.OfPlayer);
+                Unfamiliar.ResetCache();
+                c.Step(!worn.Destroyed && p.apparel.Contains(worn) && !Unfamiliar.IsUnfamiliar(worn), $"{setting}: a quest-tagged vest is kept and never marked");
+                p.Destroy();
+            }
+            c.Conclude();
+        }
+        {
+            var c = ctx.Begin(JoinFormer);
+            foreach (JoinerGear setting in new[] { JoinerGear.MarkUnfamiliar, JoinerGear.FollowDropMode })
+            {
+                ModHarness.RestoreSettings();
+                Rules.otherJoinGear = setting;
+                var p = Spawn(ctx, PawnKindDefOf.Colonist, Faction.OfPlayer, sharedCell);
+                var worn = Dress(p, vest, QualityCategory.Normal);
+                p.records.RecordsTickMothballed(80);
+                p.SetFaction(null);
+                c.Subject(p);
+                c.Step(PawnUtility.EverBeenColonistOrTameAnimal(p) && p.Faction == null, "he has colonist time on record and no faction");
+                p.SetFaction(Faction.OfPlayer);
+                Unfamiliar.ResetCache();
+                c.Step(!worn.Destroyed && p.apparel.Contains(worn) && !Unfamiliar.IsUnfamiliar(worn), $"{setting}: a former colonist who rejoins keeps his vest, unmarked");
+                p.Destroy();
+            }
+            c.Conclude();
         }
 
         // ---- 10: death off the map ---------------------------------------------------------------------------------------

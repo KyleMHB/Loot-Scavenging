@@ -4,6 +4,10 @@
 
 ## 0.5.2 - 2026-11-24
 
+### Added
+
+- Two new settings choose what happens to the gear of pawns who join your colony: one for recruited or enslaved prisoners, one for wanderers, refugees, quest joiners and anyone else. Each can mark out-of-reach gear unfamiliar, follow the drop mode, or leave the gear alone. A marked item stays on its wearer, and once it comes off, no colonist can use it until its research is finished. This works in every drop mode. Prisoners follow the drop mode by default and everyone else is marked. Modpacks can set and lock them as `rules.prisonerJoinGear` and `rules.otherJoinGear`.
+
 ### Changed
 
 - Every setting is now saved, including ones that match the default. A setting you chose stays put when a modpack or a mod update changes its default. Before, a choice that matched the default of the day was left out of the settings file and moved with the default.
