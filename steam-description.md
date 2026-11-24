@@ -2,7 +2,7 @@ Vanilla raids hand a tribal colony assault rifles long before it could research 
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-raid.gif[/img]
 
-The rules run when a raider, visitor or other non-colony pawn dies, is stripped or is arrested. A downed pawn keeps his weapon whole in his pack until then, so his gear is judged only once. Gear your colony could already make drops as normal.
+The rules run when a raider, visitor or other non-colony pawn dies, is stripped or is arrested. A downed pawn keeps his weapon in his hand until then, so his gear is judged only once. Gear your colony could already make drops as normal.
 
 Every part of it is configurable: an outcome and chance for each item category, keep and remove lists, and presets for progression, cleanup or vanilla. Modpacks can set and lock their own defaults.
 
@@ -50,7 +50,7 @@ At death, loot can drop on the ground as usual, leave only the scrap on the body
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-downed.gif[/img]
 
-A raider who goes down keeps his weapon whole in his pack, and nothing drops. His gear is judged once, when he is stripped, arrested, joins your colony or dies. Set [b]When a non-colony pawn is downed[/b] to "Drop the weapon" if you want it on the ground as in the base game. The first GIF above was filmed with that choice.
+A raider who goes down keeps his weapon in his hand, and nothing drops. His gear is not judged until he is stripped, arrested, joins your colony or dies, and then only once. If he gets back up, he is still armed. Set [b]When a non-colony pawn is downed[/b] to "Drop the weapon" if you want it on the ground as in the base game. The first GIF above was filmed with that choice.
 
 [h2]How to use[/h2]
 

@@ -26,7 +26,7 @@ public sealed class MomentsBatch : Batch
         JudgedOnce = P + "downed-then-killed-judged-once", LockedApparel = P + "locked-apparel-at-death",
         FormerColonist = P + "former-colonist-keeps-gear", ProtectedFamiliar = P + "protected-never-unfamiliar",
         Arrest = P + "arrest-standing", Recruit = P + "recruit-downed-raider", Manipulation = P + "lost-manipulation",
-        DropCallsOnce = P + "drop-calls-judged-once", KeepsInPack = P + "downed-keeps-weapon-in-pack",
+        DropCallsOnce = P + "drop-calls-judged-once", KeepsWeapon = P + "downed-keeps-weapon-in-hand",
         JoinMark = P + "joiner-marked-unfamiliar", JoinLeave = P + "joiner-left-alone", JoinFollow = P + "joiner-follows-drop-mode",
         JoinPrisonerRules = P + "joiner-prisoner-setting", JoinProtected = P + "joiner-protected-never-marked", JoinFormer = P + "joiner-former-colonist-untouched";
 
@@ -42,8 +42,8 @@ public sealed class MomentsBatch : Batch
         new PlannedCase(Arrest, Levels.Mechanical, "arresting a standing pirate scraps his out-of-reach revolver; with downed and strip off it drops whole"),
         new PlannedCase(Recruit, Levels.Mechanical, "recruiting (and, with Ideology, enslaving) a downed, captured raider scraps his out-of-reach flak vest"),
         new PlannedCase(Manipulation, Levels.Mechanical, "a standing pirate who loses both arms has his out-of-reach revolver scrapped, not dropped whole"),
-        new PlannedCase(DropCallsOnce, Levels.Mechanical, "a Degrade weapon rule judges the weapon once at death, downing then death (kept in the pack, and dropped), downing then capture, arrest and strip"),
-        new PlannedCase(KeepsInPack, Levels.Mechanical, "a downed pirate's out-of-reach revolver goes whole into his pack, nothing on the ground; a strip, a capture or his death scraps it, and with stripping off a strip drops it whole"),
+        new PlannedCase(DropCallsOnce, Levels.Mechanical, "a Degrade weapon rule judges the weapon once at death, downing then death (kept in hand, and dropped, each also with everything on the body), downing then capture, arrest and strip"),
+        new PlannedCase(KeepsWeapon, Levels.Mechanical, "a downed pirate keeps his out-of-reach revolver whole in hand and his medicine, nothing on the ground; a strip, a capture or his death scraps it, with stripping off a strip drops it whole, carried and put down it is scrapped, and he gets up still holding it"),
         new PlannedCase(JoinMark, Levels.Mechanical, "a wanderer joins in out-of-reach armour and a revolver and keeps them; both are unfamiliar in the scrap drop mode and in Off, even off him; a revolver in his pack is marked and his medicine is not"),
         new PlannedCase(JoinLeave, Levels.Mechanical, "with joiner gear left alone, a wanderer's vest carries no mark"),
         new PlannedCase(JoinFollow, Levels.Mechanical, "a wanderer, a recruited prisoner and (with Ideology) an enslaved one have vest, revolver and a pack revolver scrapped once and their medicine kept, with stripping off"),
@@ -56,8 +56,8 @@ public sealed class MomentsBatch : Batch
         new PlannedCase(AllOnBodyDisassembled, Levels.Mechanical, "everything on the body: disassembly products stay in the corpse"),
         new PlannedCase(AllOnBodyRemoved, Levels.Mechanical, "everything on the body with corpse removal on: the loot lands on the ground"),
         new PlannedCase(AllOnBodySkips, Levels.Mechanical, "everything on the body: a colonist's gear and a mechanoid's scrap drop as usual"),
-        new PlannedCase(AllOnBodyDowned, Levels.Mechanical, "everything on the body, downed pawns dropping the weapon: a downed pirate keeps his in-reach club and the rest in his pack, with stripping on and off"),
-        new PlannedCase(JudgedOnce, Levels.Mechanical, "everything on the body, downed pawns dropping the weapon: a club kept at a downing is not judged again as other inventory when the pirate dies"),
+        new PlannedCase(AllOnBodyDowned, Levels.Mechanical, "everything on the body, downed pawns dropping the weapon: a downed pirate keeps his in-reach club in hand and the rest in his pack, with stripping on and off; spawned again, the club drops whole and he remembers it"),
+        new PlannedCase(JudgedOnce, Levels.Mechanical, "everything on the body, downed pawns dropping the weapon: a club kept in hand at a downing is not judged again when the pirate dies"),
         new PlannedCase(LockedApparel, Levels.Mechanical, "a pirate's locked out-of-reach vest is scrapped at death"),
         new PlannedCase(FormerColonist, Levels.Mechanical, "with downed pawns dropping the weapon, a colonist who ran wild (no faction) keeps an out-of-reach revolver when downed"),
         new PlannedCase(ProtectedFamiliar, Levels.Mechanical, "keep-original mode: a keep-listed (and, with Royalty, a persona) out-of-reach weapon is never unfamiliar"),
@@ -255,11 +255,13 @@ public sealed class MomentsBatch : Batch
                 try
                 {
                     var cell = sites.Dequeue();
-                    // Kept in the pack, a downed pawn's weapon is not judged at the downing; dropped, it is judged then.
-                    foreach (string way in new[] { "death", "downed then death", "downed then capture", "dropped: downed then death", "arrest", "strip" })
+                    // Kept in hand, a downed pawn's weapon is not judged at the downing; dropped, it is judged then. With everything
+                    // on the body a dropped-way weapon is judged at the downing and kept in hand, and death must not judge it again.
+                    foreach (string way in new[] { "death", "downed then death", "downed then capture", "dropped: downed then death",
+                        "on body: downed then death", "dropped, on body: downed then death", "arrest", "strip" })
                     {
                         ModHarness.RestoreSettings();
-                        Settings.values.deathDrop = DeathDrop.Ground;
+                        Settings.values.deathDrop = way.Contains("on body") ? DeathDrop.AllOnBody : DeathDrop.Ground;
                         Rules.weapons = new CategoryRule(Outcome.Degrade);
                         bool dropped = way.StartsWith("dropped");
                         if (dropped) Rules.downedGear = DownedGear.DropWeapon;
@@ -273,6 +275,8 @@ public sealed class MomentsBatch : Batch
                             case "death": p.Kill(null); break;
                             case "downed then death":
                             case "dropped: downed then death":
+                            case "on body: downed then death":
+                            case "dropped, on body: downed then death":
                                 HealthUtility.TryAnesthetize(p);
                                 downed = judged.TryGetValue(weapon, out int n) ? n : 0;
                                 p.Kill(null);
@@ -501,7 +505,7 @@ public sealed class MomentsBatch : Batch
                 int ground = Ground(), scrapIn = AllScrap.Sum(Pack), silverIn = Pack(silver), revolverIn = Pack(revolver);
                 c.Observe("primary" + tag, p.equipment?.Primary?.def.defName ?? "none").Observe("clubInPack" + tag, Pack(club)).Observe("scrapInPack" + tag, scrapIn)
                     .Observe("revolverInPack" + tag, revolverIn).Observe("silverInPack" + tag, silverIn).Observe("onGround" + tag, ground);
-                c.Step(p.Downed && p.equipment?.Primary == null && p.inventory.innerContainer.Contains(held), $"{tag}: the club is in his pack, not his hands");
+                c.Step(p.Downed && p.equipment?.Primary == held && !p.inventory.innerContainer.Contains(held), $"{tag}: the club is still in his hands");
                 if (downedHandling)
                 {
                     c.Expect("scrapInPack" + tag, expectedScrap);
@@ -512,15 +516,19 @@ public sealed class MomentsBatch : Batch
                     c.Step(!carried.Destroyed && revolverIn == 1 && scrapIn == 0, $"{tag}: the carried revolver stays whole in his pack");
                 c.Step(silverIn == 50, $"{tag}: the 50 silver stay in his pack ({silverIn})");
                 c.Step(ground == 0, $"{tag}: nothing lands on the ground ({ground})");
-                // Spawning a downed pawn again (a reload, or being carried and set down) drops any weapon it holds
-                // (Pawn_EquipmentTracker.Notify_PawnSpawned); one in the pack stays.
+                // Spawning a downed pawn again outside a bed (being carried and set down) drops the weapon he holds
+                // (Pawn_EquipmentTracker.Notify_PawnSpawned). Judged at the downing (stripping on), or not judged at all
+                // (off), the club drops whole, he remembers it to pick up again, and his pack stays.
                 p.DeSpawn();
                 GenSpawn.Spawn(p, cell, map);
                 int groundAfterRespawn = Ground();
-                c.Observe("onGroundAfterRespawn" + tag, groundAfterRespawn);
-                c.Step(p.Downed && p.inventory.innerContainer.Contains(held) && groundAfterRespawn == 0,
-                    $"{tag}: spawned again, he still has the club in his pack and nothing lands on the ground ({groundAfterRespawn})");
+                c.Observe("onGroundAfterRespawn" + tag, groundAfterRespawn).Observe("droppedWeapon" + tag, p.mindState.droppedWeapon?.def.defName ?? "none");
+                c.Step(p.Downed && p.equipment?.Primary == null && !held.Destroyed && held.Spawned && groundAfterRespawn == 1,
+                    $"{tag}: spawned again, he drops the club whole and nothing else lands on the ground ({groundAfterRespawn} on the ground)");
+                c.Step(p.mindState.droppedWeapon == held, $"{tag}: he remembers the dropped club, to pick it up if he gets up");
+                c.Step(Pack(silver) == 50, $"{tag}: the silver stays in his pack");
                 p.Destroy();
+                if (held.Spawned) held.Destroy();
             }
             if (ready) c.Conclude();
         }
@@ -545,11 +553,11 @@ public sealed class MomentsBatch : Batch
             HealthUtility.TryAnesthetize(p);
             if (Kit.Require(ctx, JudgedOnce, (p.Downed && !p.Dead, "the pirate is downed and alive")))
             {
-                c.Step(p.inventory.innerContainer.Contains(held), "the club is kept and goes into his pack");
+                c.Step(p.equipment?.Primary == held, "the club is kept and stays in his hands");
                 p.Kill(null);
                 bool inCorpse = p.Corpse?.InnerPawn?.inventory?.innerContainer.Contains(held) ?? false;
                 c.Observe("clubDestroyed", held.Destroyed).Observe("clubInCorpse", inCorpse);
-                c.Step(!held.Destroyed && inCorpse, "at death the club is not judged again as other inventory: it stays whole in the corpse");
+                c.Step(!held.Destroyed && inCorpse, "at death the club is not judged again: it stays whole in the corpse");
                 c.Conclude();
             }
             p.Corpse?.Destroy();
@@ -606,13 +614,14 @@ public sealed class MomentsBatch : Batch
         }
 
         // ---- review 2026-11-24: protected items are never unfamiliar --------------------------------------------------
-        // ---- 21: a downed pawn keeps his weapon in his pack -----------------------------------------------------------------
-        // The default: nothing is judged at the downing; the gear is sorted when he is stripped, captured or dies.
+        // ---- 21/23: a downed pawn keeps his weapon in hand ------------------------------------------------------------------
+        // The default (ticket 23): nothing drops or is judged at the downing; the gear is sorted when he is stripped, captured
+        // or dies, or when the game drops his weapon as he is carried and put down outside a bed.
         {
-            var c = ctx.Begin(KeepsInPack);
+            var c = ctx.Begin(KeepsWeapon);
             bool ready = true;
             var cell = sites.Dequeue();
-            foreach (string way in new[] { "strip", "capture", "kill", "strip with stripping off" })
+            foreach (string way in new[] { "strip", "capture", "kill", "strip with stripping off", "carried and put down", "gets up" })
             {
                 ModHarness.RestoreSettings();
                 Settings.values.deathDrop = DeathDrop.Ground;
@@ -623,13 +632,14 @@ public sealed class MomentsBatch : Batch
                 var medicine = Stack(ThingDefOf.MedicineIndustrial, 3);
                 p.inventory.innerContainer.TryAdd(medicine);
                 c.Subject(p);
-                c.Note($"Downed pawns keep the weapon in the pack (the default); stripped or arrested {(stripOff ? "off" : "on")}. A pirate with a revolver and 3 industrial medicine in his pack is downed, then: {way}");
-                if (way == "strip") c.Step(EraReader.ItemEra(revolver, Pirates).OutOfReach && Rules.downedGear == DownedGear.KeepInPack, "the revolver is out of reach and the downed setting is its default, keep in pack");
+                c.Note($"Downed pawns keep their weapon (the default); stripped or arrested {(stripOff ? "off" : "on")}. A pirate with a revolver and 3 industrial medicine in his pack is downed, then: {way}");
+                if (way == "strip") c.Step(EraReader.ItemEra(revolver, Pirates).OutOfReach && Rules.downedGear == DownedGear.KeepWeapon, "the revolver is out of reach and the downed setting is its default, keep his weapon");
                 var before = Kit.StackIds(map, industrial);
                 var beforeGun = Kit.StackIds(map, revolver);
                 int Medicine() => p.inventory.innerContainer.Where(t => t.def == ThingDefOf.MedicineIndustrial).Sum(t => t.stackCount);
+                int ScrapInPack() => p.inventory.innerContainer.Where(t => t.def == industrial).Sum(t => t.stackCount);
                 HealthUtility.TryAnesthetize(p);
-                if (!Kit.Require(ctx, KeepsInPack, (p.Downed && !p.Dead && p.Spawned, "the pirate is downed and alive")))
+                if (!Kit.Require(ctx, KeepsWeapon, (p.Downed && !p.Dead && p.Spawned, "the pirate is downed and alive")))
                 {
                     ready = false;
                     break;
@@ -639,21 +649,37 @@ public sealed class MomentsBatch : Batch
                 int scrapAtDowning = Units(NewNear(map, industrial, before, cell)), gunsOnGround = NewNear(map, revolver, beforeGun, cell).Count;
                 c.Observe(way + ": primary", p.equipment.Primary?.def.defName ?? "none").Observe(way + ": scrapAtDowning", scrapAtDowning)
                     .Observe(way + ": revolversOnGround", gunsOnGround).Observe(way + ": medicine", Medicine());
-                c.Step(p.equipment.Primary == null && !gun.Destroyed && p.inventory.innerContainer.Contains(gun),
-                    $"{way}: downed, his revolver is whole in his pack, not his hands");
+                c.Step(p.equipment.Primary == gun && !gun.Destroyed && !p.inventory.innerContainer.Contains(gun),
+                    $"{way}: downed, his revolver is whole in his hands");
                 c.Step(scrapAtDowning == 0 && gunsOnGround == 0 && Medicine() == 3, $"{way}: nothing lands on the ground and his medicine stays in his pack");
                 int expected = ScrapAmounts.Units(gun.MarketValue, 1);
                 before = Kit.StackIds(map, industrial);
+                int packBefore = ScrapInPack();
                 switch (way)
                 {
                     case "capture": p.guest.SetGuestStatus(Faction.OfPlayer, GuestStatus.Prisoner); break;
                     case "kill": p.Kill(null); break;
+                    case "carried and put down":
+                        // Picked up and set down again outside a bed: the game drops the weapon of a downed pawn as he spawns.
+                        p.DeSpawn();
+                        GenSpawn.Spawn(p, cell, map);
+                        break;
+                    case "gets up":
+                        p.health.RemoveHediff(p.health.hediffSet.GetFirstHediffOfDef(HediffDefOf.Anesthetic));
+                        yield return Wait.Ticks(60);
+                        break;
                     default: p.Strip(); break;
                 }
-                int made = Units(NewNear(map, industrial, before, cell));
-                c.Observe(way + ": revolver", gun.Destroyed ? "destroyed" : gun.Spawned ? "on ground" : "elsewhere").Observe(way + ": scrap", made);
-                if (stripOff) c.Step(!gun.Destroyed && gun.Spawned && made == 0, $"{way}: the strip drops the revolver whole");
+                int made = Units(NewNear(map, industrial, before, cell)) + (p.Dead ? 0 : ScrapInPack() - packBefore);
+                c.Observe(way + ": revolver", gun.Destroyed ? "destroyed" : gun.Spawned ? "on ground" : p.equipment?.Primary == gun ? "in hand" : "elsewhere")
+                    .Observe(way + ": scrap", made);
+                if (way == "gets up")
+                    c.Step(!p.Downed && !p.Dead && p.equipment.Primary == gun && !gun.Destroyed && made == 0 && Medicine() == 3,
+                        $"{way}: he is up, still holding the whole revolver, with his medicine");
+                else if (stripOff) c.Step(!gun.Destroyed && gun.Spawned && made == 0, $"{way}: the strip drops the revolver whole");
                 else c.Step(gun.Destroyed && made == expected, $"{way}: the revolver becomes {made} industrial scrap (expected {expected})");
+                if (way == "carried and put down")
+                    c.Step(p.Downed && Medicine() == 3 && p.mindState.droppedWeapon == null, $"{way}: he is still down with his medicine, and no weapon is left to pick up");
                 p.Corpse?.Destroy();
                 if (!p.Destroyed) p.Destroy();
                 if (gun.Spawned) gun.Destroy();

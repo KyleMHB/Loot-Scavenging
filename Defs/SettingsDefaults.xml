@@ -40,7 +40,7 @@
         <prisoners>true</prisoners>
         <homeMapOnly>false</homeMapOnly>
         <onDownedAndStrip>true</onDownedAndStrip>
-        <downedGear>KeepInPack</downedGear>
+        <downedGear>KeepWeapon</downedGear>
         <prisonerJoinGear>FollowDropMode</prisonerJoinGear>
         <otherJoinGear>MarkUnfamiliar</otherJoinGear>
         <dropMode>ScrapOutOfReach</dropMode>

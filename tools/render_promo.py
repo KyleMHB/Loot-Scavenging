@@ -40,6 +40,8 @@ MAIN_RUN = "20261121-223036-lootscavenging-workshop-clips-s1"
 # The study beat (points halved in 0.5.2) and the downed raider beat come from this run of the same batch; the raid and recycle
 # beats keep MAIN_RUN, which was filmed under "Drop the weapon" and still plays as it did.
 NEW_RUN = "20261124-154152-lootscavenging-workshop-clips-s1"
+# The downed raider beat, refilmed with the weapon kept in hand.
+DOWNED_RUN = "20261124-161503-lootscavenging-workshop-clips-s1"
 # The on-body beat was refilmed with the corpse's Gear tab open. Its crops and offsets in ON_BODY belong to this run.
 ON_BODY_RUN = "20261123-000545-lootscavenging-workshop-clips-s1"
 # The drop-mode deaths and the settings page, filmed live for the promo in place of the gallery images.
@@ -68,11 +70,11 @@ RECYCLE = [
     # The product lands on the ground.
     ("recycle-done", -1.0, 2.4, (1280, 720, 690, 340), "it becomes materials of its era", 0),
 ]
-# Default "Keep the weapon in his pack", so no chip: a pirate is downed, nothing falls, and his Gear tab shows the autopistol
-# in his inventory. The tab covers the left of the frame; the crop ends inside its empty lower part, above the caption band, and clear of the chunks to the
+# Default "Keep his weapon", so no chip: a pirate is downed, nothing falls, and his Gear tab shows the autopistol
+# under Equipment. Refilmed in DOWNED_RUN once the downed raider kept his weapon in hand. The tab covers the left of the frame; the crop ends inside its empty lower part, above the caption band, and clear of the chunks to the
 # right, and the caption band covers only the tab's empty lower part.
 DOWNED = [
-    ("downed-fall", -0.3, 4.2, (1440, 810, 0, 230), "a downed raider keeps his weapon in his pack", 0),
+    ("downed-fall", -0.3, 4.2, (1440, 810, 0, 230), "a downed raider keeps his weapon", 0),
 ]
 STUDY = [
     # Mid-job at the bench; the recycle shot's "Bill complete" message has faded by now (0.5.2 run: the job is 13 s).
@@ -126,7 +128,7 @@ END_FOOTAGE = (ON_BODY_RUN, "on-body-stripped", -0.5, (1280, 720, 400, 380))
 SECTIONS = [
     ("title", "card", "title", 4.5),
     ("raid", "live", (MAIN_RUN, RAID, None), None),
-    ("downed", "live", (NEW_RUN, DOWNED, None), None),
+    ("downed", "live", (DOWNED_RUN, DOWNED, None), None),
     ("recycle", "live", (MAIN_RUN, RECYCLE, None), None),
     ("study", "live", (NEW_RUN, STUDY, None), None),
     ("on-body", "live", (ON_BODY_RUN, ON_BODY, ON_BODY_CHIP), None),

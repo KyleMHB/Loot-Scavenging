@@ -48,8 +48,8 @@ public sealed class LootRules
     // The key keeps its old name so saved files and pack locks still work.
     public bool onDownedAndStrip = true;
 
-    // Downing (ticket 21): by default the weapon goes into the pack and nothing is judged until a later moment.
-    public DownedGear downedGear = DownedGear.KeepInPack;
+    // Downing (tickets 21 and 23): by default the pawn keeps his weapon in hand and nothing is judged until a later moment.
+    public DownedGear downedGear = DownedGear.KeepWeapon;
 
     // The gear of pawns who join the colony (ticket 20): recruited or enslaved prisoners, and everyone else who joins.
     public JoinerGear prisonerJoinGear = JoinerGear.FollowDropMode;
