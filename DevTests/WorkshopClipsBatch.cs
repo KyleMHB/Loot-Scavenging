@@ -23,7 +23,7 @@ namespace LootScavenging.DevTests;
 //   study     a researcher works one study bill on neolithic scrap at a research bench (Recurve Bow current)
 //   on-body   "everything stays on the body": a pirate dies and nothing lands; his corpse's Gear tab shows the loot still on him;
 //             a colonist strips him, steps away, and the loot lies on the ground
-//   downed    default "Keep the weapon in his pack": a pirate is downed, nothing falls, and his Gear tab shows the autopistol in his pack
+//   downed    default "Keep his weapon": a pirate is downed, nothing falls, and his Gear tab shows the autopistol under Equipment
 //   drop-*    paused stills: the same tribal warrior (club, an autopistol in his pack) killed under each drop mode
 //   inspect-* paused stills: neolithic scrap that can be studied now and spacer scrap that cannot, each selected
 // Writes shots.json (marks on the game's monotonic clock, the recorder's video origin clock) and layout.json (each shot's camera)
@@ -165,7 +165,7 @@ public sealed class WorkshopClipsBatch : Batch
         var spacerPile = SpawnStack(map, spacer, 3, new IntVec3(inspectArea.minX + 8, 0, inspectArea.minZ + 3));
         ctx.Setup("Inspect scene: 8 neolithic scrap and 3 spacer scrap");
 
-        // ----- Downed: one raider, downed under the default "Keep the weapon in his pack" -----
+        // ----- Downed: one raider, downed under the default "Keep his weapon" -----
         var downedArea = Kit.Area(ctx, 14, 8);
         var downedCell = new IntVec3(downedArea.minX + 8, 0, downedArea.minZ + 4);
 
@@ -206,7 +206,7 @@ public sealed class WorkshopClipsBatch : Batch
         }
         var keep = Kit.All(Camera, Tidy);
 
-        bool weaponInPack = false, nothingFell = false, stayedDown = false, downedTabOpen = false;
+        bool weaponInHand = false, nothingFell = false, stayedDown = false, downedTabOpen = false;
         bool pirateScrapped = false, clubWhole = false, recycled = false, studied = false, nothingOnGround = false, gearTabOpen = false, stripped = false;
         int dropShots = 0, inspectShots = 0;
         float progress0 = 0, progress1 = 0;
@@ -377,9 +377,9 @@ public sealed class WorkshopClipsBatch : Batch
             Settings.values.deathDrop = DeathDrop.Ground;
             Gone(stripper);
 
-            // ----- Downed, under the default: the weapon goes into his pack and nothing falls -----
-            Rules.downedGear = DownedGear.KeepInPack;
-            ctx.Setup("Developer set downed pawns back to the default, keep the weapon in his pack");
+            // ----- Downed, under the default: he keeps his weapon in hand and nothing falls -----
+            Rules.downedGear = DownedGear.KeepWeapon;
+            ctx.Setup("Developer set downed pawns back to the default, keep his weapon");
             var raider = Spawn(ctx, Mercenary, Pirates, downedCell);
             Dress(raider, Kit.Def("Apparel_CollarShirt"), QualityCategory.Normal);
             Dress(raider, Kit.Def("Apparel_Pants"), QualityCategory.Normal);
@@ -396,17 +396,17 @@ public sealed class WorkshopClipsBatch : Batch
             Mark("downed-fall");
             yield return Play(1.5, keep);
             stayedDown = raider.Downed && !raider.Dead;
-            weaponInPack = raider.equipment.Primary == null && raider.inventory.innerContainer.Any(t => t.def.defName == "Gun_Autopistol");
+            weaponInHand = raider.equipment.Primary?.def.defName == "Gun_Autopistol";
             nothingFell = !map.listerThings.AllThings.Any(t => t.Spawned && t.def.category == ThingCategory.Item
                 && !downedItemsBefore.Contains(t.thingIDNumber) && t.Position.DistanceTo(downedCell) <= 3f);
-            ctx.Setup($"Pirate downed with the weapon kept in his pack: downed {stayedDown}, autopistol in the pack {weaponInPack}, nothing on the ground {nothingFell}");
+            ctx.Setup($"Pirate downed keeping his weapon: downed {stayedDown}, autopistol in hand {weaponInHand}, nothing on the ground {nothingFell}");
             holdSelection = false;
             Find.Selector.ClearSelection();
             Find.Selector.Select(raider, playSound: false, forceDesignatorDeselect: false);
             yield return Wait.Frames(2);
             downedTabOpen = InspectPaneUtility.OpenTab(typeof(ITab_Pawn_Gear)) != null;
             Mark("downed-gear");
-            ctx.Setup($"Gear tab open {downedTabOpen}; apparel: {Describe(raider.apparel.WornApparel.Cast<Thing>())}; pack: {Describe(raider.inventory.innerContainer)}");
+            ctx.Setup($"Gear tab open {downedTabOpen}; equipment: {Describe(raider.equipment.AllEquipmentListForReading.Cast<Thing>())}; apparel: {Describe(raider.apparel.WornApparel.Cast<Thing>())}; pack: {Describe(raider.inventory.innerContainer)}");
             yield return Play(3.0, keep);
             stayedDown = stayedDown && raider.Downed && !raider.Dead;
             Find.Selector.ClearSelection();
@@ -483,10 +483,10 @@ public sealed class WorkshopClipsBatch : Batch
         ctx.Begin("workshop-clips.filmed")
             .Observe("pirateScrapped", pirateScrapped).Observe("clubWhole", clubWhole).Observe("recycled", recycled)
             .Observe("studied", studied).Observe("researchGain", progress1 - progress0).Observe("nothingOnGround", nothingOnGround)
-            .Observe("downedWeaponInPack", weaponInPack).Observe("downedNothingFell", nothingFell).Observe("downedStayedDown", stayedDown).Observe("downedTabOpen", downedTabOpen)
+            .Observe("downedWeaponInPack", weaponInHand).Observe("downedNothingFell", nothingFell).Observe("downedStayedDown", stayedDown).Observe("downedTabOpen", downedTabOpen)
             .Observe("gearTabOpen", gearTabOpen).Observe("stripped", stripped).Observe("dropShots", dropShots).Observe("inspectShots", inspectShots)
             .Observe("marks", string.Join(", ", marks.Select(m => m.name)))
-            .Check(pirateScrapped && clubWhole && recycled && studied && progress1 > progress0 && nothingOnGround && gearTabOpen && weaponInPack && nothingFell && stayedDown && downedTabOpen && stripped && dropShots == 4 && inspectShots == 2,
+            .Check(pirateScrapped && clubWhole && recycled && studied && progress1 > progress0 && nothingOnGround && gearTabOpen && weaponInHand && nothingFell && stayedDown && downedTabOpen && stripped && dropShots == 4 && inspectShots == 2,
                 "a beat did not happen on film: the downed raider's pack, raid scrap, whole club, recycle, study, nothing on the ground, the gear tab, strip, or a still");
     }
 }

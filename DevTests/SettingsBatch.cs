@@ -236,7 +236,7 @@ public sealed class SettingsBatch : Batch
             // Ticket 20: one joiner setting equal to its default and one set by Cleanup, both read back as saved.
             written.values.rules.prisonerJoinGear = pack.Progression.rules.prisonerJoinGear;
             written.values.rules.otherJoinGear = JoinerGear.LeaveAlone;
-            // Ticket 21: the downed setting away from its default.
+            // Tickets 21 and 23: the downed setting away from its default.
             written.values.rules.downedGear = DownedGear.DropWeapon;
             LoadedModManager.WriteModSettings(DevMod, "Cleanup", written);
             var file = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_Cleanup*.xml").FirstOrDefault();
@@ -265,6 +265,15 @@ public sealed class SettingsBatch : Batch
             c.Observe("downedGearRead", read.values.rules.downedGear);
             c.Step(text.Contains("<downedGear>DropWeapon</downedGear>") && read.values.rules.downedGear == DownedGear.DropWeapon,
                 "the downed setting is saved as Drop the weapon and read back as saved");
+            // Ticket 23: the default's saved name is KeepWeapon (KeepInPack before it, never released).
+            written.values.rules.downedGear = DownedGear.KeepWeapon;
+            LoadedModManager.WriteModSettings(DevMod, "CleanupKeep", written);
+            var keepFile = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_CleanupKeep*.xml").FirstOrDefault();
+            string keepText = keepFile != null ? File.ReadAllText(keepFile) : "";
+            var keepRead = LoadedModManager.ReadModSettings<LootScavengingSettings>(DevMod, "CleanupKeep");
+            c.Observe("downedGearDefaultRead", keepRead.values.rules.downedGear);
+            c.Step(keepText.Contains("<downedGear>KeepWeapon</downedGear>") && keepRead.values.rules.downedGear == DownedGear.KeepWeapon,
+                "the default, Keep his weapon, is saved as KeepWeapon and read back as saved");
             foreach (var f in Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_*")) File.Delete(f);
             ModHarness.RestoreSettings();
             c.Conclude();
