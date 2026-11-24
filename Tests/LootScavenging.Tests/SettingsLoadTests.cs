@@ -140,7 +140,7 @@ public class SettingsLoadTests
     [Fact]
     public void ACleanupKeyEqualToProgressionSurvivesTheRoundTrip()
     {
-        // The save leaves out a value equal to the baseline, so the fill must give back that same value.
+        // A file saved before 0.5.2 left out a value equal to the baseline, so the fill must give back that same value.
         PresetConfig pack = Pack(null);
         SettingValues cleanup = Presets.Build(PresetId.Cleanup, pack);
         cleanup.rules.dropMode = pack.Progression.rules.dropMode;
@@ -152,6 +152,47 @@ public class SettingsLoadTests
 
         SettingValues result = SettingsLoad.Resolve(cleanup, true, written, pack, out _);
         Assert.True(result.SameAs(cleanup));
+    }
+
+    // Since ticket 18 the mod's own save writes every key, a value equal to the default too.
+    private static HashSet<string> EveryKey() =>
+        new HashSet<string>(SettingKeys.All.Select(k => k.Key)) { "activePreset", "defaultsSeeded" };
+
+    [Fact]
+    public void AChoiceEqualToTheOldDefaultStaysWhenThePackChangesTheDefault()
+    {
+        // A Cleanup player's animal corpse removal is off, as the pack's default was when he saved.
+        PresetConfig before = Pack(v => v.corpses.animal = false);
+        SettingValues saved = Presets.Build(PresetId.Cleanup, before);
+        saved.corpses.animal = false;
+        saved.rules.dropMode = before.Progression.rules.dropMode;
+
+        PresetConfig after = Pack(v =>
+        {
+            v.corpses.animal = true;
+            v.rules.dropMode = DropMode.KeepOriginal;
+        });
+        SettingValues result = SettingsLoad.Resolve(saved, true, EveryKey(), after, out bool kept);
+
+        Assert.True(kept);
+        Assert.False(result.corpses.animal);
+        Assert.Equal(before.Progression.rules.dropMode, result.rules.dropMode);
+        Assert.True(result.SameAs(saved));
+    }
+
+    [Fact]
+    public void AnOlderFileThatLeftOutADefaultStillFollowsTheNewDefault()
+    {
+        // Files written before ticket 18, and partial files from other tools, keep filling a missing key from the baseline.
+        PresetConfig after = Pack(v => v.corpses.animal = true);
+        SettingValues loaded = Presets.CodeProgression();
+        loaded.corpses.animal = false;
+        var written = EveryKey();
+        written.Remove("corpseAnimal");
+
+        SettingValues result = SettingsLoad.Resolve(loaded, true, written, after, out _);
+
+        Assert.True(result.corpses.animal);
     }
 
     [Fact]

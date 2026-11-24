@@ -10,8 +10,9 @@ namespace LootScavenging;
 // LootScavengingMod.Settings; the evaluator, hooks and benches read its values directly, so that instance is the cache and
 // there is nothing to rebuild when a value changes. The default values come from Defs/SettingsDefaults.xml (a pack can patch
 // it), read in SettingsDefaultsDef.cs once the defs are loaded; Model/Presets.cs holds the compiled-in fallback, used only
-// until then. A key the file lacks is filled from the Def's Progression once it loads (Model/SettingsLoad.cs), so a file
-// another tool wrote with only some keys, such as an Auto Mod Config preset, gets the pack's defaults for the rest.
+// until then. The mod's own save writes every key. A key the file lacks is filled from the Def's Progression once it loads
+// (Model/SettingsLoad.cs), so an older file, or one another tool wrote with only some keys, such as an Auto Mod Config preset,
+// gets the pack's defaults for the rest.
 // Every setting lives in SettingValues: a new one is a field there plus its page row. It is saved under the key from
 // SettingKeys, which keeps the names existing configs use.
 public class LootScavengingSettings : ModSettings
@@ -65,11 +66,13 @@ public class LootScavengingSettings : ModSettings
         base.ExposeData();
         if (Scribe.mode == LoadSaveMode.LoadingVars)
             RecordLoadedKeys();
-        Scribe_Values.Look(ref activePreset, SettingsLoad.ActivePresetKey, PresetId.Progression);
+        Scribe_Values.Look(ref activePreset, SettingsLoad.ActivePresetKey, PresetId.Progression, forceSave: true);
         Scribe_Values.Look(ref defaultsSeeded, SettingsLoad.SeededKey, false);
 
-        // The save leaves out a value equal to this default. A missing key loads as it too, but the settings load before the
-        // defs, so that is the compiled-in value until OnDefaultsLoaded fills it from the Def's Progression.
+        // Every key is written, a value equal to its default too, so a choice the player made stays put when a pack or an update
+        // changes the default (ticket 18). A missing key, in an older file or one another tool wrote, loads as this default, but
+        // the settings load before the defs, so that is the compiled-in value until OnDefaultsLoaded fills it from the Def's
+        // Progression.
         SettingValues defaults = SettingsLoad.Baseline(Presets.Config);
         foreach (SettingKey key in SettingKeys.All)
         {
@@ -115,7 +118,7 @@ public class LootScavengingSettings : ModSettings
     private static void Look<T>(object owner, FieldInfo field, string key, T defaultValue)
     {
         var value = (T)field.GetValue(owner);
-        Scribe_Values.Look(ref value, key, defaultValue);
+        Scribe_Values.Look(ref value, key, defaultValue, forceSave: true);
         field.SetValue(owner, value);
     }
 }

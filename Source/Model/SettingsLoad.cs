@@ -16,8 +16,9 @@ public static class SettingsLoad
     public const string SeededKey = "defaultsSeeded"; // not translated
 
     /// <summary>
-    /// The value a missing key is filled with, and the default the save compares against. The game's save leaves out a value
-    /// equal to its default, and it saves after the defs load, so a key left out of an ordinary config held exactly this.
+    /// The value a missing key is filled with. The mod's own save writes every key, a value equal to the default too (ticket
+    /// 18), so a later change to this baseline never moves a saved choice. Only a file written before 0.5.2, which left out a
+    /// value equal to the baseline of its day, or one another tool wrote, lacks keys.
     /// </summary>
     public static SettingValues Baseline(PresetConfig config) => Presets.Defaults(config);
 

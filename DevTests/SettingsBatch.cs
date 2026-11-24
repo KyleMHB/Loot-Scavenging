@@ -36,7 +36,7 @@ public sealed class SettingsBatch : Batch
         new PlannedCase(RoundTrip, Levels.Mechanical, "a list entry for a missing def saves, loads and is evaluated with no error"),
         new PlannedCase(Picker, Levels.Mechanical, "the item picker's search finds the revolver and skips buildings"),
         new PlannedCase(Partial, Levels.Mechanical, "a hand-written partial file with no seeded flag keeps its keys, fills the rest from a patched Def default and ends a locked key at the pack value"),
-        new PlannedCase(CleanupTrip, Levels.Mechanical, "a Cleanup config with one key at Progression's value saves without that key, reads back and keeps it"),
+        new PlannedCase(CleanupTrip, Levels.Mechanical, "a Cleanup config with one key at Progression's value saves that key too, and keeps it when the pack's default changes"),
         new PlannedCase(NoErrors, Levels.Mechanical, "no error naming the mod logged during the batch"),
     };
 
@@ -220,8 +220,9 @@ public sealed class SettingsBatch : Batch
             c.Conclude();
         }
 
-        // ---- auto-config 01: Cleanup round trip ----------------------------------------------------------------------------
-        // The save leaves out a value equal to its default (the Def's Progression), so the fill must give that value back.
+        // ---- auto-config 01 / 18: Cleanup round trip -----------------------------------------------------------------------
+        // The save writes every key, one equal to its default (the Def's Progression) too, so a pack that later changes that
+        // default does not move the saved value.
         {
             var c = ctx.Begin(CleanupTrip);
             var pack = new PresetConfig(PatchedProgression(), SettingLocks.None);
@@ -236,14 +237,19 @@ public sealed class SettingsBatch : Batch
             var file = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_Cleanup*.xml").FirstOrDefault();
             string text = file != null ? File.ReadAllText(file) : "";
 
+            // Read back with the compiled-in config, then the defaults step under a pack whose drop mode default changed.
             Presets.Configure(PresetConfig.Code());
             var read = LoadedModManager.ReadModSettings<LootScavengingSettings>(DevMod, "Cleanup");
-            Presets.Configure(pack);
             read.OnDefaultsLoaded();
-            c.Observe("dropModeSaved", text.Contains("<dropMode>")).Observe("dropModeRead", read.values.rules.dropMode)
+            string savedMode = "<dropMode>" + pack.Progression.rules.dropMode + "</dropMode>";
+            c.Observe("dropModeSaved", text.Contains(savedMode)).Observe("dropModeRead", read.values.rules.dropMode)
+                .Observe("dropModeDefaultAtRead", Presets.Config.Progression.rules.dropMode)
                 .Observe("activePreset", read.activePreset).Observe("corpseHumanlike", read.values.corpses.humanlike);
-            c.Step(file != null && !text.Contains("<dropMode>") && text.Contains("<activePreset>Cleanup</activePreset>"),
-                "the save leaves out the drop mode, which equals its default, and keeps the Cleanup preset");
+            c.Step(Presets.Config.Progression.rules.dropMode != pack.Progression.rules.dropMode, "the default drop mode at the read differs from the one at the save");
+            c.Step(file != null && text.Contains(savedMode) && text.Contains("<activePreset>Cleanup</activePreset>"),
+                "the save writes the drop mode, although it equals its default, and the Cleanup preset");
+            c.Step(SettingKeys.All.All(k => text.Contains("<" + k.Key + ">") || text.Contains("<" + k.Key + " />") || text.Contains("<" + k.Key + "/>")),
+                "the save holds every setting key");
             c.Step(read.activePreset == PresetId.Cleanup && read.values.SameAs(written.values),
                 "read back and through the defaults step, every value matches what was saved, the drop mode included");
             foreach (var f in Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_*")) File.Delete(f);
