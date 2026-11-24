@@ -82,7 +82,9 @@ Rewrite the ticket 18 and 20 lines where they would contradict these. Update `sp
 1. Pack gear is a weapon or apparel when `EraReader.IsGear` says so; everything else in the pack keeps its item rule.
 2. A trader's goods keep their not-for-sale mark, and a weapon stowed in a downed trader's pack is marked not for sale while it is there, so it is never offered in trade.
 3. "Keep the weapon in his pack" applies whatever "Also when stripped or arrested" says; that setting only decides whether the later strip or arrest sorts.
-4. A pawn downed in bed keeps his weapon in hand, as the game does. A later arrest sorts it through `DropEverythingHook`. Not run in game.
+4. A pawn downed in bed keeps his weapon in hand, as the game does. A later arrest sorts it through `DropEverythingHook`: `Pawn_GuestTracker.SetGuestStatus(Prisoner)` calls `DropAndForbidEverything()` without the keep-in-bed flag, so the hook runs. Read in the 1.7 decompile, not run in game.
 5. Pawns the rules do not cover, mechanoids, pawns with no inventory and kinds that cannot be stripped follow "Drop the weapon", so nothing is hidden in a pack nobody can reach.
 6. `BodyLoot.WasJudgedAtDowning` stays, used only by "Drop the weapon" with "everything stays on the body", the one path that still judges at the downing.
 7. The Auto Mod Config preset `<version>` stays 0.5.2, set by ticket 20 for the same release.
+8. A downed raider who gets back up has his weapon in his pack, not on the ground, so the game's `JobGiver_PickupDroppedWeapon` (which looks for `mindState.droppedWeapon`) finds nothing, and he stays unarmed until something equips him. The game has no job that takes a weapon out of a non-colony pawn's pack. Read in the 1.7 decompile, not run in game.
+9. Classing pack weapons and apparel by their own rules reaches past downing: a raider's spare weapons and apparel carried in his pack are now judged by the weapon and apparel rules at every death, strip and arrest, not by "Other inventory". It follows from the decision that gear stowed at a downing is judged later as it would have been in his hands; Kyle may want to confirm it.
