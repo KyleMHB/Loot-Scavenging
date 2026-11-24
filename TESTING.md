@@ -82,6 +82,13 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 
 ## Result recording
 
+### 2026-11-25 - Full tier on the 0.5.2 release branch
+
+- Version/environment: RimWorld 1.7, seed 1, English, branch `release/0.5.2` cut at `94e6be1` (cheaper scrap) without tickets 21, 23 and 24, plus main's `6c47de6` and the recycle-sample widening from `957a0aa`. `deploy.ps1` first; `dotnet test` 350 passed; 1.7, 1.6 and DevTests builds clean; translations 0 untranslated, 0 outdated.
+- Runs: default run-all `20261125-002247-run-all-s1-ca6023d7` 90 pass, 2 skip (ammunition needs an ammo mod, techprints need Royalty); dlcs run-all `20261125-002318-run-all-s1-345d2d16` 91 pass, 1 skip; progression `20261125-002400-lootscavenging-progression-s1-680f930b` 6/6; removal check passed; perf `20261125-002441-perf-s1-bc3ce4be` pass.
+- Observed: the first run on the branch (`20261125-001945-run-all-s1-25c96107`) ended the settings batch early with a NullReferenceException in `ModSettings.Write` from `OnDefaultsLoaded`, on settings a test read straight from a file. Main had fixed it in `6c47de6`, which the branch now carries.
+- Status: Passed.
+
 ### 2026-11-24 - Joiner gear rules (ticket 20, 0.5.2)
 
 - Version/environment: RimWorld 1.7, seed 1, English, after `deploy.ps1`; `dotnet test` 346 passed. The default set in one launch, then moments with `--mods dlcs` for the enslave path.
