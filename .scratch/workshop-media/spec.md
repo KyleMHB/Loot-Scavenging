@@ -47,7 +47,7 @@ Gallery images are 1920x1080 PNG. Order:
    - scrap everything;
    - keep the original but unfamiliar, shown selected with the unfamiliar line in its inspect pane;
    - off.
-4. **`gallery-settings.png`**: an in-game screenshot of the settings page on Progression. It shows the preset line, a category rule row and its "what will happen" sentence, framed with a short title.
+4. **`gallery-settings.png`**: an in-game screenshot of the settings page on Progression. It shows the preset line with its sentence, the three "Don't drop your stuff" boxes and the first Who rows with theirs, framed with a short title.
 5. **`gallery-inspect.png`**: two scrap stacks, each selected with its inspect pane. One says it can be studied now and the other says why not (needs research). Side by side, with captions.
 
 ## Tickets

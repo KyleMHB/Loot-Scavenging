@@ -83,6 +83,12 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 
 ## Result recording
 
+### 2026-11-25 - Settings still for the 0.6.0 gallery (workshop-media ticket 10)
+
+- Version/environment: RimWorld 1.7, default mod set, English, seed 1, from the `ticket-10` worktree. `deploy.ps1` and the DevTests build first, the display nudged awake, then `python tools/ls_test.py run lootscavenging-ui --seed 1 --record --show-ui --frames 40 --quit-on-finish`.
+- Run: `20261125-174001-lootscavenging-ui-s1`, 6 of 6 passed. The video at 5.5 s, inside the 4 s hold, shows the preset line, the "Don't drop your stuff" boxes and the Who rows down to "Other joiners"; no item rule row fits. `tools/workshop_gallery.py settings` cuts that frame (`work/gallery/settings-frame.png`) into the gallery image.
+- Status: Passed.
+
 ### 2026-11-25 - Semi Random Research study and the moments map (test fixes, 0.6.0)
 
 - Version/environment: RimWorld 1.7, seed 1, English, `main` at `afc7f6e` plus the DevTests changes below. Mod DLL unchanged, so the 0.6.0 release check stands.

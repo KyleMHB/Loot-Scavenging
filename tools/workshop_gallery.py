@@ -276,19 +276,22 @@ def settings(frame_path):
     frame = Image.open(frame_path).convert("RGBA")
     img = backdrop(frame)
     header(img, "The settings page on the Progression preset")
-    # One frame of the page, cut in two: the preset line with its sentence, and the first item rules with theirs. The gap
-    # between the bands carries no mark.
+    # One frame of the 0.6.0 page, cut in two: the preset line and the "Don't drop your stuff" boxes with their sentences,
+    # then the first two Who rows with theirs. The gap between the bands carries no mark. The scale fits both bands into
+    # the space under the header, since the page is now taller than it is wide.
     x0, x1 = 666, 1846
-    bands = [(135, 342), (862, 1132)]
-    scale = (CANVAS[0] - 120) / (x1 - x0)
-    y = 190
+    bands = [(132, 776), (792, 1016)]
+    gap, top, bottom = 22, 190, 20
+    room = CANVAS[1] - top - bottom - gap * (len(bands) - 1)
+    scale = min((CANVAS[0] - 120) / (x1 - x0), room / sum(y1 - y0 for y0, y1 in bands))
+    y = top
     for y0, y1 in bands:
         crop = frame.crop((x0, y0, x1, y1))
         crop = crop.resize((round(crop.width * scale), round(crop.height * scale)), Image.LANCZOS)
         x = (CANVAS[0] - crop.width) // 2
         img.alpha_composite(crop, (x, y))
         outlined(img, (x, y, crop.width, crop.height))
-        y += crop.height + 22
+        y += crop.height + gap
     save(img, "gallery-settings.png")
 
 
