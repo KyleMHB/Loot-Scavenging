@@ -9,7 +9,7 @@ namespace LootScavenging.Loot;
 /// <summary>Carries out an outcome on an item still held by its pawn, before the game drops it. The one dispatch point.</summary>
 internal static class OutcomeApplier
 {
-    public static void Apply(Pawn pawn, Thing thing, LootDecision decision, EraResult era, Moment moment)
+    public static void Apply(Pawn pawn, Thing thing, LootDecision decision, EraResult era, Moment moment, OwnerGroup owner)
     {
         // Charges are read and the place noted before the item is destroyed, and the ammo is put on the ground rather than
         // in the inventory, where the inventory pass would judge it again as ammunition. Always on (ticket 25, decision 8).
@@ -18,24 +18,24 @@ internal static class OutcomeApplier
             List<Thing> charges = DisassembleApplier.EjectedCharges(thing).ToList();
             Map map = pawn.MapHeld;
             IntVec3 position = pawn.PositionHeld;
-            ApplyOutcome(pawn, thing, decision, era, moment);
+            ApplyOutcome(pawn, thing, decision, era, moment, owner);
             foreach (Thing ammo in charges)
                 DisassembleApplier.Place(pawn, ammo, map, position);
             if (Prefs.DevMode && charges.Count > 0)
                 Log.Message($"[Loot Scavenging] Ejected from {thing}: {string.Join(", ", charges.Select(t => t.LabelCap))}"); // not translated
             return;
         }
-        ApplyOutcome(pawn, thing, decision, era, moment);
+        ApplyOutcome(pawn, thing, decision, era, moment, owner);
     }
 
-    private static void ApplyOutcome(Pawn pawn, Thing thing, LootDecision decision, EraResult era, Moment moment)
+    private static void ApplyOutcome(Pawn pawn, Thing thing, LootDecision decision, EraResult era, Moment moment, OwnerGroup owner)
     {
         switch (decision.Outcome)
         {
             case Outcome.Keep:
                 // Only a Who row set to Mark marks what it keeps (ticket 25, decision 3); other kept gear is left as it is.
                 if (decision.Reason == DecisionReason.MarkRow)
-                    Unfamiliar.NotifyKept(pawn, thing);
+                    Unfamiliar.NotifyKept(pawn, thing, owner);
                 return;
             case Outcome.Delete:
                 Delete(pawn, thing);

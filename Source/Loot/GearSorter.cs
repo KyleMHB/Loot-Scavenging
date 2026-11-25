@@ -102,6 +102,6 @@ internal static class GearSorter
         if (Prefs.DevMode)
             Log.Message($"[Loot Scavenging] {moment} of {pawn} ({owner}, {mapKind} map): {thing} -> {decision.Outcome} ({decision.Reason})"); // not translated
 
-        OutcomeApplier.Apply(pawn, thing, decision, candidate.ItemEra, moment);
+        OutcomeApplier.Apply(pawn, thing, decision, candidate.ItemEra, moment, owner);
     }
 }

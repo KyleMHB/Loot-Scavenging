@@ -115,7 +115,9 @@ public static class Unfamiliar
     }
 
     /// <summary>Called for each item the sorter keeps. Sets the looted marker when the scope calls for it.</summary>
-    public static void NotifyKept(Pawn pawn, Thing thing)
+    /// <param name="owner">The group the sorter judged the item under. At arrest or join this differs from the pawn's
+    /// current group, so it is passed in rather than looked up again.</param>
+    public static void NotifyKept(Pawn pawn, Thing thing, OwnerGroup owner)
     {
         LootScavengingSettings settings = LootScavengingMod.Settings;
         if (settings == null || !settings.values.rules.AnyLootRowMarks || settings.values.unfamiliarScope != UnfamiliarScope.LootedOnly
@@ -128,7 +130,6 @@ public static class Unfamiliar
         if (comp == null)
             return;
 
-        OwnerGroup owner = Loot.GearSorter.OwnerOf(pawn);
         EraResult reach = EraReader.ItemEra(thing.def, pawn.Faction);
         if (UnfamiliarRule.ShouldMark(settings.values.rules.RowFor(owner), settings.values.unfamiliarScope, owner, reach.OutOfReach))
         {
