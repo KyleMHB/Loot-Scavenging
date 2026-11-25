@@ -89,7 +89,7 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 - Version/environment: RimWorld 1.7, seed 1, English, default mod set, branch `settings-redesign`. `deploy.ps1` first; 1.7, 1.6 and DevTests builds clean; translation check passed.
 - Runs: smoke `20261125-040500-lootscavenging-smoke-s1-4d85f946` 9/9; outcomes `20261125-040504-lootscavenging-outcomes-s1-699646b5` 17 pass, 1 skip (ammunition needs an ammo mod); settings `20261125-040509-lootscavenging-settings-s1-81abed3f` 10/10; saves `20261125-040511-lootscavenging-saves-s1-3d677bd9` 7/7; moments after the fix below `20261125-040558-lootscavenging-moments-s1-2f43234d` 37 pass, 1 skip (Hospitality not loaded); with `--mods compat-hospitality` `20261125-040621-lootscavenging-moments-s1-cases-0fa41a18` passed `hospitality-downed-guest`.
 - Observed: the first moments run (`20261125-040506-lootscavenging-moments-s1-aba32080`) failed `downed-captured-weapon-sorted`: the case had not turned the hostiles box on, so under the batch baseline the downed pirate dropped his revolver. The case now sets the box.
-- Not verified: bench, ui, startup, run-all, the dlcs and progression sets, the removal check and perf; the filming batches (milestone, preview-story, promo-clips, workshop-clips) were only compiled.
+- Not verified: bench, ui, startup, run-all, the dlcs and progression sets, the removal check and perf; the filming batches (milestone, preview-story, promo-clips, workshop-clips) were only compiled; `dotnet test` was not run this session.
 - Status: Passed (quick tier for the rewritten batches).
 
 ### 2026-11-25 - Full tier on the 0.5.2 release branch
