@@ -6,7 +6,7 @@ The rules run when a raider, visitor or other non-colony pawn dies, is stripped,
 
 Every part of it is configurable: which groups of pawns the rules cover, an outcome and chance for each item category, keep and remove lists, and presets for progression, cleanup or vanilla. Modpacks can set and lock their own defaults.
 
-If you play for cleanup instead, a preset deletes damaged and low-quality gear and all ammo from the hostile dead and removes their corpses, with no era handling at all.
+For cleanup only, a preset deletes weak gear and all ammo from the hostile dead and removes their corpses.
 
 [b]Mod version:[/b] 0.6.0
 
@@ -24,7 +24,7 @@ If you play for cleanup instead, a preset deletes damaged and low-quality gear a
 [*][b]Corpse cleanup.[/b] Optional removal of humanlike, animal and mechanoid corpses, each with its own box. Butchering a humanlike corpse strips it first, and what comes off follows the item rules.
 [/list]
 
-Scrap is worth almost nothing by default, so a stockpile you keep for later does not raise colony wealth or sell for silver. Medicine, drugs, food and ammunition are left alone by default, so a raid does not destroy medicine a tribal colony needs.
+Scrap is worth almost nothing by default, so a stockpile does not raise colony wealth. Medicine, drugs, food and ammunition are left alone by default, so a raid does not destroy medicine a tribal colony needs.
 
 [h2]Recycling at benches you have[/h2]
 
@@ -68,7 +68,7 @@ The mod starts on the Progression preset.
 [*][b]Vanilla[/b]: every group is excluded and nothing stays on the body, so loot and corpses behave as in the base game.
 [/list]
 
-The settings page shows the active preset and whether you changed it. Each row says what it will do.
+The settings page shows the active preset and whether you changed it.
 
 [h2]Requirements[/h2]
 
@@ -98,7 +98,7 @@ Scrap artwork by Morton.
 
 [h2]License[/h2]
 
-Released under the GNU General Public License v3.0. Commercial use is allowed. Distributed modified versions must remain under GPLv3 and make corresponding source available as required by the license.
+Released under the GNU General Public License v3.0 (GPLv3).
 
 [h2]Translations[/h2]
 
@@ -106,8 +106,6 @@ The Chinese and Russian text is machine-translated. If a line reads wrong, tell 
 
 [h2]Links[/h2]
 [url=https://discord.gg/jSdyTbSYWQ][img]https://img.shields.io/badge/Join_the_Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white[/img][/url]
-
-Support me on Ko-fi.
 
 [url=https://ko-fi.com/I7L525WMJ6][img]https://img.shields.io/badge/Support_me_on_Ko--fi-72a4f2?style=for-the-badge&logo=kofi&logoColor=white[/img][/url]
 [url=https://github.com/KyleMHB/Loot-Scavenging][img]https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white[/img][/url]
