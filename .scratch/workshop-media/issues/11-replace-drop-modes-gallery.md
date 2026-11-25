@@ -37,3 +37,5 @@ Recommended: C if the promo run's stills frame well, since it needs no new filmi
 - The spec's ticket table keeps the original titles of tickets 04 and 11, which name drop modes.
 - As in ticket 04, the four warriors are different pawns, so pose and clothes vary slightly.
 - Checked: viewed at full size and at 640 px; each outcome reads (scrap block and whole club, wood and leather scrap, selected autopistol with its unfamiliar line, autopistol and club loose).
+
+2026-11-25 (review fix): Dropdown settings no longer carry an on/off switch: `setting_chip()` takes `on=None` for a chip without one, used for "Hostile pawns: Mark unfamiliar" and "Weapons, Apparel: Vanilla". Panel 2 now says only what 0.6.0 does with that toggle off: its caption is "His weapons and apparel are scrap" and a second chip reads "Weapons, Apparel: Scrap" (the 0.6.0 default). The spec's item 3 matches, and the `workshop_gallery.py` docstring says "setting labels" instead of "mode labels". Re-rendered and viewed at full size and at 640 px wide.
