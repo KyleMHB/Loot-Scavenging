@@ -2,7 +2,7 @@ Vanilla raids hand a tribal colony assault rifles long before it could research 
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-raid.gif[/img]
 
-The rules run when a raider, visitor or other non-colony pawn dies, is stripped, is arrested or joins your colony. A downed pawn keeps his weapon in his hand until then, so his gear is judged only once. Gear your colony could already make drops as normal.
+The rules run when a raider, visitor or other non-colony pawn dies, is stripped, is arrested or joins your colony. A downed pawn keeps their weapon in hand until then, so their gear goes through the rules only once. Gear your colony could already make drops as normal.
 
 Every part of it is configurable: which groups of pawns the rules cover, an outcome and chance for each item category, keep and remove lists, and presets for progression, cleanup or vanilla. Modpacks can set and lock their own defaults.
 
@@ -17,8 +17,8 @@ For cleanup only, a preset deletes weak gear and all ammo from the hostile dead 
 [list]
 [*][b]Scrap per era.[/b] Six stackable scrap items, from neolithic to archotech. The amount depends on the gear's value, quality and condition, so a stone knife gives one unit and a charge rifle gives several.
 [*][b]Recycle or study.[/b] At benches you have, scrap becomes materials of its era or research points.
-[*][b]A Who list.[/b] Hostile pawns, non-hostile pawns, wild people and animals, prisoners, recruited prisoners and other joiners each apply the item rules, are excluded, or keep their gear whole with out-of-reach gear marked unfamiliar until you research it.
-[*][b]A rule per item category.[/b] Weapons, apparel, ammunition, drugs, medicine, food and other inventory each get an outcome (scrap, disassemble, delete or vanilla), a chance, and optional limits by research, quality and hit points. By default only weapons and apparel are scrapped, and only when they are beyond your research.
+[*][b]A Who list.[/b] Hostile pawns, non-hostile pawns, wild people and animals, prisoners, recruited prisoners and other joiners each apply the item rules, are left alone, or keep their gear whole with gear beyond your research marked unfamiliar until you research it.
+[*][b]A rule per item category.[/b] Weapons, apparel, ammunition, drugs, medicine, food and other inventory each get an outcome (scrap, disassemble on the spot, delete or drop as normal), a chance, and optional limits by research, quality and hit points. By default only weapons and apparel are scrapped, and only when they are beyond your research.
 [*][b]Protection.[/b] Quest items are never touched by default, and neither are unique weapons (Odyssey), persona weapons (Royalty) or relics (Ideology). An always-keep list and an always-remove list are picked from a searchable item menu.
 [*][b]Corpse cleanup.[/b] Optional removal of humanlike, animal and mechanoid corpses, each with its own box. Butchering a humanlike corpse strips it first, and what comes off follows the item rules.
 [/list]
@@ -29,7 +29,7 @@ Scrap is worth almost nothing by default, so a stockpile does not raise colony w
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-recycle.gif[/img]
 
-Recycle bills at the crafting spot, smithy, machining table and fabrication bench turn scrap into materials of its era. Each bench handles its own tier and every tier below it. A x10 bill handles ten units in one job.
+Recycle bills at the crafting spot, smithy, machining table and fabrication bench turn scrap into materials of its era. Each bench recycles its own era and every era below it. A x10 bill handles ten units in one job.
 
 [h2]Study for research[/h2]
 
@@ -41,13 +41,13 @@ Study bills at a research bench pay a set number of points per unit into the cur
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-on-body.gif[/img]
 
-By default a dead pawn keeps everything on the body (weapon, medicine, food, silver and scrap) until you strip, butcher or cremate the corpse. Untick the hostile or non-hostile box under [b]Don't drop your stuff[/b] and that group's loot drops on the ground as in the base game, sorted as it drops.
+By default a dead pawn keeps everything on the body (weapon, medicine, food, silver and scrap) until you strip, butcher or cremate the corpse. Untick the hostile or non-hostile box under [b]Keep gear on the body[/b] and that group's loot drops on the ground as in the base game, then follows the item rules.
 
 [h2]Downed raiders keep their weapon[/h2]
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-downed.gif[/img]
 
-A raider who goes down keeps his weapon in his hand, and nothing drops. His gear is not judged until he is stripped, arrested, joins your colony or dies, and then only once. If he gets back up, he is still armed. Untick his box and the weapon drops and is sorted at once.
+A raider who goes down keeps their weapon in hand, and nothing drops. Their gear goes through the rules only once, when they are stripped, arrested, join your colony or die. If they get back up, they are still armed. Untick the Hostiles box and the weapon drops and follows the item rules at once.
 
 [h2]How to use[/h2]
 
@@ -62,9 +62,9 @@ The mod starts on the Progression preset.
 [h2]Presets[/h2]
 
 [list]
-[*][b]Progression[/b] (default): weapons and apparel beyond your research become scrap when a hostile, non-hostile or wild pawn or a prisoner loses them. Other joiners keep their gear, with out-of-reach items marked unfamiliar. Everything else drops as normal, and corpses are left.
-[*][b]Cleanup[/b]: hostile pawns only, no era handling. From the hostile dead, weapons below normal quality, apparel below good quality, and either one below 50% hit points are deleted, along with all ammunition. Every hostile humanlike corpse is removed.
-[*][b]Vanilla[/b]: every group is excluded and nothing stays on the body, so loot and corpses behave as in the base game.
+[*][b]Progression[/b] (default): weapons and apparel beyond your research become scrap when a hostile, non-hostile or wild pawn or a prisoner loses them. Other joiners keep their gear, with items beyond your research marked unfamiliar. Everything else drops as normal, and corpses are left.
+[*][b]Cleanup[/b]: hostile pawns only, ignores research. From the hostile dead, weapons below normal quality, apparel below good quality, and either one below 50% hit points are deleted, along with all ammunition. Every hostile humanlike corpse is removed.
+[*][b]Vanilla[/b]: every group is left alone and nothing stays on the body, so loot and corpses behave as in the base game.
 [/list]
 
 The settings page shows the active preset and whether you changed it.
@@ -81,7 +81,7 @@ The settings page shows the active preset and whether you changed it.
 
 Loot Scavenging is not compatible with Looting Manager.
 
-Modpacks can patch the scrap tiers, their benches and materials, and the default settings, which are all XML. A pack can also lock chosen settings. A modlist can ship its own settings through Auto Mod Config, which is optional. The mod's folder has an example preset.
+Modpacks can patch the scrap eras, their benches and materials, and the default settings, which are all XML. A pack can also lock chosen settings. A modlist can ship its own settings through Auto Mod Config, which is optional. The mod's folder has an example preset.
 
 You can add Loot Scavenging to an existing save. Stockpiles you already have will not take scrap until you allow it in their filters.
 

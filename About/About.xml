@@ -24,7 +24,7 @@
   </incompatibleWith>
   <description>Loot Scavenging decides what happens to the gear of raiders, visitors and other non-colony pawns when they die, are stripped, are arrested or join your colony. By default, gear beyond your colony's research turns into scrap of its era. Recycle the scrap at benches you already have for materials of that era, or study it at a research bench for points toward your current project.
 
-A Who list picks which groups of pawns the rules cover, and each item category has its own rule: scrap, disassemble, delete or vanilla, with a chance and optional quality, hit point and research limits. Three boxes keep a downed or dead pawn's weapon and loot on him. Presets cover progression play, raid cleanup and vanilla behaviour. Quest items, unique weapons, persona weapons and relics are protected, and corpses can be removed after a fight.
+A Who list picks which groups of pawns the rules cover, and each item category has its own rule: scrap, disassemble on the spot, delete or drop as normal, with a chance and optional quality, hit point and research limits. Three boxes keep a downed or dead pawn's weapon and loot on the body. Presets cover progression play, raid cleanup and vanilla behaviour. Quest items, unique weapons, persona weapons and relics are protected, and corpses can be removed after a fight.
 
 Languages: English, 简体中文 (Simplified Chinese), Русский (Russian).
 
