@@ -2,6 +2,8 @@
 
 Status: done
 
+**Superseded by ticket 25 (2026-11-25):** the settings this ticket added are replaced by the Who rows and the three "Don't drop your stuff" boxes. See [25-settings-redesign.md](25-settings-redesign.md).
+
 **Recommended model:** `opus`. It changes saved settings (a split key and a new default) and when gear is judged at the core hooks; a mistake silently changes a player's choice or scraps a colonist's gun.
 
 **Blocked by:** None. Ships in 0.5.2 (unreleased), on top of tickets 21 and 23, merged on main.

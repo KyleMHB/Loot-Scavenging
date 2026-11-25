@@ -6,7 +6,7 @@ Written 2026-11-20 from the design doc at https://claude.ai/artifact/WFrwwPtCFzM
 
 ## Goal and scope
 
-Loot Scavenging decides what happens to gear when a non-colony pawn drops it: keep, degrade, scrap, disassemble or delete. Scrap can then be recycled for materials or studied for research at benches the colony already has. It is an original mod, informed by what the comments on Looting Manager show players want and where they hit problems.
+Loot Scavenging decides what happens to gear when a non-colony pawn drops it: leave it as the game does (vanilla), scrap, disassemble or delete. Scrap can then be recycled for materials or studied for research at benches the colony already has. It is an original mod, informed by what the comments on Looting Manager show players want and where they hit problems.
 
 It serves two kinds of player:
 
@@ -42,33 +42,37 @@ Ideas and game mechanics are free to learn from. The table records the ideas tak
 | Roll a chance | One global chance | A chance per category |
 | When to act | Reacts after any item leaves a pawn's gear | Sorts the pawn's gear before the game drops it |
 
-Degrade, scrap, recycling, study, protection lists, presets and the era rules have no counterpart in Looting Manager.
+Scrap, recycling, study, protection lists, presets and the era rules have no counterpart in Looting Manager.
 
 ## Loot rules
 
+Ticket 25 (2026-11-25, Kyle's decisions) replaced the drop mode and the per-moment toggles with one system: the per-category item rules, applied to the groups of pawns the Who list names. Earlier versions of this section described a drop mode, `rules.downedGear`, `deathDrop`, "Sort when arrested" and "Sort when stripped". None of them exists any more.
+
 Every item a pawn drops passes the same ordered checks, and the first check that says "leave it" ends the run with the item untouched.
 
-1. **Owner.** Colony pawns are never affected, and neither is a pawn that has ever been a colonist (a colonist who ran wild, a shambler raised from one). Their gear is never scrapped or sorted; "Colonists keep their gear" only chooses whether it stays on them (see "Colonists"). Other pawns fall into four groups, each with its own toggle: hostile, non-hostile faction, no faction (wild animals, wild people), and the colony's prisoners.
+1. **Owner.** Colony pawns are never affected, and neither is a pawn that has ever been a colonist (a colonist who ran wild, a shambler raised from one). Their gear is never scrapped or sorted. Other pawns fall into six groups, each with a Who row (see "Settings page"): hostile pawns, non-hostile pawns, wild people and animals, prisoners, recruited or enslaved prisoners, and other joiners. A row is **Apply item rules**, **Exclude** or **Mark unfamiliar**. Exclude ends the run. Mark unfamiliar keeps the gear whole and labels gear beyond the colony's reach unfamiliar (see "Original-item mode"). It replaces the item rules for that group and ends the run.
 2. **Place.** An optional "home map only" setting leaves loot alone on caravan, quest and outpost maps.
-3. **Moment.** Rules always apply on death. Two toggles extend them (ticket 24; before it one setting, "Also when stripped or arrested", `onDownedAndStrip`, covered both): "Sort when arrested" (`rules.sortWhenArrested`) covers the weapon and pack the game takes off a pawn as he is arrested, captured or sold, and "Sort when stripped" (`rules.sortWhenStripped`) covers what comes off at a strip. With a toggle off, that moment's gear drops whole. The Progression preset turns both on and switches the prisoner group on, so out-of-reach gear cannot be taken intact from a captured raider or a stripped prisoner. Cleanup and Vanilla turn both off. A downed pawn keeps his weapon in hand by default, and nothing is judged until one of those moments (see "Downed pawns"); under "Drop the weapon" a downing is always sorted, whatever the toggles say. A pawn joining the colony is a separate moment (see "Pawns who join the colony"); the toggles do not gate it. A pawn dropping his weapon because he lost the use of his arms is always sorted.
-4. **Protection.** Quest-tagged items, unique weapons, persona weapons, relics and anything on the player's keep list are never touched. In "Keep the original item" mode they are never unfamiliar either.
-   Then the **remove list**: an item on it gets its category's outcome, or Delete when that outcome is Keep, skipping the drop mode, conditions and chance (settled 2026-11-24; before, the drop mode came first and kept or scrapped out-of-reach listed items). Then the **drop mode**, which decides out-of-reach items before the category rule.
+3. **Protection.** Quest-tagged items, unique weapons, persona weapons, relics and anything on the player's keep list are never touched, and never marked unfamiliar.
+4. **Remove list.** An item on it gets its category's outcome, or Delete when that outcome is Vanilla, skipping the conditions and chance.
 5. **Category.** The item is matched to one category rule: weapons, apparel, or an inventory group (ammunition, drugs, medicine, food, other).
 6. **Conditions.** The category rule can be limited to items beyond the colony's reach, below a quality, or below a hit-point percentage.
-7. **Chance.** The category's own chance is rolled.
+7. **Chance.** The category's own chance is rolled. It is typed as 0 to 100 and shown as "Chance to scrap", "Chance to disassemble" or "Chance to delete".
 8. **Outcome.** The category's outcome is applied.
 
-A whole dropped stack is treated as one item, and a partial drop acts on the piece that left the pawn. Each item is judged once: a downing either judges nothing ("Keep his weapon") or drops what it judged ("Drop the weapon"), so nothing judged at a downing stays on the pawn to be judged again. (Ticket 24: until then "Everything stays on the body" kept judged gear on a downed pawn and remembered it.) Locked apparel stays on a stripped living pawn, but is sorted at death.
+There is no moment step. Gear that comes off a pawn whose row is Apply is always sorted, at the moment it comes off: death, strip, arrest, joining, or a drop the game makes. The "Don't drop your stuff" boxes only choose whether gear comes off at a downing or a death at all (see "Settings page").
+
+A whole dropped stack is treated as one item, and a partial drop acts on the piece that left the pawn. Each item is judged once. Locked apparel stays on a stripped living pawn, but is sorted at death.
 
 | Outcome | What the player sees |
 | --- | --- |
-| Keep | Vanilla behaviour. |
-| Degrade | The item survives at a random hit-point level inside a set range, 10% to 40% by default. An option also lowers its quality one step. |
-| Scrap | The item becomes stackable scrap of its era, to be recycled or studied at a bench. This is the default for out-of-reach gear. |
-| Disassemble | The item is replaced on the spot by materials, with no bench work. A setting chooses the yield: era-typical materials picked from the tier's loot pool, or the item's own ingredients at a set efficiency. |
+| Vanilla | The base game's behaviour. (Called Keep in earlier versions.) |
+| Scrap | The item becomes stackable scrap of its era, to be recycled or studied at a bench. |
+| Disassemble | The item is replaced on the spot by materials, with no bench work. A setting chooses the yield: materials picked from the colony era's loot pool, or the item's own ingredients at a set efficiency (shown only under that yield). |
 | Delete | The item vanishes. |
 
-Loaded charges in reloadable gear follow their own setting: eject, or go with the item.
+Degrade was cut in 0.6.0, with its range and "lowers quality". Loaded charges in reloadable gear are always ejected.
+
+**Defaults:** weapons and apparel are Scrap with "Only gear beyond the colony's reach" ticked. Every other category is Vanilla, so out-of-reach drugs, food and other items are not scrapped, and neither are medicine and ammunition. (Medicine and ammunition used to be exempt from the drop mode by a setting each. They now follow their own rule like any category.)
 
 **Out of reach** means the item's research is unfinished or its era is above the colony's current era. An item's era is found in this order:
 
@@ -76,20 +80,7 @@ Loaded charges in reloadable gear follow their own setting: eject, or go with th
 2. The item's own tech level.
 3. The era of the faction that carried it.
 
-Step 3 covers modded and uncraftable gear with no era of its own. Two settings replace it for players who prefer a blunter fallback: treat such gear as the colony's own era, or break it straight into components.
-
-**Drop mode** is one setting that decides what out-of-reach gear becomes.
-
-| Drop mode | Effect |
-| --- | --- |
-| Scrap out-of-reach gear (default) | Gear within reach follows its category rule. Gear beyond it becomes scrap. |
-| Scrap everything | All gear enemies drop becomes scrap. Maximum cleanup, no usable loot. |
-| Keep the original item | Out-of-reach gear drops whole but cannot be used until researched. It can be recycled or studied as if it were scrap. |
-| Off | No era handling. Out-of-reach gear follows its category rule like any other gear. Used by the Cleanup and Vanilla presets. |
-
-All four modes ship in the first release.
-
-**Which categories the drop mode judges** is a switch on each category's rule, "Include in drop mode" (`rules.<category>.inDropMode`). Weapons and apparel are on by default; a weapon or apparel carried in the inventory counts as gear. Every inventory category is off by default: ammunition, drugs, medicine, food, knowledge, genetics, body parts, raw materials and other. An item in a category that is off follows its category rule, whatever its era. This applies to every drop mode, so "Scrap everything" scraps all gear and only the inventory categories switched on. New inventory categories are added as reports show items the drop mode should not judge, each with its switch off. (Settled 2026-11-24, after Nacht's report: a tribal raider's devilstrand became spacer scrap. Components, survival meals, go-juice and techprints would have gone the same way.)
+Step 3 covers modded and uncraftable gear with no era of its own. It is fixed. The "colony's era" and "break into components" alternatives were cut in 0.6.0, and `ComponentsFallback` and the cheap-gear rule in `DisassembleApplier` went with them.
 
 **Inventory categories added 2026-11-24**, from a survey of 1,559 downloaded Workshop mods and the DLCs ([pack-item-categories.md](pack-item-categories.md)). Each keeps its items by default:
 - **Knowledge:** books, schematics, techprints, neurotrainers and research papers.
@@ -98,11 +89,7 @@ All four modes ship in the first release.
 
 The survey also settled two classification rules. Mortar shells and modded bolts count as ammunition. Anything under the game's drugs category counts as drugs, including serums with no drug effect. Usable items (loot boxes, weapon kits, quest cards, shards) count as other, never as raw materials. Named exceptions (an item or a thing category that should count as a given inventory category) live in an XML list that packs can patch, not in code, so a renamed or refiled item is fixed with a patch.
 
-**Raw materials** is an inventory category: anything the game counts as a building material (stuff), and items filed under the game's raw resources or manufactured categories (`ResourcesRaw`, `Manufactured`), except mortar shells. It covers devilstrand, steel, plasteel, wood, stone blocks, silver, gold, chemfuel, components and neutroamine. Materials have no era and are never out of reach, because any colony can build and craft with them. With the switch on, "Scrap out-of-reach gear" still leaves them whole, and "Scrap everything" turns them into scrap of the colony's era.
-
-**Medicine is exempt from the drop mode** by default. Out-of-reach medicine, such as industrial medicine at a tribal colony, follows the medicine category rule instead of becoming scrap, so a raid does not destroy something a colony needs. A setting includes medicine in the drop mode like any other item.
-
-**Ammunition is exempt the same way**, with its own setting. Out-of-reach rounds mostly fit out-of-reach weapons, which the drop mode already handles, and scrapping a big stack of cheap rounds gave far more scrap than the ammo was worth.
+**Raw materials** is an inventory category: anything the game counts as a building material (stuff), and items filed under the game's raw resources or manufactured categories (`ResourcesRaw`, `Manufactured`), except mortar shells. It covers devilstrand, steel, plasteel, wood, stone blocks, silver, gold, chemfuel, components and neutroamine. Materials have no era and are never out of reach, because any colony can build and craft with them. A beyond-reach rule never touches them, and a rule with no reach condition applies to them like any item.
 
 ## Scrap, recycling and study
 
@@ -113,8 +100,8 @@ Out-of-reach gear becomes scrap: one stackable item per era, where the amount ca
 - **One item per era.** Six tiers: neolithic, medieval, industrial, spacer, ultratech and archotech. Animal-era gear becomes neolithic scrap, since no bench sits below the crafting spot. Scrap is generic. It does not remember the item it came from, so it stacks fully and a large raid leaves a few piles.
 - **Amount is value.** A stone knife becomes one unit of neolithic scrap and a charge rifle becomes several units of spacer scrap, scaled by the item's worth, quality and condition.
 - **Low market value.** Scrap is worth close to nothing by default, so a stockpile kept for a later era does not raise colony wealth or sell for silver. A setting changes this.
-- **Where it appears.** Since ticket 24 the default of the "where loot lands at death" setting (`deathDrop`) is "Everything stays on the body" (presets do not set it); it applies at death only, and a downing under "Drop the weapon" drops to the ground under every value. The rest of this paragraph is the history. On the ground by default, like other drops. The setting can leave the scrap on the body, or leave everything on the body: the weapon, inventory, scrap, disassembly products and ejected charges of a pawn the rules cover, collected when the corpse is stripped, butchered or cremated. Pawns whose gear the game destroys at death, and pawns that cannot be stripped, drop as usual. (Added 2026-11-21.) "Everything on the body" also covers downing: a downed pawn keeps its weapon, inventory and scrap in its pack, as Non uno Pinata players expect. (Added 2026-11-23, from a player report.) The weapon goes into the pack, not the hands: the game drops a weapon a downed pawn holds whenever the pawn is spawned again, after a reload or being carried, and a raider who got back up would be armed at once. (Changed 2026-11-23.) Since ticket 21 this paragraph describes "Drop the weapon"; under the default, "Keep his weapon", every covered downed pawn keeps his weapon whole in hand whatever `deathDrop` says, and nothing is judged until he is stripped, arrested, joins or dies. Since ticket 23 the weapon stays in hand under "Drop the weapon" too, and the game's drop when he is spawned again is sorted instead; under "Keep his weapon" that drop is blocked (see "Downed pawns").
-- **Original-item mode.** When the drop mode keeps the original item, that item counts as its scrap equivalent at the bench: the same era, amount, yields and points. It is labelled unfamiliar and cannot be equipped until its research finishes. A setting chooses which gear gets the label: all out-of-reach gear from any source (default), or only gear looted from pawns. The default is worked out from research and saves nothing. Looted-only needs a marker saved on each looted item.
+- **Where it appears.** Where a pawn's loot and scrap land is chosen by the three "Don't drop your stuff" boxes (see "Settings page"). With a box on, a dead pawn of that group keeps everything on the body until the corpse is stripped, butchered or cremated, and a downed one keeps his weapon in hand. With it off, the loot drops on the ground like other drops, sorted as it drops. Pawns whose gear the game destroys at death, and pawns that cannot be stripped, drop as usual. The earlier "where loot lands at death" setting (`deathDrop`) and "when a non-colony pawn is downed" setting (`rules.downedGear`) were replaced by the boxes in 0.6.0.
+- **Original-item mode.** When a Who row is set to Mark unfamiliar, that group's gear stays whole and out-of-reach gear counts as its scrap equivalent at the bench: the same era, amount, yields and points. It is labelled unfamiliar and cannot be equipped until its research finishes. The unfamiliar label setting chooses which gear gets the label: all out-of-reach gear from any source (default), or only gear looted from pawns. The default is worked out from research and saves nothing. Looted-only needs a marker saved on each looted item.
 
 ### Recycling
 
@@ -149,9 +136,9 @@ Study is a job in the Research work type: a researcher carries scrap to a resear
 | Where points go | The project currently being researched, if it is of the scrap's era or lower. |
 | Finishing a project | Study can finish a project, through the game's normal completion. |
 | Nothing eligible | When no project is active, or the active project is a higher era than the scrap, the study job waits and the scrap stays in storage. Its inspect text says why. |
-| Which scrap can be studied | A setting. By default the colony's current era and below, so higher scrap waits until the colony advances. |
+| Which scrap can be studied | Fixed: the colony's current era and below, so higher scrap waits until the colony advances. (The setting was cut in 0.6.0.) |
 | Recycle or study | A setting. By default each unit is used for one or the other. The alternative studies it first and then recycles the remains at reduced value. |
-| How much | A set number of points per unit for each tier: a setting per tier (default 5, 7.5, 7.5, 12.5, 17.5, 25; 10, 15, 15, 25, 35, 50 before 0.5.2; 10, 20, 30, 50, 70, 100 before 2026-11-23) and one multiplier for all (default 100%, 0 to 300%). Zero stops that tier being studied. |
+| How much | A set number of points per unit for each tier, a setting per tier typed in a text box (default 5, 7.5, 7.5, 12.5, 17.5, 25; 10, 15, 15, 25, 35, 50 before 0.5.2; 10, 20, 30, 50, 70, 100 before 2026-11-23). Zero stops that tier being studied. The one multiplier for all was cut in 0.6.0 (ticket 25): a saved multiplier other than 1 is multiplied into each tier's points once. |
 | Techprint projects | A setting, off by default. Off, projects that need techprints receive nothing. On, study pays into them even before the techprints are applied. Projects with a special study source never receive anything. |
 | Time and skill | Study time scales with the points paid. Research speed applies and the researcher gains Intellectual experience. |
 
@@ -171,97 +158,127 @@ That mod has paid research from items since 2020, and its comments show where th
 
 ## Corpses and butchering
 
-Corpse cleanup is its own rule with a chance and three separate toggles: humanlike, animal and mechanoid.
+Corpse cleanup is three separate checkboxes: humanlike, animal and mechanoid. A ticked kind is always removed. The details are under "Settings page", "Corpses".
 
 - The corpse's gear goes through the loot rules first, so nothing bypasses them.
-- The owner and place checks apply to corpses too. A wild animal's corpse is only removed if the "no faction" group is switched on.
+- The owner and place checks apply to corpses too.
 - A pawn that dies without leaving a corpse is skipped quietly.
-
-A separate option removes worn apparel when a corpse is butchered, so tainted clothing stops piling up in the butchering room while raiders still drop gear normally.
+- Butchering a humanlike corpse always strips and sorts it first.
 
 ## Settings page
 
-The page is grouped into six sections.
+The page has these sections, top to bottom. Every slider is a numeric text box clamped to its range (ticket 25), and percentages are typed as 0 to 100.
 
 | Section | Controls |
 | --- | --- |
-| Presets | Vanilla, Cleanup, Progression, and Reset to defaults |
-| Who and where | Owner groups, prisoners, home map only, downed pawns, colonists keep their gear, sort when arrested, sort when stripped, and the gear of joiners (two rows) |
+| Presets | Progression, Cleanup, Vanilla, and Reset to defaults |
+| Don't drop your stuff | Three boxes: colonists, hostiles, non-hostiles |
+| Who | One row per group of pawns: Apply item rules, Exclude or Mark unfamiliar |
 | Item rules | One row per category: outcome, chance, conditions |
-| Scrap and study | Drop mode, which eras can be studied, recycle or study, study points per tier and their multiplier, scrap value, where scrap appears, era fallback, disassembly yield, techprint projects, unfamiliar label scope |
-| Corpses | Humanlike, animal, mechanoid, chance, butchering option |
-| Lists | Always keep, always remove, protection toggles |
+| Scrap | Research points per era, "Study pays into techprint projects", scrap market value per era, recycle or study |
+| Corpses | Humanlike, animal, mechanoid |
+| Lists | The four protect toggles, always keep, always remove |
+| Other | Instant disassembly yield (and its efficiency), unfamiliar label scope, apply on the home map only |
 
-- **Default preset is Progression.** There is no first-load message; the Workshop description and the settings page explain the presets.
-
-The presets set these values.
-
-| Setting | Progression | Cleanup | Vanilla |
-| --- | --- | --- | --- |
-| Drop mode | Scrap out-of-reach gear | Off | Off |
-| Moment | Death, strip and arrest | Death only | Not used |
-| Downed pawns | Keep his weapon | Keep his weapon | Keep his weapon |
-| Colonists keep their gear | On | On | Off |
-| Owner groups | Hostile, non-hostile faction, no faction, prisoners | Hostile only | None |
-| Gear of recruited or enslaved prisoners | Follow the drop mode | Leave alone | Leave alone |
-| Gear of other joiners | Mark out-of-reach gear unfamiliar | Leave alone | Leave alone |
-| Weapons | Keep within reach | Delete below Normal quality or below 50% hit points, otherwise keep | Keep |
-| Apparel | Keep within reach | Delete below Good quality or below 50% hit points, otherwise keep | Keep |
-| Ammunition | Keep | Delete | Keep |
-| Other inventory groups | Keep within reach | Keep | Keep |
-| Include in drop mode | Weapons and apparel on; every inventory category off | Same | Same |
-| Corpses | Off | Humanlike on at 100%; animal and mechanoid off | Off |
-| Butchering removes worn apparel | Off | Off | Off |
-
-Cleanup leaves animal corpses for food and mechanoid corpses for smelting, so it removes only what a colony has no use for. Apparel has a higher quality bar than weapons because everything worn at death is tainted, so Normal apparel from the dead is clutter while Good or better armour is still worth wearing or selling. The butchering option stays off because every hostile humanlike corpse is already removed, which leaves it almost nothing to act on.
+- **Default preset is Progression.** There is no first-load message. The Workshop description and the settings page explain the presets.
 - **Presets** set every setting at once. The page shows which preset is active and whether it has been changed.
 - **Each row says what will happen** in a sentence under it.
 - **Lists** are picked from a searchable item menu and stored by item name, so a removed mod does not break the settings.
-- **Outcome sliders** for degrade range and disassemble efficiency sit beside the outcome they affect and are hidden when unused.
+- **Disassembly efficiency** shows only under "Materials of the item".
 
-Settings are global. All text is translatable from the first release.
+Settings are global. All text is translatable.
 
-### Pawns who join the colony
+### Don't drop your stuff
 
-Added 2026-11-24 (ticket 20, Kyle's decisions). Two settings, `rules.prisonerJoinGear` (recruited or enslaved colony prisoners) and `rules.otherJoinGear` (wanderers, refugees, quest joiners, rescued pawns, creepjoiners and the like), each take one of three values:
+Three checkboxes, all on by default (`colonistsKeepGear`, `hostilesKeepGear`, `nonHostilesKeepGear`). They choose where items land. Whether they are sorted is the Who row's job.
 
-- **Mark out-of-reach gear unfamiliar.** The joiner keeps wearing and holding his gear. Each out-of-reach worn apparel and held equipment item, and each out-of-reach weapon or apparel in his pack, gets a join mark (`CompUnfamiliar.joinedEra`, saved only when set). A marked item is unfamiliar in every drop mode, not only "Keep the original item", until its research is finished or the colony's era catches up; once it is off him, no colonist can equip or wear it, and it can be recycled or studied at a bench like other unfamiliar gear. Protected items (quest, unique, persona, relic, keep list) are never marked, and neither is apparel the game has locked on him. Medicine and other pack items are never marked. (Pack added 2026-11-24, ticket 21.)
-- **Follow the drop mode.** His worn apparel, held equipment and pack are sorted at the moment `Join`, with the evaluator's ordinary steps and his owner group from before he joined. Weapons and apparel in the pack follow the weapon and apparel rules; everything else follows its item rule. The arrest and strip toggles do not gate `Join`; the owner groups and home-map setting still apply. Locked apparel stays. (Pack added 2026-11-24, ticket 21.)
-- **Leave their gear alone.**
+- **Colonists keep their weapons when downed or killed.** A downed colonist or colony slave keeps his weapon in hand and his pack. Nothing drops at the downing, and the game's drop as he is spawned again (carried and set down, rescued into a bed, loaded) is blocked. A dead one keeps his weapon and pack in his corpse. A resurrected colonist finds his weapon in his pack, as the game puts it there. Colony gear is never sorted either way, so colonists have no Who row. Colony animals and mechanoids are left to the game. A kidnapped colonist keeps his weapon, and a buried colonist's corpse keeps his gear in the grave.
+- **Hostiles don't drop their gear, weapons and loot on the floor when downed or killed.** On, a downed hostile keeps his weapon in hand, his apparel and his pack, and nothing is judged until his gear changes hands: stripped, arrested or captured, joining, or death. A dead hostile keeps everything on the body (weapon, inventory, scrap, disassembly products and ejected charges) until the corpse is stripped, butchered or cremated. Off, the game drops his weapon and inventory (never his apparel), and what drops is sorted as it drops. What the rules keep lands whole on the ground.
+- **Non-hostiles don't drop their gear, weapons and loot on the floor when downed or killed.** The same for pawns of non-hostile factions and wild people. A prisoner follows his faction: a hostile faction's prisoner uses the hostile box, anyone else the non-hostile one.
 
-Defaults: prisoners follow the drop mode (which 0.5.2 already did, gated by downed-and-strip), everyone else is marked. Cleanup and Vanilla leave both alone, as they have no era handling.
+Mechanoids and other pawns that cannot be stripped still drop on the ground. Pawns the rules do not cover drop as in the game. A pawn downed in bed keeps his weapon in hand, as the game does, and an arrest then sorts it. A trader's goods keep their not-for-sale mark. Hospitality stops the game's drop for a friendly guest. With the box off, the mod drops the guest's gear itself, sorted. A weapon or apparel in a pack counts as a weapon or apparel for the item rules, so gear in a pack is judged by the rule that would have judged it in his hands. A pawn dropping his weapon because he lost the use of his arms is sorted when his row is Apply.
+
+Each item is judged once. A downing that keeps his weapon judges nothing, and a downing that drops it sorts what it drops. After a save is loaded, gear a box kept is judged once more when it comes off.
+
+### Who
+
+One row per group, each **[Apply item rules | Exclude | Mark unfamiliar]**. Saved as `rules.whoHostile`, `rules.whoNonHostile`, `rules.whoWild`, `rules.whoPrisoners`, `rules.whoRecruitedPrisoners` and `rules.whoOtherJoiners`.
+
+| Row | Covers | Default |
+| --- | --- | --- |
+| Hostile pawns | Pawns of hostile factions | Apply |
+| Non-hostile pawns | Pawns of non-hostile factions: traders, visitors, allies | Apply |
+| Wild people and animals | Pawns with no faction. Also gates wild animal corpse removal | Apply |
+| Prisoners | Gear that comes off a prisoner: stripping him, or arresting a standing pawn | Apply |
+| Recruited or enslaved prisoners | Gear as the prisoner joins the colony | Apply |
+| Other joiners | Wanderers, refugees, quest joiners, rescued pawns, creepjoiners | Mark |
+
+- A raider's gear is judged under the Hostile row when he is downed or killed. The Prisoners row covers what comes off him later.
+- **Mark unfamiliar** keeps the group's gear whole and marks out-of-era gear unfamiliar. For the first four rows the label follows the unfamiliar scope setting. For a joiner row the mark is saved on the item.
+- There are no "Sort when arrested" or "Sort when stripped" toggles. Gear that comes off a group set to Apply is always sorted.
+- When every row is Exclude, the item rules change no loot and no corpses.
+
+#### Pawns who join the colony
+
+The two joiner rows decide a pawn's gear at the moment `Join` (ticket 20, extended by tickets 21 and 25). Recruited or enslaved prisoners have their own row. The other row covers wanderers, refugees, quest joiners, rescued pawns, creepjoiners and the like.
+
+- **Mark unfamiliar.** The joiner keeps wearing and holding his gear. Each out-of-reach worn apparel and held equipment item, and each out-of-reach weapon or apparel in his pack, gets a join mark (`CompUnfamiliar.joinedEra`, saved only when set). A marked item is unfamiliar until its research is finished or the colony's era catches up. Once it is off him, no colonist can equip or wear it, and it can be recycled or studied like other unfamiliar gear. Protected items are never marked, and neither is apparel the game has locked on him. Medicine and other pack items are never marked.
+- **Apply item rules.** His worn apparel, held equipment and pack are sorted at the moment `Join`, with the evaluator's ordinary steps and his owner group from before he joined. Locked apparel stays.
+- **Exclude.** His gear is not touched as he joins.
 
 Not joining: a pawn who was ever a colonist, animals, mechanoids and other non-humanlike pawns, quest lodgers, pawns who start in the colony or are born in it, and the pawns of a game-end "new wanderers" incident, which are generated straight into the player's faction.
 
-Built as a prefix and finalizer on `Pawn.SetFaction` (new faction is the player's, the pawn is not), which every quest part, rescue, trade and recruit reaches, plus the same on `RecruitUtility.Recruit`, which unlocks apparel and clears the prisoner status before it calls `SetFaction`. A pawn handled by the `Recruit` hook is marked in `SortedDrop` until the call ends, so the `SetFaction` inside skips him and nothing is judged twice. A joiner with no map cannot be sorted by "Follow the drop mode"; the mark still applies.
+Built as a prefix and finalizer on `Pawn.SetFaction` (new faction is the player's, the pawn is not), plus the same on `RecruitUtility.Recruit`. A pawn handled by the `Recruit` hook is marked in `SortedDrop` until the call ends, so the `SetFaction` inside skips him and nothing is judged twice. A joiner with no map cannot be sorted. The mark still applies.
 
-### Downed pawns
+### Item rules
 
-Added 2026-11-24 (ticket 21, Kyle's decisions). `rules.downedGear`, "When a non-colony pawn is downed", takes one of two values:
+Each category (weapons, apparel, ammunition, drugs, medicine, food, other inventory) chooses **[Scrap | Disassemble | Delete | Vanilla]**, with the conditions and chance described under "Loot rules". The chance is hidden under Vanilla. The defaults are in "Loot rules".
 
-- **Keep his weapon** (`KeepWeapon`, the default in every preset). Nothing drops and nothing is judged at the downing. He keeps his weapon in hand, his apparel on and his pack. His gear is sorted later, at the moment it changes hands: a strip, an arrest or capture, joining (by the joiner settings) or death. So a raider who is captured and recruited is judged once, at the recruit, and a raider who gets back up is still armed. He keeps the weapon in hand when he is spawned again: carried and set down, tucked into a bed after a rescue, or loaded. (Changed 2026-11-24, ticket 23, Kyle's decisions: until then the weapon went whole into his pack, and later the same day the game's drop at a spawn was blocked.)
-- **Drop the weapon.** The game drops his weapon and inventory, never his apparel, and they are always sorted as they drop by the drop mode and item rules, whatever the arrest and strip toggles and the death setting say (ticket 24, Kyle's decisions). What the rules keep lands whole on the ground. This covers every pawn the rules cover, friendly visitors and allies included when non-hostile factions are on. Hospitality stops the game's drop for a friendly guest; the mod then drops the guest's gear itself, sorted. (Until ticket 24 the downing was sorted only with "Also when stripped or arrested" on, and "Everything on the body" kept the gear on him.)
+### Scrap
 
-The game drops the weapon a downed pawn holds when he is spawned again outside a bed, as after being carried and put down. That includes a rescue: `RestUtility.TuckIntoBed` drops the carried pawn on the bed's cell before he lies down, so in vanilla a rescued visitor or trader's guard loses his weapon at the bed. Under "Keep his weapon" the mod blocks that drop for every pawn the setting covers, so nothing leaves him until he is stripped, arrested, joins or dies. A capture is an arrest: the game drops his gear while he is still carried to the prison bed, and that drop is sorted when "Sort when arrested" is on. Under "Drop the weapon" a pawn downed outside a bed holds nothing; one downed in a bed keeps his weapon, as in the game, and if the game later drops it as he is spawned again, that drop is sorted like a downing. (Ticket 23, changed by ticket 24.)
+- **Research points per era.** Six values, default 5, 7.5, 7.5, 12.5, 17.5, 25. Zero stops that era being studied. The multiplier setting was cut, and a saved multiplier is multiplied into each era's points once.
+- **Scrap market value per era.** Six values (`scrapMarketValueNeolithic` to `scrapMarketValueArchotech`), each defaulting to 0.01. `ScrapApplier` reads the scrapped item's tier.
+- **Which scrap can be studied** is fixed: the colony's era and below.
+- Study pays into techprint projects (off by default), and recycle or study is [one or the other | both].
 
-A weapon or apparel in a pack counts as a weapon or apparel for the item rules, not as other inventory, so gear in a pack is judged by the rule that would have judged it in his hands.
+### Corpses
 
-Pawns the rules do not cover, mechanoids, pawns with no inventory and kinds that cannot be stripped follow "Drop the weapon". A pawn downed in bed keeps his weapon in hand, as the game does; an arrest then sorts it. A trader's goods keep their not-for-sale mark.
+Humanlike, animal and mechanoid, each a checkbox (default off). A ticked kind is always removed, after its gear has been through the rules. The removal chance was cut. The owner and place checks apply to corpses too. A wild animal's corpse is only removed while the wild row is Apply. A pawn that dies without leaving a corpse is skipped quietly.
 
-### Colonists
+**Butchering** a humanlike corpse always strips it first, and what comes off is judged by the item rules as if the corpse had been stripped by hand, under the corpse owner's Who row. A row set to Exclude, or a colonist's corpse, gets the game's own butchering. "Butchering removes worn apparel" was cut.
 
-Added 2026-11-24 (ticket 24, Kyle's decisions). `colonistsKeepGear`, "Colonists keep their gear", on by default (off in the Vanilla preset), covers colonists and colony slaves:
+### Other
 
-- **On.** A downed colonist keeps his weapon in hand and his pack: nothing drops at the downing, and the game's drop as he is spawned again (carried and set down, rescued into a bed, loaded) is blocked, as under "Keep his weapon". A dead colonist keeps his weapon and pack in his corpse, as "Everything stays on the body" does for covered pawns, under every death setting. A colonist who is resurrected finds his weapon in his pack, as the game puts it there.
-- **Off.** Colonists drop as in the base game.
+- **Instant disassembly yield:** [materials of the colony's era | materials of the item]. The first rolls the colony era's recycling pool, scaled by the item's scrap amount. Before 0.6.0 it rolled the item's own era. The second is the item's cost list at the efficiency setting.
+- **Unfamiliar label** for gear outside the era: [looted gear only | all gear] (`unfamiliarScope`).
+- **Apply on the home map only** (`rules.homeMapOnly`).
 
-Either way their gear is never scrapped or sorted: colony pawns never go through `GearSorter`, and a colonist kept by this setting is a branch in the downing, spawn and death hooks before any sorting. Colony animals and mechanoids are not covered; the game decides. A kidnapped colonist keeps his weapon; a buried colonist's corpse keeps his gear in the grave.
+### Presets
+
+| Setting | Progression | Cleanup | Vanilla |
+| --- | --- | --- | --- |
+| Don't drop your stuff | All on | All on | All off |
+| Hostile pawns | Apply | Apply | Exclude |
+| Non-hostile pawns, wild, prisoners | Apply | Exclude | Exclude |
+| Recruited or enslaved prisoners | Apply | Exclude | Exclude |
+| Other joiners | Mark | Exclude | Exclude |
+| Weapons | Scrap, only beyond reach | Delete below Normal quality or below 50% hit points | Vanilla |
+| Apparel | Scrap, only beyond reach | Delete below Good quality or below 50% hit points | Vanilla |
+| Ammunition | Vanilla | Delete | Vanilla |
+| Other categories | Vanilla | Vanilla | Vanilla |
+| Corpses | None removed | Humanlike removed | None removed |
+
+Cleanup leaves animal corpses for food and mechanoid corpses for smelting, so it removes only what a colony has no use for. Apparel has a higher quality bar than weapons because everything worn at death is tainted, so Normal apparel from the dead is clutter while Good or better armour is still worth wearing or selling. Cleanup and Vanilla leave the other settings at the Progression values, except that Vanilla turns the three boxes off.
+
+### Migration from 0.5.2 and earlier
+
+`SettingsLoad` reads the old keys once and stops writing them. The mapping is in ticket 25, decision 11, and `SettingLocks.Renamed` maps old lock names to the settings that replaced them. Decision 13 matters most. Since 0.5.2 saves every value, a saved value equal to its 0.5.2 default moves to the 0.6.0 default, and only a changed value is translated. A deliberate choice of a 0.5.2 default is reset, and that can't be detected.
 
 ## Code structure
 
 The mod sorts a pawn's gear just before the game drops it.
 
-The rules run at the moments a pawn's gear changes hands: when it dies (`Pawn.Kill`), when it is downed (`Pawn_HealthTracker.MakeDowned`, where by default nothing drops; see "Downed pawns"), and when it is stripped (`Pawn.Strip`). A hook before each of those walks the pawn's equipment, apparel and inventory, applies each item's outcome, and leaves the rest to the game.
+The rules run at the moments a pawn's gear changes hands: when it dies (`Pawn.Kill`), when it is downed (`Pawn_HealthTracker.MakeDowned`, where by default nothing drops; see "Don't drop your stuff"), and when it is stripped (`Pawn.Strip`). A hook before each of those walks the pawn's equipment, apparel and inventory, applies each item's outcome, and leaves the rest to the game.
 
 The rules do not depend on the drop itself. Non uno Pinata keeps gear on the body by replacing the game's drop-everything call, so rules attached to that call would never run beside it. Acting on the gear before any drop works either way.
 
@@ -271,7 +288,7 @@ The rules do not depend on the drop itself. Non uno Pinata keeps gear on the bod
 | --- | --- |
 | Settings | Holds the rules, lists and presets, read once and cached. |
 | Rule evaluator | Takes a pawn, an item and the map, returns an outcome. No side effects, so it can be reasoned about and logged. |
-| Outcome applier | Degrades, scraps, disassembles or deletes. Owns material placement and forbidding. |
+| Outcome applier | Scraps, disassembles or deletes. Owns material placement and forbidding. |
 | Hooks | Thin Harmony patches that call the evaluator and applier. |
 | Settings window | Draws the page and the item picker. |
 | Era reader | One function returns the colony's era and one returns an item's era, with the fallbacks from the loot rules. Everything era-related calls these two. |
@@ -307,7 +324,7 @@ The table is drawn from the pack mods' Workshop descriptions. Their code has not
 | Progression: Core (3301868772) and Node Research (3729878405) | The colony moves through eras, starting as low as Animal tech, and foundation projects gate each advance. Confirm where these mods store the colony's era. |
 | Peto Progression (3791277458) | Players may sit in one era for a long time by choice, so loot rules shape most of the playthrough. |
 | Progression: Ammunition (3798845290) | The pack's own ammo capacity and refill packs. The ammo system to test first. |
-| Progression: Arsenal (3798837810) | Lists uncraftable weapons. They have no research behind them, so the era fallback decides their fate. |
+| Progression: Arsenal (3798837810) | Lists uncraftable weapons. They have no research behind them, so the carrier faction's era decides their fate. |
 | Semi Random Research: P-Fork (3778002533) | Research is chosen from a few offered projects. Study pays only into the project the player picked from that offer. |
 | Research Papers (3492739424) | Finished research lives in papers that can be lost. Check how it reacts to a project completed by study, and whether losing a paper wipes partial progress. |
 | Visual Progression Framework (3834891951) | Already works out the colony's age and each faction's age for looted gear. Read the era the same way so the two mods agree. |
@@ -332,12 +349,10 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Workshop title | Loot Scavenging |
 | Package id | `kylemhb.lootscavenging` |
 | Originality | Built from this spec and the game's code only. |
-| Drop mode | A setting with four modes, defaulting to scrap for out-of-reach gear. "Off" was added so Cleanup and Vanilla can run without era handling. All four ship first. |
+| Drop mode | Replaced 2026-11-25 (ticket 25) by one rule system: the item rules, applied to the groups of the Who list. A row can Apply item rules, Exclude, or Mark unfamiliar (the old "Keep the original item"). The four modes, their include switches and "Off" are gone. |
 | Scrap form | Generic per era. The amount carries the value. |
 | Scrap tiers | Six, neolithic to archotech, with Animal folded into neolithic. Ultratech and archotech were split from spacer 2026-11-21, so their research can be studied and their gear yields more. |
-| Medicine and the drop mode | Exempt by default, with a setting to include it. Settled 2026-11-21, because industrial medicine was scrapped at tribal colonies. |
-| Ammunition and the drop mode | Exempt by default, with a setting to include it. Settled 2026-11-23, because scrapping a big stack of cheap rounds gave far more scrap than it was worth. |
-| Drop mode scope | A switch per category, weapons and apparel on, inventory categories off. Settled 2026-11-24; replaces `rules.dropIncludesMedicine` and `rules.dropIncludesAmmunition`, which are read once and moved to `rules.medicine.inDropMode` and `rules.ammunition.inDropMode` so packs that set or lock them keep working. |
+| Medicine and ammunition | Follow their own item rules, which default to Vanilla. Settled 2026-11-25 (ticket 25); until then each was exempt from the drop mode by a setting, from 2026-11-21 (medicine) and 2026-11-23 (ammunition). |
 | Knowledge, genetics and body parts categories | Added 2026-11-24 from the pack survey, each kept by default with its switch off. Classification order: gear, ammunition, medicine, drugs, food, knowledge, genetics, body parts, usable items to other, raw materials, other. |
 | Raw materials category | Stuff plus the `ResourcesRaw` and `Manufactured` thing categories (mortar shells excluded; components, chemfuel and neutroamine sit under `Manufactured`), a new inventory category kept by default. Settled 2026-11-24. |
 | Materials and eras | Stuff (devilstrand, steel, stone) has no era and is never out of reach, because any colony can build and craft with it. Settled 2026-11-24, after a player's tribal raider dropped 53 spacer scrap from a stack of devilstrand a modded recipe had given a spacer era. |
@@ -353,19 +368,19 @@ Pack tweaks: the tier table and default settings ship as XML that the pack can p
 | Study completion | Study can finish a project. |
 | Era advances | Study can pay for an era advance project, such as Node Research's emergence, like any other project. Settled 2026-11-21. |
 | Nothing eligible | The study job waits. |
-| Study eras | A setting, defaulting to the colony's era and below. |
+| Study eras | Fixed at the colony's era and below (ticket 25). |
 | Recycle or study | A setting, defaulting to one or the other. |
-| Study points | Settings, not XML: one per tier plus a multiplier, lockable by a pack. Moved from the scrap defs 2026-11-23 at Kyle's request, after a Workshop report that a 3000-point raid gave about 70 industrial scrap, 2100 points. |
+| Study points | Settings, not XML: one per tier, lockable by a pack, typed in text boxes. Moved from the scrap defs 2026-11-23 at Kyle's request, after a Workshop report that a 3000-point raid gave about 70 industrial scrap, 2100 points. The multiplier was cut 2026-11-25. |
 | Techprint projects | A setting, off by default. |
-| Scrap value | A setting, defaulting to near zero. |
-| Where scrap appears | Ground by default, with a setting for the body. |
-| Unknown era | The carrying faction's era, with settings for the colony's era or straight to components. |
-| Instant disassembly | Stays, with a setting for era-typical or item-based yields. |
+| Scrap value | One setting per era, defaulting to near zero (ticket 25). |
+| Where scrap appears | The three "Don't drop your stuff" boxes: on the body when on, on the ground when off (ticket 25). |
+| Unknown era | The carrying faction's era. The colony's era and components alternatives were cut (ticket 25). |
+| Instant disassembly | Stays, with a setting for the colony era's pool or the item's own ingredients. "Materials of the colony's era" rolls the colony's era since 0.6.0 (ticket 25). |
 | Default preset | Progression, with no first-load message. |
-| Downed, stripped and prisoner gear | The Progression preset applies the rules on strip and arrest, with the prisoner group on. Cleanup applies them on death only. A downed pawn keeps his weapon in hand, unjudged, in every preset (ticket 21, 2026-11-24; in hand rather than in his pack since ticket 23). |
-| Other ways gear leaves a living pawn | Settled 2026-11-24, ticket 18 (Kyle asked for it built; the hook design is the implementation's). They count as the stripped-or-arrested moment, so that setting turns them off. Arresting a standing pawn and trading one sort his weapon and inventory as he drops them (`Pawn.DropAndForbidEverything`). A weapon a non-colony pawn drops on its own, as when he loses the use of his arms, is sorted as it drops (`Pawn_EquipmentTracker.TryDropEquipment`). A pawn whose faction changes to the player's has his worn apparel sorted with strip's rules before the change, judged as the group he was. Joiners are now covered by their own settings (ticket 20, see "Pawns who join the colony"), no longer by the downed-and-strip setting. A drop the mod is already sorting (death, downing, strip) is never sorted again by these. Gear lost with a corpse that burns, rots away or is eaten is expected and stays lost. |
+| Downed, stripped and prisoner gear | Replaced 2026-11-25 (ticket 25). No moment toggles: gear that comes off a group set to Apply is always sorted, and the Prisoners row covers a stripped prisoner and an arrest. A downed pawn keeps his weapon in hand when his group's "Don't drop your stuff" box is on, in every preset but Vanilla. |
+| Other ways gear leaves a living pawn | Settled 2026-11-24, ticket 18 (Kyle asked for it built; the hook design is the implementation's). They count as the stripped-or-arrested moment, which since ticket 25 follows the Prisoners and group rows (the toggle that turned them off is gone). Arresting a standing pawn and trading one sort his weapon and inventory as he drops them (`Pawn.DropAndForbidEverything`). A weapon a non-colony pawn drops on its own, as when he loses the use of his arms, is sorted as it drops (`Pawn_EquipmentTracker.TryDropEquipment`). A pawn whose faction changes to the player's has his worn apparel sorted with strip's rules before the change, judged as the group he was. Joiners are now covered by their own settings (ticket 20, see "Pawns who join the colony"), no longer by the downed-and-strip setting. A drop the mod is already sorting (death, downing, strip) is never sorted again by these. Gear lost with a corpse that burns, rots away or is eaten is expected and stays lost. |
 | Settings that equal the default | Settled 2026-11-24 (Kyle asked for it fixed), ticket 18. The mod's own save writes every key, a value equal to the default too, so a player's choice never follows a later change to a pack's or the mod's default. A file that lacks keys, written before 0.5.2 or by another tool such as Auto Mod Config, still takes the baseline for each missing key. |
-| Cleanup preset | No era handling. From hostile dead, deletes weapons below Normal quality, apparel below Good, and either one below 50% hit points. Removes every hostile humanlike corpse. Butchering apparel removal stays off. Progression leaves corpses alone. Settled 2026-11-21. Deletes all ammunition from hostile dead, added 2026-11-23 when the other presets started keeping ammo. |
+| Cleanup preset | Hostile row Apply, every other row Exclude. From hostile dead, deletes weapons below Normal quality, apparel below Good, and either one below 50% hit points, and all ammunition. Removes every hostile humanlike corpse. Settled 2026-11-21; ammunition added 2026-11-23; rows rewritten 2026-11-25 (ticket 25). |
 | Game versions | 1.6 and 1.7. |
 | Scrap art | Made or commissioned by Kyle. Placeholder icons until then. |
 | Credit | An inspired-by line on the Workshop page naming Looting Manager and Non uno Pinata. |
@@ -380,11 +395,11 @@ Nine stages, each ending in a check that can be run in dev mode on a test colony
 | --- | --- | --- |
 | 1. Core rules | Hooks at death, downed and strip. Owner and place checks. Weapons and apparel categories with keep and delete. | Kill a spawned raider: weapon gone, apparel kept. Kill a wild animal: nothing changes. |
 | 2. Era reader | Colony era, item era and the three fallbacks. | A dev readout names the right era for vanilla, modded and uncraftable gear. |
-| 3. Scrap | Scrap items per era, the amount calculation, and the two scrap drop modes. | A tribal colony kills a pirate and gets a stack of industrial scrap sized by the gear. |
+| 3. Scrap | Scrap items per era, the amount calculation, and the Scrap outcome. | A tribal colony kills a pirate and gets a stack of industrial scrap sized by the gear. |
 | 4. Recycling | Tier table in XML and bills on the named benches. | A machining table recycles industrial and medieval scrap. A smithy refuses industrial. A bench from another mod still shows all its own bills. |
 | 5. Study | The study job, points to the current project, the era setting. | Studying same-era scrap advances the current project. Higher scrap is refused. Research factor zero writes no invalid value. |
 | 6. Original-item mode | Unfamiliar label, equip block, bench processing as scrap equivalent. | A looted rifle cannot be equipped, recycles for the same yield as its scrap, and becomes usable once researched. |
-| 7. Other outcomes and filters | Degrade, instant disassembly with both yields, inventory groups, protection, lists, corpses and butchering. | A raider carrying medicine and a quest weapon drops both untouched. A pawn killed off-map logs no error. |
+| 7. Other outcomes and filters | Instant disassembly with both yields, inventory groups, protection, lists, corpses and butchering. | A raider carrying medicine and a quest weapon drops both untouched. A pawn killed off-map logs no error. |
 | 8. Settings page | Six sections, presets, item picker, translation keys. | Each preset produces the behaviour its description states. |
 | 9. Pack preset and compatibility | Pack XML preset. Runs with Progression: Ammunition, Progression: Hospitality, Research Papers, Semi Random Research and Non uno Pinata. | No errors in each run, and research completed by study behaves like bench research. |
 

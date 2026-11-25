@@ -2,6 +2,8 @@
 
 Status: done
 
+**Superseded by ticket 25 (2026-11-25):** the settings this ticket added are replaced by the Who rows and the three "Don't drop your stuff" boxes. See [25-settings-redesign.md](25-settings-redesign.md).
+
 **Recommended model:** `opus`. It changes what the core downed hook does with a pawn's gear, and a mistake loses loot, judges it twice or leaves a raider unarmed when he should not be.
 
 **Blocked by:** None. Ships in 0.5.2, on top of ticket 21, which it revises.

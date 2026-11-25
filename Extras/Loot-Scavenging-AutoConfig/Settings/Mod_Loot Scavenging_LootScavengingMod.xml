@@ -14,58 +14,45 @@
          Do not write defaultsSeeded. The mod sets it.
          Keep scrapScale at 2. A file without it counts as written before 0.5.2, when scrap was worth twice as much, and
            the mod halves its studyPoints values once.
-         Booleans are true or false. Enum values are written exactly as listed. Fractions are 0 to 1.
+         Booleans are true or false. Enum values are written exactly as listed. Fractions are 0 to 1, so a chance of 50%
+           is written 0.5 (the settings page takes 0 to 100).
+         A file written for 0.5.2 or earlier, with keys such as dropMode, hostile or deathDrop, is still read: the old
+           keys are translated into the ones below and not written again. A 0.5.2 value that matches its 0.5.2 default
+           becomes the 0.6.0 default. Write the keys below in new files.
 
          activePreset: Progression, Cleanup, Vanilla. It only sets which preset the settings page names. The values below
            decide what the mod does.
 
-         Who and when
-           hostile, nonHostileFaction, noFaction, prisoners: true, false (which groups' gear is sorted)
+         Don't drop your stuff (true keeps a downed pawn's weapon in hand and a dead pawn's loot on the body)
+           colonistsKeepGear, hostilesKeepGear, nonHostilesKeepGear: true, false
+         Who (one row per group of pawns)
+           whoHostile, whoNonHostile, whoWild, whoPrisoners, whoRecruitedPrisoners, whoOtherJoiners:
+             Apply, Exclude, Mark
            homeMapOnly: true, false
-           sortWhenArrested: true, false (sort the gear a pawn drops when he is arrested or sold)
-           sortWhenStripped: true, false (sort the gear taken off a stripped pawn)
-           downedGear: KeepWeapon, DropWeapon (a downed non-colony pawn keeps his weapon in hand and nothing is sorted,
-             or he drops it, sorted as it drops)
-           colonistsKeepGear: true, false (a downed or dead colonist keeps his weapon and pack; colony gear is never
-             sorted either way)
-           prisonerJoinGear, otherJoinGear: MarkUnfamiliar, FollowDropMode, LeaveAlone (gear of a recruited or enslaved
-             prisoner, and of anyone else who joins)
-         What out-of-reach gear becomes
-           dropMode: ScrapOutOfReach, ScrapEverything, KeepOriginal, Off
-           dropIncludesMedicine: true, false
-           dropIncludesAmmunition: true, false
-           deathDrop: Ground, ScrapOnBody, AllOnBody (where a covered pawn's loot lands at death; default AllOnBody)
-           eraFallback: CarrierFaction, ColonyEra, Components
          One rule per category. Replace <category> with weapons, apparel, ammunition, drugs, medicine, food or other,
          which gives for example weaponsOutcome and apparelBelowQuality (49 keys in all).
-           <category>Outcome: Keep, Degrade, Scrap, Disassemble, Delete
+           <category>Outcome: Keep (shown as Vanilla), Scrap, Disassemble, Delete
            <category>OnlyBeyondReach: true, false
            <category>LimitQuality: true, false
            <category>BelowQuality: Awful, Poor, Normal, Good, Excellent, Masterwork, Legendary
            <category>LimitHitPoints: true, false
            <category>BelowHitPointFraction: 0.05 to 1
            <category>Chance: 0 to 1
-         Degrade, disassemble and charges
-           degradeMin, degradeMax: 0.01 to 1
-           degradeLowersQuality: true, false
-           disassemblyYield: EraTypical, ItemBased
+         Disassembly
+           disassemblyYield: EraTypical (materials of the colony's era), ItemBased (materials of the item)
            disassemblyEfficiency: 0.05 to 1
-           ejectCharges: true, false
          Protection and lists
            protectQuestItems, protectUniqueWeapons, protectPersonaWeapons, protectRelics: true, false
            keepList, removeList: item def names, as <keepList><li>Gun_Revolver</li></keepList>
          Corpses
            corpseHumanlike, corpseAnimal, corpseMechanoid: true, false
-           corpseChance: 0 to 1
-           butcherRemovesApparel: true, false
          Scrap, study and recycling
-           scrapMarketValue: 0.01 to 10
+           scrapMarketValueNeolithic, scrapMarketValueMedieval, scrapMarketValueIndustrial, scrapMarketValueSpacer,
+             scrapMarketValueUltra, scrapMarketValueArchotech: 0.01 to 10 (silver per unit)
            unfamiliarScope: AllOutOfReach, LootedOnly
-           studyEras: ColonyEraAndBelow, AnyEra
            recycleOrStudy: OneOrTheOther, StudyThenRecycle
            studyTechprintProjects: true, false
            studyPointsNeolithic, studyPointsMedieval, studyPointsIndustrial, studyPointsSpacer, studyPointsUltra,
-             studyPointsArchotech: 0 to 1000 (research points per unit; 0 stops that scrap being studied)
-           studyPointsMultiplier: 0 to 3 (scales every tier's points) -->
+             studyPointsArchotech: 0 to 1000 (research points per unit; 0 stops that scrap being studied) -->
   </ModSettings>
 </SettingsBlock>

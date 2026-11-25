@@ -2,6 +2,8 @@
 
 Status: done
 
+**Superseded by ticket 25 (2026-11-25):** the settings this ticket added are replaced by the Who rows and the three "Don't drop your stuff" boxes. See [25-settings-redesign.md](25-settings-redesign.md).
+
 **Revised by ticket 23 (2026-11-24):** a downed pawn now keeps his weapon in hand, not in his pack. "Keep the weapon in his pack" (`KeepInPack`) became "Keep his weapon" (`KeepWeapon`), the stow code and the not-for-sale mark on stowed weapons are gone, and choices 2, 6 and 8 below no longer hold. See [23-downed-keep-weapon-in-hand.md](23-downed-keep-weapon-in-hand.md).
 
 **Revised by ticket 24 (2026-11-24):** `deathDrop` now defaults to everything on the body (decision 4 here no longer holds), `BodyLoot.WasJudgedAtDowning` is gone (choice 6), and "Also when stripped or arrested" is split into "Sort when arrested" and "Sort when stripped". See [24-colonist-gear-and-split-strip-arrest.md](24-colonist-gear-and-split-strip-arrest.md).

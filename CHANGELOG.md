@@ -6,17 +6,43 @@
 
 ### Added
 
-- New setting, "When a non-colony pawn is downed": keep his weapon, or drop the weapon. Modpacks can set and lock it as `rules.downedGear`.
-- New setting, "Colonists keep their gear", on by default. A downed colonist or colony slave keeps his weapon in his hand and his pack, also when he is carried, rescued into a bed or loaded from a save. One who dies keeps his weapon and pack in his corpse. Turn it off to have colonists drop their gear as in the base game. Colonists' gear is never scrapped either way. The Vanilla preset turns it off. Modpacks can set and lock it as `colonistsKeepGear`.
+- Three "Don't drop your stuff" boxes, all on by default, choose where a pawn's gear lands when he is downed or killed. "Colonists keep their weapons when downed or killed" covers colonists and colony slaves. "Hostiles don't drop their gear, weapons and loot on the floor when downed or killed" and "Non-hostiles don't drop their gear, weapons and loot on the floor when downed or killed" cover non-hostile factions and wild people. With a box on, a downed pawn keeps his weapon in hand and his pack, also when he is carried, rescued into a bed or loaded from a save, and a dead one keeps everything on the body until the corpse is stripped, butchered or cremated. A raider's gear is now judged only when it changes hands: when he is stripped, arrested, joins your colony or dies. With a box off, that group drops as in the base game, and what drops is sorted as it drops. Colony gear is never sorted either way. The Vanilla preset turns all three off. Modpacks can set and lock them as `colonistsKeepGear`, `hostilesKeepGear` and `nonHostilesKeepGear`.
+- A Who list with one row per group of pawns: hostile pawns, non-hostile pawns, wild people and animals, prisoners, recruited or enslaved prisoners, and other joiners. Each row is "Apply item rules", "Exclude" or "Mark unfamiliar". The first five default to Apply and other joiners to Mark. Prisoners covers gear that comes off a prisoner, when he is stripped or when a standing pawn is arrested. Mark unfamiliar keeps the group's gear whole and labels gear beyond your research as unfamiliar, and replaces the item rules for that group. Gear that comes off a group set to Apply is always sorted. Modpacks can set and lock the rows as `rules.whoHostile`, `rules.whoNonHostile`, `rules.whoWild`, `rules.whoPrisoners`, `rules.whoRecruitedPrisoners` and `rules.whoOtherJoiners`.
+- Scrap market value is set per era, six values that each default to the old single value. Modpacks can set and lock them as `scrapMarketValueNeolithic` and so on up to `scrapMarketValueArchotech`.
 
 ### Changed
 
-- A downed raider now keeps his weapon in his hand by default, and nothing drops. His gear is not judged until he is stripped, arrested, joins your colony or dies, so a raider you capture and recruit is sorted once. He keeps it when he is carried and put down, rescued into a bed, or loaded from a save, and if he gets back up, he is still armed. Choose "Drop the weapon" for the old behaviour.
-- "Where loot lands at death" now defaults to "Everything stays on the body": the dead keep their weapon, pack and scrap until the corpse is stripped, butchered or cremated. It applies at death only. If you had changed it from "On the ground", your choice is kept.
-- With "Drop the weapon", a downed pawn always drops his weapon and pack, and they are sorted as they drop, whatever the other settings say. What is kept lands whole on the ground. This covers friendly visitors too when non-hostile factions are on, Hospitality guests included.
-- "Also when downed or stripped" is split into two settings, "Sort when arrested" and "Sort when stripped", both on by default. With one off, that moment's gear drops whole. A settings file or modpack that turned the old setting off turns both off, and a lock on it locks both. Pawns who join your colony follow the joiner settings whatever these say.
-- Weapons and apparel in a pawn's pack are now judged by the weapon and apparel rules instead of the "Other inventory" rule.
-- The joiner settings now cover the joiner's pack too: following the drop mode sorts it, and marking marks the weapons and apparel in it but leaves his medicine and other items alone.
+- The drop mode is gone. The item rules now decide everything, for the groups the Who list names. Each category chooses Scrap, Disassemble, Delete or Vanilla ("Keep" is now called Vanilla), and "Chance to scrap", "Chance to disassemble" or "Chance to delete" is typed as 0 to 100 and hidden under Vanilla. Weapons and apparel default to Scrap with "Only gear beyond the colony's reach" ticked, which is what the Progression preset did before. Everything else defaults to Vanilla, so out-of-reach drugs, food and other items are no longer scrapped by default.
+- Every slider is now a text box that takes a typed number. Percentages are typed as 0 to 100.
+- Instant disassembly with "Materials of the colony's era" now rolls the colony's era, as it says. It used to roll the era of the item. A tribal colony that disassembles a spacer rifle now gets neolithic materials instead of spacer ones.
+- Butchering a humanlike corpse always strips it first, and what comes off follows the item rules under the owner's Who row. A corpse of an excluded group, or a colonist's, is butchered as in the base game. "Butchering removes worn apparel" is gone.
+- A ticked corpse type is always removed. The corpse chance is gone.
+- Weapons and apparel in a pawn's pack are judged by the weapon and apparel rules instead of the "Other inventory" rule.
+- The two joiner rows cover the joiner's pack too. Apply sorts it, and Mark marks the weapons and apparel in it and leaves his medicine and other items alone.
+- "Also when downed or stripped" is gone. Arresting a standing pawn, stripping a prisoner and a downing all sort gear when the owner's row is Apply, and drop it whole when the row is Exclude.
+- "Drop mode includes medicine" and "Drop mode includes ammunition" are gone. The medicine and ammunition rules decide, and both default to Vanilla.
+
+### Removed
+
+- The settings below no longer exist and are fixed at these behaviours.
+  - Degrade, with its range and "lowers quality". A Degrade rule becomes Vanilla.
+  - "Break it into components" for gear with no era. Such gear uses the era of the faction that carried it, which was the default.
+  - "Which scrap can be studied". The colony's era and below can be studied, as before by default.
+  - "Eject loaded charges". Charges are always ejected.
+  - The research points multiplier. A multiplier other than 1 is multiplied into each era's points once.
+  - The corpse chance and "Butchering removes worn apparel".
+
+### Settings from 0.5.2
+
+- A setting file that still holds a 0.5.2 value is read once and translated. A saved value that equals its 0.5.2 default moves to the 0.6.0 default, because 0.5.2 saved every value and a default can't be told from a choice. Only values you changed carry over. If you chose a 0.5.2 default on purpose, such as dropping loot on the ground at death, it is reset and you need to set it again.
+- Carried over: a group you had turned off becomes Exclude. A joiner setting set to "Follow the drop mode" becomes Apply, "Mark out-of-reach gear unfamiliar" becomes Mark and "Leave their gear alone" becomes Exclude. "Scrap everything" becomes Scrap on every category. "Keep the original item" turns every Who row that was on to Mark. A death drop that kept loot on the body ticks the matching boxes. The scrap market value is copied to every era.
+- A category that had its own rule under a scrap drop mode keeps that rule and loses the scrapping of its out-of-reach items. Weapons set to Delete, for example, no longer scrap the out-of-reach ones.
+- Modpack patches and locks on the old names still work. A changed value is translated into the new settings, and a lock on an old name locks everything that replaced it:
+  - `rules.hostile`, `rules.nonHostileFaction`, `rules.noFaction`, `rules.prisoners`, `rules.prisonerJoinGear` and `rules.otherJoinGear` become `rules.whoHostile`, `rules.whoNonHostile`, `rules.whoWild`, `rules.whoPrisoners`, `rules.whoRecruitedPrisoners` and `rules.whoOtherJoiners`.
+  - `rules.dropMode` locks every Who row and item rule. `rules.dropIncludesMedicine` and `rules.dropIncludesAmmunition` lock `rules.medicine` and `rules.ammunition`.
+  - `deathDrop` and `rules.downedGear` lock `hostilesKeepGear` and `nonHostilesKeepGear`.
+  - `scrapMarketValue` and `studyPointsMultiplier` lock the six per-era values and the six per-era study points.
+  - Locks on removed settings are accepted and ignored.
 
 ## 0.5.2 - 2026-11-25
 
