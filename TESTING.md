@@ -79,7 +79,7 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 - `lootscavenging-preview`: the earlier showcase of the six scrap piles in front of their benches, filmed for the first preview image (`tools/preview_image.py`). No longer used for `About/Preview.png`.
 - `lootscavenging-stacks`: a scene outside run-all for looking at the scrap art by hand. Each era gets piles of 1, 10 and 500 (the small, mid and full textures) and a full studied stack. Run it with `--keep-open`.
 
-Not covered: clicking in the settings page and bill tabs (the ui batch only draws them), a played raid with the Progression pack, Non uno Pinata, Progression: Ammunition and Progression: Hospitality (ticket 14), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
+Not covered: clicking in the settings page and bill tabs (the ui batch only draws them), a played raid with the Progression pack, Progression: Ammunition and Progression: Hospitality (ticket 14), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
 
 ## Result recording
 
