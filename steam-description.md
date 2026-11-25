@@ -10,14 +10,13 @@ For cleanup only, a preset deletes weak gear and all ammo from the hostile dead 
 
 [b]Mod version:[/b] 0.6.0
 
-[b]Languages:[/b] English, 简体中文 (Simplified Chinese), Русский (Russian).
+[b]Languages:[/b] English, 简体中文 (Simplified Chinese), Русский (Russian). The Chinese and Russian text is machine-translated; tell me if a line reads wrong.
 
 [h2]Features[/h2]
 
 [list]
 [*][b]Scrap per era.[/b] Six stackable scrap items, from neolithic to archotech. The amount depends on the gear's value, quality and condition, so a stone knife gives one unit and a charge rifle gives several.
-[*][b]Recycling at benches you have.[/b] Scrap becomes materials of its era.
-[*][b]Study for research.[/b] Scrap becomes points for your current research project.
+[*][b]Recycle or study.[/b] At benches you have, scrap becomes materials of its era or research points.
 [*][b]A Who list.[/b] Hostile pawns, non-hostile pawns, wild people and animals, prisoners, recruited prisoners and other joiners each apply the item rules, are excluded, or keep their gear whole with out-of-reach gear marked unfamiliar until you research it.
 [*][b]A rule per item category.[/b] Weapons, apparel, ammunition, drugs, medicine, food and other inventory each get an outcome (scrap, disassemble, delete or vanilla), a chance, and optional limits by research, quality and hit points. By default only weapons and apparel are scrapped, and only when they are beyond your research.
 [*][b]Protection.[/b] Quest items are never touched by default, and neither are unique weapons (Odyssey), persona weapons (Royalty) or relics (Ideology). An always-keep list and an always-remove list are picked from a searchable item menu.
@@ -82,8 +81,6 @@ The settings page shows the active preset and whether you changed it.
 
 Loot Scavenging is not compatible with Looting Manager.
 
-The loot rules run only when a pawn dies, is downed, is stripped, is arrested or joins your colony, not every tick.
-
 Modpacks can patch the scrap tiers, their benches and materials, and the default settings, which are all XML. A pack can also lock chosen settings. A modlist can ship its own settings through Auto Mod Config, which is optional. The mod's folder has an example preset.
 
 You can add Loot Scavenging to an existing save. Stockpiles you already have will not take scrap until you allow it in their filters.
@@ -98,16 +95,13 @@ Scrap artwork by Morton.
 
 [h2]License[/h2]
 
-Released under the GNU General Public License v3.0 (GPLv3).
-
-[h2]Translations[/h2]
-
-The Chinese and Russian text is machine-translated. If a line reads wrong, tell me and I will fix it.
+Released under the GNU General Public License v3.0 (GPLv3). Commercial use is allowed. Modified versions you distribute must stay under GPLv3 with the source available.
 
 [h2]Links[/h2]
-[url=https://discord.gg/jSdyTbSYWQ][img]https://img.shields.io/badge/Join_the_Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white[/img][/url]
+Support me on Ko-fi, or ask about my mods on Discord.
 
 [url=https://ko-fi.com/I7L525WMJ6][img]https://img.shields.io/badge/Support_me_on_Ko--fi-72a4f2?style=for-the-badge&logo=kofi&logoColor=white[/img][/url]
+[url=https://discord.gg/jSdyTbSYWQ][img]https://img.shields.io/badge/Discord-Join_the_server-5865F2?style=for-the-badge&logo=discord&logoColor=white[/img][/url]
 [url=https://github.com/KyleMHB/Loot-Scavenging][img]https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white[/img][/url]
 
 When you report a bug, please include your [b]Player.log[/b] file and your mod list.
