@@ -11,32 +11,31 @@ namespace LootScavenging.Model;
 public sealed class SettingValues
 {
     public const float DefaultScrapMarketValue = 0.01f;
+    public const float MinScrapMarketValue = 0.01f;
+    public const float MaxScrapMarketValue = 10f;
 
     public LootRules rules = new LootRules();
     public CorpseRules corpses = new CorpseRules();
 
-    // Era fallback for gear with no research era and no tech level (spec: replaces the carrying faction's era).
-    public EraFallback eraFallback = EraFallback.CarrierFaction;
-
-    // Market value per scrap unit: near zero so stockpiled scrap does not raise wealth or sell for silver.
-    public float scrapMarketValue = DefaultScrapMarketValue;
-
-    // Where a covered pawn's weapon, inventory and scrap land when it dies. Only at death: a downing that drops anything
-    // drops it to the ground (ticket 24).
-    public DeathDrop deathDrop = DeathDrop.AllOnBody;
-
-    // A downed colonist or colony slave keeps his weapon in hand, and a dead one keeps his weapon and pack in the corpse
-    // (ticket 24). Colony animals and mechanoids are left to the game. Colony gear is never sorted either way.
+    // "Don't drop your stuff" (ticket 25, decision 2). They choose where items land; the Who rows choose whether they are
+    // sorted. A downed colonist or colony slave keeps his weapon in hand, and a dead one keeps his weapon and pack in the
+    // corpse. Colony animals and mechanoids are left to the game, and colony gear is never sorted either way.
     public bool colonistsKeepGear = true;
+
+    // A downed hostile keeps his weapon in hand, and a dead one keeps everything on the body. Off, he drops as in the game
+    // and what drops is sorted as it drops.
+    public bool hostilesKeepGear = true;
+
+    // The same for non-hostile faction pawns and pawns with no faction.
+    public bool nonHostilesKeepGear = true;
 
     public UnfamiliarScope unfamiliarScope = UnfamiliarScope.AllOutOfReach;
 
-    public StudyEraLimit studyEras = StudyEraLimit.ColonyEraAndBelow;
     public RecycleOrStudy recycleOrStudy = RecycleOrStudy.OneOrTheOther;
     public bool studyTechprintProjects;
 
-    // Research points one unit of each tier's scrap pays when studied, before the multiplier and the storyteller's research
-    // factor. Zero stops that tier being studied.
+    // Research points one unit of each tier's scrap pays when studied, before the storyteller's research factor. Zero stops
+    // that tier being studied.
     public float studyPointsNeolithic = DefaultStudyPoints(ScrapTier.Neolithic);
     public float studyPointsMedieval = DefaultStudyPoints(ScrapTier.Medieval);
     public float studyPointsIndustrial = DefaultStudyPoints(ScrapTier.Industrial);
@@ -44,11 +43,26 @@ public sealed class SettingValues
     public float studyPointsUltra = DefaultStudyPoints(ScrapTier.Ultra);
     public float studyPointsArchotech = DefaultStudyPoints(ScrapTier.Archotech);
 
-    // Scales every tier's study points at once.
-    public float studyPointsMultiplier = 1f;
+    // Market value per scrap unit of each tier (ticket 25, decision 9): near zero so stockpiled scrap does not raise wealth
+    // or sell for silver.
+    public float scrapMarketValueNeolithic = DefaultScrapMarketValue;
+    public float scrapMarketValueMedieval = DefaultScrapMarketValue;
+    public float scrapMarketValueIndustrial = DefaultScrapMarketValue;
+    public float scrapMarketValueSpacer = DefaultScrapMarketValue;
+    public float scrapMarketValueUltra = DefaultScrapMarketValue;
+    public float scrapMarketValueArchotech = DefaultScrapMarketValue;
+
+    // Settings cut or replaced in 0.6.0 (ticket 25). Non-public, so they are neither saved nor compared; the Def loader
+    // still fills them from an old patch, and SettingsLoad translates them into the new settings.
+#pragma warning disable CS0649 // filled by the game's Def loader by reflection
+    internal string eraFallback;
+    internal string scrapMarketValue;
+    internal string deathDrop;
+    internal string studyEras;
+    internal string studyPointsMultiplier;
+#pragma warning restore CS0649
 
     public const float MaxStudyPoints = 1000f;
-    public const float MaxStudyPointsMultiplier = 3f;
 
     // Halved in 0.5.2 with the scrap value (ticket 19): twice the units at half the points keeps the research per item.
     public static float DefaultStudyPoints(ScrapTier tier) => tier switch
@@ -61,7 +75,7 @@ public sealed class SettingValues
         _ => 25f,
     };
 
-    /// <summary>The points set for a tier, before the multiplier.</summary>
+    /// <summary>The points set for a tier.</summary>
     public float StudyPoints(ScrapTier tier) => tier switch
     {
         ScrapTier.Neolithic => studyPointsNeolithic,
@@ -85,12 +99,51 @@ public sealed class SettingValues
         }
     }
 
-    /// <summary>Points one unit of a tier pays before the storyteller's research factor: its own points times the multiplier.</summary>
+    /// <summary>Points one unit of a tier pays before the storyteller's research factor; zero when unusable.</summary>
     public float StudyPointsPerUnit(ScrapTier tier)
     {
-        float points = StudyPoints(tier) * studyPointsMultiplier;
+        float points = StudyPoints(tier);
         return points > 0f && !float.IsInfinity(points) ? points : 0f;
     }
+
+    /// <summary>The market value of one unit of a tier's scrap.</summary>
+    public float ScrapMarketValue(ScrapTier tier) => tier switch
+    {
+        ScrapTier.Neolithic => scrapMarketValueNeolithic,
+        ScrapTier.Medieval => scrapMarketValueMedieval,
+        ScrapTier.Industrial => scrapMarketValueIndustrial,
+        ScrapTier.Spacer => scrapMarketValueSpacer,
+        ScrapTier.Ultra => scrapMarketValueUltra,
+        _ => scrapMarketValueArchotech,
+    };
+
+    public void SetScrapMarketValue(ScrapTier tier, float value)
+    {
+        switch (tier)
+        {
+            case ScrapTier.Neolithic: scrapMarketValueNeolithic = value; break;
+            case ScrapTier.Medieval: scrapMarketValueMedieval = value; break;
+            case ScrapTier.Industrial: scrapMarketValueIndustrial = value; break;
+            case ScrapTier.Spacer: scrapMarketValueSpacer = value; break;
+            case ScrapTier.Ultra: scrapMarketValueUltra = value; break;
+            default: scrapMarketValueArchotech = value; break;
+        }
+    }
+
+    /// <summary>
+    /// Whether a pawn of this group keeps his gear on him when downed or killed ("Don't drop your stuff"). A colony prisoner
+    /// follows his faction: a hostile faction's prisoner uses the hostile box, anyone else the non-hostile one.
+    /// </summary>
+    public bool KeepsGear(OwnerGroup group, bool factionHostile) => group switch
+    {
+        OwnerGroup.Colony => colonistsKeepGear,
+        OwnerGroup.Hostile => hostilesKeepGear,
+        OwnerGroup.NonHostileFaction or OwnerGroup.NoFaction => nonHostilesKeepGear,
+        _ => factionHostile ? hostilesKeepGear : nonHostilesKeepGear,
+    };
+
+    /// <summary>Every scrap tier, low to high.</summary>
+    public static readonly ScrapTier[] Tiers = (ScrapTier[])Enum.GetValues(typeof(ScrapTier));
 
     /// <summary>A deep copy: nothing is shared, so editing the copy never changes the original.</summary>
     public SettingValues Clone() => ValueWalk.Copy(this);
@@ -102,7 +155,7 @@ public sealed class SettingValues
 /// <summary>
 /// The saved key of every setting, found by walking <see cref="SettingValues"/>, so a new field is saved with no extra code.
 /// Keys keep the names configs already use: a field's own name, a category rule's fields prefixed by the category
-/// ("weaponsOutcome"), and the corpse toggles prefixed "corpse" (butcherRemovesApparel kept its own name).
+/// ("weaponsOutcome"), and the corpse toggles prefixed "corpse".
 /// </summary>
 public static class SettingKeys
 {
@@ -117,7 +170,7 @@ public static class SettingKeys
         string last = parts[parts.Length - 1];
         if (parts.Length == 3 && parts[0] == "rules") // not translated
             return parts[1] + Capitalised(last);
-        if (parts.Length == 2 && parts[0] == "corpses" && last != "butcherRemovesApparel") // not translated
+        if (parts.Length == 2 && parts[0] == "corpses") // not translated
             return "corpse" + Capitalised(last); // not translated
         return last;
     }
@@ -192,7 +245,7 @@ internal static class ValueWalk
         return true;
     }
 
-    /// <summary>Whether a dotted field path ("rules.dropMode") names a field of <paramref name="root"/>.</summary>
+    /// <summary>Whether a dotted field path ("rules.whoHostile") names a field of <paramref name="root"/>.</summary>
     public static bool PathExists(object root, string path)
     {
         Type type = root.GetType();

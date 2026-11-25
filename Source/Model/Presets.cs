@@ -70,10 +70,11 @@ public static class Presets
     public static SettingValues CodeProgression()
     {
         var v = Common();
-        v.rules.dropMode = DropMode.ScrapOutOfReach;
-        v.rules.sortWhenArrested = true;
-        v.rules.sortWhenStripped = true;
-        SetGroups(v.rules, hostile: true, nonHostileFaction: true, noFaction: true, prisoners: true);
+        foreach (OwnerGroup group in LootRules.RowGroups)
+            v.rules.SetRow(group, WhoRule.Apply);
+        v.rules.whoOtherJoiners = WhoRule.Mark;
+        v.rules.weapons = CategoryRule.ScrapBeyondReach();
+        v.rules.apparel = CategoryRule.ScrapBeyondReach();
         return v;
     }
 
@@ -82,53 +83,35 @@ public static class Presets
     private static void ResetBehaviour(SettingValues v)
     {
         LootRules r = v.rules;
-        r.weapons = Keep();
-        r.apparel = Keep();
-        r.ammunition = Keep();
-        r.drugs = Keep();
-        r.medicine = Keep();
-        r.food = Keep();
-        r.other = Keep();
-        r.dropIncludesMedicine = false;
-        r.dropIncludesAmmunition = false;
-        r.downedGear = DownedGear.KeepWeapon;
-        // No era handling in Cleanup and Vanilla, so nobody's gear is touched as they join.
-        r.prisonerJoinGear = JoinerGear.LeaveAlone;
-        r.otherJoinGear = JoinerGear.LeaveAlone;
+        foreach (OwnerGroup group in LootRules.RowGroups)
+            r.SetRow(group, WhoRule.Exclude);
+        foreach (CategoryInfo category in ItemCategories.All)
+            r.SetRule(category, Keep());
         v.corpses.humanlike = false;
         v.corpses.animal = false;
         v.corpses.mechanoid = false;
-        v.corpses.chance = 1f;
-        v.corpses.butcherRemovesApparel = false;
     }
 
-    // Cleanup: no era handling, hostile dead only. Weapons below Normal, apparel below Good, and either below 50% hit
-    // points are deleted, and so is all ammunition; everything else is kept. Every hostile humanlike corpse is removed.
+    // Cleanup: hostile pawns only, and no era handling. Weapons below Normal, apparel below Good, and either below 50% hit
+    // points are deleted, and so is all ammunition; everything else is left as in the game. Every hostile humanlike corpse is
+    // removed. The "Don't drop your stuff" boxes are not in the presets table, so they keep the Progression value.
     private static void Cleanup(SettingValues v)
     {
         ResetBehaviour(v);
-        v.rules.dropMode = DropMode.Off;
-        v.rules.sortWhenArrested = false;
-        v.rules.sortWhenStripped = false;
-        v.colonistsKeepGear = true;
-        SetGroups(v.rules, hostile: true, nonHostileFaction: false, noFaction: false, prisoners: false);
+        v.rules.whoHostile = WhoRule.Apply;
         v.rules.weapons = DeleteBelow(ItemQuality.Normal, 0.5f);
         v.rules.apparel = DeleteBelow(ItemQuality.Good, 0.5f);
         v.rules.ammunition = new CategoryRule(Outcome.Delete);
         v.corpses.humanlike = true;
-        v.corpses.chance = 1f;
     }
 
-    // Vanilla: no group is affected, so nothing changes. The moment is unused; it is left at death only. Colonists drop
-    // their gear as in the base game.
+    // Vanilla: no group is affected, so nothing changes, and everyone drops his gear as in the base game.
     private static void Vanilla(SettingValues v)
     {
         ResetBehaviour(v);
-        v.rules.dropMode = DropMode.Off;
-        v.rules.sortWhenArrested = false;
-        v.rules.sortWhenStripped = false;
         v.colonistsKeepGear = false;
-        SetGroups(v.rules, hostile: false, nonHostileFaction: false, noFaction: false, prisoners: false);
+        v.hostilesKeepGear = false;
+        v.nonHostilesKeepGear = false;
     }
 
     // The compiled-in defaults: everything the table does not name, written out so they never depend on class initialisers.
@@ -137,24 +120,10 @@ public static class Presets
         var v = new SettingValues();
         LootRules r = v.rules;
         r.homeMapOnly = false;
-        r.dropIncludesMedicine = false;
-        r.dropIncludesAmmunition = false;
-        r.downedGear = DownedGear.KeepWeapon;
-        r.prisonerJoinGear = JoinerGear.FollowDropMode;
-        r.otherJoinGear = JoinerGear.MarkUnfamiliar;
-        r.weapons = Keep();
-        r.apparel = Keep();
-        r.ammunition = Keep();
-        r.drugs = Keep();
-        r.medicine = Keep();
-        r.food = Keep();
-        r.other = Keep();
-        r.degradeMin = Disassembly.DefaultDegradeMin;
-        r.degradeMax = Disassembly.DefaultDegradeMax;
-        r.degradeLowersQuality = false;
+        foreach (CategoryInfo category in ItemCategories.All)
+            r.SetRule(category, Keep());
         r.disassemblyYield = DisassemblyYield.EraTypical;
         r.disassemblyEfficiency = Disassembly.DefaultEfficiency;
-        r.ejectCharges = true;
         r.protectQuestItems = true;
         r.protectUniqueWeapons = true;
         r.protectPersonaWeapons = true;
@@ -162,19 +131,19 @@ public static class Presets
         r.keepList = new List<string>();
         r.removeList = new List<string>();
 
-        v.corpses = new CorpseRules { humanlike = false, animal = false, mechanoid = false, chance = 1f, butcherRemovesApparel = false };
+        v.corpses = new CorpseRules { humanlike = false, animal = false, mechanoid = false };
 
-        v.eraFallback = EraFallback.CarrierFaction;
-        v.scrapMarketValue = SettingValues.DefaultScrapMarketValue;
-        v.deathDrop = DeathDrop.AllOnBody;
         v.colonistsKeepGear = true;
+        v.hostilesKeepGear = true;
+        v.nonHostilesKeepGear = true;
         v.unfamiliarScope = UnfamiliarScope.AllOutOfReach;
-        v.studyEras = StudyEraLimit.ColonyEraAndBelow;
         v.recycleOrStudy = RecycleOrStudy.OneOrTheOther;
         v.studyTechprintProjects = false;
-        foreach (ScrapTier tier in (ScrapTier[])System.Enum.GetValues(typeof(ScrapTier)))
+        foreach (ScrapTier tier in SettingValues.Tiers)
+        {
             v.SetStudyPoints(tier, SettingValues.DefaultStudyPoints(tier));
-        v.studyPointsMultiplier = 1f;
+            v.SetScrapMarketValue(tier, SettingValues.DefaultScrapMarketValue);
+        }
         return v;
     }
 
@@ -189,13 +158,5 @@ public static class Presets
             limitHitPoints = true,
             belowHitPointFraction = hitPointFraction,
         };
-    }
-
-    private static void SetGroups(LootRules r, bool hostile, bool nonHostileFaction, bool noFaction, bool prisoners)
-    {
-        r.hostile = hostile;
-        r.nonHostileFaction = nonHostileFaction;
-        r.noFaction = noFaction;
-        r.prisoners = prisoners;
     }
 }

@@ -108,7 +108,7 @@ public static class ScrapStudy
     public static StudyVerdict Verdict(StudyWorth worth, ResearchProjectDef project)
     {
         LootScavengingSettings s = LootScavengingMod.Settings;
-        return StudyRules.Check(worth.Tier, EraReader.ColonyEra(), FactsOf(project), s.values.studyEras, s.values.studyTechprintProjects,
+        return StudyRules.Check(worth.Tier, EraReader.ColonyEra(), FactsOf(project), s.values.studyTechprintProjects,
             worth.PointsPerUnit, ResearchFactor);
     }
 

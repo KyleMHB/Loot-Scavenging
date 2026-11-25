@@ -9,17 +9,15 @@ public enum DecisionReason
     OwnerGroupOff,
     NoMap,
     NotHomeMap,
-    MomentOff,
     NoCategoryRule,
     CategoryRule,
     Protected,
     RemoveList,
     ConditionsNotMet,
     ChanceFailed,
-    OutOfReachScrap,
-    ScrapEverything,
-    ComponentsFallback,
-    OutOfReachKept,
+
+    /// <summary>The owner's Who row is "Mark unfamiliar": kept whole, and marked when out of reach (ticket 25).</summary>
+    MarkRow,
 }
 
 public readonly struct LootDecision
@@ -37,9 +35,8 @@ public readonly struct LootDecision
 }
 
 /// <summary>
-/// The ordered loot checks from the spec's "Loot rules". The first check that says "leave it" ends the run.
-/// No side effects: the caller applies the outcome. Later tickets insert their steps (protection, era, conditions,
-/// chance) in spec order.
+/// The ordered loot checks from the spec's "Loot rules" (ticket 25): owner row, place, protection, remove list, then the
+/// category rule. The first check that decides ends the run. No side effects: the caller applies the outcome.
 /// </summary>
 public static class LootEvaluator
 {
@@ -53,14 +50,16 @@ public static class LootEvaluator
     {
         return CheckOwner(item, rules)
             ?? CheckPlace(item, rules)
-            ?? CheckMoment(item, rules)
             ?? CheckProtection(item, rules)
             ?? CheckRemoveList(item, rules)
-            ?? ApplyDropMode(item, rules)
+            ?? CheckMarkRow(item, rules)
             ?? ApplyCategory(item, rules, roll ?? fallbackRandom.NextDouble);
     }
 
-    /// <summary>Whether the rules act on this pawn at all: steps 1 and 2, which depend only on the pawn and its map.</summary>
+    /// <summary>
+    /// Whether the rules act on this pawn at all: steps 1 and 2, which depend only on the pawn and its map. A row set to Mark
+    /// covers its group: the gear is judged, and kept whole.
+    /// </summary>
     public static bool CoversPawn(OwnerGroup owner, MapKind map, LootRules rules)
     {
         var pawn = new DropCandidate { Owner = owner, Map = map };
@@ -72,7 +71,7 @@ public static class LootEvaluator
     {
         if (item.Owner == OwnerGroup.Colony)
             return LootDecision.Leave(DecisionReason.ColonyPawn);
-        if (!rules.IsGroupOn(item.Owner))
+        if (rules.RowFor(item.Owner) == WhoRule.Exclude)
             return LootDecision.Leave(DecisionReason.OwnerGroupOff);
         return null;
     }
@@ -87,52 +86,14 @@ public static class LootEvaluator
         return null;
     }
 
+    // "Mark unfamiliar" replaces the category rule for the group (ticket 25). After the remove list, as the old keep-original
+    // drop mode was, so an item the player always removes is still removed.
+    private static LootDecision? CheckMarkRow(DropCandidate item, LootRules rules)
+    {
+        return rules.RowFor(item.Owner) == WhoRule.Mark ? LootDecision.Leave(DecisionReason.MarkRow) : (LootDecision?)null;
+    }
+
     // Step 3.
-    private static LootDecision? CheckMoment(DropCandidate item, LootRules rules)
-    {
-        // A downing is neither an arrest nor a strip: what drops there is always sorted (ticket 24).
-        if (item.Moment == Moment.Strip && !rules.sortWhenStripped || item.Moment == Moment.Arrest && !rules.sortWhenArrested)
-            return LootDecision.Leave(DecisionReason.MomentOff);
-        return null;
-    }
-
-    // Drop mode (spec, "Drop mode"): sits after protection (step 4) and the remove list, and before the category rule (step 5).
-    // Returns null to fall through to the category rule.
-    private static LootDecision? ApplyDropMode(DropCandidate item, LootRules rules)
-    {
-        // Medicine and ammunition are not out-of-reach gear to scrap by default; their own category rules decide.
-        if (item.Category == ItemCategory.Medicine && !rules.dropIncludesMedicine)
-            return null;
-        if (item.Category == ItemCategory.Ammunition && !rules.dropIncludesAmmunition)
-            return null;
-        EraResult era = item.ItemEra;
-        switch (rules.dropMode)
-        {
-            case DropMode.ScrapOutOfReach:
-                // "Break it straight into components" replaces the era for gear with none: it is not scrapped.
-                if (era.BreakIntoComponents)
-                    return new LootDecision(Outcome.Disassemble, DecisionReason.ComponentsFallback);
-                if (era.OutOfReach)
-                    return new LootDecision(Outcome.Scrap, DecisionReason.OutOfReachScrap);
-                return null;
-            case DropMode.ScrapEverything:
-                if (era.BreakIntoComponents)
-                    return new LootDecision(Outcome.Disassemble, DecisionReason.ComponentsFallback);
-                return new LootDecision(Outcome.Scrap, DecisionReason.ScrapEverything);
-            case DropMode.KeepOriginal:
-                // Gear with no era cannot be judged unfamiliar later, so the components setting breaks it down here too
-                // (spec: "break it straight into components"). Out-of-reach gear stays whole for the unfamiliar label.
-                if (era.BreakIntoComponents)
-                    return new LootDecision(Outcome.Disassemble, DecisionReason.ComponentsFallback);
-                if (era.OutOfReach)
-                    return new LootDecision(Outcome.Keep, DecisionReason.OutOfReachKept);
-                return null;
-            default:
-                return null;
-        }
-    }
-
-    // Step 4.
     private static LootDecision? CheckProtection(DropCandidate item, LootRules rules)
     {
         return IsProtected(item, rules) ? LootDecision.Leave(DecisionReason.Protected) : (LootDecision?)null;
@@ -149,7 +110,7 @@ public static class LootEvaluator
             || rules.IsOnKeepList(item.DefName);
     }
 
-    // The remove list targets an item outright, before the drop mode, so it applies to out-of-reach items too: conditions
+    // The remove list targets an item outright, before the category rule, so it applies to out-of-reach items too: conditions
     // and chance are skipped. It uses the category's outcome, or Delete when the category keeps items (or has no rule), so
     // "always remove" never does nothing.
     private static LootDecision? CheckRemoveList(DropCandidate item, LootRules rules)
@@ -161,7 +122,7 @@ public static class LootEvaluator
         return new LootDecision(targeted, DecisionReason.RemoveList);
     }
 
-    // Steps 5 to 8.
+    // Step 6: the category rule, its conditions and its chance.
     private static LootDecision ApplyCategory(DropCandidate item, LootRules rules, Func<double> roll)
     {
         CategoryRule rule = rules.RuleFor(item.Category);
@@ -174,7 +135,6 @@ public static class LootEvaluator
         return new LootDecision(rule.outcome, DecisionReason.CategoryRule);
     }
 
-    // Step 6.
     private static bool MeetsConditions(DropCandidate item, CategoryRule rule)
     {
         if (rule.onlyBeyondReach && !item.OutOfReach)

@@ -53,15 +53,10 @@ public static class EraReader
     private static bool FactionEraMoves => factionEraMoves ??= FactionEraMods.Any(ModsConfig.IsActive);
 
     /// <summary>
-    /// An item's era and whether it is out of reach, using the settings' era fallback. The carrier is the faction of the
-    /// pawn that held it, or null when unknown.
+    /// An item's era and whether it is out of reach. The carrier is the faction of the pawn that held it, or null when
+    /// unknown. Gear with no research era and no tech level takes the carrier's era (ticket 25, decision 8).
     /// </summary>
     public static EraResult ItemEra(ThingDef def, Faction carrier = null)
-    {
-        return ItemEra(def, carrier, LootScavengingMod.Settings?.values.eraFallback ?? EraFallback.CarrierFaction);
-    }
-
-    public static EraResult ItemEra(ThingDef def, Faction carrier, EraFallback fallback)
     {
         // Materials (devilstrand, steel, modded stone) are never out of reach: any colony can build and craft with them.
         // A modded recipe that produces one would otherwise give it that recipe's research era, and a tribal raider's
@@ -89,7 +84,8 @@ public static class EraReader
         // No carrier (the default unfamiliar scope saves none, wild men have no faction): the era of the factions that
         // typically carry it stands in. Only read by gear with no research and no tech level of its own.
         Era factionEra = carrier?.def != null ? (Era)carrier.def.techLevel : TypicalCarrierEra(def);
-        return EraRanking.Resolve(researchEra, unfinished, (Era)def.techLevel, factionEra, IsGear(def), fallback, ColonyEra());
+        return EraRanking.Resolve(researchEra, unfinished, (Era)def.techLevel, factionEra, IsGear(def), ColonyEra());
+
     }
 
     /// <summary>

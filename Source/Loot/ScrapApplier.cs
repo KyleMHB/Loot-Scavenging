@@ -34,19 +34,21 @@ internal static class ScrapDefs
     /// <summary>What one unit of a tier's scrap is worth: the larger of its recycle value and its market value setting.</summary>
     public static float WorthPerUnit(ScrapTier tier)
     {
-        float market = LootScavengingMod.Settings?.values.scrapMarketValue ?? SettingValues.DefaultScrapMarketValue;
-        return ScrapAmounts.WorthPerUnit(ScrapTierTable.For(tier)?.valuePerUnit ?? 0f, market);
+        return ScrapAmounts.WorthPerUnit(ScrapTierTable.For(tier)?.valuePerUnit ?? 0f, MarketValue(tier));
     }
 
+    private static float MarketValue(ScrapTier tier) =>
+        LootScavengingMod.Settings?.values.ScrapMarketValue(tier) ?? SettingValues.DefaultScrapMarketValue;
+
     /// <summary>
-    /// Writes the scrap value setting onto the scrap defs. Called again whenever the value may have changed: once the settings
-    /// defaults load, when the page's slider, a preset or Reset changes it, and when the settings window closes.
+    /// Writes each tier's market value setting onto its scrap def (ticket 25, decision 9). Called again whenever a value may
+    /// have changed: once the settings defaults load, when the page, a preset or Reset changes it, and when the settings
+    /// window closes.
     /// </summary>
     public static void ApplyMarketValue()
     {
-        float value = LootScavengingMod.Settings?.values.scrapMarketValue ?? SettingValues.DefaultScrapMarketValue;
         for (int i = 0; i < byTier.Length; i++)
-            byTier[i].SetStatBaseValue(StatDefOf.MarketValue, value);
+            byTier[i].SetStatBaseValue(StatDefOf.MarketValue, MarketValue((ScrapTier)i));
     }
 }
 
@@ -73,8 +75,9 @@ internal static class ScrapApplier
             return;
         }
 
-        bool keepOnBody = BodyLoot.KeepsAll(pawn)
-            || moment == Moment.Death && LootScavengingMod.Settings.values.deathDrop != DeathDrop.Ground && BodyLoot.CanHoldLoot(pawn);
+        // Under "Don't drop your stuff" a dying pawn's scrap stays on his body with the rest of his gear.
+        bool keepOnBody = BodyLoot.KeepsAll(pawn);
+
         foreach (int count in ScrapAmounts.SplitIntoStacks(units, scrapDef.stackLimit))
         {
             Thing scrap = ThingMaker.MakeThing(scrapDef);

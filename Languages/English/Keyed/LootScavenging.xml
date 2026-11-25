@@ -44,56 +44,54 @@
   <LootScavenging_LockedReason>Locked by the modpack: this setting always uses the pack's value, so it cannot be changed here.</LootScavenging_LockedReason>
   <LootScavenging_LockedSummary>Some settings are locked by the modpack. They stay at the pack's values whichever preset you pick.</LootScavenging_LockedSummary>
   <LootScavenging_PresetReset>Reset to defaults</LootScavenging_PresetReset>
-  <LootScavenging_PresetProgressionExplain>Gear beyond your colony's research becomes scrap when any non-colony pawn dies, is stripped or is arrested, prisoners included. Gear within reach drops as normal, and corpses are left.</LootScavenging_PresetProgressionExplain>
-  <LootScavenging_PresetCleanupExplain>No era handling. From hostile dead only, weapons below normal quality, apparel below good quality and either one below 50% hit points are deleted, and so is all their ammunition; the rest drops as normal. Every hostile humanlike corpse is removed.</LootScavenging_PresetCleanupExplain>
-  <LootScavenging_PresetVanillaExplain>No pawn group is affected, so loot and corpses behave as in the base game.</LootScavenging_PresetVanillaExplain>
+  <LootScavenging_PresetProgressionExplain>Hostile, non-hostile and wild pawns and the colony's prisoners: their weapons and apparel beyond your colony's research become scrap, and everything else drops as normal. Other joiners keep their gear, with out-of-reach gear marked unfamiliar. Nobody drops their gear when downed or killed, and corpses are left.</LootScavenging_PresetProgressionExplain>
+  <LootScavenging_PresetCleanupExplain>No era handling. From hostile pawns only, weapons below normal quality, apparel below good quality and either one below 50% hit points are deleted, and so is all their ammunition; the rest drops as normal. Every hostile humanlike corpse is removed.</LootScavenging_PresetCleanupExplain>
+  <LootScavenging_PresetVanillaExplain>Every group is excluded and everyone drops their gear when downed or killed, so loot and corpses behave as in the base game.</LootScavenging_PresetVanillaExplain>
   <LootScavenging_ResetConfirm>Set every setting back to its default (the Progression preset) and empty the keep and remove lists?</LootScavenging_ResetConfirm>
-  <!-- Settings page: who and where -->
-  <LootScavenging_SectionWho>Who and where</LootScavenging_SectionWho>
-  <LootScavenging_Hostile>Hostile pawns</LootScavenging_Hostile>
-  <LootScavenging_HostileOn>Gear dropped by hostile pawns, such as raiders, follows the rules below.</LootScavenging_HostileOn>
-  <LootScavenging_HostileOff>Gear dropped by hostile pawns is left alone.</LootScavenging_HostileOff>
-  <LootScavenging_NonHostile>Pawns of non-hostile factions</LootScavenging_NonHostile>
-  <LootScavenging_NonHostileOn>Gear dropped by pawns of non-hostile factions, such as traders and visitors, follows the rules below.</LootScavenging_NonHostileOn>
-  <LootScavenging_NonHostileOff>Gear dropped by pawns of non-hostile factions is left alone.</LootScavenging_NonHostileOff>
-  <LootScavenging_NoFaction>Pawns with no faction</LootScavenging_NoFaction>
-  <LootScavenging_NoFactionOn>Wild animals and wild people follow the rules below, and their corpses can be removed.</LootScavenging_NoFactionOn>
-  <LootScavenging_NoFactionOff>Wild animals and wild people are left alone, gear and corpses both.</LootScavenging_NoFactionOff>
-  <LootScavenging_Prisoners>The colony's prisoners</LootScavenging_Prisoners>
-  <LootScavenging_PrisonersOn>Gear dropped by your prisoners follows the rules below.</LootScavenging_PrisonersOn>
-  <LootScavenging_PrisonersOff>Gear dropped by your prisoners is left alone.</LootScavenging_PrisonersOff>
-  <LootScavenging_HomeMapOnly>Home map only</LootScavenging_HomeMapOnly>
+  <LootScavenging_SectionKeepGear>Don't drop your stuff</LootScavenging_SectionKeepGear>
+  <!-- Settings page: who, the home map and keeping gear -->
+  <LootScavenging_SectionWho>Who</LootScavenging_SectionWho>
+  <LootScavenging_HomeMapOnly>Apply on the home map only</LootScavenging_HomeMapOnly>
   <LootScavenging_HomeMapOnlyOn>Loot on caravan, quest and outpost maps is left alone.</LootScavenging_HomeMapOnlyOn>
   <LootScavenging_HomeMapOnlyOff>The rules apply on every map.</LootScavenging_HomeMapOnlyOff>
-  <LootScavenging_SortWhenArrested>Sort when arrested</LootScavenging_SortWhenArrested>
-  <LootScavenging_SortWhenArrestedOn>The weapon and pack a pawn drops when he is arrested or sold are sorted, so out-of-reach gear cannot be taken intact from a captured raider.</LootScavenging_SortWhenArrestedOn>
-  <LootScavenging_SortWhenArrestedOff>The weapon and pack a pawn drops when he is arrested or sold drop whole, as in the base game.</LootScavenging_SortWhenArrestedOff>
-  <LootScavenging_SortWhenStripped>Sort when stripped</LootScavenging_SortWhenStripped>
-  <LootScavenging_SortWhenStrippedOn>Gear taken off a stripped pawn is sorted, so out-of-reach clothes cannot be taken intact from a prisoner.</LootScavenging_SortWhenStrippedOn>
-  <LootScavenging_SortWhenStrippedOff>Gear taken off a stripped pawn drops whole, as in the base game. Corpses are still sorted at death.</LootScavenging_SortWhenStrippedOff>
-  <LootScavenging_Downed>When a non-colony pawn is downed</LootScavenging_Downed>
-  <LootScavenging_DownedKeepWeapon>Keep his weapon</LootScavenging_DownedKeepWeapon>
-  <LootScavenging_DownedDropWeapon>Drop the weapon</LootScavenging_DownedDropWeapon>
-  <LootScavenging_DownedKeepWeaponExplain>Nothing drops and nothing is sorted. He keeps his weapon in hand and his pack as it is, and they are sorted when he is stripped, arrested, joins the colony or dies. He still holds it after he is carried and put down, rescued into a bed, or loaded from a save. A raider who gets back up is still armed.</LootScavenging_DownedKeepWeaponExplain>
-  <LootScavenging_DownedDropWeaponExplain>His weapon and pack drop beside him, as in the base game, and are sorted as they drop.</LootScavenging_DownedDropWeaponExplain>
-  <LootScavenging_ColonistsKeepGear>Colonists keep their gear</LootScavenging_ColonistsKeepGear>
+  <LootScavenging_ColonistsKeepGear>Colonists keep their weapons when downed or killed</LootScavenging_ColonistsKeepGear>
   <LootScavenging_ColonistsKeepGearOn>A downed colonist or colony slave keeps his weapon in hand and his pack, also when he is carried, rescued or loaded. A dead one keeps them in his corpse. Colony gear is never sorted.</LootScavenging_ColonistsKeepGearOn>
   <LootScavenging_ColonistsKeepGearOff>A downed or dead colonist drops his weapon and pack, as in the base game. Colony gear is never sorted.</LootScavenging_ColonistsKeepGearOff>
-  <LootScavenging_JoinPrisoners>Gear of recruited or enslaved prisoners</LootScavenging_JoinPrisoners>
-  <LootScavenging_JoinOthers>Gear of wanderers, refugees and other joiners</LootScavenging_JoinOthers>
-  <LootScavenging_JoinMark>Mark out-of-reach gear unfamiliar</LootScavenging_JoinMark>
-  <LootScavenging_JoinFollow>Follow the drop mode</LootScavenging_JoinFollow>
-  <LootScavenging_JoinLeave>Leave their gear alone</LootScavenging_JoinLeave>
-  <LootScavenging_JoinMarkExplain>They keep wearing and holding what they came with, and keep their pack. Gear beyond the colony's research, in the pack too, is marked, and once it comes off, no colonist can use it until the research is finished. Medicine and other pack items are left alone. Works in every drop mode.</LootScavenging_JoinMarkExplain>
-  <LootScavenging_JoinFollowExplain>As they join, their worn apparel, held weapon and pack are sorted as if they were stripped, by the drop mode and the item rules, for the groups ticked above.</LootScavenging_JoinFollowExplain>
-  <LootScavenging_JoinLeaveExplain>Their gear is not touched as they join.</LootScavenging_JoinLeaveExplain>
-  <LootScavenging_NoGroupOn>No pawn group is ticked, so the mod changes no loot and no corpses.</LootScavenging_NoGroupOn>
+  <LootScavenging_HostilesKeepGear>Hostiles don't drop their gear, weapons and loot on the floor when downed or killed</LootScavenging_HostilesKeepGear>
+  <LootScavenging_HostilesKeepGearOn>A downed hostile keeps his weapon in hand and his pack, also when he is carried. A dead one keeps everything on the body until the corpse is stripped, butchered or cremated.</LootScavenging_HostilesKeepGearOn>
+  <LootScavenging_HostilesKeepGearOff>A downed or dead hostile drops his weapon and pack, as in the base game, and what drops is sorted as it drops.</LootScavenging_HostilesKeepGearOff>
+  <LootScavenging_NonHostilesKeepGear>Non-hostiles don't drop their gear, weapons and loot on the floor when downed or killed</LootScavenging_NonHostilesKeepGear>
+  <LootScavenging_NonHostilesKeepGearOn>The same for pawns of non-hostile factions and wild people: a downed one keeps his weapon in hand and his pack, and a dead one keeps everything on the body.</LootScavenging_NonHostilesKeepGearOn>
+  <LootScavenging_NonHostilesKeepGearOff>A downed or dead non-hostile or wild pawn drops his weapon and pack, as in the base game, and what drops is sorted as it drops.</LootScavenging_NonHostilesKeepGearOff>
+  <LootScavenging_KeepGearExplain>These boxes choose where items land; the rows below choose whether they are sorted. Mechanoids and other pawns that cannot be stripped still drop on the ground.</LootScavenging_KeepGearExplain>
+  <!-- Settings page: who. Each row has an Apply and an Exclude sentence; Mark uses WhoMarkExplain or WhoJoinMarkExplain. -->
+  <LootScavenging_WhoApply>Apply item rules</LootScavenging_WhoApply>
+  <LootScavenging_WhoExclude>Exclude</LootScavenging_WhoExclude>
+  <LootScavenging_WhoMark>Mark unfamiliar</LootScavenging_WhoMark>
+  <LootScavenging_WhoHostile>Hostile pawns</LootScavenging_WhoHostile>
+  <LootScavenging_WhoHostileApply>Gear that comes off hostile pawns, such as raiders, when they are downed or killed follows the item rules below.</LootScavenging_WhoHostileApply>
+  <LootScavenging_WhoHostileExclude>Gear of hostile pawns is left alone.</LootScavenging_WhoHostileExclude>
+  <LootScavenging_WhoNonHostile>Non-hostile pawns</LootScavenging_WhoNonHostile>
+  <LootScavenging_WhoNonHostileApply>Gear that comes off pawns of non-hostile factions, such as traders and visitors, follows the item rules below.</LootScavenging_WhoNonHostileApply>
+  <LootScavenging_WhoNonHostileExclude>Gear of pawns of non-hostile factions is left alone.</LootScavenging_WhoNonHostileExclude>
+  <LootScavenging_WhoWild>Wild people and animals</LootScavenging_WhoWild>
+  <LootScavenging_WhoWildApply>Gear of wild people follows the item rules below, and wild animal corpses can be removed.</LootScavenging_WhoWildApply>
+  <LootScavenging_WhoWildExclude>Wild people and animals are left alone, gear and corpses both.</LootScavenging_WhoWildExclude>
+  <LootScavenging_WhoPrisoners>Prisoners</LootScavenging_WhoPrisoners>
+  <LootScavenging_WhoPrisonersApply>Gear that comes off a prisoner follows the item rules below: when he is stripped, or when a standing pawn is arrested.</LootScavenging_WhoPrisonersApply>
+  <LootScavenging_WhoPrisonersExclude>Gear that comes off a prisoner drops whole, as in the base game.</LootScavenging_WhoPrisonersExclude>
+  <LootScavenging_WhoRecruitedPrisoners>Recruited or enslaved prisoners</LootScavenging_WhoRecruitedPrisoners>
+  <LootScavenging_WhoRecruitedPrisonersApply>As they join, their worn apparel, held weapon and pack are sorted by the item rules, as if they were stripped.</LootScavenging_WhoRecruitedPrisonersApply>
+  <LootScavenging_WhoRecruitedPrisonersExclude>Their gear is not touched as they join.</LootScavenging_WhoRecruitedPrisonersExclude>
+  <LootScavenging_WhoOtherJoiners>Other joiners</LootScavenging_WhoOtherJoiners>
+  <LootScavenging_WhoOtherJoinersApply>As wanderers, refugees and quest joiners join, their worn apparel, held weapon and pack are sorted by the item rules, as if they were stripped.</LootScavenging_WhoOtherJoinersApply>
+  <LootScavenging_WhoOtherJoinersExclude>The gear of wanderers, refugees and quest joiners is not touched as they join.</LootScavenging_WhoOtherJoinersExclude>
+  <LootScavenging_WhoMarkExplain>Their gear drops whole. Gear beyond the colony's research is labelled unfamiliar and cannot be used until its research is finished; it can be recycled or studied like scrap. The item rules are not used for this group.</LootScavenging_WhoMarkExplain>
+  <LootScavenging_WhoJoinMarkExplain>They keep wearing and holding what they came with, and keep their pack. Gear beyond the colony's research, in the pack too, is marked, and once it comes off, no colonist can use it until the research is finished.</LootScavenging_WhoJoinMarkExplain>
+  <LootScavenging_NoGroupOn>Every group is excluded, so the item rules change no loot and no corpses.</LootScavenging_NoGroupOn>
   <!-- Settings page: item rules -->
   <LootScavenging_SectionItems>Item rules</LootScavenging_SectionItems>
-  <LootScavenging_ItemsNoteScrapOutOfReach>Gear beyond the colony's reach becomes scrap first (see drop mode). These rules decide what happens to the rest.</LootScavenging_ItemsNoteScrapOutOfReach>
-  <LootScavenging_ItemsNoteScrapEverything>The drop mode turns all gear into scrap, so these rules are not used.</LootScavenging_ItemsNoteScrapEverything>
-  <LootScavenging_ItemsNoteKeepOriginal>Gear beyond the colony's reach drops whole but unfamiliar (see drop mode). These rules decide what happens to the rest.</LootScavenging_ItemsNoteKeepOriginal>
-  <LootScavenging_ItemsNoteOff>The drop mode is off, so these rules decide what happens to all gear, whatever its era.</LootScavenging_ItemsNoteOff>
+  <LootScavenging_ItemsNote>These rules decide what happens to gear from groups set to Apply item rules.</LootScavenging_ItemsNote>
   <LootScavenging_CategoryWeapons>Weapons</LootScavenging_CategoryWeapons>
   <LootScavenging_CategoryApparel>Apparel</LootScavenging_CategoryApparel>
   <LootScavenging_CategoryAmmunition>Ammunition</LootScavenging_CategoryAmmunition>
@@ -101,20 +99,19 @@
   <LootScavenging_CategoryMedicine>Medicine</LootScavenging_CategoryMedicine>
   <LootScavenging_CategoryFood>Food</LootScavenging_CategoryFood>
   <LootScavenging_CategoryOther>Other inventory</LootScavenging_CategoryOther>
-  <LootScavenging_OutcomeKeep>Keep</LootScavenging_OutcomeKeep>
-  <LootScavenging_OutcomeDegrade>Degrade</LootScavenging_OutcomeDegrade>
+  <LootScavenging_OutcomeKeep>Vanilla</LootScavenging_OutcomeKeep>
   <LootScavenging_OutcomeScrap>Scrap</LootScavenging_OutcomeScrap>
   <LootScavenging_OutcomeDisassemble>Disassemble</LootScavenging_OutcomeDisassemble>
   <LootScavenging_OutcomeDelete>Delete</LootScavenging_OutcomeDelete>
-  <LootScavenging_DegradeRange>Degraded items keep {0} to {1} of their hit points (shared by every degrade rule):</LootScavenging_DegradeRange>
-  <LootScavenging_DegradeLowersQuality>Degrading also lowers quality one step</LootScavenging_DegradeLowersQuality>
-  <LootScavenging_DisassemblyEfficiency>Disassembly efficiency: {0} (shared by every disassemble rule)</LootScavenging_DisassemblyEfficiency>
-  <LootScavenging_Chance>Chance: {0}</LootScavenging_Chance>
+  <LootScavenging_DisassemblyEfficiency>Disassembly efficiency, % (shared by every disassemble rule)</LootScavenging_DisassemblyEfficiency>
+  <LootScavenging_ChanceScrap>Chance to scrap, %</LootScavenging_ChanceScrap>
+  <LootScavenging_ChanceDisassemble>Chance to disassemble, %</LootScavenging_ChanceDisassemble>
+  <LootScavenging_ChanceDelete>Chance to delete, %</LootScavenging_ChanceDelete>
   <LootScavenging_OnlyBeyondReach>Only gear beyond the colony's reach</LootScavenging_OnlyBeyondReach>
   <LootScavenging_LimitQuality>Only below a quality</LootScavenging_LimitQuality>
   <LootScavenging_BelowQuality>Below quality</LootScavenging_BelowQuality>
   <LootScavenging_LimitHitPoints>Only below a hit point level</LootScavenging_LimitHitPoints>
-  <LootScavenging_BelowHitPoints>Below {0} hit points</LootScavenging_BelowHitPoints>
+  <LootScavenging_BelowHitPoints>Below hit points, %</LootScavenging_BelowHitPoints>
   <LootScavenging_RuleKeep>{0} from affected pawns drop as normal.</LootScavenging_RuleKeep>
   <!-- The rule sentence: one key for each combination of conditions and chance. Every key has the same slots, and each uses
        only the ones it needs: {0} item category, {1} what happens to the items (a Verb key below), {2} quality name,
@@ -135,69 +132,27 @@
   <LootScavenging_RuleActReachHitPointsChance>{0} from affected pawns {1} when beyond the colony's reach and below {3} hit points {4} of the time. Otherwise they drop as normal.</LootScavenging_RuleActReachHitPointsChance>
   <LootScavenging_RuleActReachQualityOrHitPoints>{0} from affected pawns {1} when beyond the colony's reach and below {2} quality or below {3} hit points. Otherwise they drop as normal.</LootScavenging_RuleActReachQualityOrHitPoints>
   <LootScavenging_RuleActReachQualityOrHitPointsChance>{0} from affected pawns {1} when beyond the colony's reach and below {2} quality or below {3} hit points {4} of the time. Otherwise they drop as normal.</LootScavenging_RuleActReachQualityOrHitPointsChance>
-  <LootScavenging_VerbDegrade>are damaged to {0} to {1} of their hit points</LootScavenging_VerbDegrade>
-  <LootScavenging_VerbDegradeQuality>are damaged to {0} to {1} of their hit points and lose one quality step</LootScavenging_VerbDegradeQuality>
   <LootScavenging_VerbScrap>become scrap of their era</LootScavenging_VerbScrap>
-  <LootScavenging_VerbDisassembleEra>are broken on the spot into materials typical of their era</LootScavenging_VerbDisassembleEra>
+  <LootScavenging_VerbDisassembleEra>are broken on the spot into materials typical of the colony's era</LootScavenging_VerbDisassembleEra>
   <LootScavenging_VerbDisassembleItem>are broken on the spot into {0} of their own ingredients</LootScavenging_VerbDisassembleItem>
   <LootScavenging_VerbDelete>are deleted</LootScavenging_VerbDelete>
-  <LootScavenging_EjectCharges>Eject loaded charges</LootScavenging_EjectCharges>
-  <LootScavenging_EjectChargesOn>When reloadable gear is scrapped, disassembled or deleted, its loaded ammo drops beside it. Kept or degraded gear keeps its ammo loaded.</LootScavenging_EjectChargesOn>
-  <LootScavenging_EjectChargesOff>Loaded ammo goes with the item, so it is lost when the item is scrapped, disassembled or deleted.</LootScavenging_EjectChargesOff>
   <!-- Settings page: scrap and study -->
-  <LootScavenging_SectionScrap>Scrap and study</LootScavenging_SectionScrap>
-  <LootScavenging_DropMode>Drop mode</LootScavenging_DropMode>
-  <LootScavenging_DropModeScrapOutOfReach>Scrap out-of-reach gear</LootScavenging_DropModeScrapOutOfReach>
-  <LootScavenging_DropModeScrapEverything>Scrap everything</LootScavenging_DropModeScrapEverything>
-  <LootScavenging_DropModeKeepOriginal>Keep the original item</LootScavenging_DropModeKeepOriginal>
-  <LootScavenging_DropModeOff>Off</LootScavenging_DropModeOff>
-  <LootScavenging_DropModeScrapOutOfReachExplain>Gear beyond the colony's research or era becomes scrap of its era. Gear within reach follows its item rule.</LootScavenging_DropModeScrapOutOfReachExplain>
-  <LootScavenging_DropModeScrapEverythingExplain>All gear affected pawns drop becomes scrap. The most cleanup, and no usable loot.</LootScavenging_DropModeScrapEverythingExplain>
-  <LootScavenging_DropModeKeepOriginalExplain>Gear beyond reach drops whole, labelled unfamiliar, and cannot be used until its research is finished. It can be recycled or studied like scrap.</LootScavenging_DropModeKeepOriginalExplain>
-  <LootScavenging_DropIncludesMedicine>Drop mode includes medicine</LootScavenging_DropIncludesMedicine>
-  <LootScavenging_DropIncludesMedicineOn>Medicine beyond reach is handled by the drop mode like any other item.</LootScavenging_DropIncludesMedicineOn>
-  <LootScavenging_DropIncludesMedicineOff>Medicine drops untouched unless its own item rule says otherwise, even when it is beyond reach.</LootScavenging_DropIncludesMedicineOff>
-  <LootScavenging_DropIncludesAmmunition>Drop mode includes ammunition</LootScavenging_DropIncludesAmmunition>
-  <LootScavenging_DropIncludesAmmunitionOn>Ammunition beyond reach is handled by the drop mode like any other item.</LootScavenging_DropIncludesAmmunitionOn>
-  <LootScavenging_DropIncludesAmmunitionOff>Ammunition drops untouched unless its own item rule says otherwise, even when it is beyond reach.</LootScavenging_DropIncludesAmmunitionOff>
-  <LootScavenging_DropModeOffExplain>No era handling: gear beyond reach follows its item rule like any other gear.</LootScavenging_DropModeOffExplain>
-  <LootScavenging_StudyEras>Which scrap can be studied</LootScavenging_StudyEras>
-  <LootScavenging_StudyErasColony>The colony's era and below</LootScavenging_StudyErasColony>
-  <LootScavenging_StudyErasAny>Any era</LootScavenging_StudyErasAny>
-  <LootScavenging_StudyErasColonyExplain>Scrap of the colony's era or lower can be studied. Higher scrap waits until the colony advances.</LootScavenging_StudyErasColonyExplain>
-  <LootScavenging_StudyErasAnyExplain>Scrap of any era can be studied, as long as the current project is of its era or lower.</LootScavenging_StudyErasAnyExplain>
+  <LootScavenging_SectionScrap>Scrap</LootScavenging_SectionScrap>
   <LootScavenging_RecycleOrStudy>Recycle or study</LootScavenging_RecycleOrStudy>
   <LootScavenging_OneOrTheOther>One or the other</LootScavenging_OneOrTheOther>
   <LootScavenging_StudyThenRecycle>Study, then recycle</LootScavenging_StudyThenRecycle>
   <LootScavenging_OneOrTheOtherExplain>Each unit of scrap is either recycled for materials or studied for research.</LootScavenging_OneOrTheOtherExplain>
   <LootScavenging_StudyThenRecycleExplain>Studied scrap is not used up: what is left can be recycled afterwards, at reduced value.</LootScavenging_StudyThenRecycleExplain>
-  <LootScavenging_StudyPointsMultiplier>Research points from study: {0}</LootScavenging_StudyPointsMultiplier>
-  <LootScavenging_StudyPointsMultiplierExplain>Each unit of scrap pays its era's points below, times {0}. Industrial scrap pays {1} points a unit, before the storyteller's research speed.</LootScavenging_StudyPointsMultiplierExplain>
-  <LootScavenging_StudyPointsMultiplierOff>Scrap cannot be studied: every unit pays 0 points.</LootScavenging_StudyPointsMultiplierOff>
   <LootScavenging_StudyPointsPerTier>Research points per unit, by era</LootScavenging_StudyPointsPerTier>
-  <LootScavenging_StudyPointsPerTierExplain>Before the multiplier above. Set an era to 0 and its scrap cannot be studied.</LootScavenging_StudyPointsPerTierExplain>
+  <LootScavenging_StudyPointsPerTierExplain>Set an era to 0 and its scrap cannot be studied. Scrap above the colony's era waits until the colony advances.</LootScavenging_StudyPointsPerTierExplain>
   <LootScavenging_StudyPointsHalvedNote>Scrap was made cheaper in 0.5.2, so your research points per unit were halved to keep the same total.</LootScavenging_StudyPointsHalvedNote>
-  <LootScavenging_ScrapValue>Scrap market value: {0} silver per unit</LootScavenging_ScrapValue>
-  <LootScavenging_ScrapValueLow>Scrap is worth almost nothing, so a stockpile kept for later does not raise colony wealth or sell for silver.</LootScavenging_ScrapValueLow>
-  <LootScavenging_ScrapValueHigh>Each unit of scrap is worth {0} silver: stockpiled scrap counts toward colony wealth and can be sold.</LootScavenging_ScrapValueHigh>
-  <LootScavenging_DeathDrop>Where loot lands at death</LootScavenging_DeathDrop>
-  <LootScavenging_DeathDropGround>On the ground</LootScavenging_DeathDropGround>
-  <LootScavenging_DeathDropScrapOnBody>Scrap stays on the body</LootScavenging_DeathDropScrapOnBody>
-  <LootScavenging_DeathDropAllOnBody>Everything stays on the body</LootScavenging_DeathDropAllOnBody>
-  <LootScavenging_DeathDropGroundExplain>The weapon, inventory and any scrap drop beside the body, as in the base game.</LootScavenging_DeathDropGroundExplain>
-  <LootScavenging_DeathDropScrapOnBodyExplain>Scrap from the dead stays on the body, and drops when the corpse is stripped, butchered or cremated. The weapon and inventory drop beside the body as usual.</LootScavenging_DeathDropScrapOnBodyExplain>
-  <LootScavenging_DeathDropAllOnBodyExplain>When a pawn these rules cover dies, nothing drops. The dead keep their weapon, medicine, food, silver and scrap on the body until the corpse is stripped, butchered or cremated. This applies at death only. Mechanoids whose gear the game destroys are unchanged.</LootScavenging_DeathDropAllOnBodyExplain>
-  <LootScavenging_EraFallback>Gear with no era of its own</LootScavenging_EraFallback>
-  <LootScavenging_EraFallbackCarrier>The carrier's faction era</LootScavenging_EraFallbackCarrier>
-  <LootScavenging_EraFallbackColony>The colony's era</LootScavenging_EraFallbackColony>
-  <LootScavenging_EraFallbackComponents>Break into components</LootScavenging_EraFallbackComponents>
-  <LootScavenging_EraFallbackCarrierExplain>Gear with no research and no tech level, such as some modded or uncraftable gear, takes the era of the faction that carried it.</LootScavenging_EraFallbackCarrierExplain>
-  <LootScavenging_EraFallbackColonyExplain>Gear with no research and no tech level counts as the colony's own era, so it is always within reach.</LootScavenging_EraFallbackColonyExplain>
-  <LootScavenging_EraFallbackComponentsExplain>Gear with no research and no tech level is broken straight into components.</LootScavenging_EraFallbackComponentsExplain>
+  <LootScavenging_ScrapValuePerTier>Scrap market value per unit, by era</LootScavenging_ScrapValuePerTier>
+  <LootScavenging_ScrapValuePerTierExplain>Stockpiled scrap counts toward colony wealth and can be sold at this value. A low value keeps a stockpile from raising colony wealth.</LootScavenging_ScrapValuePerTierExplain>
+  <LootScavenging_SectionOther>Other</LootScavenging_SectionOther>
   <LootScavenging_DisassemblyYield>Instant disassembly yield</LootScavenging_DisassemblyYield>
-  <LootScavenging_YieldEra>Era-typical materials</LootScavenging_YieldEra>
-  <LootScavenging_YieldItem>The item's own ingredients</LootScavenging_YieldItem>
-  <LootScavenging_YieldEraExplain>Disassembled gear gives materials picked from its era's recycling pool, so a tribal colony does not get plasteel on the battlefield.</LootScavenging_YieldEraExplain>
+  <LootScavenging_YieldEra>Materials of the colony's era</LootScavenging_YieldEra>
+  <LootScavenging_YieldItem>Materials of the item</LootScavenging_YieldItem>
+  <LootScavenging_YieldEraExplain>Disassembled gear gives materials picked from the colony era's recycling pool, so a tribal colony does not get plasteel on the battlefield.</LootScavenging_YieldEraExplain>
   <LootScavenging_YieldItemExplain>Disassembled gear gives back part of what it was made from, at the efficiency set beside each disassemble rule.</LootScavenging_YieldItemExplain>
   <LootScavenging_TechprintProjects>Study pays into techprint projects</LootScavenging_TechprintProjects>
   <LootScavenging_TechprintProjectsOn>Study pays into projects that need techprints, even before the techprints are applied. It stops one point short until they are.</LootScavenging_TechprintProjectsOn>
@@ -207,24 +162,20 @@
   <LootScavenging_UnfamiliarLooted>Looted gear only</LootScavenging_UnfamiliarLooted>
   <LootScavenging_UnfamiliarAllExplain>Any gear beyond the colony's research is unfamiliar, wherever it came from. Nothing is saved on items.</LootScavenging_UnfamiliarAllExplain>
   <LootScavenging_UnfamiliarLootedExplain>Only gear looted from pawns is unfamiliar. Each looted item carries a saved marker.</LootScavenging_UnfamiliarLootedExplain>
-  <LootScavenging_UnfamiliarAllExplainUnused>Any gear beyond the colony's research is unfamiliar, wherever it came from. Nothing is saved on items. Only used when the drop mode keeps the original item.</LootScavenging_UnfamiliarAllExplainUnused>
-  <LootScavenging_UnfamiliarLootedExplainUnused>Only gear looted from pawns is unfamiliar. Each looted item carries a saved marker. Only used when the drop mode keeps the original item.</LootScavenging_UnfamiliarLootedExplainUnused>
+  <LootScavenging_UnfamiliarAllExplainUnused>Any gear beyond the colony's research is unfamiliar, wherever it came from. Nothing is saved on items. Only used for groups set to Mark unfamiliar.</LootScavenging_UnfamiliarAllExplainUnused>
+  <LootScavenging_UnfamiliarLootedExplainUnused>Only gear looted from pawns is unfamiliar. Each looted item carries a saved marker. Only used for groups set to Mark unfamiliar.</LootScavenging_UnfamiliarLootedExplainUnused>
   <!-- Settings page: corpses -->
   <LootScavenging_SectionCorpses>Corpses</LootScavenging_SectionCorpses>
   <LootScavenging_CorpseHumanlike>Remove humanlike corpses</LootScavenging_CorpseHumanlike>
-  <LootScavenging_CorpseHumanlikeOn>Corpses of people from affected groups can be removed after their gear has been through the rules.</LootScavenging_CorpseHumanlikeOn>
+  <LootScavenging_CorpseHumanlikeOn>Corpses of people from groups set to Apply item rules are removed after their gear has been through the rules.</LootScavenging_CorpseHumanlikeOn>
   <LootScavenging_CorpseHumanlikeOff>Corpses of people are left.</LootScavenging_CorpseHumanlikeOff>
   <LootScavenging_CorpseAnimal>Remove animal corpses</LootScavenging_CorpseAnimal>
-  <LootScavenging_CorpseAnimalOn>Animal corpses from affected groups can be removed. Wild animals only count while pawns with no faction are ticked.</LootScavenging_CorpseAnimalOn>
+  <LootScavenging_CorpseAnimalOn>Animal corpses from groups set to Apply item rules are removed. Wild animals only count while wild people and animals are set to Apply item rules.</LootScavenging_CorpseAnimalOn>
   <LootScavenging_CorpseAnimalOff>Animal corpses are left, for food or leather.</LootScavenging_CorpseAnimalOff>
   <LootScavenging_CorpseMechanoid>Remove mechanoid corpses</LootScavenging_CorpseMechanoid>
-  <LootScavenging_CorpseMechanoidOn>Mechanoid corpses from affected groups can be removed.</LootScavenging_CorpseMechanoidOn>
+  <LootScavenging_CorpseMechanoidOn>Mechanoid corpses from groups set to Apply item rules are removed.</LootScavenging_CorpseMechanoidOn>
   <LootScavenging_CorpseMechanoidOff>Mechanoid corpses are left, for smelting.</LootScavenging_CorpseMechanoidOff>
-  <LootScavenging_CorpseChance>Corpse removal chance: {0}</LootScavenging_CorpseChance>
-  <LootScavenging_CorpseChanceExplain>Each corpse of a ticked kind is removed {0} of the time.</LootScavenging_CorpseChanceExplain>
-  <LootScavenging_ButcherApparel>Butchering removes worn apparel</LootScavenging_ButcherApparel>
-  <LootScavenging_ButcherApparelOn>Apparel still worn by a corpse is destroyed when it is butchered, so tainted clothing does not pile up by the butcher table.</LootScavenging_ButcherApparelOn>
-  <LootScavenging_ButcherApparelOff>Butchering drops worn apparel as normal.</LootScavenging_ButcherApparelOff>
+  <LootScavenging_ButcherExplain>Butchering a humanlike corpse strips it first, and what comes off follows the item rules under its owner's row. An excluded group's corpse, or a colonist's, is butchered as in the base game.</LootScavenging_ButcherExplain>
   <!-- Settings page: lists -->
   <LootScavenging_SectionLists>Lists</LootScavenging_SectionLists>
   <LootScavenging_ProtectQuest>Protect quest items</LootScavenging_ProtectQuest>
@@ -242,7 +193,7 @@
   <LootScavenging_KeepList>Always keep</LootScavenging_KeepList>
   <LootScavenging_KeepListExplain>Items on this list are never touched, whatever the other rules say. This list wins over the remove list.</LootScavenging_KeepListExplain>
   <LootScavenging_RemoveList>Always remove</LootScavenging_RemoveList>
-  <LootScavenging_RemoveListExplain>Items on this list skip their rule's conditions and chance. They get their category's outcome, or are deleted when that outcome is keep.</LootScavenging_RemoveListExplain>
+  <LootScavenging_RemoveListExplain>Items on this list skip their rule's conditions and chance. They get their category's outcome, or are deleted when that outcome is Vanilla.</LootScavenging_RemoveListExplain>
   <LootScavenging_ListEmpty>(empty)</LootScavenging_ListEmpty>
   <LootScavenging_ListRemove>Remove</LootScavenging_ListRemove>
   <LootScavenging_ListAdd>Add</LootScavenging_ListAdd>

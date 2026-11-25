@@ -8,74 +8,32 @@ using Verse;
 
 namespace LootScavenging.Loot;
 
-/// <summary>Degrade and instant disassembly (ticket 08). Both act on an item still held by its pawn.</summary>
+/// <summary>Instant disassembly (ticket 08). Acts on an item still held by its pawn.</summary>
 internal static class DisassembleApplier
 {
-    public static void Degrade(Thing thing)
+    public static void Disassemble(Pawn pawn, Thing thing)
     {
         LootRules rules = LootScavengingMod.Settings.values.rules;
-        int before = thing.HitPoints;
-        if (thing.def.useHitPoints && thing.MaxHitPoints > 0)
-        {
-            thing.HitPoints = Disassembly.DegradedHitPoints(thing.MaxHitPoints, thing.HitPoints, rules.degradeMin, rules.degradeMax, Rand.Value);
-        }
-
-        QualityCategory? lowered = null;
-        if (rules.degradeLowersQuality && thing.TryGetQuality(out QualityCategory quality))
-        {
-            var next = (QualityCategory)(byte)Disassembly.StepDown((ItemQuality)(byte)quality);
-            if (next != quality)
-            {
-                thing.TryGetComp<CompQuality>().SetQuality(next, ArtGenerationContext.Outsider);
-                lowered = next;
-            }
-        }
-
-        if (Prefs.DevMode)
-            Log.Message($"[Loot Scavenging] Degraded {thing}: hit points {before} -> {thing.HitPoints}{(lowered.HasValue ? ", quality " + lowered.Value : "")}"); // not translated
-    }
-
-    public static void Disassemble(Pawn pawn, Thing thing, EraResult era, DecisionReason reason)
-    {
-        LootRules rules = LootScavengingMod.Settings.values.rules;
-        ScrapTier tier = ScrapTiers.TierFor(era.Era, EraReader.ColonyEra());
-        int units = ItemClassifier.ScrapUnits(thing, tier);
+        // "Colony era" rolls the colony era's tier pool (ticket 25, decision 7), scaled by what the item's scrap of that tier
+        // would be.
+        Era colonyEra = EraReader.ColonyEra();
+        ScrapTier tier = ScrapTiers.TierFor(colonyEra, colonyEra);
 
         List<Thing> made;
         string source;
-        if (reason == DecisionReason.ComponentsFallback)
+        List<YieldAmount<ThingDef>> amounts = null;
+        if (rules.disassemblyYield == DisassemblyYield.ItemBased)
+            amounts = ItemBasedYield(thing, rules.disassemblyEfficiency);
+        if (amounts != null && amounts.Count > 0)
         {
-            // Gear with no era: break it into components, scaled by what its scrap would have been.
-            source = "components";
-            // An item worth less than one scrap unit yields nothing, like its scrap would.
-            if (units < 1)
-                made = new List<Thing>();
-            else if (thing.MarketValue * thing.stackCount < ThingDefOf.ComponentIndustrial.BaseMarketValue)
-            {
-                // Worth less than one component: a component would be worth more than the item, so it gives its capped
-                // scrap instead (ticket 19).
-                source = "scrap";
-                made = ScrapThings(ScrapDefs.For(tier), units);
-            }
-            else
-                made = TierFor(new[] { new YieldAmount<ThingDef>(ThingDefOf.ComponentIndustrial, Disassembly.ComponentsFor(units)) });
+            source = "item-based";
+            made = TierFor(amounts);
         }
         else
         {
-            List<YieldAmount<ThingDef>> amounts = null;
-            if (rules.disassemblyYield == DisassemblyYield.ItemBased)
-                amounts = ItemBasedYield(thing, rules.disassemblyEfficiency);
-            if (amounts != null && amounts.Count > 0)
-            {
-                source = "item-based";
-                made = TierFor(amounts);
-            }
-            else
-            {
-                // Era-typical mode, or an item with no cost list and no material to take apart: one pool pick per scrap unit.
-                source = "era-typical";
-                made = ScrapTierTable.RollProducts(ScrapTierTable.For(tier), units).ToList();
-            }
+            // Colony-era mode, or an item with no cost list and no material to take apart: one pool pick per scrap unit.
+            source = "colony-era";
+            made = ScrapTierTable.RollProducts(ScrapTierTable.For(tier), ItemClassifier.ScrapUnits(thing, tier)).ToList();
         }
 
         Map map = pawn.MapHeld;
@@ -111,17 +69,6 @@ internal static class DisassembleApplier
 
     private static List<Thing> TierFor(IEnumerable<YieldAmount<ThingDef>> amounts) => ScrapTierTable.MakeThings(amounts).ToList();
 
-    private static List<Thing> ScrapThings(ThingDef scrapDef, int units)
-    {
-        var things = new List<Thing>();
-        foreach (int count in ScrapAmounts.SplitIntoStacks(units, scrapDef.stackLimit))
-        {
-            Thing scrap = ThingMaker.MakeThing(scrapDef);
-            scrap.stackCount = count;
-            things.Add(scrap);
-        }
-        return things;
-    }
 
     // Loaded ammo of reloadable gear, as things. Vanilla never does this, so it is the mod's own feature.
     internal static IEnumerable<Thing> EjectedCharges(Thing thing)

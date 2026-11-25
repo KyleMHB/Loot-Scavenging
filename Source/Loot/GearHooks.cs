@@ -133,7 +133,7 @@ internal static class PawnDownedHook
         __state = true;
         try
         {
-            // "Keep his weapon" (ticket 23), or a colonist under "Colonists keep their gear" (ticket 24): nothing drops and
+            // A pawn under his "Don't drop your stuff" box (ticket 25, decision 2): nothing drops and
             // nothing is judged. He keeps his weapon in hand and his pack; SpawnDropHook keeps the weapon in hand when he is
             // put down again. A covered pawn's gear is sorted at his strip, arrest, join or death; a colonist's never is.
             if (BodyLoot.ColonistKeepsGear(___pawn) || BodyLoot.KeepsWeaponAtDowning(___pawn))
@@ -141,9 +141,9 @@ internal static class PawnDownedHook
                 BodyLoot.BeginKeepingGear(___pawn);
                 return;
             }
-            // "Drop the weapon": downing drops equipment and inventory, never apparel, sorted as they drop, whatever the
-            // arrest and strip toggles say (ticket 24). What the rules kept drops whole, to the ground under every death
-            // setting: those only say where loot lands at death.
+            // Box off: downing drops equipment and inventory, never apparel, sorted as they drop under the Who rows
+            // (ticket 24). What the rules kept drops whole, to the ground: the boxes only hold gear for a pawn who keeps it
+            // all.
             GearSorter.Sort(___pawn, Moment.Downed, equipment: true, apparel: false, inventory: true);
         }
         catch (Exception e)
@@ -152,7 +152,7 @@ internal static class PawnDownedHook
         }
     }
 
-    // Under "Drop the weapon" the gear must drop (ticket 24). Another mod can stop the game's drop at a downing: Hospitality
+    // With the box off the gear must drop (ticket 24). Another mod can stop the game's drop at a downing: Hospitality
     // skips it for a friendly guest, by default. What the rules kept of a covered pawn is then dropped here, as the game
     // would have, while he is still marked, so nothing is judged twice. Without such a mod the game has already dropped
     // everything and this does nothing. A pawn downed in a bed keeps everything in the game (the keep flag), and his later
@@ -217,7 +217,7 @@ internal static class PawnStripHook
 }
 
 // Arresting a pawn (Pawn_GuestTracker.SetGuestStatus) and trading one (Pawn.PreTraded) drop his weapon and inventory
-// through this call: the arrest moment, gated by "Sort when arrested". Death and downing call it too, from inside the hooks
+// through this call: the arrest moment, judged by the Prisoners row (ticket 25). Death and downing call it too, from inside the hooks
 // above, so dead and marked pawns are skipped; so is a distress call's corpse, already dead. Apparel stays on, as in the game.
 [HarmonyPatch(typeof(Pawn), nameof(Pawn.DropAndForbidEverything))]
 internal static class DropEverythingHook
@@ -264,7 +264,7 @@ internal static class DropEquipmentHook
         try
         {
             // A lost grip is no arrest or strip: always sorted, as a downing is. Includes the drop the game makes as a
-            // downed pawn still holding his weapon is spawned outside a bed under "Drop the weapon" (see SpawnDropHook).
+            // downed pawn still holding his weapon is spawned outside a bed with his box off (see SpawnDropHook).
             GearSorter.SortEquipment(pawn, eq, Moment.Downed);
         }
         catch (Exception e)
@@ -280,7 +280,7 @@ internal static class DropEquipmentHook
     }
 }
 
-// A covered pawn being downed under "Keep his weapon", or a colonist under "Colonists keep their gear", keeps his weapon and pack:
+// A pawn being downed under his "Don't drop your stuff" box keeps his weapon and pack:
 // these skip exactly the two drops MakeDowned makes through DropAndForbidEverything, as the game does for a pawn downed
 // in a bed. A carried thing (a kidnapped colonist, a thief's silver) still drops. First, so no other mod sorts or moves a
 // drop that is not going to happen.
@@ -300,10 +300,10 @@ internal static class KeepInventoryAtDowningHook
 
 // The game drops a downed pawn's weapon whenever he is spawned outside a bed: carried and put down, rescued to a bed (the
 // tuck drops him on the bed's cell before he lies down), brought in by a caravan or shuttle, or a reload.
-// - Under "Keep his weapon" (Kyle, 2026-11-24) that drop never happens for a pawn the setting covers: he holds his weapon
+// - Under his "Don't drop your stuff" box (ticket 25) that drop never happens: he holds his weapon
 //   until he is stripped, arrested, joins or dies, wherever he is set down, and gets up still holding it. The same goes for
-//   a colonist or colony slave under "Colonists keep their gear" (ticket 24).
-// - Otherwise the game's drop goes ahead, and DropEquipmentHook sorts it for a covered pawn. Under "Drop the weapon" he
+//   a colonist or colony slave under the colonists box.
+// - Otherwise the game's drop goes ahead, and DropEquipmentHook sorts it for a covered pawn. With the box off he
 //   rarely holds one by then: only if he was downed where the game does not drop it, such as off the map.
 [HarmonyPatch(typeof(Pawn_EquipmentTracker), nameof(Pawn_EquipmentTracker.Notify_PawnSpawned))]
 internal static class SpawnDropHook

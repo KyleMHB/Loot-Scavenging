@@ -7,12 +7,13 @@ using Verse;
 namespace LootScavenging.Loot;
 
 /// <summary>
-/// Loot kept on a pawn's body for the "where loot lands at death" setting. Pawn.Kill drops the weapon and inventory
-/// beside the corpse, so what should stay is taken off the pawn before that drop and put back into the dead pawn's
-/// inventory after it, where stripping, butchering or cremating the corpse finds it. The setting applies at death only
-/// (ticket 24). A colonist under "Colonists keep their gear" keeps his weapon and pack in his corpse, unsorted. A covered
-/// pawn's downing drops nothing under "Keep his weapon" (ticket 23, the default), and nor does a colonist's under "Colonists
-/// keep their gear": he keeps his weapon in hand and his pack, unjudged, as the game does for a pawn downed in a bed.
+/// "Don't drop your stuff" (ticket 25, decision 2): three boxes, for colonists, hostiles and everyone else, choose whether a
+/// pawn keeps his gear on him. Pawn.Kill drops the weapon and inventory beside the corpse, so what should stay is taken off
+/// the pawn before that drop and put back into the dead pawn's inventory after it, where stripping, butchering or cremating
+/// the corpse finds it. A downed pawn under his box drops nothing: he keeps his weapon in hand and his pack, unjudged, as the
+/// game does for a pawn downed in a bed. The boxes choose where items land, the Who rows whether they are sorted: a covered
+/// non-colony pawn's gear is still sorted at his death, and what the rules kept stays on the body with its scrap. A
+/// colonist's gear is never sorted.
 /// </summary>
 internal static class BodyLoot
 {
@@ -26,7 +27,7 @@ internal static class BodyLoot
 
     public static bool KeepsAll(Pawn pawn) => keepsAll.Contains(pawn);
 
-    // Both on-body options skip these pawns: loot left on a body the game strips of nothing (most mechanoids) would be stuck.
+    // The boxes skip these pawns: loot left on a body the game strips of nothing (most mechanoids) would be stuck.
     public static bool CanHoldLoot(Pawn pawn) => !pawn.kindDef.destroyGearOnDrop && pawn.kindDef.canStrip;
 
     public static void Hold(Pawn pawn, Thing thing)
@@ -37,17 +38,30 @@ internal static class BodyLoot
     }
 
     /// <summary>
-    /// Called at the start of a death, before the gear is sorted: with "everything stays on the body", marks
-    /// a covered pawn so its loot is held. Pawns whose gear the game destroys on drop (most mechanoids) and pawns that
-    /// cannot be stripped drop as usual, so nothing is saved that would otherwise vanish or be stuck on a corpse.
+    /// Called at the start of a death, before the gear is sorted: marks a non-colony pawn under his "Don't drop your stuff"
+    /// box so his loot is held. Pawns whose gear the game destroys on drop (most mechanoids) and pawns that cannot be stripped
+    /// drop as usual, so nothing is saved that would otherwise vanish or be stuck on a corpse.
     /// </summary>
     public static void BeginDrop(Pawn pawn)
     {
-        if (LootScavengingMod.Settings.values.deathDrop != DeathDrop.AllOnBody || !pawn.Spawned || !CanHoldLoot(pawn))
-            return;
-        MapKind map = pawn.Map.IsPlayerHome ? MapKind.Home : MapKind.Away;
-        if (LootEvaluator.CoversPawn(GearSorter.OwnerOf(pawn), map, LootScavengingMod.Settings.values.rules))
+        if (pawn.Spawned && KeepsGear(pawn))
             keepsAll.Add(pawn);
+    }
+
+    /// <summary>
+    /// Whether a non-colony pawn's box keeps his gear on him: the hostile box for a hostile faction's pawn, the non-hostile
+    /// box for anyone else. A colony prisoner follows his faction. Independent of the Who rows and the home-map setting.
+    /// Colony pawns go by <see cref="ColonistKeepsGear"/>.
+    /// </summary>
+    public static bool KeepsGear(Pawn pawn)
+    {
+        if (!CanHoldLoot(pawn))
+            return false;
+        OwnerGroup owner = GearSorter.OwnerOf(pawn);
+        if (owner == OwnerGroup.Colony)
+            return false;
+        Faction faction = pawn.Faction;
+        return LootScavengingMod.Settings.values.KeepsGear(owner, faction != null && faction.HostileTo(Faction.OfPlayer));
     }
 
     /// <summary>Takes a marked dying pawn's weapon and inventory off it before the game's death drop. Runs after the gear is
@@ -76,7 +90,7 @@ internal static class BodyLoot
     }
 
     // Pawns being downed who keep what the game would drop at the downing, for the length of their MakeDowned call: under
-    // "Keep his weapon", or a colonist under "Colonists keep their gear". The skip hooks in GearHooks.cs
+    // their "Don't drop your stuff" box. The skip hooks in GearHooks.cs
     // stop the game's drop of their weapon and pack, as the game itself does for a pawn downed in a bed. Nothing moves, so
     // a trader's not-for-sale marks stay as they are.
     private static readonly HashSet<Pawn> keepingGear = new HashSet<Pawn>();
@@ -88,21 +102,15 @@ internal static class BodyLoot
     public static void EndKeepingGear(Pawn pawn) => keepingGear.Remove(pawn);
 
     /// <summary>
-    /// Whether a downing leaves this pawn's weapon in his hands and his pack as it is, unjudged ("Keep his weapon"), and
-    /// whether he keeps holding the weapon when he is spawned again while down. Pawns the rules do not cover, and pawns whose
-    /// gear the game destroys on drop or that cannot be stripped (most mechanoids), drop as before.
+    /// Whether a downing leaves this non-colony pawn's weapon in his hands and his pack as it is, unjudged, and whether he
+    /// keeps holding the weapon when he is spawned again while down: his "Don't drop your stuff" box. Pawns whose gear the
+    /// game destroys on drop or that cannot be stripped (most mechanoids) drop as before.
     /// </summary>
-    public static bool KeepsWeaponAtDowning(Pawn pawn)
-    {
-        Map map = pawn.MapHeld;
-        if (map == null || !CanHoldLoot(pawn))
-            return false;
-        return DownedGears.KeepsWeapon(LootScavengingMod.Settings.values.rules, GearSorter.OwnerOf(pawn),
-            map.IsPlayerHome ? MapKind.Home : MapKind.Away);
-    }
+    public static bool KeepsWeaponAtDowning(Pawn pawn) => pawn.MapHeld != null && KeepsGear(pawn);
 
     /// <summary>
-    /// Whether "Colonists keep their gear" (ticket 24) covers this pawn: a colonist or colony slave, whose weapon and pack
+    /// Whether the colonists box of "Don't drop your stuff" (tickets 24 and 25) covers this pawn: a colonist or colony slave, whose weapon and pack
+
     /// then stay with him, unsorted, when he is downed, set down again or killed. Animals and mechanoids are not covered,
     /// and nor are pawns whose gear the game destroys on drop or that cannot be stripped.
     /// </summary>

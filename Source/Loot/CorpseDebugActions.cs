@@ -14,7 +14,7 @@ internal static class CorpseDebugActions
     private static void LogCorpseRules()
     {
         LootScavenging.Model.CorpseRules c = Corpses;
-        Log.Message($"[Loot Scavenging] corpses: humanlike={c.humanlike} animal={c.animal} mechanoid={c.mechanoid} chance={c.chance} butcherRemovesApparel={c.butcherRemovesApparel}"); // not translated
+        Log.Message($"[Loot Scavenging] corpses: humanlike={c.humanlike} animal={c.animal} mechanoid={c.mechanoid}"); // not translated
     }
 
     [DebugAction(Category, "Toggle corpse removal: humanlike", allowedGameStates = AllowedGameStates.Playing)] // not translated
@@ -35,13 +35,6 @@ internal static class CorpseDebugActions
     private static void ToggleMechanoid()
     {
         Corpses.mechanoid = !Corpses.mechanoid;
-        LogCorpseRules();
-    }
-
-    [DebugAction(Category, "Toggle butchering removes apparel", allowedGameStates = AllowedGameStates.Playing)] // not translated
-    private static void ToggleButcherApparel()
-    {
-        Corpses.butcherRemovesApparel = !Corpses.butcherRemovesApparel;
         LogCorpseRules();
     }
 }

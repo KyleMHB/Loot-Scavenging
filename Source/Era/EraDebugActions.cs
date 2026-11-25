@@ -9,22 +9,10 @@ namespace LootScavenging;
 // Dev-mode readout for the era reader. Developer-only text, so literals are not translated.
 public static class EraDebugActions
 {
-    [DebugAction("Loot Scavenging", "Era: colony era and fallback", allowedGameStates = AllowedGameStates.Playing)]
+    [DebugAction("Loot Scavenging", "Era: colony era", allowedGameStates = AllowedGameStates.Playing)]
     private static void LogColonyEra()
     {
-        // not translated
-        Log.Message("[Loot Scavenging] Colony era: " + EraReader.ColonyEra() + ", fallback setting: "
-            + (LootScavengingMod.Settings?.values.eraFallback ?? EraFallback.CarrierFaction));
-    }
-
-    // A quick switch beside the settings page, so the fallback's effect on the readout can be checked.
-    [DebugAction("Loot Scavenging", "Era: cycle fallback setting", allowedGameStates = AllowedGameStates.Playing)]
-    private static void CycleFallback()
-    {
-        LootScavengingSettings settings = LootScavengingMod.Settings;
-        settings.values.eraFallback = (EraFallback)(((int)settings.values.eraFallback + 1) % 3);
-        settings.Write();
-        Log.Message("[Loot Scavenging] Era fallback is now " + settings.values.eraFallback); // not translated
+        Log.Message("[Loot Scavenging] Colony era: " + EraReader.ColonyEra()); // not translated
     }
 
     [DebugAction("Loot Scavenging", "Era: readout for an item...", allowedGameStates = AllowedGameStates.Playing)]
@@ -62,7 +50,7 @@ public static class EraDebugActions
 
     private static void AppendLine(System.Text.StringBuilder sb, string label, EraResult r)
     {
-        sb.AppendLine("  " + label + ": era " + r.Era + " from " + r.Source + ", out of reach: " + r.OutOfReach
-            + (r.BreakIntoComponents ? ", break into components" : "")); // not translated
+        sb.AppendLine("  " + label + ": era " + r.Era + " from " + r.Source + ", out of reach: " + r.OutOfReach); // not translated
+
     }
 }

@@ -49,7 +49,8 @@ internal static class SettingsDefaults
             Log.Warning($"[Loot Scavenging] {defs.Count} settings defaults defs are loaded; using {defs[0].defName}. Patch that one instead of adding another."); // not translated
 
         SettingsDefaultsDef def = defs[0];
-        def.values?.rules?.ApplyOldDownedAndStrip();
+        // An old pack's patch on a node replaced in 0.6.0 becomes the settings that replaced it (ticket 25).
+        SettingsLoad.MigrateDef(def.values);
         return new PresetConfig(def.values ?? PresetConfig.Code().Progression, new SettingLocks(def.locked));
     }
 }

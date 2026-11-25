@@ -16,34 +16,21 @@ internal static class LootDebugActions
     private static void LogRules()
     {
         LootRules r = Rules;
-        Log.Message($"[Loot Scavenging] hostile={r.hostile} nonHostileFaction={r.nonHostileFaction} noFaction={r.noFaction} prisoners={r.prisoners} homeMapOnly={r.homeMapOnly} sortWhenArrested={r.sortWhenArrested} sortWhenStripped={r.sortWhenStripped} colonistsKeepGear={LootScavengingMod.Settings.values.colonistsKeepGear} weapons={r.weapons.outcome} apparel={r.apparel.outcome}"); // not translated
+        SettingValues v = LootScavengingMod.Settings.values;
+        Log.Message($"[Loot Scavenging] whoHostile={r.whoHostile} whoNonHostile={r.whoNonHostile} whoWild={r.whoWild} whoPrisoners={r.whoPrisoners} whoRecruitedPrisoners={r.whoRecruitedPrisoners} whoOtherJoiners={r.whoOtherJoiners} homeMapOnly={r.homeMapOnly} colonistsKeepGear={v.colonistsKeepGear} hostilesKeepGear={v.hostilesKeepGear} nonHostilesKeepGear={v.nonHostilesKeepGear} weapons={r.weapons.outcome} apparel={r.apparel.outcome}"); // not translated
     }
 
-    [DebugAction(Category, "Toggle no-faction group", allowedGameStates = AllowedGameStates.Playing)] // not translated
-    private static void ToggleNoFaction()
+    [DebugAction(Category, "Cycle wild row", allowedGameStates = AllowedGameStates.Playing)] // not translated
+    private static void CycleWild()
     {
-        Rules.noFaction = !Rules.noFaction;
+        Rules.whoWild = Next(Rules.whoWild);
         LogRules();
     }
 
-    [DebugAction(Category, "Toggle prisoner group", allowedGameStates = AllowedGameStates.Playing)] // not translated
-    private static void TogglePrisoners()
+    [DebugAction(Category, "Cycle prisoners row", allowedGameStates = AllowedGameStates.Playing)] // not translated
+    private static void CyclePrisoners()
     {
-        Rules.prisoners = !Rules.prisoners;
-        LogRules();
-    }
-
-    [DebugAction(Category, "Toggle sort when arrested", allowedGameStates = AllowedGameStates.Playing)] // not translated
-    private static void ToggleSortWhenArrested()
-    {
-        Rules.sortWhenArrested = !Rules.sortWhenArrested;
-        LogRules();
-    }
-
-    [DebugAction(Category, "Toggle sort when stripped", allowedGameStates = AllowedGameStates.Playing)] // not translated
-    private static void ToggleSortWhenStripped()
-    {
-        Rules.sortWhenStripped = !Rules.sortWhenStripped;
+        Rules.whoPrisoners = Next(Rules.whoPrisoners);
         LogRules();
     }
 
@@ -53,4 +40,11 @@ internal static class LootDebugActions
         Rules.homeMapOnly = !Rules.homeMapOnly;
         LogRules();
     }
+
+    private static WhoRule Next(WhoRule rule) => rule switch
+    {
+        WhoRule.Apply => WhoRule.Exclude,
+        WhoRule.Exclude => WhoRule.Mark,
+        _ => WhoRule.Apply,
+    };
 }

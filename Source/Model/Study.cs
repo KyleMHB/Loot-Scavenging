@@ -2,13 +2,6 @@ using System;
 
 namespace LootScavenging.Model;
 
-/// <summary>Which scrap can be studied (spec, "Study"). Default: the colony's current era and below.</summary>
-public enum StudyEraLimit
-{
-    ColonyEraAndBelow,
-    AnyEra,
-}
-
 /// <summary>Recycle or study (spec, "Study"). Default: each unit is used for one or the other.</summary>
 public enum RecycleOrStudy
 {
@@ -108,8 +101,12 @@ public static class StudyRules
 
     private static Era LowestEraOf(ScrapTier tier) => tier == ScrapTier.Neolithic ? Era.Animal : EraOf(tier);
 
-    public static StudyVerdict Check(ScrapTier tier, Era colonyEra, ProjectFacts project, StudyEraLimit eras,
-        bool techprintProjects, float pointsPerUnit, float researchFactor)
+    /// <summary>
+    /// Whether a tier's scrap can be studied into the project. Only scrap of the colony's era and below is studied (fixed
+    /// since 0.6.0, ticket 25 decision 8).
+    /// </summary>
+    public static StudyVerdict Check(ScrapTier tier, Era colonyEra, ProjectFacts project, bool techprintProjects,
+        float pointsPerUnit, float researchFactor)
     {
         // Set to zero in the settings: the tier is not studied at all, whatever the project.
         if (!IsUsable(pointsPerUnit))
@@ -124,7 +121,7 @@ public static class StudyRules
             return StudyVerdict.PrerequisitesUnfinished;
         if (project.NeedsTechprints && !techprintProjects)
             return StudyVerdict.NeedsTechprints;
-        if (eras == StudyEraLimit.ColonyEraAndBelow && LowestEraOf(tier) > colonyEra)
+        if (LowestEraOf(tier) > colonyEra)
             return StudyVerdict.ScrapAboveColonyEra;
         if (project.Era > EraOf(tier))
             return StudyVerdict.ProjectAboveScrapEra;

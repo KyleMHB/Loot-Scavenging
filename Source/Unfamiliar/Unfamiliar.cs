@@ -31,7 +31,8 @@ public static class Unfamiliar
     private static bool IsGear(ThingDef def) => EraReader.IsGear(def);
 
     /// <summary>
-    /// True when the drop mode keeps originals and this item is out of reach by the active scope. False outside a running game.
+    /// True when a loot Who row is set to Mark and this item is out of reach by the active scope, or the item carries a join
+    /// mark that still holds. False outside a running game.
     /// A weapon or apparel item only; anything else is never unfamiliar. Protected items (quest items, unique, persona and
     /// relic weapons, the keep list) never are: the drop keeps them whole so the colony can use them.
     /// </summary>
@@ -41,24 +42,24 @@ public static class Unfamiliar
         if (settings == null || thing == null || Current.ProgramState != ProgramState.Playing)
             return false;
 
-        // Labels ask for every weapon and apparel item each frame, so the common case (no join mark, drop mode other than
-        // keep-original) answers before any research or protection lookup.
+        // Labels ask for every weapon and apparel item each frame, so the common case (no join mark, no loot row set to
+        // Mark) answers before any research or protection lookup.
         var comp = (thing as ThingWithComps)?.GetComp<CompUnfamiliar>();
         bool joinMarked = comp != null && comp.joinedEra != Era.Undefined;
-        bool keepsOriginals = settings.values.rules.dropMode == DropMode.KeepOriginal;
+        bool keepsOriginals = settings.values.rules.AnyLootRowMarks;
         if (!joinMarked && !keepsOriginals || !IsGear(thing.def) || IsProtected(thing, settings))
             return false;
 
         Refresh(settings);
         EraResult reach = ReachOf(thing.def);
-        // A join mark (ticket 20) holds in every drop mode: the player chose it for gear its wearer joined in.
+        // A join mark (ticket 20) holds whatever the loot rows say: the player chose it for gear its wearer joined in.
         if (joinMarked && UnfamiliarRule.JoinMarkHolds(comp.joinedEra, reach.OutOfReach, colonyEra))
             return true;
         if (!keepsOriginals)
             return false;
 
         Era marked = settings.values.unfamiliarScope == UnfamiliarScope.LootedOnly ? comp?.lootedEra ?? Era.Undefined : Era.Undefined;
-        return UnfamiliarRule.IsUnfamiliar(settings.values.rules.dropMode, settings.values.unfamiliarScope, reach.OutOfReach, marked, colonyEra);
+        return UnfamiliarRule.IsUnfamiliar(keepsOriginals, settings.values.unfamiliarScope, reach.OutOfReach, marked, colonyEra);
     }
 
     /// <summary>Whether the pawn is barred from equipping or wearing the item: a colony pawn and unfamiliar gear.</summary>
@@ -70,7 +71,7 @@ public static class Unfamiliar
 
     /// <summary>
     /// Marks the out-of-reach apparel a pawn wears, the equipment he holds and the gear in his pack as he joins the colony ("mark
-    /// unfamiliar", tickets 20 and 21). Protected items are never marked. <paramref name="carrier"/> is the faction he came from, whose era reads gear with
+    /// unfamiliar", tickets 20 and 21; the joiner row set to Mark, ticket 25). Protected items are never marked. <paramref name="carrier"/> is the faction he came from, whose era reads gear with
     /// no research of its own. Locked apparel stays as it is, as at a strip.
     /// </summary>
     public static void MarkJoining(Pawn pawn, Faction carrier)
@@ -109,7 +110,7 @@ public static class Unfamiliar
         if (comp == null || !IsGear(thing.def) || IsProtected(thing, settings))
             return;
         EraResult reach = EraReader.ItemEra(thing.def, carrier);
-        if (UnfamiliarRule.ShouldMarkJoining(JoinerGear.MarkUnfamiliar, reach.OutOfReach))
+        if (UnfamiliarRule.ShouldMarkJoining(WhoRule.Mark, reach.OutOfReach))
             comp.joinedEra = UnfamiliarRule.MarkerEra(reach);
     }
 
@@ -117,7 +118,7 @@ public static class Unfamiliar
     public static void NotifyKept(Pawn pawn, Thing thing)
     {
         LootScavengingSettings settings = LootScavengingMod.Settings;
-        if (settings == null || settings.values.rules.dropMode != DropMode.KeepOriginal || settings.values.unfamiliarScope != UnfamiliarScope.LootedOnly
+        if (settings == null || !settings.values.rules.AnyLootRowMarks || settings.values.unfamiliarScope != UnfamiliarScope.LootedOnly
             || !IsGear(thing.def) || !(thing is ThingWithComps withComps) || IsProtected(thing, settings))
         {
             return;
@@ -129,7 +130,7 @@ public static class Unfamiliar
 
         OwnerGroup owner = Loot.GearSorter.OwnerOf(pawn);
         EraResult reach = EraReader.ItemEra(thing.def, pawn.Faction);
-        if (UnfamiliarRule.ShouldMark(settings.values.rules.dropMode, settings.values.unfamiliarScope, owner, reach.OutOfReach))
+        if (UnfamiliarRule.ShouldMark(settings.values.rules.RowFor(owner), settings.values.unfamiliarScope, owner, reach.OutOfReach))
         {
             comp.lootedEra = UnfamiliarRule.MarkerEra(reach);
         }
@@ -143,23 +144,21 @@ public static class Unfamiliar
     }
 
     // Labels ask once per item per frame, so the per-def era result and the colony era are cached for a few seconds and
-    // dropped when research finishes, the game changes or the fallback setting changes.
+    // dropped when research finishes or the game changes.
     private static readonly Dictionary<ThingDef, EraResult> reachCache = new Dictionary<ThingDef, EraResult>();
     private static Era colonyEra;
     private static int cacheStamp = -1;
     private static Game cacheGame;
-    private static EraFallback cacheFallback;
 
     private static void Refresh(LootScavengingSettings settings)
     {
         int stamp = Find.TickManager.TicksGame / 250;
-        if (stamp != cacheStamp || cacheGame != Current.Game || cacheFallback != settings.values.eraFallback)
+        if (stamp != cacheStamp || cacheGame != Current.Game)
         {
             reachCache.Clear();
             colonyEra = EraReader.ColonyEra();
             cacheStamp = stamp;
             cacheGame = Current.Game;
-            cacheFallback = settings.values.eraFallback;
         }
     }
 
@@ -167,8 +166,9 @@ public static class Unfamiliar
     {
         if (!reachCache.TryGetValue(def, out EraResult result))
         {
-            // No carrier: unfamiliarity is worked out from research, the item's own tech level and the fallback setting,
-            // where the carrier step uses the era of the factions that typically carry the item (EraReader).
+            // No carrier: unfamiliarity is worked out from research and the item's own tech level, then the era of the
+            // factions that typically carry the item (EraReader).
+
             result = EraReader.ItemEra(def, null);
             reachCache[def] = result;
         }

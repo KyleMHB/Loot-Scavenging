@@ -56,11 +56,12 @@ public class LootScavengingSettings : ModSettings
                 studyPointsHalvedNote = true;
             scrapScale = SettingsLoad.CurrentScrapScale;
         }
-        Apply(SettingsLoad.Resolve(Capture(), defaultsSeeded, loadedKeys, Presets.Config, out bool kept));
+        Apply(SettingsLoad.Resolve(Capture(), defaultsSeeded, loadedKeys, Presets.Config, out bool kept, legacy));
         if (!kept)
             activePreset = PresetId.Progression;
         defaultsSeeded = true;
         loadedKeys = null;
+        legacy = null;
         LootScavengingMod.ApplySettingsToDefs();
         // Saved now, not when the settings window next closes, so a crash or a quit cannot leave the old scale on disk and
         // halve the points a second time on the next start. Settings read straight from a file, as the settings tests do,
@@ -112,14 +113,11 @@ public class LootScavengingSettings : ModSettings
                     .Invoke(null, new[] { owner, field, key.Key, field.GetValue(defaultOwner) });
             }
         }
-
-        // Before OnDefaultsLoaded fills the missing keys, so a file from before the split keeps its choice (ticket 24).
-        if (Scribe.mode == LoadSaveMode.LoadingVars)
-            SettingsLoad.MigrateDownedAndStrip(values, loadedKeys, oldDownedAndStrip);
     }
 
-    // The old "Also when stripped or arrested" the file held, if any; read straight from the node, since it is no longer saved.
-    private bool? oldDownedAndStrip;
+    // The settings from before 0.6.0 the file held, read straight from its node since they are no longer saved, and
+    // translated once by OnDefaultsLoaded (ticket 25). Null when no file was read since then.
+    private LegacySettings legacy;
 
     // Only the loading pass reads the file's own node; the loader's later passes do not. The game's System.Xml reference
     // marks the indexer Windows-only; Scribe_Values reads the file the same way on every platform.
@@ -138,7 +136,19 @@ public class LootScavengingSettings : ModSettings
             if (node[key.Key] != null)
                 loadedKeys.Add(key.Key);
         }
-        oldDownedAndStrip = bool.TryParse(node[SettingsLoad.OldDownedAndStripKey]?.InnerText?.Trim(), out bool old) ? old : null;
+        legacy = new LegacySettings();
+        foreach (string key in LegacySettings.Keys)
+            legacy.Set(key, node[key]?.InnerText);
+        // The cut Degrade outcome no longer parses: it is recorded for the translation and read as Keep.
+        foreach (CategoryInfo category in ItemCategories.All)
+        {
+            var outcome = node[LegacySettings.OutcomeKey(category)];
+            if (outcome != null && outcome.InnerText.Trim() == LegacySettings.Degrade)
+            {
+                legacy.Set(LegacySettings.OutcomeKey(category), outcome.InnerText);
+                outcome.InnerText = nameof(Outcome.Keep);
+            }
+        }
     }
 #pragma warning restore CA1416
 

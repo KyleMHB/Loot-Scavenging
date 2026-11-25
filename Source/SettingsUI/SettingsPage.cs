@@ -9,7 +9,7 @@ using Verse;
 namespace LootScavenging.SettingsUI;
 
 /// <summary>
-/// The mod settings page (spec, "Settings page"): six sections, each row followed by a sentence saying what will happen.
+/// The mod settings page (ticket 25, decision 1): eight sections, each row followed by a sentence saying what will happen.
 /// It edits <see cref="LootScavengingSettings"/> in place; the rules read those fields directly, so a change applies at once.
 /// </summary>
 internal sealed class SettingsPage
@@ -17,7 +17,10 @@ internal sealed class SettingsPage
     private const float IndentWidth = 24f;
     private const float UnboundedHeight = 100000f;
 
-    private static readonly Outcome[] Outcomes = { Outcome.Keep, Outcome.Degrade, Outcome.Scrap, Outcome.Disassemble, Outcome.Delete };
+    // Vanilla (Keep) last: the three that change an item first, as the ticket lists them.
+    private static readonly Outcome[] Outcomes = { Outcome.Scrap, Outcome.Disassemble, Outcome.Delete, Outcome.Keep };
+
+    private static readonly WhoRule[] WhoRules = { WhoRule.Apply, WhoRule.Exclude, WhoRule.Mark };
 
     private static readonly ItemQuality[] Qualities =
     {
@@ -26,12 +29,12 @@ internal sealed class SettingsPage
 
     private static readonly PresetId[] PresetOrder = { PresetId.Progression, PresetId.Cleanup, PresetId.Vanilla };
 
-    private static readonly ScrapTier[] StudyTiers = (ScrapTier[])Enum.GetValues(typeof(ScrapTier));
+    private static readonly ScrapTier[] Tiers = (ScrapTier[])Enum.GetValues(typeof(ScrapTier));
 
     private LootScavengingSettings s;
 
-    // The text typed in each tier's study points field, kept between frames as the number field needs.
-    private readonly string[] pointBuffers = new string[StudyTiers.Length];
+    // The text typed in each number box, kept between frames as the game's number field needs. Keyed by the box.
+    private readonly Dictionary<string, string> buffers = new Dictionary<string, string>();
     private Vector2 scroll;
     private float viewHeight = 4000f;
 
@@ -48,11 +51,13 @@ internal sealed class SettingsPage
         // and the shrunken CurHeight then collapsed the page to its first rows.
         ls.Begin(new Rect(view.x, view.y, view.width, UnboundedHeight));
         DrawPresets(ls);
-        DrawWhoAndWhere(ls);
+        DrawKeepGear(ls);
+        DrawWho(ls);
         DrawItemRules(ls);
         DrawScrapAndStudy(ls);
         DrawCorpses(ls);
         DrawLists(ls);
+        DrawOther(ls);
         viewHeight = ls.CurHeight + 24f;
         ls.End();
         Widgets.EndScrollView();
@@ -64,35 +69,37 @@ internal sealed class SettingsPage
             if (defValuesAfter[i] != defValuesBefore[i])
             {
                 LootScavengingMod.ApplySettingsToDefs();
-                // Index 0 is the scrap value; the rest are the research points the 0.5.2 note is about.
-                if (i > 0)
+                // The first values are the scrap market values; the rest are the research points the 0.5.2 note is about.
+                if (i >= Tiers.Length)
                     s.studyPointsHalvedNote = false;
                 break;
             }
         }
     }
 
-    // The values copied onto defs (scrap market value, study points), compared each frame so the defs follow the page.
+    // The values copied onto defs (scrap market value and study points per era), compared each frame so the defs follow
+    // the page.
     private float[] DefValues()
     {
-        var values = new float[StudyTiers.Length + 2];
-        values[0] = s.values.scrapMarketValue;
-        values[1] = s.values.studyPointsMultiplier;
-        for (int i = 0; i < StudyTiers.Length; i++)
-            values[i + 2] = s.values.StudyPoints(StudyTiers[i]);
+        var values = new float[Tiers.Length * 2];
+        for (int i = 0; i < Tiers.Length; i++)
+        {
+            values[i] = s.values.ScrapMarketValue(Tiers[i]);
+            values[Tiers.Length + i] = s.values.StudyPoints(Tiers[i]);
+        }
         return values;
     }
 
-    // A preset or Reset changed the values under the page: drop the typed text so the number fields show the new values.
+    // A preset or Reset changed the values under the page: drop the typed text so the number boxes show the new values.
     private void ValuesReplaced()
     {
-        Array.Clear(pointBuffers, 0, pointBuffers.Length);
+        buffers.Clear();
         s.studyPointsHalvedNote = false;
         LootScavengingMod.ApplySettingsToDefs();
     }
 
-    // The disabled rows already refuse input; this puts back any locked value a widget still managed to change (the
-    // degrade range widget reads the mouse itself), so a lock holds whatever the row does.
+    // The disabled rows already refuse input; this puts back any locked value a widget still managed to change, so a lock
+    // holds whatever the row does.
     private void EnforceLocks()
     {
         PresetConfig config = Presets.Config;
@@ -165,70 +172,62 @@ internal sealed class SettingsPage
         }
     }
 
-    // Who and where
+    // Don't drop your stuff
 
-    private void DrawWhoAndWhere(Listing_Standard ls)
+    private void DrawKeepGear(Listing_Standard ls)
+    {
+        Section(ls, "LootScavenging_SectionKeepGear".Translate());
+        SettingValues v = s.values;
+        Toggle(ls, "LootScavenging_ColonistsKeepGear".Translate(), ref v.colonistsKeepGear,
+            "LootScavenging_ColonistsKeepGearOn".Translate(), "LootScavenging_ColonistsKeepGearOff".Translate(), SettingNames.ColonistsKeepGear);
+        Toggle(ls, "LootScavenging_HostilesKeepGear".Translate(), ref v.hostilesKeepGear,
+            "LootScavenging_HostilesKeepGearOn".Translate(), "LootScavenging_HostilesKeepGearOff".Translate(), SettingNames.HostilesKeepGear);
+        Toggle(ls, "LootScavenging_NonHostilesKeepGear".Translate(), ref v.nonHostilesKeepGear,
+            "LootScavenging_NonHostilesKeepGearOn".Translate(), "LootScavenging_NonHostilesKeepGearOff".Translate(), SettingNames.NonHostilesKeepGear);
+        Explain(ls, "LootScavenging_KeepGearExplain".Translate());
+    }
+
+    // Who
+
+    private void DrawWho(Listing_Standard ls)
     {
         Section(ls, "LootScavenging_SectionWho".Translate());
         LootRules r = s.values.rules;
-        Toggle(ls, "LootScavenging_Hostile".Translate(), ref r.hostile,
-            "LootScavenging_HostileOn".Translate(), "LootScavenging_HostileOff".Translate(), SettingNames.Hostile);
-        Toggle(ls, "LootScavenging_NonHostile".Translate(), ref r.nonHostileFaction,
-            "LootScavenging_NonHostileOn".Translate(), "LootScavenging_NonHostileOff".Translate(), SettingNames.NonHostileFaction);
-        Toggle(ls, "LootScavenging_NoFaction".Translate(), ref r.noFaction,
-            "LootScavenging_NoFactionOn".Translate(), "LootScavenging_NoFactionOff".Translate(), SettingNames.NoFaction);
-        Toggle(ls, "LootScavenging_Prisoners".Translate(), ref r.prisoners,
-            "LootScavenging_PrisonersOn".Translate(), "LootScavenging_PrisonersOff".Translate(), SettingNames.Prisoners);
-        Toggle(ls, "LootScavenging_HomeMapOnly".Translate(), ref r.homeMapOnly,
-            "LootScavenging_HomeMapOnlyOn".Translate(), "LootScavenging_HomeMapOnlyOff".Translate(), SettingNames.HomeMapOnly);
-        Toggle(ls, "LootScavenging_SortWhenArrested".Translate(), ref r.sortWhenArrested,
-            "LootScavenging_SortWhenArrestedOn".Translate(), "LootScavenging_SortWhenArrestedOff".Translate(), SettingNames.SortWhenArrested);
-        Toggle(ls, "LootScavenging_SortWhenStripped".Translate(), ref r.sortWhenStripped,
-            "LootScavenging_SortWhenStrippedOn".Translate(), "LootScavenging_SortWhenStrippedOff".Translate(), SettingNames.SortWhenStripped);
-        if (!r.hostile && !r.nonHostileFaction && !r.noFaction && !r.prisoners)
-            Explain(ls, "LootScavenging_NoGroupOn".Translate());
+        WhoRow(ls, OwnerGroup.Hostile, "LootScavenging_WhoHostile", "LootScavenging_WhoHostileApply", "LootScavenging_WhoHostileExclude", r.whoHostile, "LootScavenging_WhoMarkExplain");
+        WhoRow(ls, OwnerGroup.NonHostileFaction, "LootScavenging_WhoNonHostile", "LootScavenging_WhoNonHostileApply", "LootScavenging_WhoNonHostileExclude", r.whoNonHostile, "LootScavenging_WhoMarkExplain");
+        WhoRow(ls, OwnerGroup.NoFaction, "LootScavenging_WhoWild", "LootScavenging_WhoWildApply", "LootScavenging_WhoWildExclude", r.whoWild, "LootScavenging_WhoMarkExplain");
+        WhoRow(ls, OwnerGroup.Prisoner, "LootScavenging_WhoPrisoners", "LootScavenging_WhoPrisonersApply", "LootScavenging_WhoPrisonersExclude", r.whoPrisoners, "LootScavenging_WhoMarkExplain");
+        WhoRow(ls, OwnerGroup.RecruitedPrisoner, "LootScavenging_WhoRecruitedPrisoners", "LootScavenging_WhoRecruitedPrisonersApply", "LootScavenging_WhoRecruitedPrisonersExclude", r.whoRecruitedPrisoners, "LootScavenging_WhoJoinMarkExplain");
+        WhoRow(ls, OwnerGroup.OtherJoiner, "LootScavenging_WhoOtherJoiners", "LootScavenging_WhoOtherJoinersApply", "LootScavenging_WhoOtherJoinersExclude", r.whoOtherJoiners, "LootScavenging_WhoJoinMarkExplain");
 
-        LootScavengingSettings settings = s;
-        Choice(ls, "LootScavenging_Downed".Translate(), r.downedGear, DownedOptions, DownedName,
-            v => settings.values.rules.downedGear = v, SettingNames.DownedGear);
-        Explain(ls, r.downedGear == DownedGear.KeepWeapon
-            ? "LootScavenging_DownedKeepWeaponExplain".Translate()
-            : "LootScavenging_DownedDropWeaponExplain".Translate());
-        Toggle(ls, "LootScavenging_ColonistsKeepGear".Translate(), ref s.values.colonistsKeepGear,
-            "LootScavenging_ColonistsKeepGearOn".Translate(), "LootScavenging_ColonistsKeepGearOff".Translate(), SettingNames.ColonistsKeepGear);
-        Choice(ls, "LootScavenging_JoinPrisoners".Translate(), r.prisonerJoinGear, JoinOptions, JoinName,
-            v => settings.values.rules.prisonerJoinGear = v, SettingNames.PrisonerJoinGear);
-        Explain(ls, JoinSentence(r.prisonerJoinGear));
-        Choice(ls, "LootScavenging_JoinOthers".Translate(), r.otherJoinGear, JoinOptions, JoinName,
-            v => settings.values.rules.otherJoinGear = v, SettingNames.OtherJoinGear);
-        Explain(ls, JoinSentence(r.otherJoinGear));
+        bool anyAffected = false;
+        foreach (OwnerGroup group in LootRules.RowGroups)
+            anyAffected |= r.RowFor(group) != WhoRule.Exclude;
+        if (!anyAffected)
+            Explain(ls, "LootScavenging_NoGroupOn".Translate());
     }
 
-    private static readonly DownedGear[] DownedOptions = { DownedGear.KeepWeapon, DownedGear.DropWeapon };
-
-    private static string DownedName(DownedGear gear) => gear == DownedGear.DropWeapon
-        ? "LootScavenging_DownedDropWeapon".Translate()
-        : "LootScavenging_DownedKeepWeapon".Translate();
-
-    private static readonly JoinerGear[] JoinOptions = { JoinerGear.MarkUnfamiliar, JoinerGear.FollowDropMode, JoinerGear.LeaveAlone };
-
-    private static string JoinName(JoinerGear gear)
+    // One row: the group's label, its three choices, and a sentence for each. Mark has one sentence for the loot groups and
+    // one for the joiners. The keys are passed whole so the translation check can see them.
+    private void WhoRow(Listing_Standard ls, OwnerGroup group, string key, string applyKey, string excludeKey, WhoRule current, string markKey)
     {
-        switch (gear)
+        LootScavengingSettings settings = s;
+        Choice(ls, key.Translate(), current, WhoRules, WhoRuleName, v => settings.values.rules.SetRow(group, v), SettingNames.Row(group));
+        switch (current)
         {
-            case JoinerGear.FollowDropMode: return "LootScavenging_JoinFollow".Translate();
-            case JoinerGear.LeaveAlone: return "LootScavenging_JoinLeave".Translate();
-            default: return "LootScavenging_JoinMark".Translate();
+            case WhoRule.Exclude: Explain(ls, excludeKey.Translate()); break;
+            case WhoRule.Mark: Explain(ls, markKey.Translate()); break;
+            default: Explain(ls, applyKey.Translate()); break;
         }
     }
 
-    private static string JoinSentence(JoinerGear gear)
+    private static string WhoRuleName(WhoRule rule)
     {
-        switch (gear)
+        switch (rule)
         {
-            case JoinerGear.FollowDropMode: return "LootScavenging_JoinFollowExplain".Translate();
-            case JoinerGear.LeaveAlone: return "LootScavenging_JoinLeaveExplain".Translate();
-            default: return "LootScavenging_JoinMarkExplain".Translate();
+            case WhoRule.Exclude: return "LootScavenging_WhoExclude".Translate();
+            case WhoRule.Mark: return "LootScavenging_WhoMark".Translate();
+            default: return "LootScavenging_WhoApply".Translate();
         }
     }
 
@@ -237,19 +236,15 @@ internal sealed class SettingsPage
     private void DrawItemRules(Listing_Standard ls)
     {
         Section(ls, "LootScavenging_SectionItems".Translate());
-        Explain(ls, DropModeNote(s.values.rules.dropMode));
+        Explain(ls, "LootScavenging_ItemsNote".Translate());
         foreach (CategoryInfo category in ItemCategories.All)
             DrawCategory(ls, category);
-        ls.Gap(6f);
-        Toggle(ls, "LootScavenging_EjectCharges".Translate(), ref s.values.rules.ejectCharges,
-            "LootScavenging_EjectChargesOn".Translate(), "LootScavenging_EjectChargesOff".Translate(), SettingNames.EjectCharges);
     }
 
     private void DrawCategory(Listing_Standard ls, CategoryInfo info)
     {
         LootScavengingSettings settings = s;
         LootRules r = s.values.rules;
-        ItemCategory category = info.Category;
         CategoryRule rule = info.Rule(r);
         string lockName = SettingNames.Category(info);
         bool catLocked = IsLocked(lockName);
@@ -257,55 +252,40 @@ internal sealed class SettingsPage
         Choice(ls, info.LabelKey.Translate(), rule.outcome, Outcomes, OutcomeName, v => info.Rule(settings.values.rules).outcome = v, lockName);
 
         Indent(ls);
-        // Everything below belongs to the category, so a locked category disables it all. The shared degrade and
-        // disassembly values can also be locked on their own.
+        // Everything below belongs to the category, so a locked category disables it all. The shared disassembly
+        // efficiency can also be locked on its own.
         ambientDisabled = catLocked;
-        SetDisabled(false);
-        // The outcome's own sliders sit beside it and only show while a rule uses that outcome. The values are shared by
-        // every category with the same outcome.
-        if (rule.outcome == Outcome.Degrade)
-        {
-            bool rangeLocked = catLocked || IsLocked(SettingNames.DegradeMin) || IsLocked(SettingNames.DegradeMax);
-            ls.Label("LootScavenging_DegradeRange".Translate(r.degradeMin.ToStringPercent(), r.degradeMax.ToStringPercent()));
-            var range = new FloatRange(r.degradeMin, r.degradeMax);
-            SetDisabled(rangeLocked);
-            Widgets.FloatRange(ls.GetRect(28f), 0x15C0 + (int)category, ref range, 0.01f, 1f, null, ToStringStyle.PercentZero, 0.01f, GameFont.Small, null, 0.01f);
-            SetDisabled(false);
-            if (!rangeLocked)
-            {
-                r.degradeMin = range.min;
-                r.degradeMax = range.max;
-            }
-            bool qualityLocked = catLocked || IsLocked(SettingNames.DegradeLowersQuality);
-            SetDisabled(qualityLocked);
-            ls.CheckboxLabeled("LootScavenging_DegradeLowersQuality".Translate(), ref r.degradeLowersQuality);
-            SetDisabled(false);
-        }
-        if (rule.outcome == Outcome.Disassemble && r.disassemblyYield == DisassemblyYield.ItemBased)
-        {
-            bool efficiencyLocked = catLocked || IsLocked(SettingNames.DisassemblyEfficiency);
-            SetDisabled(efficiencyLocked);
-            float efficiency = Percent(ls, "LootScavenging_DisassemblyEfficiency".Translate(r.disassemblyEfficiency.ToStringPercent()), r.disassemblyEfficiency, 0.05f, 1f);
-            SetDisabled(false);
-            if (!efficiencyLocked)
-                r.disassemblyEfficiency = efficiency;
-        }
         if (rule.outcome != Outcome.Keep)
         {
-            rule.chance = Percent(ls, "LootScavenging_Chance".Translate(rule.chance.ToStringPercent()), rule.chance, 0f, 1f);
+            // Shown beside the rule that uses it; the value is shared by every disassemble rule.
+            if (rule.outcome == Outcome.Disassemble && r.disassemblyYield == DisassemblyYield.ItemBased)
+                r.disassemblyEfficiency = PercentBox(ls, "LootScavenging_DisassemblyEfficiency".Translate(), "efficiency." + info.Field, // not translated
+                    r.disassemblyEfficiency, 5, 100, SettingNames.DisassemblyEfficiency);
+            rule.chance = PercentBox(ls, ChanceLabel(rule.outcome), "chance." + info.Field, rule.chance, 0, 100); // not translated
             ls.CheckboxLabeled("LootScavenging_OnlyBeyondReach".Translate(), ref rule.onlyBeyondReach);
             ls.CheckboxLabeled("LootScavenging_LimitQuality".Translate(), ref rule.limitQuality);
             if (rule.limitQuality)
                 Choice(ls, "LootScavenging_BelowQuality".Translate(), rule.belowQuality, Qualities, QualityName, v => info.Rule(settings.values.rules).belowQuality = v, lockName);
             ls.CheckboxLabeled("LootScavenging_LimitHitPoints".Translate(), ref rule.limitHitPoints);
             if (rule.limitHitPoints)
-                rule.belowHitPointFraction = Percent(ls, "LootScavenging_BelowHitPoints".Translate(rule.belowHitPointFraction.ToStringPercent()), rule.belowHitPointFraction, 0.05f, 1f);
+                rule.belowHitPointFraction = PercentBox(ls, "LootScavenging_BelowHitPoints".Translate(), "hitPoints." + info.Field, // not translated
+                    rule.belowHitPointFraction, 5, 100);
         }
         ambientDisabled = false;
         SetDisabled(false);
         Outdent(ls);
         Explain(ls, RuleSentence(info, rule));
         LockedNote(ls, catLocked);
+    }
+
+    private static string ChanceLabel(Outcome outcome)
+    {
+        switch (outcome)
+        {
+            case Outcome.Disassemble: return "LootScavenging_ChanceDisassemble".Translate();
+            case Outcome.Delete: return "LootScavenging_ChanceDelete".Translate();
+            default: return "LootScavenging_ChanceScrap".Translate();
+        }
     }
 
     private string RuleSentence(CategoryInfo info, CategoryRule rule)
@@ -341,10 +321,6 @@ internal sealed class SettingsPage
         LootRules r = s.values.rules;
         switch (outcome)
         {
-            case Outcome.Degrade:
-                return r.degradeLowersQuality
-                    ? "LootScavenging_VerbDegradeQuality".Translate(r.degradeMin.ToStringPercent(), r.degradeMax.ToStringPercent())
-                    : "LootScavenging_VerbDegrade".Translate(r.degradeMin.ToStringPercent(), r.degradeMax.ToStringPercent());
             case Outcome.Scrap: return "LootScavenging_VerbScrap".Translate();
             case Outcome.Disassemble:
                 return r.disassemblyYield == DisassemblyYield.ItemBased
@@ -354,22 +330,10 @@ internal sealed class SettingsPage
         }
     }
 
-    private static string DropModeNote(DropMode mode)
-    {
-        switch (mode)
-        {
-            case DropMode.ScrapEverything: return "LootScavenging_ItemsNoteScrapEverything".Translate();
-            case DropMode.KeepOriginal: return "LootScavenging_ItemsNoteKeepOriginal".Translate();
-            case DropMode.Off: return "LootScavenging_ItemsNoteOff".Translate();
-            default: return "LootScavenging_ItemsNoteScrapOutOfReach".Translate();
-        }
-    }
-
     private static string OutcomeName(Outcome outcome)
     {
         switch (outcome)
         {
-            case Outcome.Degrade: return "LootScavenging_OutcomeDegrade".Translate();
             case Outcome.Scrap: return "LootScavenging_OutcomeScrap".Translate();
             case Outcome.Disassemble: return "LootScavenging_OutcomeDisassemble".Translate();
             case Outcome.Delete: return "LootScavenging_OutcomeDelete".Translate();
@@ -386,162 +350,44 @@ internal sealed class SettingsPage
     {
         Section(ls, "LootScavenging_SectionScrap".Translate());
         LootScavengingSettings settings = s;
-
-        Choice(ls, "LootScavenging_DropMode".Translate(), s.values.rules.dropMode,
-            new[] { DropMode.ScrapOutOfReach, DropMode.ScrapEverything, DropMode.KeepOriginal, DropMode.Off }, DropModeName,
-            v => settings.values.rules.dropMode = v, SettingNames.DropMode);
-        Explain(ls, DropModeSentence(s.values.rules.dropMode));
-
-        // Only the drop mode reads these, so they are hidden while the drop mode is Off.
-        if (s.values.rules.dropMode != DropMode.Off)
-        {
-            Toggle(ls, "LootScavenging_DropIncludesMedicine".Translate(), ref s.values.rules.dropIncludesMedicine,
-                "LootScavenging_DropIncludesMedicineOn".Translate(), "LootScavenging_DropIncludesMedicineOff".Translate(), SettingNames.DropIncludesMedicine);
-            Toggle(ls, "LootScavenging_DropIncludesAmmunition".Translate(), ref s.values.rules.dropIncludesAmmunition,
-                "LootScavenging_DropIncludesAmmunitionOn".Translate(), "LootScavenging_DropIncludesAmmunitionOff".Translate(), SettingNames.DropIncludesAmmunition);
-        }
-
-        Choice(ls, "LootScavenging_StudyEras".Translate(), s.values.studyEras,
-            new[] { StudyEraLimit.ColonyEraAndBelow, StudyEraLimit.AnyEra }, StudyErasName, v => settings.values.studyEras = v, SettingNames.StudyEras);
-        Explain(ls, StudyErasSentence(s.values.studyEras));
-
-        Choice(ls, "LootScavenging_RecycleOrStudy".Translate(), s.values.recycleOrStudy,
-            new[] { RecycleOrStudy.OneOrTheOther, RecycleOrStudy.StudyThenRecycle }, RecycleOrStudyName, v => settings.values.recycleOrStudy = v, SettingNames.RecycleOrStudy);
-        Explain(ls, s.values.recycleOrStudy == RecycleOrStudy.StudyThenRecycle
-            ? "LootScavenging_StudyThenRecycleExplain".Translate()
-            : "LootScavenging_OneOrTheOtherExplain".Translate());
-
-        DrawStudyPoints(ls);
-
-        bool valueLocked = IsLocked(SettingNames.ScrapMarketValue);
-        SetDisabled(valueLocked);
-        float value = ls.SliderLabeled("LootScavenging_ScrapValue".Translate(s.values.scrapMarketValue.ToString("0.##")), s.values.scrapMarketValue, 0.01f, 10f);
-        SetDisabled(false);
-        if (!valueLocked)
-            s.values.scrapMarketValue = Mathf.Max(0.01f, (float)Math.Round(value, 2));
-        LockedNote(ls, valueLocked);
-        Explain(ls, s.values.scrapMarketValue < 0.5f
-            ? "LootScavenging_ScrapValueLow".Translate()
-            : "LootScavenging_ScrapValueHigh".Translate(s.values.scrapMarketValue.ToString("0.##")));
-
-        Choice(ls, "LootScavenging_DeathDrop".Translate(), s.values.deathDrop,
-            new[] { DeathDrop.Ground, DeathDrop.ScrapOnBody, DeathDrop.AllOnBody }, DeathDropName, v => settings.values.deathDrop = v, SettingNames.DeathDrop);
-        Explain(ls, DeathDropSentence(s.values.deathDrop));
-
-        Choice(ls, "LootScavenging_EraFallback".Translate(), s.values.eraFallback,
-            new[] { EraFallback.CarrierFaction, EraFallback.ColonyEra, EraFallback.Components }, EraFallbackName, v => settings.values.eraFallback = v, SettingNames.EraFallback);
-        Explain(ls, EraFallbackSentence(s.values.eraFallback));
-
-        Choice(ls, "LootScavenging_DisassemblyYield".Translate(), s.values.rules.disassemblyYield,
-            new[] { DisassemblyYield.EraTypical, DisassemblyYield.ItemBased }, DisassemblyYieldName, v => settings.values.rules.disassemblyYield = v, SettingNames.DisassemblyYield);
-        Explain(ls, s.values.rules.disassemblyYield == DisassemblyYield.ItemBased
-            ? "LootScavenging_YieldItemExplain".Translate()
-            : "LootScavenging_YieldEraExplain".Translate());
-
-        Toggle(ls, "LootScavenging_TechprintProjects".Translate(), ref s.values.studyTechprintProjects,
-            "LootScavenging_TechprintProjectsOn".Translate(), "LootScavenging_TechprintProjectsOff".Translate(), SettingNames.StudyTechprintProjects);
-
-        Choice(ls, "LootScavenging_UnfamiliarScope".Translate(), s.values.unfamiliarScope,
-            new[] { UnfamiliarScope.AllOutOfReach, UnfamiliarScope.LootedOnly }, UnfamiliarScopeName, v => settings.values.unfamiliarScope = v, SettingNames.UnfamiliarScope);
-        // Whole-sentence keys, with and without the "only used" note, so a translation controls the separator.
-        bool looted = s.values.unfamiliarScope == UnfamiliarScope.LootedOnly;
-        bool unused = s.values.rules.dropMode != DropMode.KeepOriginal;
-        Explain(ls, (looted
-            ? (unused ? "LootScavenging_UnfamiliarLootedExplainUnused" : "LootScavenging_UnfamiliarLootedExplain")
-            : (unused ? "LootScavenging_UnfamiliarAllExplainUnused" : "LootScavenging_UnfamiliarAllExplain")).Translate());
-    }
-
-    // One multiplier for every tier, then each tier's own points, typed in directly.
-    private void DrawStudyPoints(Listing_Standard ls)
-    {
         SettingValues v = s.values;
-        v.studyPointsMultiplier = Percent(ls, "LootScavenging_StudyPointsMultiplier".Translate(v.studyPointsMultiplier.ToStringPercent()),
-            v.studyPointsMultiplier, 0f, SettingValues.MaxStudyPointsMultiplier, SettingNames.StudyPointsMultiplier);
-        Explain(ls, v.studyPointsMultiplier > 0f
-            ? "LootScavenging_StudyPointsMultiplierExplain".Translate(v.studyPointsMultiplier.ToStringPercent(),
-                v.StudyPointsPerUnit(ScrapTier.Industrial).ToString("0.#"))
-            : "LootScavenging_StudyPointsMultiplierOff".Translate());
 
         ls.Label("LootScavenging_StudyPointsPerTier".Translate());
         Indent(ls);
-        for (int i = 0; i < StudyTiers.Length; i++)
-        {
-            ScrapTier tier = StudyTiers[i];
-            string lockName = SettingNames.StudyPoints(tier);
-            bool locked = IsLocked(lockName);
-            float points = v.StudyPoints(tier);
-            ThingDef scrap = ScrapDefs.For(tier);
-            SetDisabled(locked);
-            ls.TextFieldNumericLabeled(scrap != null ? scrap.LabelCap.Resolve() : tier.ToString(), ref points, ref pointBuffers[i], 0f, SettingValues.MaxStudyPoints);
-            SetDisabled(false);
-            if (!locked)
-                v.SetStudyPoints(tier, points);
-            LockedNote(ls, locked);
-        }
+        foreach (ScrapTier tier in Tiers)
+            v.SetStudyPoints(tier, NumberBox(ls, TierLabel(tier), "points." + tier, v.StudyPoints(tier), 0f, SettingValues.MaxStudyPoints, // not translated
+                SettingNames.StudyPoints(tier)));
         Outdent(ls);
         Explain(ls, "LootScavenging_StudyPointsPerTierExplain".Translate());
         if (s.studyPointsHalvedNote)
             Explain(ls, "LootScavenging_StudyPointsHalvedNote".Translate());
+
+        Toggle(ls, "LootScavenging_TechprintProjects".Translate(), ref v.studyTechprintProjects,
+            "LootScavenging_TechprintProjectsOn".Translate(), "LootScavenging_TechprintProjectsOff".Translate(), SettingNames.StudyTechprintProjects);
+
+        ls.Label("LootScavenging_ScrapValuePerTier".Translate());
+        Indent(ls);
+        foreach (ScrapTier tier in Tiers)
+        {
+            float value = NumberBox(ls, TierLabel(tier), "value." + tier, v.ScrapMarketValue(tier), // not translated
+                SettingValues.MinScrapMarketValue, SettingValues.MaxScrapMarketValue, SettingNames.ScrapMarketValue(tier));
+            v.SetScrapMarketValue(tier, (float)Math.Round(value, 2));
+        }
+        Outdent(ls);
+        Explain(ls, "LootScavenging_ScrapValuePerTierExplain".Translate());
+
+        Choice(ls, "LootScavenging_RecycleOrStudy".Translate(), v.recycleOrStudy,
+            new[] { RecycleOrStudy.OneOrTheOther, RecycleOrStudy.StudyThenRecycle }, RecycleOrStudyName, x => settings.values.recycleOrStudy = x, SettingNames.RecycleOrStudy);
+        Explain(ls, v.recycleOrStudy == RecycleOrStudy.StudyThenRecycle
+            ? "LootScavenging_StudyThenRecycleExplain".Translate()
+            : "LootScavenging_OneOrTheOtherExplain".Translate());
     }
 
-    private static string DeathDropName(DeathDrop drop)
+    // The tier's scrap label, as the player sees it on the item.
+    private static string TierLabel(ScrapTier tier)
     {
-        switch (drop)
-        {
-            case DeathDrop.ScrapOnBody: return "LootScavenging_DeathDropScrapOnBody".Translate();
-            case DeathDrop.AllOnBody: return "LootScavenging_DeathDropAllOnBody".Translate();
-            default: return "LootScavenging_DeathDropGround".Translate();
-        }
-    }
-
-    private static string DeathDropSentence(DeathDrop drop)
-    {
-        switch (drop)
-        {
-            case DeathDrop.ScrapOnBody: return "LootScavenging_DeathDropScrapOnBodyExplain".Translate();
-            case DeathDrop.AllOnBody: return "LootScavenging_DeathDropAllOnBodyExplain".Translate();
-            default: return "LootScavenging_DeathDropGroundExplain".Translate();
-        }
-    }
-
-    private static string DropModeName(DropMode mode)
-    {
-        switch (mode)
-        {
-            case DropMode.ScrapEverything: return "LootScavenging_DropModeScrapEverything".Translate();
-            case DropMode.KeepOriginal: return "LootScavenging_DropModeKeepOriginal".Translate();
-            case DropMode.Off: return "LootScavenging_DropModeOff".Translate();
-            default: return "LootScavenging_DropModeScrapOutOfReach".Translate();
-        }
-    }
-
-    private static string DropModeSentence(DropMode mode)
-    {
-        switch (mode)
-        {
-            case DropMode.ScrapEverything: return "LootScavenging_DropModeScrapEverythingExplain".Translate();
-            case DropMode.KeepOriginal: return "LootScavenging_DropModeKeepOriginalExplain".Translate();
-            case DropMode.Off: return "LootScavenging_DropModeOffExplain".Translate();
-            default: return "LootScavenging_DropModeScrapOutOfReachExplain".Translate();
-        }
-    }
-
-    private static string StudyErasName(StudyEraLimit limit)
-    {
-        switch (limit)
-        {
-            case StudyEraLimit.AnyEra: return "LootScavenging_StudyErasAny".Translate();
-            default: return "LootScavenging_StudyErasColony".Translate();
-        }
-    }
-
-    private static string StudyErasSentence(StudyEraLimit limit)
-    {
-        switch (limit)
-        {
-            case StudyEraLimit.AnyEra: return "LootScavenging_StudyErasAnyExplain".Translate();
-            default: return "LootScavenging_StudyErasColonyExplain".Translate();
-        }
+        ThingDef scrap = ScrapDefs.For(tier);
+        return scrap != null ? scrap.LabelCap.Resolve() : tier.ToString();
     }
 
     private static string RecycleOrStudyName(RecycleOrStudy mode)
@@ -549,40 +395,6 @@ internal sealed class SettingsPage
         return mode == RecycleOrStudy.StudyThenRecycle
             ? "LootScavenging_StudyThenRecycle".Translate()
             : "LootScavenging_OneOrTheOther".Translate();
-    }
-
-    private static string EraFallbackName(EraFallback fallback)
-    {
-        switch (fallback)
-        {
-            case EraFallback.ColonyEra: return "LootScavenging_EraFallbackColony".Translate();
-            case EraFallback.Components: return "LootScavenging_EraFallbackComponents".Translate();
-            default: return "LootScavenging_EraFallbackCarrier".Translate();
-        }
-    }
-
-    private static string EraFallbackSentence(EraFallback fallback)
-    {
-        switch (fallback)
-        {
-            case EraFallback.ColonyEra: return "LootScavenging_EraFallbackColonyExplain".Translate();
-            case EraFallback.Components: return "LootScavenging_EraFallbackComponentsExplain".Translate();
-            default: return "LootScavenging_EraFallbackCarrierExplain".Translate();
-        }
-    }
-
-    private static string DisassemblyYieldName(DisassemblyYield yield)
-    {
-        return yield == DisassemblyYield.ItemBased
-            ? "LootScavenging_YieldItem".Translate()
-            : "LootScavenging_YieldEra".Translate();
-    }
-
-    private static string UnfamiliarScopeName(UnfamiliarScope scope)
-    {
-        return scope == UnfamiliarScope.LootedOnly
-            ? "LootScavenging_UnfamiliarLooted".Translate()
-            : "LootScavenging_UnfamiliarAll".Translate();
     }
 
     // Corpses
@@ -597,13 +409,7 @@ internal sealed class SettingsPage
             "LootScavenging_CorpseAnimalOn".Translate(), "LootScavenging_CorpseAnimalOff".Translate(), SettingNames.CorpseAnimal);
         Toggle(ls, "LootScavenging_CorpseMechanoid".Translate(), ref c.mechanoid,
             "LootScavenging_CorpseMechanoidOn".Translate(), "LootScavenging_CorpseMechanoidOff".Translate(), SettingNames.CorpseMechanoid);
-        if (c.humanlike || c.animal || c.mechanoid)
-        {
-            c.chance = Percent(ls, "LootScavenging_CorpseChance".Translate(c.chance.ToStringPercent()), c.chance, 0f, 1f, SettingNames.CorpseChance);
-            Explain(ls, "LootScavenging_CorpseChanceExplain".Translate(c.chance.ToStringPercent()));
-        }
-        Toggle(ls, "LootScavenging_ButcherApparel".Translate(), ref c.butcherRemovesApparel,
-            "LootScavenging_ButcherApparelOn".Translate(), "LootScavenging_ButcherApparelOff".Translate(), SettingNames.ButcherRemovesApparel);
+        Explain(ls, "LootScavenging_ButcherExplain".Translate());
     }
 
     // Lists
@@ -676,6 +482,57 @@ internal sealed class SettingsPage
         return def != null ? def.LabelCap + " (" + defName + ")" : "LootScavenging_ListNotLoaded".Translate(defName).Resolve();
     }
 
+    // Other
+
+    private void DrawOther(Listing_Standard ls)
+    {
+        Section(ls, "LootScavenging_SectionOther".Translate());
+        LootScavengingSettings settings = s;
+        SettingValues v = s.values;
+
+        Choice(ls, "LootScavenging_DisassemblyYield".Translate(), v.rules.disassemblyYield,
+            new[] { DisassemblyYield.EraTypical, DisassemblyYield.ItemBased }, DisassemblyYieldName, x => settings.values.rules.disassemblyYield = x, SettingNames.DisassemblyYield);
+        Explain(ls, v.rules.disassemblyYield == DisassemblyYield.ItemBased
+            ? "LootScavenging_YieldItemExplain".Translate()
+            : "LootScavenging_YieldEraExplain".Translate());
+
+        Choice(ls, "LootScavenging_UnfamiliarScope".Translate(), v.unfamiliarScope,
+            new[] { UnfamiliarScope.LootedOnly, UnfamiliarScope.AllOutOfReach }, UnfamiliarScopeName, x => settings.values.unfamiliarScope = x, SettingNames.UnfamiliarScope);
+        // Whole-sentence keys, with and without the "only used" note, so a translation controls the separator.
+        bool looted = v.unfamiliarScope == UnfamiliarScope.LootedOnly;
+        bool unused = !AnyRowMarks(v.rules);
+        Explain(ls, (looted
+            ? (unused ? "LootScavenging_UnfamiliarLootedExplainUnused" : "LootScavenging_UnfamiliarLootedExplain")
+            : (unused ? "LootScavenging_UnfamiliarAllExplainUnused" : "LootScavenging_UnfamiliarAllExplain")).Translate());
+
+        Toggle(ls, "LootScavenging_HomeMapOnly".Translate(), ref v.rules.homeMapOnly,
+            "LootScavenging_HomeMapOnlyOn".Translate(), "LootScavenging_HomeMapOnlyOff".Translate(), SettingNames.HomeMapOnly);
+    }
+
+    private static bool AnyRowMarks(LootRules r)
+    {
+        foreach (OwnerGroup group in LootRules.RowGroups)
+        {
+            if (r.RowFor(group) == WhoRule.Mark)
+                return true;
+        }
+        return false;
+    }
+
+    private static string DisassemblyYieldName(DisassemblyYield yield)
+    {
+        return yield == DisassemblyYield.ItemBased
+            ? "LootScavenging_YieldItem".Translate()
+            : "LootScavenging_YieldEra".Translate();
+    }
+
+    private static string UnfamiliarScopeName(UnfamiliarScope scope)
+    {
+        return scope == UnfamiliarScope.LootedOnly
+            ? "LootScavenging_UnfamiliarLooted".Translate()
+            : "LootScavenging_UnfamiliarAll".Translate();
+    }
+
     // Widgets
 
     private static void Section(Listing_Standard ls, string title)
@@ -731,7 +588,7 @@ internal sealed class SettingsPage
         bool clicked = ls.ButtonTextLabeledPct(label, name(current), 0.6f);
         SetDisabled(false);
         LockedNote(ls, locked);
-        if (locked || !clicked)
+        if (locked || ambientDisabled || !clicked)
             return;
         var menu = new List<FloatMenuOption>();
         foreach (T option in options)
@@ -742,15 +599,35 @@ internal sealed class SettingsPage
         Find.WindowStack.Add(new FloatMenu(menu));
     }
 
-    // Rounded to whole percent, so a slider set back by hand can match a preset again.
-    private static float Percent(Listing_Standard ls, string label, float value, float min, float max, string lockName = null)
+    // A number box clamped to [min, max] (ticket 25, decision 1). A locked box keeps its value whatever is typed.
+    private float NumberBox(Listing_Standard ls, string label, string id, float value, float min, float max, string lockName = null)
     {
         bool locked = IsLocked(lockName);
+        buffers.TryGetValue(id, out string buffer);
+        float typed = value;
         SetDisabled(locked);
-        float picked = (float)Math.Round(ls.SliderLabeled(label, value, min, max), 2);
+        ls.TextFieldNumericLabeled(label, ref typed, ref buffer, min, max);
         SetDisabled(false);
+        buffers[id] = buffer;
         LockedNote(ls, locked);
-        return locked ? value : picked;
+        return locked || ambientDisabled ? value : typed;
+    }
+
+    // A fraction typed as a whole percent from min to max. Whole percents let a value set back by hand match a preset again.
+    private float PercentBox(Listing_Standard ls, string label, string id, float fraction, int min, int max, string lockName = null)
+    {
+        bool locked = IsLocked(lockName);
+        buffers.TryGetValue(id, out string buffer);
+        int percent = Mathf.RoundToInt(fraction * 100f);
+        int typed = percent;
+        SetDisabled(locked);
+        ls.TextFieldNumericLabeled(label, ref typed, ref buffer, min, max);
+        SetDisabled(false);
+        buffers[id] = buffer;
+        LockedNote(ls, locked);
+        if (locked || ambientDisabled || typed == percent)
+            return fraction;
+        return typed / 100f;
     }
 
     private static void Indent(Listing_Standard ls)

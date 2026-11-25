@@ -51,7 +51,7 @@ internal static class CorpseRemovalHook
                 Map = corpse.Map.IsPlayerHome ? MapKind.Home : MapKind.Away,
                 Kind = KindOf(__instance),
             };
-            CorpseDecision decision = CorpseEvaluator.Evaluate(candidate, LootScavengingMod.Settings.values.rules, LootScavengingMod.Settings.values.corpses, Rand.Value);
+            CorpseDecision decision = CorpseEvaluator.Evaluate(candidate, LootScavengingMod.Settings.values.rules, LootScavengingMod.Settings.values.corpses);
             if (Prefs.DevMode)
                 Log.Message($"[Loot Scavenging] Corpse of {__instance} ({candidate.Owner}, {candidate.Map} map, {candidate.Kind}) -> {decision}"); // not translated
             if (decision != CorpseDecision.Remove)
@@ -84,7 +84,8 @@ internal static class CorpseRemovalHook
 }
 
 // A butcher bill strips the corpse of its apparel while it gathers its ingredients (autoStripCorpses). Marking that
-// window tells the Strip patch below apart from a player's strip job and from any other strip.
+// window tells the Strip patch below apart from a player's strip job and from any other strip. Butchering a humanlike
+// corpse strips it and sorts what comes off under the owner's Who row (ticket 25, decision 6).
 [HarmonyPatch(typeof(Toils_Recipe), "CalculateIngredients")]
 internal static class ButcherIngredientsHook
 {
@@ -108,26 +109,35 @@ internal static class ButcherIngredientsHook
 internal static class ButcherStripHook
 {
     [HarmonyPriority(Priority.Last)]
-    private static void Prefix(Pawn __instance, bool __runOriginal)
+    private static void Prefix(Pawn __instance, bool __runOriginal, out bool __state)
     {
-        if (!__runOriginal || ButcherIngredientsHook.Depth <= 0 || !__instance.Dead || __instance.apparel == null)
+        __state = false;
+        if (!__runOriginal || ButcherIngredientsHook.Depth <= 0 || !__instance.Dead || !__instance.RaceProps.Humanlike)
             return;
         try
         {
             Map map = __instance.MapHeld;
             MapKind mapKind = map == null ? MapKind.None : map.IsPlayerHome ? MapKind.Home : MapKind.Away;
             OwnerGroup owner = GearSorter.OwnerOf(__instance);
-            LootScavengingSettings settings = LootScavengingMod.Settings;
-            if (!CorpseEvaluator.RemovesApparelOnButchering(owner, mapKind, settings.values.rules, settings.values.corpses))
+            if (!CorpseEvaluator.ButcherSorts(owner, mapKind, LootScavengingMod.Settings.values.rules))
                 return;
             if (Prefs.DevMode)
-                Log.Message($"[Loot Scavenging] Butchering the corpse of {__instance} removes its worn apparel"); // not translated
-            // Equipment and inventory were dropped at death and strip as usual.
-            __instance.apparel.DestroyAll();
+                Log.Message($"[Loot Scavenging] Butchering the corpse of {__instance}: sorting its apparel and inventory"); // not translated
+            // The weapon was dropped at death. Inventory left on the body at death is judged here, under the same rules.
+            SortedDrop.Enter(__instance);
+            __state = true;
+            GearSorter.Sort(__instance, Moment.Strip, equipment: false, apparel: true, inventory: true);
         }
         catch (Exception e)
         {
-            Log.Error($"[Loot Scavenging] Removing worn apparel at butchering of {__instance} failed: {e}"); // not translated
+            Log.Error($"[Loot Scavenging] Sorting the gear of butchered {__instance} failed: {e}"); // not translated
         }
     }
+
+    private static void Finalizer(Pawn __instance, bool __state)
+    {
+        if (__state)
+            SortedDrop.Exit(__instance);
+    }
+
 }

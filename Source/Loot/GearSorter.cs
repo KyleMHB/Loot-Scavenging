@@ -13,7 +13,8 @@ namespace LootScavenging.Loot;
 /// </summary>
 internal static class GearSorter
 {
-    public static void Sort(Pawn pawn, Moment moment, bool equipment, bool apparel, bool inventory)
+    /// <param name="ownerRow">The group whose Who row judges the gear, for a joiner (ticket 25); by default the pawn's own.</param>
+    public static void Sort(Pawn pawn, Moment moment, bool equipment, bool apparel, bool inventory, OwnerGroup? ownerRow = null)
     {
         // World pawns die off-map in numbers and drop nothing, so they are skipped before any logging.
         Map map = pawn.MapHeld;
@@ -21,7 +22,11 @@ internal static class GearSorter
             return;
 
         LootRules rules = LootScavengingMod.Settings.values.rules;
-        OwnerGroup owner = OwnerOf(pawn);
+        OwnerGroup owner = ownerRow ?? OwnerOf(pawn);
+        // A pawn being arrested is about to be the colony's prisoner, so the Prisoners row judges what he drops (ticket 25).
+        if (moment == Moment.Arrest && owner != OwnerGroup.Colony)
+            owner = OwnerGroup.Prisoner;
+
         MapKind mapKind = map.IsPlayerHome ? MapKind.Home : MapKind.Away;
 
         if (equipment && pawn.equipment != null)

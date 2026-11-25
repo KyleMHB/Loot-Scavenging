@@ -21,18 +21,6 @@ public enum EraSource
     Research,
     Item,
     CarrierFaction,
-    /// <summary>The "treat as the colony's era" fallback setting replaced the carrier step.</summary>
-    ColonyFallback,
-    /// <summary>The "break into components" fallback setting replaced the carrier step.</summary>
-    Components,
-}
-
-/// <summary>What replaces step 3 (the carrying faction's era) for gear with no era of its own.</summary>
-public enum EraFallback
-{
-    CarrierFaction,
-    ColonyEra,
-    Components,
 }
 
 public readonly struct EraResult
@@ -49,9 +37,6 @@ public readonly struct EraResult
 
     /// <summary>The item's research is unfinished, or its era is above the colony's.</summary>
     public bool OutOfReach { get; }
-
-    /// <summary>The Components fallback applied: the caller breaks the gear straight into components.</summary>
-    public bool BreakIntoComponents => Source == EraSource.Components;
 }
 
 public static class EraRanking
@@ -82,11 +67,11 @@ public static class EraRanking
     /// <param name="itemEra">The item's own tech level.</param>
     /// <param name="factionEra">Tech level of the faction that carried it (Undefined if none).</param>
     /// <param name="gear">
-    /// The item is a weapon or apparel. Step 3 and the two settings that replace it cover gear only (spec: "Step 3 covers
+    /// The item is a weapon or apparel. Step 3 covers gear only (spec: "Step 3 covers
     /// modded and uncraftable gear with no era of its own"), so silver, steel or food with no era of their own stay unknown.
     /// </param>
     public static EraResult Resolve(Era researchEra, bool researchUnfinished, Era itemEra, Era factionEra, bool gear,
-        EraFallback fallback, Era colonyEra)
+        Era colonyEra)
     {
         Era era;
         EraSource source;
@@ -104,16 +89,6 @@ public static class EraRanking
         {
             era = Era.Undefined;
             source = EraSource.Unknown;
-        }
-        else if (fallback == EraFallback.ColonyEra)
-        {
-            era = colonyEra;
-            source = EraSource.ColonyFallback;
-        }
-        else if (fallback == EraFallback.Components)
-        {
-            era = Era.Undefined;
-            source = EraSource.Components;
         }
         else if (factionEra != Era.Undefined)
         {

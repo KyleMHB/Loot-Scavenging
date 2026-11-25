@@ -5,7 +5,7 @@ namespace LootScavenging.Model;
 /// <summary>
 /// The settings a pack has locked (spec, "The Progression pack": "an option to lock chosen settings"). A locked setting
 /// always holds the pack's default: presets, Reset and a saved value cannot change it, and the page shows it disabled.
-/// Names are field paths such as "rules.dropMode" or "corpses.chance"; see <see cref="Lockable"/>.
+/// Names are field paths such as "rules.whoHostile" or "corpses.humanlike"; see <see cref="Lockable"/>.
 /// </summary>
 public sealed class SettingLocks
 {
@@ -32,12 +32,56 @@ public sealed class SettingLocks
 
     public static readonly SettingLocks None = new SettingLocks(null);
 
-    // Lock names a pack may still use for settings since split (ticket 24): locking the old one locks each that replaced it.
-    // Kept out of Lockable, so the page and the Def's list show only the new names.
-    private static readonly Dictionary<string, string[]> Renamed = new Dictionary<string, string[]>
+    // Lock names a pack may still use for settings since replaced: locking the old one locks each that replaced it (ticket
+    // 24, ticket 25 decision 11). An empty list names a setting that was cut: it is accepted and ignored, so an old pack's
+    // lock list does not log it as unknown. Kept out of Lockable, so the page and the Def's list show only the new names.
+    private static readonly Dictionary<string, string[]> Renamed = BuildRenamed();
+
+    private static Dictionary<string, string[]> BuildRenamed()
     {
-        ["rules.onDownedAndStrip"] = new[] { SettingNames.SortWhenArrested, SettingNames.SortWhenStripped }, // not translated
-    };
+        var rows = new List<string>();
+        foreach (OwnerGroup group in LootRules.RowGroups)
+            rows.Add(SettingNames.Row(group));
+        var dropMode = new List<string>(rows);
+        foreach (CategoryInfo category in ItemCategories.All)
+            dropMode.Add(SettingNames.Category(category));
+        var marketValues = new List<string>();
+        var studyPoints = new List<string>();
+        foreach (ScrapTier tier in SettingValues.Tiers)
+        {
+            marketValues.Add(SettingNames.ScrapMarketValue(tier));
+            studyPoints.Add(SettingNames.StudyPoints(tier));
+        }
+        string[] keepGear = { SettingNames.HostilesKeepGear, SettingNames.NonHostilesKeepGear };
+        string[] none = new string[0];
+        return new Dictionary<string, string[]>
+        {
+            ["rules.hostile"] = new[] { SettingNames.WhoHostile }, // not translated
+            ["rules.nonHostileFaction"] = new[] { SettingNames.WhoNonHostile }, // not translated
+            ["rules.noFaction"] = new[] { SettingNames.WhoWild }, // not translated
+            ["rules.prisoners"] = new[] { SettingNames.WhoPrisoners }, // not translated
+            ["rules.prisonerJoinGear"] = new[] { SettingNames.WhoRecruitedPrisoners }, // not translated
+            ["rules.otherJoinGear"] = new[] { SettingNames.WhoOtherJoiners }, // not translated
+            ["rules.dropMode"] = dropMode.ToArray(), // not translated
+            ["rules.dropIncludesMedicine"] = new[] { "rules.medicine" }, // not translated
+            ["rules.dropIncludesAmmunition"] = new[] { "rules.ammunition" }, // not translated
+            ["deathDrop"] = keepGear, // not translated
+            ["rules.downedGear"] = keepGear, // not translated
+            ["scrapMarketValue"] = marketValues.ToArray(), // not translated
+            ["studyPointsMultiplier"] = studyPoints.ToArray(), // not translated
+            ["rules.sortWhenArrested"] = none, // not translated
+            ["rules.sortWhenStripped"] = none, // not translated
+            ["rules.onDownedAndStrip"] = none, // not translated
+            ["rules.degradeMin"] = none, // not translated
+            ["rules.degradeMax"] = none, // not translated
+            ["rules.degradeLowersQuality"] = none, // not translated
+            ["rules.ejectCharges"] = none, // not translated
+            ["corpses.chance"] = none, // not translated
+            ["corpses.butcherRemovesApparel"] = none, // not translated
+            ["eraFallback"] = none, // not translated
+            ["studyEras"] = none, // not translated
+        };
+    }
 
     private readonly HashSet<string> names = new HashSet<string>();
 
@@ -84,36 +128,22 @@ public sealed class SettingLocks
 /// </summary>
 public static class SettingNames
 {
-    public const string Hostile = "rules.hostile"; // not translated
-    public const string NonHostileFaction = "rules.nonHostileFaction"; // not translated
-    public const string NoFaction = "rules.noFaction"; // not translated
-    public const string Prisoners = "rules.prisoners"; // not translated
+    public const string WhoHostile = "rules.whoHostile"; // not translated
+    public const string WhoNonHostile = "rules.whoNonHostile"; // not translated
+    public const string WhoWild = "rules.whoWild"; // not translated
+    public const string WhoPrisoners = "rules.whoPrisoners"; // not translated
+    public const string WhoRecruitedPrisoners = "rules.whoRecruitedPrisoners"; // not translated
+    public const string WhoOtherJoiners = "rules.whoOtherJoiners"; // not translated
     public const string HomeMapOnly = "rules.homeMapOnly"; // not translated
-    public const string SortWhenArrested = "rules.sortWhenArrested"; // not translated
-    public const string SortWhenStripped = "rules.sortWhenStripped"; // not translated
-    public const string DownedGear = "rules.downedGear"; // not translated
     public const string ColonistsKeepGear = "colonistsKeepGear"; // not translated
-    public const string PrisonerJoinGear = "rules.prisonerJoinGear"; // not translated
-    public const string OtherJoinGear = "rules.otherJoinGear"; // not translated
-    public const string DropMode = "rules.dropMode"; // not translated
-    public const string DropIncludesMedicine = "rules.dropIncludesMedicine"; // not translated
-    public const string DropIncludesAmmunition = "rules.dropIncludesAmmunition"; // not translated
-    public const string DegradeMin = "rules.degradeMin"; // not translated
-    public const string DegradeMax = "rules.degradeMax"; // not translated
-    public const string DegradeLowersQuality = "rules.degradeLowersQuality"; // not translated
+    public const string HostilesKeepGear = "hostilesKeepGear"; // not translated
+    public const string NonHostilesKeepGear = "nonHostilesKeepGear"; // not translated
     public const string DisassemblyYield = "rules.disassemblyYield"; // not translated
     public const string DisassemblyEfficiency = "rules.disassemblyEfficiency"; // not translated
-    public const string EjectCharges = "rules.ejectCharges"; // not translated
     public const string CorpseHumanlike = "corpses.humanlike"; // not translated
     public const string CorpseAnimal = "corpses.animal"; // not translated
     public const string CorpseMechanoid = "corpses.mechanoid"; // not translated
-    public const string CorpseChance = "corpses.chance"; // not translated
-    public const string ButcherRemovesApparel = "corpses.butcherRemovesApparel"; // not translated
-    public const string EraFallback = "eraFallback"; // not translated
-    public const string ScrapMarketValue = "scrapMarketValue"; // not translated
-    public const string DeathDrop = "deathDrop"; // not translated
     public const string UnfamiliarScope = "unfamiliarScope"; // not translated
-    public const string StudyEras = "studyEras"; // not translated
     public const string RecycleOrStudy = "recycleOrStudy"; // not translated
     public const string StudyTechprintProjects = "studyTechprintProjects"; // not translated
     public const string StudyPointsNeolithic = "studyPointsNeolithic"; // not translated
@@ -122,7 +152,27 @@ public static class SettingNames
     public const string StudyPointsSpacer = "studyPointsSpacer"; // not translated
     public const string StudyPointsUltra = "studyPointsUltra"; // not translated
     public const string StudyPointsArchotech = "studyPointsArchotech"; // not translated
-    public const string StudyPointsMultiplier = "studyPointsMultiplier"; // not translated
+    public const string ScrapMarketValueNeolithic = "scrapMarketValueNeolithic"; // not translated
+    public const string ScrapMarketValueMedieval = "scrapMarketValueMedieval"; // not translated
+    public const string ScrapMarketValueIndustrial = "scrapMarketValueIndustrial"; // not translated
+    public const string ScrapMarketValueSpacer = "scrapMarketValueSpacer"; // not translated
+    public const string ScrapMarketValueUltra = "scrapMarketValueUltra"; // not translated
+    public const string ScrapMarketValueArchotech = "scrapMarketValueArchotech"; // not translated
+
+    /// <summary>The lock name of a group's Who row.</summary>
+    public static string Row(OwnerGroup group) => group switch
+    {
+        OwnerGroup.Hostile => WhoHostile,
+        OwnerGroup.NonHostileFaction => WhoNonHostile,
+        OwnerGroup.NoFaction => WhoWild,
+        OwnerGroup.Prisoner => WhoPrisoners,
+        OwnerGroup.RecruitedPrisoner => WhoRecruitedPrisoners,
+        OwnerGroup.OtherJoiner => WhoOtherJoiners,
+        _ => null,
+    };
+
+    /// <summary>The lock name of a tier's scrap market value.</summary>
+    public static string ScrapMarketValue(ScrapTier tier) => "scrapMarketValue" + tier; // not translated
 
     /// <summary>The lock name of a tier's study points.</summary>
     public static string StudyPoints(ScrapTier tier) => "studyPoints" + tier; // not translated

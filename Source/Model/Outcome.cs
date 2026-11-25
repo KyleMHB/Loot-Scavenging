@@ -6,7 +6,6 @@ namespace LootScavenging.Model;
 public enum Outcome
 {
     Keep,
-    Degrade,
     Scrap,
     Disassemble,
     Delete,

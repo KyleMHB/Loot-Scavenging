@@ -41,15 +41,6 @@ internal static class StudyDebugActions
         }
     }
 
-    [DebugAction(Category, "Study: cycle study eras", allowedGameStates = AllowedGameStates.Playing)] // not translated
-    private static void CycleStudyEras()
-    {
-        LootScavengingSettings s = LootScavengingMod.Settings;
-        var values = (StudyEraLimit[])Enum.GetValues(typeof(StudyEraLimit));
-        s.values.studyEras = values[((int)s.values.studyEras + 1) % values.Length];
-        Log.Message($"[Loot Scavenging] studyEras = {s.values.studyEras}"); // not translated
-    }
-
     [DebugAction(Category, "Study: toggle recycle or study", allowedGameStates = AllowedGameStates.Playing)] // not translated
     private static void ToggleRecycleOrStudy()
     {

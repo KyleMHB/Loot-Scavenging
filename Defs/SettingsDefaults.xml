@@ -5,24 +5,25 @@
        Reset returns to. Cleanup and Vanilla are built from it and set the rows the presets table names, so a patched
        default carries into them. A pack changes a default with a patch on the matching node, e.g.
          <Operation Class="PatchOperationReplace">
-           <xpath>/Defs/LootScavenging.SettingsDefaultsDef[defName="LS_SettingsDefaults"]/values/rules/dropMode</xpath>
-           <value><dropMode>KeepOriginal</dropMode></value>
+           <xpath>/Defs/LootScavenging.SettingsDefaultsDef[defName="LS_SettingsDefaults"]/values/rules/whoHostile</xpath>
+           <value><whoHostile>Mark</whoHostile></value>
          </Operation>
        and locks a setting by adding its name to the locked list:
          <Operation Class="PatchOperationAdd">
            <xpath>/Defs/LootScavenging.SettingsDefaultsDef[defName="LS_SettingsDefaults"]/locked</xpath>
-           <value><li>rules.dropMode</li></value>
+           <value><li>rules.whoHostile</li></value>
          </Operation>
        A locked setting always holds the value written here: the page shows it disabled with a reason, and presets, Reset
-       and a saved value cannot change it. Lockable names: rules.hostile, rules.nonHostileFaction, rules.noFaction,
-       rules.prisoners, rules.homeMapOnly, rules.sortWhenArrested, rules.sortWhenStripped, rules.downedGear, rules.prisonerJoinGear, rules.otherJoinGear, rules.dropMode, rules.dropIncludesMedicine, rules.dropIncludesAmmunition,
-       rules.weapons, rules.apparel,
-       rules.ammunition, rules.drugs, rules.medicine, rules.food, rules.other, rules.degradeMin, rules.degradeMax,
-       rules.degradeLowersQuality, rules.disassemblyYield, rules.disassemblyEfficiency, rules.ejectCharges,
-       corpses.humanlike, corpses.animal, corpses.mechanoid, corpses.chance, corpses.butcherRemovesApparel, eraFallback,
-       scrapMarketValue, deathDrop, colonistsKeepGear, unfamiliarScope, studyEras, recycleOrStudy, studyTechprintProjects,
+       and a saved value cannot change it. Lockable names: rules.whoHostile, rules.whoNonHostile, rules.whoWild,
+       rules.whoPrisoners, rules.whoRecruitedPrisoners, rules.whoOtherJoiners, rules.homeMapOnly, rules.weapons,
+       rules.apparel, rules.ammunition, rules.drugs, rules.medicine, rules.food, rules.other, rules.disassemblyYield,
+       rules.disassemblyEfficiency, corpses.humanlike, corpses.animal, corpses.mechanoid, colonistsKeepGear,
+       hostilesKeepGear, nonHostilesKeepGear, unfamiliarScope, recycleOrStudy, studyTechprintProjects,
        studyPointsNeolithic, studyPointsMedieval, studyPointsIndustrial, studyPointsSpacer, studyPointsUltra,
-       studyPointsArchotech, studyPointsMultiplier.
+       studyPointsArchotech, scrapMarketValueNeolithic, scrapMarketValueMedieval, scrapMarketValueIndustrial,
+       scrapMarketValueSpacer, scrapMarketValueUltra, scrapMarketValueArchotech.
+       A lock on a name from before 0.6.0 locks each setting that replaced it (rules.dropMode locks every Who row and item
+       rule); a cut setting's name is accepted and ignored.
        The keep and remove lists and the protection toggles can be defaulted here but not locked.
        The defaults seed a config that has none saved. A saved config, or a partial one another tool wrote, keeps its
        values; a key it lacks takes the value written here, and locked settings are put back.
@@ -34,25 +35,16 @@
     <defName>LS_SettingsDefaults</defName>
     <values>
       <rules>
-        <hostile>true</hostile>
-        <nonHostileFaction>true</nonHostileFaction>
-        <noFaction>true</noFaction>
-        <prisoners>true</prisoners>
+        <whoHostile>Apply</whoHostile>
+        <whoNonHostile>Apply</whoNonHostile>
+        <whoWild>Apply</whoWild>
+        <whoPrisoners>Apply</whoPrisoners>
+        <whoRecruitedPrisoners>Apply</whoRecruitedPrisoners>
+        <whoOtherJoiners>Mark</whoOtherJoiners>
         <homeMapOnly>false</homeMapOnly>
-        <sortWhenArrested>true</sortWhenArrested>
-        <sortWhenStripped>true</sortWhenStripped>
-        <!-- Replaced by the two toggles above in 0.5.2. Kept so a pack's patch on it still applies: false turns both off,
-             and locking rules.onDownedAndStrip locks both. -->
-        <onDownedAndStrip>true</onDownedAndStrip>
-        <downedGear>KeepWeapon</downedGear>
-        <prisonerJoinGear>FollowDropMode</prisonerJoinGear>
-        <otherJoinGear>MarkUnfamiliar</otherJoinGear>
-        <dropMode>ScrapOutOfReach</dropMode>
-        <dropIncludesMedicine>false</dropIncludesMedicine>
-        <dropIncludesAmmunition>false</dropIncludesAmmunition>
       <weapons>
-        <outcome>Keep</outcome>
-        <onlyBeyondReach>false</onlyBeyondReach>
+        <outcome>Scrap</outcome>
+        <onlyBeyondReach>true</onlyBeyondReach>
         <limitQuality>false</limitQuality>
         <belowQuality>Normal</belowQuality>
         <limitHitPoints>false</limitHitPoints>
@@ -60,8 +52,8 @@
         <chance>1</chance>
       </weapons>
       <apparel>
-        <outcome>Keep</outcome>
-        <onlyBeyondReach>false</onlyBeyondReach>
+        <outcome>Scrap</outcome>
+        <onlyBeyondReach>true</onlyBeyondReach>
         <limitQuality>false</limitQuality>
         <belowQuality>Normal</belowQuality>
         <limitHitPoints>false</limitHitPoints>
@@ -113,32 +105,43 @@
         <belowHitPointFraction>0.5</belowHitPointFraction>
         <chance>1</chance>
       </other>
-        <degradeMin>0.1</degradeMin>
-        <degradeMax>0.4</degradeMax>
-        <degradeLowersQuality>false</degradeLowersQuality>
         <disassemblyYield>EraTypical</disassemblyYield>
         <disassemblyEfficiency>0.5</disassemblyEfficiency>
-        <ejectCharges>true</ejectCharges>
         <protectQuestItems>true</protectQuestItems>
         <protectUniqueWeapons>true</protectUniqueWeapons>
         <protectPersonaWeapons>true</protectPersonaWeapons>
         <protectRelics>true</protectRelics>
         <keepList />
         <removeList />
+        <!-- Replaced in 0.6.0 (ticket 25), kept at their 0.5.2 defaults so an old pack's patch on them still applies. A value
+             a patch changes is translated into the settings above once the Def loads; a value left here does nothing. -->
+        <hostile>true</hostile>
+        <nonHostileFaction>true</nonHostileFaction>
+        <noFaction>true</noFaction>
+        <prisoners>true</prisoners>
+        <prisonerJoinGear>FollowDropMode</prisonerJoinGear>
+        <otherJoinGear>MarkUnfamiliar</otherJoinGear>
+        <dropMode>ScrapOutOfReach</dropMode>
+        <dropIncludesMedicine>false</dropIncludesMedicine>
+        <dropIncludesAmmunition>false</dropIncludesAmmunition>
+        <onDownedAndStrip>true</onDownedAndStrip>
+        <degradeMin>0.1</degradeMin>
+        <degradeMax>0.4</degradeMax>
+        <degradeLowersQuality>false</degradeLowersQuality>
+        <ejectCharges>true</ejectCharges>
       </rules>
       <corpses>
         <humanlike>false</humanlike>
         <animal>false</animal>
         <mechanoid>false</mechanoid>
+        <!-- Cut in 0.6.0 (ticket 25); kept so an old patch on them still finds its node. -->
         <chance>1</chance>
         <butcherRemovesApparel>false</butcherRemovesApparel>
       </corpses>
-      <eraFallback>CarrierFaction</eraFallback>
-      <scrapMarketValue>0.01</scrapMarketValue>
-      <deathDrop>AllOnBody</deathDrop>
       <colonistsKeepGear>true</colonistsKeepGear>
+      <hostilesKeepGear>true</hostilesKeepGear>
+      <nonHostilesKeepGear>true</nonHostilesKeepGear>
       <unfamiliarScope>AllOutOfReach</unfamiliarScope>
-      <studyEras>ColonyEraAndBelow</studyEras>
       <recycleOrStudy>OneOrTheOther</recycleOrStudy>
       <studyTechprintProjects>false</studyTechprintProjects>
       <studyPointsNeolithic>5</studyPointsNeolithic>
@@ -147,6 +150,17 @@
       <studyPointsSpacer>12.5</studyPointsSpacer>
       <studyPointsUltra>17.5</studyPointsUltra>
       <studyPointsArchotech>25</studyPointsArchotech>
+      <scrapMarketValueNeolithic>0.01</scrapMarketValueNeolithic>
+      <scrapMarketValueMedieval>0.01</scrapMarketValueMedieval>
+      <scrapMarketValueIndustrial>0.01</scrapMarketValueIndustrial>
+      <scrapMarketValueSpacer>0.01</scrapMarketValueSpacer>
+      <scrapMarketValueUltra>0.01</scrapMarketValueUltra>
+      <scrapMarketValueArchotech>0.01</scrapMarketValueArchotech>
+      <!-- Replaced in 0.6.0 (ticket 25), kept at their 0.5.2 defaults for old patches. -->
+      <eraFallback>CarrierFaction</eraFallback>
+      <scrapMarketValue>0.01</scrapMarketValue>
+      <deathDrop>Ground</deathDrop>
+      <studyEras>ColonyEraAndBelow</studyEras>
       <studyPointsMultiplier>1</studyPointsMultiplier>
     </values>
     <locked />

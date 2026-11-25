@@ -8,14 +8,14 @@ namespace LootScavenging;
 // Developer-only text, so literals are not translated.
 public static class UnfamiliarDebugActions
 {
-    [DebugAction("Loot Scavenging", "Unfamiliar: toggle keep-original mode", allowedGameStates = AllowedGameStates.Playing)]
+    [DebugAction("Loot Scavenging", "Unfamiliar: toggle hostile row Mark", allowedGameStates = AllowedGameStates.Playing)]
     private static void ToggleMode()
     {
         LootScavengingSettings settings = LootScavengingMod.Settings;
-        settings.values.rules.dropMode = settings.values.rules.dropMode == DropMode.KeepOriginal ? DropMode.ScrapOutOfReach : DropMode.KeepOriginal;
+        settings.values.rules.whoHostile = settings.values.rules.whoHostile == WhoRule.Mark ? WhoRule.Apply : WhoRule.Mark;
         settings.Write();
         Unfamiliar.ResetCache();
-        Log.Message("[Loot Scavenging] Drop mode is now " + settings.values.rules.dropMode); // not translated
+        Log.Message("[Loot Scavenging] Hostile row is now " + settings.values.rules.whoHostile); // not translated
     }
 
     [DebugAction("Loot Scavenging", "Unfamiliar: cycle scope", allowedGameStates = AllowedGameStates.Playing)]
@@ -40,7 +40,8 @@ public static class UnfamiliarDebugActions
         CompUnfamiliar comp = (thing as ThingWithComps)?.GetComp<CompUnfamiliar>();
         Log.Message("[Loot Scavenging] " + thing + ": unfamiliar " + Unfamiliar.IsUnfamiliar(thing) // not translated
             + ", looted marker " + (comp?.lootedEra ?? Era.Undefined)
-            + ", mode " + LootScavengingMod.Settings.values.rules.dropMode + ", scope " + LootScavengingMod.Settings.values.unfamiliarScope);
+            + ", hostile row " + LootScavengingMod.Settings.values.rules.whoHostile + ", scope " + LootScavengingMod.Settings.values.unfamiliarScope);
+
     }
 
     [DebugAction("Loot Scavenging", "Unfamiliar: mark selected item as looted", allowedGameStates = AllowedGameStates.Playing)]

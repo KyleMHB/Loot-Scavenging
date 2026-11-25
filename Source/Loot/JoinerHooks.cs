@@ -9,14 +9,15 @@ namespace LootScavenging.Loot;
 // The gear of a pawn who joins the colony (ticket 20). Everything that makes a pawn a colonist goes through Pawn.SetFaction:
 // the quests of wanderers, refugees, rescued and creepjoiners, recruiting, enslaving, a trade, a rescue. His worn apparel,
 // held equipment and pack (ticket 21) are handled just before the faction changes, so he is still judged as the group he was (a prisoner keeps his
-// old faction, a wanderer has none). Two settings choose what happens: one for prisoners and slaves, one for everyone else.
+// old faction, a wanderer has none). Two Who rows choose what happens (ticket 25): Recruited prisoners, and Other joiners.
+// Apply sorts his gear under the item rules, Mark marks his out-of-reach gear unfamiliar, and Exclude leaves it alone.
 //
 // RecruitUtility.Recruit is hooked as well. It clears the prisoner status and unlocks his apparel before it calls SetFaction,
 // so the SetFaction prefix would see neither. A pawn handled by it is marked in SortedDrop until the call ends, and the
 // SetFaction prefix inside skips him: nothing is judged twice, so a chance roll is not rolled again.
 //
 // Not covered: a pawn the game makes a colonist without SetFaction (generated straight into the player's faction, as the
-// game-end wanderers and the pawns of a new game are), and a joiner who is not on any map, whose gear the drop mode cannot
+// game-end wanderers and the pawns of a new game are), and a joiner who is not on any map, whose gear the item rules cannot
 // place (the join mark still works there).
 
 internal static class JoiningGear
@@ -35,18 +36,19 @@ internal static class JoiningGear
         SortedDrop.Enter(pawn);
         try
         {
-            JoinerGear rule = JoinerGears.For(LootScavengingMod.Settings.values.rules, pawn.IsPrisonerOfColony);
-            switch (rule)
+            OwnerGroup row = pawn.IsPrisonerOfColony ? OwnerGroup.RecruitedPrisoner : OwnerGroup.OtherJoiner;
+            switch (LootScavengingMod.Settings.values.rules.RowFor(row))
             {
-                case JoinerGear.MarkUnfamiliar:
+                case WhoRule.Mark:
                     Unfamiliar.MarkJoining(pawn, pawn.Faction);
                     break;
-                case JoinerGear.FollowDropMode:
-                    // The owner group is the one he had before joining; locked apparel stays, as at a strip. His pack is
-                    // sorted too (ticket 21): a pawn downed under "keep the weapon in his pack" carries his weapon there.
-                    GearSorter.Sort(pawn, Moment.Join, equipment: true, apparel: true, inventory: true);
+                case WhoRule.Apply:
+                    // His joiner row judges the gear; locked apparel stays, as at a strip. His pack is sorted too (ticket 21):
+                    // a pawn downed with his weapon kept may carry it there.
+                    GearSorter.Sort(pawn, Moment.Join, equipment: true, apparel: true, inventory: true, ownerRow: row);
                     break;
             }
+
         }
         catch (Exception e)
         {

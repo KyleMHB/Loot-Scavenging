@@ -12,8 +12,8 @@ internal static class OutcomeApplier
     public static void Apply(Pawn pawn, Thing thing, LootDecision decision, EraResult era, Moment moment)
     {
         // Charges are read and the place noted before the item is destroyed, and the ammo is put on the ground rather than
-        // in the inventory, where the inventory pass would judge it again as ammunition.
-        if (Disassembly.EjectsCharges(decision.Outcome, LootScavengingMod.Settings.values.rules.ejectCharges))
+        // in the inventory, where the inventory pass would judge it again as ammunition. Always on (ticket 25, decision 8).
+        if (Disassembly.EjectsCharges(decision.Outcome))
         {
             List<Thing> charges = DisassembleApplier.EjectedCharges(thing).ToList();
             Map map = pawn.MapHeld;
@@ -33,19 +33,19 @@ internal static class OutcomeApplier
         switch (decision.Outcome)
         {
             case Outcome.Keep:
-                Unfamiliar.NotifyKept(pawn, thing);
+                // Only a Who row set to Mark marks what it keeps (ticket 25, decision 3); other kept gear is left as it is.
+                if (decision.Reason == DecisionReason.MarkRow)
+                    Unfamiliar.NotifyKept(pawn, thing);
                 return;
             case Outcome.Delete:
                 Delete(pawn, thing);
-                return;
-            case Outcome.Degrade:
-                DisassembleApplier.Degrade(thing);
                 return;
             case Outcome.Scrap:
                 ScrapApplier.Apply(pawn, thing, era, moment);
                 return;
             case Outcome.Disassemble:
-                DisassembleApplier.Disassemble(pawn, thing, era, decision.Reason);
+                DisassembleApplier.Disassemble(pawn, thing);
+
                 return;
             default:
                 Log.Warning($"[Loot Scavenging] Outcome {decision.Outcome} is not handled here; keeping {thing}."); // not translated
