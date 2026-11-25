@@ -105,6 +105,7 @@ Released under the GNU General Public License v3.0. Commercial use is allowed. D
 The Chinese and Russian text is machine-translated. If a line reads wrong, tell me and I will fix it.
 
 [h2]Links[/h2]
+[url=https://discord.gg/jSdyTbSYWQ][img]https://img.shields.io/badge/Join_the_Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white[/img][/url]
 
 Support me on Ko-fi.
 
