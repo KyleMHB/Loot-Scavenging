@@ -2,7 +2,7 @@
 
 <!-- Agent read route: read only the newest relevant release; locate older versions by searching `^## ` headings. -->
 
-## 0.6.0 - Unreleased
+## 0.6.0 - 2026-11-25
 
 ### Added
 

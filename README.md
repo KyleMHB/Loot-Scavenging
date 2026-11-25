@@ -1,18 +1,17 @@
 # Loot Scavenging
 
-A RimWorld mod that decides what non-colony pawns' gear becomes when they die, are stripped or are arrested. By default, gear beyond your colony's research turns into scrap of its era, which you recycle for materials or study for research at benches you already have.
+A RimWorld mod that decides what non-colony pawns' gear becomes when they die, are stripped, are arrested or join your colony. By default, gear beyond your colony's research turns into scrap of its era, which you recycle for materials or study for research at benches you already have.
 
 ## Features
 
 - **Scrap per era.** Six stackable scrap items, neolithic to archotech. The amount comes from the gear's value, quality and condition, so a stone knife gives one unit and a charge rifle several. Scrap is worth almost nothing by default, so a stockpile does not raise colony wealth.
-- **Recycling at existing benches.** A recycle bill at the crafting spot, smithy, machining table or fabrication bench turns scrap into materials of its era. Each bench handles its own tier and every tier below it.
-- **Study at research benches.** A study bill uses up scrap for a set number of research points per unit, by default from 10 for neolithic to 50 for archotech, paid into the current project if it is of the scrap's era or lower. The scrap's inspect text says when it can be studied and why not.
-- **Four drop modes.** Scrap out-of-reach gear, scrap everything, keep the original item but mark it unfamiliar until researched, or off. Medicine is exempt unless you include it.
-- **Rules per item category.** Weapons, apparel, ammunition, drugs, medicine, food and other inventory each get an outcome (keep, degrade, scrap, disassemble or delete), a chance, and optional limits by research, quality and hit points.
-- **Loot on the body.** At death, loot can drop on the ground as usual, leave only the scrap on the body, or leave everything on the body (weapon, medicine, food, silver and scrap) until the corpse is stripped or butchered.
-- **Owner groups.** Hostile pawns, non-hostile factions, pawns with no faction and your prisoners each have their own toggle. Colonists are never affected.
+- **Recycling at existing benches.** A recycle bill at the crafting spot, smithy, machining table or fabrication bench turns scrap into materials of its era. Each bench handles its own tier and every tier below it. A x10 bill handles ten units in one job.
+- **Study at research benches.** A study bill uses up scrap for a set number of research points per unit, by default from 5 for neolithic to 25 for archotech, paid into the current project if it is of the scrap's era or lower. The scrap's inspect text says when it can be studied and why not.
+- **A Who list.** Hostile pawns, non-hostile pawns, wild people and animals, prisoners, recruited prisoners and other joiners each get a row: apply the item rules, exclude the group, or keep its gear whole and mark out-of-reach gear unfamiliar until researched. Colony gear is never sorted.
+- **Rules per item category.** Weapons, apparel, ammunition, drugs, medicine, food and other inventory each get an outcome (scrap, disassemble, delete or vanilla), a chance, and optional limits by research, quality and hit points. By default only weapons and apparel are scrapped, and only when they are beyond your research.
+- **Don't drop your stuff.** Three boxes, for colonists, hostiles and non-hostiles, all on by default. A downed pawn keeps their weapon in hand, and a dead one keeps everything on the body (weapon, medicine, food, silver and scrap) until the corpse is stripped, butchered or cremated. That gear is judged once, when it changes hands. Untick a box and that group drops loot as in the base game, sorted as it drops.
 - **Protection and lists.** Quest items, unique weapons, persona weapons and relics are protected by default. Always-keep and always-remove lists are picked from a searchable item menu.
-- **Corpses.** Optional removal of humanlike, animal and mechanoid corpses with a chance, and an option to destroy worn apparel when a corpse is butchered.
+- **Corpses.** Optional removal of humanlike, animal and mechanoid corpses, each with its own box. Butchering a humanlike corpse strips it first, and what comes off follows the item rules.
 - **Presets.** Progression (the default), Cleanup and Vanilla. The settings page shows the active preset and whether you have changed it.
 - **Patchable tables.** The scrap tiers, their benches, value per unit and material pools, and the default settings are XML that a modpack can patch, with an option to lock chosen settings.
 
