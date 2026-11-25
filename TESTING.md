@@ -83,6 +83,12 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 
 ## Result recording
 
+### 2026-11-25 - Release check for 0.6.0
+
+- Version/environment: RimWorld 1.7, seed 1, English, `main` at `d0ba2f9` (`settings-redesign` fast-forwarded; mod DLL unchanged since `4b5f8e3`). `deploy.ps1` built 1.7 and 1.6 clean, translations passed.
+- Runs: perf `20261125-170609-perf-s1-60f8b780` pass, 0 ms/tick; `release-check` passed with the usual no-`perf.*`-cases warning.
+- Status: Ready for the Workshop upload.
+
 ### 2026-11-25 - Full tier and compatibility sets on the settings redesign (ticket 25, 0.6.0)
 
 - Version/environment: RimWorld 1.7, seed 1, English, branch `settings-redesign` at `4b5f8e3` (the looted marker now reads the row an item was sorted under), then `06c68f9` (ui test fix below). `deploy.ps1` first; `dotnet test` 403/403; 1.7, 1.6 and DevTests builds clean; translations 0 untranslated, 0 outdated in both languages.
