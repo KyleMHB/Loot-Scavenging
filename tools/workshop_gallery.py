@@ -266,7 +266,7 @@ STYLES = [
     ("drop-scrapoutofreach-dead", 1.8, (1110, 650), "The autopistol is scrap; the club drops whole"),
     ("drop-scrapeverything-dead", 1.8, (1260, 530), "His weapons and apparel are scrap"),
     ("drop-keeporiginal-selected", 1.8, (1180, 610), "Both drop whole; the autopistol reads unfamiliar"),
-    ("drop-off-dead", 1.8, (1340, 640), "Nothing is sorted: both drop whole"),
+    ("drop-off-dead", 1.8, (1340, 640), "No rules apply: both drop whole"),
 ]
 
 
@@ -284,7 +284,7 @@ def loot_styles(run):
     img = backdrop(frames[0])
     header(img, "What a fallen raider drops under four settings")
     # Every still shows gear landing at death, which 0.6.0 does only with the Hostiles box off; the chip says so.
-    label = text["LootScavenging_HostilesKeepGear"]
+    label = f"{text['LootScavenging_SectionKeepGear']}: {text['LootScavenging_HostilesKeepGear']}"
     probe = Image.new("RGBA", CANVAS, (0, 0, 0, 0))
     chip_w = setting_chip(probe, (0, 0), label, False, 1400, size=22)
     setting_chip(img, ((CANVAS[0] - chip_w) // 2, 168), label, False, 1400, size=22)
@@ -312,7 +312,7 @@ def settings(frame_path):
     frame = Image.open(frame_path).convert("RGBA")
     img = backdrop(frame)
     header(img, "The settings page on the Progression preset")
-    # One frame of the 0.6.0 page, cut in two: the preset line and the "Don't drop your stuff" boxes with their sentences,
+    # One frame of the 0.6.0 page, cut in two: the preset line and the "Keep gear on the body" boxes with their sentences,
     # then the first two Who rows with theirs. The gap between the bands carries no mark. The scale fits both bands into
     # the space under the header, since the page is now taller than it is wide.
     x0, x1 = 666, 1846
