@@ -128,7 +128,12 @@ Vanilla uses "study" for Anomaly's entity study. This mod's study is the same ac
 | unfamiliar (item label marker) | 陌生 | незнакомая технология |
 | unfamiliar technology | 陌生技术 | незнакомая технология |
 | original item | 原物品 | исходный предмет |
-| drop mode | 掉落模式 | режим выпадения |
+| Who (settings section) | 对象 | Кого касается |
+| Apply item rules (Who choice) | 应用物品规则 | Применять правила для предметов |
+| Exclude (Who choice) | 排除 | Исключить |
+| Mark unfamiliar (Who choice) | 标记为陌生 | Помечать как незнакомое |
+| Don't drop your stuff (settings section) | 不要丢下装备 | Не бросать снаряжение |
+| outcome: Vanilla (as in the base game) | 原版 | Ваниль |
 | beyond the colony's reach / out of reach | 超出殖民地能力范围 | вне досягаемости поселения |
 | within reach | 在殖民地能力范围内 | в пределах досягаемости |
 | era | 时代 | технический уровень (эпоха only where no era word follows) |
