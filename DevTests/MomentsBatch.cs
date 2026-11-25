@@ -36,7 +36,7 @@ public sealed class MomentsBatch : Batch
 
     public override string Id => "lootscavenging-moments";
     public override int SegmentCount => 1;
-    public override int MapSize => 100;
+    public override int MapSize => 120;
 
     public override IReadOnlyList<PlannedCase> Plan => new[]
     {
