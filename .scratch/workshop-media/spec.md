@@ -42,11 +42,11 @@ Gallery images are 1920x1080 PNG. Order:
    - the study points per unit.
 
    A caption says that a bench handles its own tier and every tier below it.
-3. **`gallery-drop-modes.png`**: the same downed pirate in four panels, one per drop mode, each with a chip naming the mode:
-   - scrap out-of-reach gear;
-   - scrap everything;
-   - keep the original but unfamiliar, shown selected with the unfamiliar line in its inspect pane;
-   - off.
+3. **`gallery-loot-styles.png`**: a fallen tribal warrior in four panels, one per loot style, cut from the promo footage. A chip above the panels shows the Hostiles "Don't drop your stuff" box off, and each panel has a chip naming the setting behind its style:
+   - only gear beyond the colony's reach is scrapped;
+   - everything he carried is scrapped;
+   - hostile pawns' gear is marked unfamiliar, shown selected with the unfamiliar line in its inspect pane;
+   - weapons and apparel left vanilla.
 4. **`gallery-settings.png`**: an in-game screenshot of the settings page on Progression. It shows the preset line, a category rule row and its "what will happen" sentence, framed with a short title.
 5. **`gallery-inspect.png`**: two scrap stacks, each selected with its inspect pane. One says it can be studied now and the other says why not (needs research). Side by side, with captions.
 
@@ -70,4 +70,4 @@ Gallery images are 1920x1080 PNG. Order:
 ## Left out
 
 - A preset comparison image (Progression, Cleanup, Vanilla after the same raid). Add it if the Cleanup preset draws questions.
-- A GIF of keep-original mode. The drop-modes still covers it, and the unfamiliar line reads better still than moving.
+- A GIF of unfamiliar-marked gear. The loot-styles still covers it, and the unfamiliar line reads better still than moving.

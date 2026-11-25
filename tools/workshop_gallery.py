@@ -1,12 +1,12 @@
 """Renders the Workshop gallery images (1920x1080) into docs/images/workshop/.
 
     python tools/workshop_gallery.py scrap-tiers
-    python tools/workshop_gallery.py drop-modes [run folder]
+    python tools/workshop_gallery.py loot-styles [run folder]
     python tools/workshop_gallery.py settings [frame.png]
     python tools/workshop_gallery.py inspect [run folder]
 
-drop-modes and inspect cut stills from a lootscavenging-workshop-clips run (shots.json marks, layout.json cameras); the default is
-the run recorded for ticket 01. settings uses work/gallery/settings-frame.png, a frame from a `lootscavenging-ui --record
+inspect cuts stills from a lootscavenging-workshop-clips run (shots.json marks, layout.json cameras); loot-styles cuts them from
+a lootscavenging-promo-clips run (PROMO_RUN by default). settings uses work/gallery/settings-frame.png, a frame from a `lootscavenging-ui --record
 --show-ui` run (see TESTING.md). Numbers come from Defs/ (study points from SettingsDefaults.xml), bench labels from the game's Data, mode labels from the English Keyed
 file, and the inspect text is the game's own, cropped from the stills.
 """
@@ -30,6 +30,8 @@ ERA_LOOKS = ps.GAME / "Mods" / "UI-Rethemed-Era-Looks"
 CLIPS_RUN = Path("E:/Coding/Templates/tools/rimworld-dev-tests/work/userdata/loot/LootScavengingTests/20261121-223036-lootscavenging-workshop-clips-s1")
 # The inspect stills were refilmed in 0.5.2, when study points per unit were halved (5 and 12.5, not 10 and 25 and 50).
 INSPECT_RUN = Path("E:/Coding/Templates/tools/rimworld-dev-tests/work/userdata/loot/LootScavengingTests/20261124-154152-lootscavenging-workshop-clips-s1")
+# The loot-styles stills: the promo video's drop-mode deaths (no layout.json, so crops are in frame pixels).
+PROMO_RUN = Path("E:/Coding/Templates/tools/rimworld-dev-tests/work/userdata/loot/LootScavengingTests/20261123-004719-lootscavenging-promo-clips-s1")
 CANVAS = (1920, 1080)
 ps.SIZE = CANVAS  # framed() and title() size their layers from preview_story.SIZE
 BG = (38, 36, 33, 255)
@@ -235,39 +237,71 @@ def pane(frame):
     return frame.crop(PANE_BOX)
 
 
-# ---------- drop-modes ----------
+# ---------- loot-styles ----------
 
-MODES = [
-    ("drop-scrapoutofreach", "LootScavenging_DropModeScrapOutOfReach", "The autopistol is scrap; the club drops whole"),
-    ("drop-scrapeverything", "LootScavenging_DropModeScrapEverything", "Everything he carried is scrap"),
-    ("drop-keeporiginal", "LootScavenging_DropModeKeepOriginal", "Both drop whole; the autopistol reads unfamiliar"),
-    ("drop-off", "LootScavenging_DropModeOff", "No era handling: both drop whole"),
+def cropped(img, frame, centre, src_h, box, caption, band=52):
+    """framed() for a run without layout.json: crops `src_h` px of the 2560x1440 frame around `centre` (px) to fill `box`."""
+    x, y, w, h = box
+    sw = src_h * w / h
+    cx, cy = centre
+    crop = frame.crop([round(v) for v in (cx - sw / 2, cy - src_h / 2, cx + sw / 2, cy + src_h / 2)]).resize((w, h), Image.LANCZOS)
+    shadow = Image.new("RGBA", CANVAS, (0, 0, 0, 0))
+    ImageDraw.Draw(shadow).rectangle([x + 6, y + 6, x + w + 6, y + h + 6], fill=(0, 0, 0, 180))
+    img.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(8)))
+    img.alpha_composite(crop, (x, y))
+    img.alpha_composite(Image.new("RGBA", (w, band), (0, 0, 0, 150)), (x, y + h - band))
+    outlined(img, box)
+    size = 26
+    while size > 14 and font(True, size).getlength(caption.lower()) > w - 32:
+        size -= 1
+    shadowed(img, (x + w / 2, y + h - band / 2), caption, font(True, size), fill=ps.CREAM)
+
+
+# The same kind of tribal warrior (club, an autopistol in his pack) killed under four sets of rules, from the promo run's
+# 0.5.2 drop-mode beats: each still is taken `after` seconds past the death or selection mark, past the picture's 0.55 s lag. The
+# chips name the 0.6.0 setting that gives the same outcome, as ModHarness.ApplyStyle sets it. Each centre (px in the
+# 2560x1440 frame) puts the body and what he dropped right of the inset and between the chip and the caption band; the
+# off scene's crop stays west of the map's edge at x 2290.
+STYLES = [
+    ("drop-scrapoutofreach-dead", 1.8, (1110, 650), "The autopistol is scrap; the club drops whole"),
+    ("drop-scrapeverything-dead", 1.8, (1260, 530), "Everything he carried is scrap"),
+    ("drop-keeporiginal-selected", 1.8, (1180, 610), "Both drop whole; the autopistol reads unfamiliar"),
+    ("drop-off-dead", 1.8, (1340, 640), "Nothing is sorted: both drop whole"),
 ]
 
 
-def drop_modes(run):
+def loot_styles(run):
     text = keyed()
-    first = still(run, MODES[0][0])
-    img = backdrop(first)
-    header(img, "A fallen raider's gear, four drop modes")
-    w, h, gap, top = 925, 405, 24, 185
+    reach = text["LootScavenging_OnlyBeyondReach"]
+    gear = f"{text['LootScavenging_CategoryWeapons']}, {text['LootScavenging_CategoryApparel']}"
+    chips = [
+        (reach, True),
+        (reach, False),
+        (f"{text['LootScavenging_WhoHostile']}: {text['LootScavenging_WhoMark']}", True),
+        (f"{gear}: {text['LootScavenging_OutcomeKeep']}", False),
+    ]
+    frames = [still(run, name, after) for name, after, _, _ in STYLES]
+    img = backdrop(frames[0])
+    header(img, "What a fallen raider drops under four settings")
+    # Every still shows gear landing at death, which 0.6.0 does only with the Hostiles box off; the chip says so.
+    label = text["LootScavenging_HostilesKeepGear"]
+    probe = Image.new("RGBA", CANVAS, (0, 0, 0, 0))
+    setting_chip(probe, (0, 0), label, False, 1400, size=22)
+    chip_w = probe.getbbox()[2]
+    setting_chip(img, ((CANVAS[0] - chip_w) // 2, 168), label, False, 1400, size=22)
+    w, h, gap, top = 925, 385, 24, 232
     left = (CANVAS[0] - 2 * w - gap) // 2
-    for i, (name, key, caption) in enumerate(MODES):
-        frame = first if i == 0 else still(run, name)
-        shot = shot_of(run, name)
+    for i, ((name, _, centre, caption), frame, (chip, on)) in enumerate(zip(STYLES, frames, chips)):
         x = left + (i % 2) * (w + gap)
         y = top + (i // 2) * (h + gap)
-        # Pirate and gear sit about 1.7 cells west of and 0.5 cells north of the camera centre; the crop is placed so they
-        # fall right of the inset and between the chip and the caption band.
-        ps.framed(img, shot, frame, (shot["x"] - 1.67, shot["z"] + 0.48), 2.9, (x, y, w, h), caption, 52)
-        mode = text[key]
-        setting_chip(img, (x + 10, y + 10), f"{text['LootScavenging_DropMode']}: {mode}", mode != text["LootScavenging_DropModeOff"], w - 20)
-        if name == "drop-keeporiginal":
+        cropped(img, frame, centre, 470, (x, y, w, h), caption)
+        setting_chip(img, (x + 10, y + 10), chip, on, w - 20)
+        if name == "drop-keeporiginal-selected":
             inset = pane(frame)
             inset = inset.resize((round(inset.width * 0.8), round(inset.height * 0.8)), Image.LANCZOS)
             img.alpha_composite(inset, (x + 10, y + h - 52 - inset.height - 8))
             outlined(img, (x + 10, y + h - 52 - inset.height - 8, inset.width, inset.height))
-    save(img, "gallery-drop-modes.png")
+    save(img, "gallery-loot-styles.png")
 
 
 # ---------- settings ----------
@@ -318,14 +352,14 @@ def inspect(run):
 
 
 def main(argv):
-    if not argv or argv[0] not in ("scrap-tiers", "drop-modes", "settings", "inspect"):
+    if not argv or argv[0] not in ("scrap-tiers", "loot-styles", "settings", "inspect"):
         sys.exit(__doc__)
     cmd, rest = argv[0], argv[1:]
-    run = Path(rest[0]) if rest else (INSPECT_RUN if cmd == "inspect" else CLIPS_RUN)
+    run = Path(rest[0]) if rest else (INSPECT_RUN if cmd == "inspect" else PROMO_RUN if cmd == "loot-styles" else CLIPS_RUN)
     if cmd == "scrap-tiers":
         scrap_tiers()
-    elif cmd == "drop-modes":
-        drop_modes(run)
+    elif cmd == "loot-styles":
+        loot_styles(run)
     elif cmd == "settings":
         settings(Path(rest[0]) if rest else WORK / "settings-frame.png")
     else:

@@ -1,6 +1,6 @@
 # 04: Gallery: drop modes
 
-Status: ready-for-agent
+Status: wontfix
 
 **Recommended model:** `sonnet`: crops ticket 01's stills into panels with the existing framing helpers.
 
@@ -34,3 +34,7 @@ Each panel carries a settings chip with the mode's in-game label and a one-line 
 - Chips read "Drop mode: <label>" with the labels from the English Keyed file; the switch is on for the three active modes and off for Off. The keep-original panel carries a 0.8x crop of the game's inspect pane with the unfamiliar line.
 - Judgment call: the four stills are four different filmed pirates (each mode has its own staged area), so pose, clothes and the position of the club vary slightly. The gear outcomes differ as intended. A single-pirate re-film would need the batch to switch modes on one scene.
 - Checked: viewed at full size and at 640 px; each panel's outcome reads (scrap block, wood and leather scrap, autopistol with selection bracket, autopistol loose).
+
+### 2026-11-25: superseded
+
+- 0.6.0 removed drop mode; ticket 11 replaced this image with `gallery-loot-styles.png`.

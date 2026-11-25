@@ -1,6 +1,6 @@
 # 11: Replace the drop-modes gallery image
 
-Status: needs-info
+Status: resolved
 
 **Recommended model:** `opus`: film direction and a public image.
 
@@ -18,8 +18,21 @@ One of:
 
 Recommended: C if the promo run's stills frame well, since it needs no new filming; otherwise A for this upload and B later.
 
+**Chosen (2026-11-25): C.**
+
 ## Acceptance
 
-- [ ] Kyle's choice recorded here.
-- [ ] No gallery image or spec line refers to drop mode.
-- [ ] Any new image follows the spec's rules for every image and was opened and checked at reduced size.
+- [x] Kyle's choice recorded here.
+- [x] No gallery image or spec line refers to drop mode.
+- [x] Any new image follows the spec's rules for every image and was opened and checked at reduced size.
+
+## Comments
+
+### 2026-11-25: rendered from the promo run
+
+- `python tools/workshop_gallery.py loot-styles` writes `docs/images/workshop/gallery-loot-styles.png` (1920x1080) and replaces `gallery-drop-modes.png`, which is removed. `drop_modes()` became `loot_styles()`.
+- Source run: `20261123-004719-lootscavenging-promo-clips-s1`. Stills are cut at each `drop-X-dead` mark + 1.8 s (`drop-keeporiginal-selected` for the unfamiliar panel) and cropped in frame pixels, since the run has no `layout.json`.
+- The footage was filmed under 0.5.2 drop modes. Chips name the 0.6.0 setting that gives the same result, as `ModHarness.ApplyStyle` maps them: "Only gear beyond the colony's reach" on and off, "Hostile pawns: Mark unfamiliar", and "Weapons, Apparel: Vanilla".
+- A centred chip shows the Hostiles "Don't drop your stuff" box off, since it defaults on in 0.6.0 and a dead raider would otherwise drop nothing.
+- As in ticket 04, the four warriors are different pawns, so pose and clothes vary slightly.
+- Checked: viewed at full size and at 640 px; each outcome reads (scrap block and whole club, wood and leather scrap, selected autopistol with its unfamiliar line, autopistol and club loose).
