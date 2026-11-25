@@ -101,7 +101,7 @@ public sealed class WorkshopClipsBatch : Batch
         ModHarness.SaveSettings();
         Settings.Apply(Presets.Apply(PresetId.Progression, Settings.Capture()));
         Settings.activePreset = PresetId.Progression;
-        ctx.Setup($"Developer applied the Progression preset: downed {Rules.downedGear}, drop mode {Rules.dropMode}, sort when arrested {Rules.sortWhenArrested}, sort when stripped {Rules.sortWhenStripped}, loot at death {Settings.values.deathDrop}");
+        ctx.Setup($"Developer applied the Progression preset: hostiles keep their gear {Settings.values.hostilesKeepGear}, weapons {Rules.weapons.outcome} (beyond reach only {Rules.weapons.onlyBeyondReach}), hostile row {Rules.whoHostile}");
 
         var tribe = Tribe ?? throw new SetupException("no hostile neolithic faction in this world");
         var neolithic = Scrap(ScrapTier.Neolithic);
@@ -154,7 +154,8 @@ public sealed class WorkshopClipsBatch : Batch
 
         // ----- Drop modes: four tribal warriors in a row, each with a club and an autopistol in his pack -----
         var dropArea = Kit.Area(ctx, 34, 7);
-        var dropModes = new[] { DropMode.ScrapOutOfReach, DropMode.ScrapEverything, DropMode.KeepOriginal, DropMode.Off };
+        // The four drop modes of 0.5.2, as rows and category rules.
+        var dropModes = new[] { ModHarness.LootStyle.ScrapOutOfReach, ModHarness.LootStyle.ScrapEverything, ModHarness.LootStyle.KeepOriginal, ModHarness.LootStyle.Off };
         var dropCells = dropModes.Select((m, i) => new IntVec3(dropArea.minX + 4 + i * 8, 0, dropArea.minZ + 3)).ToList();
 
         // ----- Inspect: neolithic and spacer scrap side by side -----
@@ -340,8 +341,8 @@ public sealed class WorkshopClipsBatch : Batch
             Gone(researcher);
 
             // ----- On the body -----
-            Settings.values.deathDrop = DeathDrop.AllOnBody;
-            ctx.Setup("Developer set loot at death to everything stays on the body");
+            Settings.values.hostilesKeepGear = true;
+            ctx.Setup("Developer ticked \"Hostiles keep their gear\", so everything stays on the body");
             // Spawned now: a hostile pawn standing there through the earlier shots would go for the colonist.
             var victim = Spawn(ctx, Mercenary, Pirates, bodyCell);
             Dress(victim, tribal, QualityCategory.Normal);
@@ -398,12 +399,12 @@ public sealed class WorkshopClipsBatch : Batch
             // He steps off the pile so the spilled loot shows.
             stripper.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, new IntVec3(bodyCell.x + 4, 0, bodyCell.z + 1)));
             yield return Play(3.5, keep);
-            Settings.values.deathDrop = DeathDrop.Ground;
+            Settings.values.hostilesKeepGear = false;
             Gone(stripper);
 
             // ----- Downed, under the default: he keeps his weapon in hand and nothing falls -----
-            Rules.downedGear = DownedGear.KeepWeapon;
-            ctx.Setup("Developer set downed pawns back to the default, keep his weapon");
+            Settings.values.hostilesKeepGear = true;
+            ctx.Setup("Developer ticked \"Hostiles keep their gear\" again, the default, so a downed pawn keeps his weapon");
             var raider = Spawn(ctx, Mercenary, Pirates, downedCell);
             Dress(raider, Kit.Def("Apparel_CollarShirt"), QualityCategory.Normal);
             Dress(raider, Kit.Def("Apparel_Pants"), QualityCategory.Normal);
@@ -436,13 +437,14 @@ public sealed class WorkshopClipsBatch : Batch
             Find.Selector.ClearSelection();
             holdSelection = true;
             Gone(raider);
-            Rules.downedGear = DownedGear.DropWeapon;
+            // The drop-mode stills show what lands beside the body.
+            Settings.values.hostilesKeepGear = false;
 
             // ----- Drop-mode stills (paused) -----
             Find.TickManager.CurTimeSpeed = TimeSpeed.Paused;
             for (int i = 0; i < dropModes.Length; i++)
             {
-                Rules.dropMode = dropModes[i];
+                ModHarness.ApplyStyle(Rules, dropModes[i]);
                 Unfamiliar.ResetCache();
                 var cell = dropCells[i];
                 var w = Spawn(ctx, DefDatabase<PawnKindDef>.GetNamed("Tribal_Warrior"), tribe, cell);
@@ -464,7 +466,7 @@ public sealed class WorkshopClipsBatch : Batch
                 ctx.Setup($"Drop mode {dropModes[i]}: warrior killed at {cell}{(naked ? " (redressed)" : "")}; beside him: {Describe(near)}");
                 Shot("drop-" + dropModes[i].ToString().ToLowerInvariant(), cell.ToVector3Shifted() + new Vector3(0.5f, 0f, 0f), StillZoom);
                 var gun = near.FirstOrDefault(t => t.def.defName == "Gun_Autopistol");
-                if (dropModes[i] == DropMode.KeepOriginal && gun != null)
+                if (dropModes[i] == ModHarness.LootStyle.KeepOriginal && gun != null)
                 {
                     holdSelection = false;
                     Find.Selector.Select(gun, playSound: false, forceDesignatorDeselect: false);
@@ -474,7 +476,7 @@ public sealed class WorkshopClipsBatch : Batch
                 Find.Selector.ClearSelection();
                 dropShots++;
             }
-            Rules.dropMode = DropMode.ScrapOutOfReach;
+            ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.ScrapOutOfReach);
 
             // ----- Inspect stills (paused) -----
             holdSelection = false;

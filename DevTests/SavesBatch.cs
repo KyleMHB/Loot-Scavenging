@@ -71,11 +71,11 @@ public sealed class SavesBatch : Batch
         var map = ctx.Map;
         if (index == 0)
         {
-            ModHarness.SaveSettings(ModHarness.LootOnGround);
+            ModHarness.SaveSettings(ModHarness.GearDrops);
             var area = Kit.Area(ctx, 30, 12);
             yield return Wait.Ticks(1);
             MakeTribal(ctx);
-            Rules.dropMode = DropMode.KeepOriginal;
+            ModHarness.LootRows(Rules, WhoRule.Mark);
             Settings.values.unfamiliarScope = UnfamiliarScope.LootedOnly;
             Unfamiliar.ResetCache();
             var sites = Sites(area, 4);
@@ -87,7 +87,7 @@ public sealed class SavesBatch : Batch
             var unlooted = GenSpawn.Spawn(Make(rifleDef, QualityCategory.Normal), sites[1], map);
             var marker = ((ThingWithComps)looted).GetComp<CompUnfamiliar>()?.lootedEra ?? Era.Undefined;
             c.Observe("lootedEra", marker);
-            c.Step(!looted.Destroyed && looted.Spawned, "the pirate's charge rifle drops whole in keep-original mode");
+            c.Step(!looted.Destroyed && looted.Spawned, "the pirate's charge rifle drops whole under the Mark row");
             c.Step(marker == Era.Spacer && Unfamiliar.IsUnfamiliar(looted), "it carries the looted marker and is unfamiliar");
             var colonist = map.mapPawns.FreeColonistsSpawned.First();
             c.Step(!Unfamiliar.IsUnfamiliar(unlooted) && EquipmentUtility.CanEquip(unlooted, colonist), "an unlooted charge rifle is familiar and equippable in looted-only scope");
@@ -113,12 +113,15 @@ public sealed class SavesBatch : Batch
             // Ticket 23: a downed pirate holding his weapon when the game is saved. Loading spawns him again, and the game drops
             // a downed pawn's weapon when he spawns outside a bed.
             var down = ctx.Begin(DownedReload);
+            // The batch's baseline drops loot to the ground, for the death above; this case needs the default, hostiles keep
+            // their gear. It stays on through the reload: settings live in the process.
+            Settings.values.hostilesKeepGear = true;
             var raider = Spawn(ctx, Mercenary, Pirates, sites[0] + new IntVec3(0, 0, 4));
             var revolver = Arm(raider, Kit.Def("Gun_Revolver"), QualityCategory.Normal);
             HealthUtility.TryAnesthetize(raider);
             down.Subject(raider);
-            down.Note("Downed pawns keep their weapon (the default). A pirate holding a revolver is downed, then the game is saved and loaded");
-            down.Step(raider.Downed && raider.equipment.Primary == revolver && DownedGears.KeepsWeapon(Rules, OwnerGroup.Hostile, MapKind.Home),
+            down.Note("Hostiles keep their gear (the default). A pirate holding a revolver is downed, then the game is saved and loaded");
+            down.Step(raider.Downed && raider.equipment.Primary == revolver && Settings.values.KeepsGear(OwnerGroup.Hostile, true),
                 "before the save he is down holding his revolver, and the setting covers him");
             ctx.Remember("raider", raider.thingIDNumber.ToString());
             ctx.Remember("raiderGun", revolver.thingIDNumber.ToString());

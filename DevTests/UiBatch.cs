@@ -202,18 +202,18 @@ public sealed class UiBatch : Batch
             else
             {
                 var original = Presets.Config;
-                var locked = new SettingLocks(new[] { SettingNames.DropMode });
+                var locked = new SettingLocks(new[] { SettingNames.WhoHostile });
                 Presets.Configure(new PresetConfig(original.Progression, locked));
-                c.Note("The presets are configured with the drop mode locked (applied directly, as the settings batch does)");
+                c.Note("The presets are configured with the hostile Who row locked (applied directly, as the settings batch does)");
                 Settings.Apply(Presets.Apply(PresetId.Progression, Settings.Capture()));
                 Settings.activePreset = PresetId.Progression;
-                Rules.dropMode = DropMode.Off;
-                c.Note("Developer set the drop mode to Off behind the lock, as a widget that slipped past it would");
+                Rules.whoHostile = WhoRule.Exclude;
+                c.Note("Developer set the hostile row to Exclude behind the lock, as a widget that slipped past it would");
                 foreach (var w in Draw()) yield return w;
-                c.Observe("dropModeAfterDraw", Rules.dropMode).Observe("packDropMode", original.Progression.rules.dropMode);
+                c.Observe("whoHostileAfterDraw", Rules.whoHostile).Observe("packWhoHostile", original.Progression.rules.whoHostile);
                 c.Step(Drew("LootScavenging_LockedSummary".Translate()), "the page says some settings are locked by the modpack");
-                c.Step(Drew("LootScavenging_LockedReason".Translate()), "the locked drop mode row (a choice row, like the pack's locked disassembly yield) shows its reason");
-                c.Step(Rules.dropMode == original.Progression.rules.dropMode, "drawing the page put the locked drop mode back to the pack's value");
+                c.Step(Drew("LootScavenging_LockedReason".Translate()), "the locked hostile row (a choice row, like the pack's locked disassembly yield) shows its reason");
+                c.Step(Rules.whoHostile == original.Progression.rules.whoHostile, "drawing the page put the locked hostile row back to the pack's value");
                 Presets.Configure(original);
                 ModHarness.RestoreSettings();
                 c.Conclude();
@@ -301,10 +301,10 @@ public sealed class UiBatch : Batch
                 built.Add(("inspect." + tier, stack.GetInspectString()));
                 stack.Destroy();
             }
-            Rules.dropMode = DropMode.KeepOriginal;
+            ModHarness.LootRows(Rules, WhoRule.Mark);
             Unfamiliar.ResetCache();
             var rifle = GenSpawn.Spawn(ThingMaker.MakeThing(Kit.Def("Gun_ChargeRifle")), new IntVec3(area.minX + 32, 0, area.minZ + 7), map);
-            ctx.Setup("Developer set the drop mode to keep originals and spawned a charge rifle at the tribal colony");
+            ctx.Setup("Developer set the Who rows to Mark unfamiliar and spawned a charge rifle at the tribal colony");
             built.Add(("unfamiliarLabel", rifle.LabelNoCount));
             rifle.Destroy();
             ModHarness.RestoreSettings();

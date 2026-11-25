@@ -45,9 +45,68 @@ public sealed class ModHarness : HarnessSettings
         baseline?.Invoke(LootScavengingMod.Settings.values);
     }
 
-    // The cases written before 0.5.2 count loot on the ground at a death, the default then. The default is now everything
-    // on the body (ticket 24); the cases about where loot lands set it themselves.
-    public static void LootOnGround(SettingValues v) => v.deathDrop = DeathDrop.Ground;
+    // The cases written before 0.5.2 count loot on the ground at a death and a downing. The default is now that hostile and
+    // other non-colony pawns keep their gear (tickets 24 and 25); the cases about where loot lands set the boxes themselves.
+    public static void GearDrops(SettingValues v)
+    {
+        v.hostilesKeepGear = false;
+        v.nonHostilesKeepGear = false;
+    }
+
+    /// <summary>The three "Don't drop your stuff" boxes at once.</summary>
+    public static void KeepGear(SettingValues v, bool colonists, bool hostiles, bool nonHostiles)
+    {
+        v.colonistsKeepGear = colonists;
+        v.hostilesKeepGear = hostiles;
+        v.nonHostilesKeepGear = nonHostiles;
+    }
+
+    /// <summary>Sets the four Who rows for gear that drops (hostile, non-hostile, wild, prisoners); the joiner rows stay.</summary>
+    public static void LootRows(LootRules rules, WhoRule rule)
+    {
+        rules.whoHostile = rule;
+        rules.whoNonHostile = rule;
+        rules.whoWild = rule;
+        rules.whoPrisoners = rule;
+    }
+
+    /// <summary>Sets every Who row, the joiner rows included.</summary>
+    public static void AllRows(LootRules rules, WhoRule rule)
+    {
+        foreach (OwnerGroup group in LootRules.RowGroups)
+            rules.SetRow(group, rule);
+    }
+
+    /// <summary>Sets every category to one outcome, with no conditions.</summary>
+    public static void AllCategories(LootRules rules, Outcome outcome)
+    {
+        foreach (CategoryInfo category in ItemCategories.All)
+            rules.SetRule(category, new CategoryRule(outcome));
+    }
+
+    /// <summary>A category rule for an outcome, optionally only for items beyond the colony's reach.</summary>
+    public static CategoryRule Rule(Outcome outcome, bool onlyBeyondReach = false) =>
+        new CategoryRule(outcome) { onlyBeyondReach = onlyBeyondReach };
+
+    /// <summary>
+    /// The four drop modes of 0.5.2, as 0.6.0's rows and category rules express them, for the cases and clips that show
+    /// them side by side. Medicine and ammunition were left out of the old drop modes and keep their own rules.
+    /// </summary>
+    public enum LootStyle { ScrapOutOfReach, ScrapEverything, KeepOriginal, Off }
+
+    public static void ApplyStyle(LootRules rules, LootStyle style)
+    {
+        LootRows(rules, style == LootStyle.KeepOriginal ? WhoRule.Mark : WhoRule.Apply);
+        foreach (CategoryInfo category in ItemCategories.All)
+        {
+            bool gear = category.Category == ItemCategory.Weapon || category.Category == ItemCategory.Apparel;
+            bool ownRule = category.Category == ItemCategory.Medicine || category.Category == ItemCategory.Ammunition;
+            CategoryRule rule = style == LootStyle.ScrapEverything && !ownRule ? new CategoryRule(Outcome.Scrap)
+                : style == LootStyle.ScrapOutOfReach && gear ? CategoryRule.ScrapBeyondReach()
+                : new CategoryRule(Outcome.Keep);
+            rules.SetRule(category, rule);
+        }
+    }
 
     public static void RestoreSettings()
     {

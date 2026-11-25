@@ -17,7 +17,7 @@ public sealed class OutcomesBatch : Batch
     private const string P = "lootscavenging.outcomes.";
     private const string DeleteKeepsApparel = P + "delete-weapon-keep-apparel", Mech = P + "mechanoid-weapon", Fallback = P + "era-fallback",
         Amounts = P + "scrap-amounts-and-modes", Raid = P + "large-raid-piles", Quest = P + "quest-weapon-protected", Animal = P + "animal-corpse-removed",
-        Degrade = P + "degrade", ItemBased = P + "disassembly-item-based", EraTypical = P + "disassembly-era-typical", FullStacks = P + "disassembly-full-stacks",
+        ItemBased = P + "disassembly-item-based", EraTypical = P + "disassembly-era-typical", FullStacks = P + "disassembly-full-stacks",
         Charges = P + "ejected-charges", Ammo = P + "ammunition-drop-mode", Materials = P + "materials-stay-whole", ToolMaterials = P + "tool-materials-stay-whole", StackScrap = P + "stack-scrap-by-value", Sample = P + "recycle-sample", Pools = P + "tier-table", NoErrors = P + "no-mod-errors";
 
     public override string Id => "lootscavenging-outcomes";
@@ -28,17 +28,16 @@ public sealed class OutcomesBatch : Batch
     {
         new PlannedCase(DeleteKeepsApparel, Levels.Mechanical, "weapon rule Delete with drop mode Off: weapon gone, apparel stays on the corpse"),
         new PlannedCase(Mech, Levels.Mechanical, "a hostile mechanoid's weapon becomes scrap of its era near the corpse"),
-        new PlannedCase(Fallback, Levels.Mechanical, "gear with no research and no tech level follows each era fallback; components fallback disassembles it"),
-        new PlannedCase(Amounts, Levels.Mechanical, "stone knife and charge rifle amounts match the value-capped ScrapAmounts.Units; scrap everything scraps in-reach gear; Off keeps out-of-reach gear"),
+        new PlannedCase(Fallback, Levels.Mechanical, "gear with no research and no tech level takes its carrier's era"),
+        new PlannedCase(Amounts, Levels.Mechanical, "stone knife and charge rifle amounts match the value-capped ScrapAmounts.Units; a weapons rule of plain Scrap scraps in-reach gear; Keep keeps out-of-reach gear"),
         new PlannedCase(Raid, Levels.Mechanical, "ten pirates killed in a cluster leave fewer piles than bodies"),
         new PlannedCase(Quest, Levels.Mechanical, "a quest-tagged out-of-reach weapon stays whole"),
         new PlannedCase(Animal, Levels.Mechanical, "with animal corpse removal on, a wild hare's corpse is removed"),
-        new PlannedCase(Degrade, Levels.Mechanical, "degraded hit points lie in the range; quality drops one step only with the option"),
         new PlannedCase(ItemBased, Levels.Mechanical, "item-based yield is the cost list times efficiency (0.5 and 1.0), forbidden"),
-        new PlannedCase(EraTypical, Levels.Mechanical, "era-typical yield comes from the item's tier pool"),
+        new PlannedCase(EraTypical, Levels.Mechanical, "colony-era yield comes from the colony era's tier pool, not the item's"),
         new PlannedCase(FullStacks, Levels.Mechanical, "a yield above the stack limit arrives as full stacks with nothing lost"),
-        new PlannedCase(Charges, Levels.Mechanical, "a smokepop belt's chemfuel is ejected for scrap, delete and disassemble with the setting on, not with it off"),
-        new PlannedCase(Ammo, Levels.Mechanical, "out-of-reach ammunition drops whole by default; with dropIncludesAmmunition on, a stack becomes scrap rounded once per stack (needs an ammo mod)"),
+        new PlannedCase(Charges, Levels.Mechanical, "a smokepop belt's chemfuel is ejected for scrap, delete and disassemble"),
+        new PlannedCase(Ammo, Levels.Mechanical, "out-of-reach ammunition drops whole by default; with the ammunition rule on Scrap beyond reach, a stack becomes scrap rounded once per stack (needs an ammo mod)"),
         new PlannedCase(Materials, Levels.Mechanical, "a stack of devilstrand that a modded recipe puts behind unfinished spacer research drops whole, with steel and plasteel and no scrap, while the revolver still becomes scrap"),
         new PlannedCase(ToolMaterials, Levels.Mechanical, "wood, beer, thrumbo horns and tusks (melee tools, but not gear) are not gear; grenades and a revolver still are; wood behind the spacer recipe and carried horns drop whole"),
         new PlannedCase(StackScrap, Levels.Mechanical, "with the other-items rule on Scrap, 53 devilstrand or 50 cloth become StackUnits of the colony's tier, not one scrap per item; a lone revolver still gives Units"),
@@ -50,7 +49,7 @@ public sealed class OutcomesBatch : Batch
     public override IEnumerable<Wait> Segment(int index, BatchContext ctx)
     {
         long modErrorsAtStart = CaseErrors.ModMark;
-        ModHarness.SaveSettings(ModHarness.LootOnGround);
+        ModHarness.SaveSettings(ModHarness.GearDrops);
         var area = Kit.Area(ctx, 84, 22);
         yield return Wait.Ticks(1);
         var map = ctx.Map;
@@ -73,9 +72,9 @@ public sealed class OutcomesBatch : Batch
         {
             var c = ctx.Begin(DeleteKeepsApparel);
             ModHarness.RestoreSettings();
-            Rules.dropMode = DropMode.Off;
+            ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.Off);
             Rules.weapons = new CategoryRule(Outcome.Delete);
-            c.Note("Weapon rule set to Delete, drop mode Off");
+            c.Note("Weapon rule set to Delete, every other category to Keep");
             ThingWithComps gun = null;
             Apparel shirt = null;
             KillPirate(p => { gun = Arm(p, revolver, QualityCategory.Normal); shirt = Dress(p, Kit.Def("Apparel_CollarShirt"), QualityCategory.Normal); }, out var pirate);
@@ -108,52 +107,25 @@ public sealed class OutcomesBatch : Batch
             }
         }
 
-        // ---- 02/08: era fallback and the components fallback -----------------------------------------------------------------
+        // ---- 02/25: gear with no era takes its carrier's ------------------------------------------------------------------
         {
             var noEra = DefDatabase<ThingDef>.AllDefsListForReading.Where(d => EraReader.IsGear(d) && d.techLevel == TechLevel.Undefined && !d.IsCorpse
-                && EraReader.ItemEra(d, null, EraFallback.ColonyEra).Source == EraSource.ColonyFallback).ToList();
+                && EraReader.ItemEra(d, Pirates).Source == EraSource.CarrierFaction).ToList();
             if (noEra.Count == 0)
                 ctx.Begin(Fallback).NotApplicable("no loaded weapon or apparel has neither research nor a tech level");
             else
             {
                 var c = ctx.Begin(Fallback);
                 var def = noEra.FirstOrDefault(d => d.IsRangedWeapon || d.IsMeleeWeapon) ?? noEra[0];
-                var colony = EraReader.ItemEra(def, null, EraFallback.ColonyEra);
-                var components = EraReader.ItemEra(def, null, EraFallback.Components);
-                var carrier = EraReader.ItemEra(def, Pirates, EraFallback.CarrierFaction);
-                c.Observe("def", def.defName).Observe("candidates", noEra.Count).Observe("colonyFallback", colony.Era).Observe("componentsFallback", components.Source)
-                    .Observe("carrierFallback", carrier.Era + "/" + carrier.Source);
-                c.Step(colony.Era == EraReader.ColonyEra(), "the colony-era fallback gives the colony's era");
-                c.Step(components.BreakIntoComponents, "the components fallback marks it for components");
-                c.Step(carrier.Era == (Era)Pirates.def.techLevel, "the carrier fallback gives the pirates' era");
-                if (def.IsWeapon && def.equipmentType == EquipmentType.Primary)
-                {
-                    ModHarness.RestoreSettings();
-                    Settings.values.eraFallback = EraFallback.Components;
-                    ThingWithComps gun = null;
-                    int units = 0;
-                    var scrapDef = Scrap(ScrapTiers.TierFor(components.Era, EraReader.ColonyEra()));
-                    var before = Kit.StackIds(map, ThingDefOf.ComponentIndustrial);
-                    var beforeScrap = Kit.StackIds(map, scrapDef);
-                    float worth = 0f;
-                    var at = KillPirate(p => { gun = Arm(p, def, null); worth = gun.MarketValue; units = ExpectedScrapIn(gun, ScrapTiers.TierFor(components.Era, EraReader.ColonyEra())); }, out _);
-                    var comps = NewNear(map, ThingDefOf.ComponentIndustrial, before, at);
-                    var scrapMade = NewNear(map, scrapDef, beforeScrap, at);
-                    // Ticket 19: gear worth less than one component gives its capped scrap instead.
-                    bool cheap = worth < ThingDefOf.ComponentIndustrial.BaseMarketValue;
-                    int expectedComps = units < 1 || cheap ? 0 : Disassembly.ComponentsFor(units);
-                    int expectedScrap = units >= 1 && cheap ? units : 0;
-                    c.Expect("components", expectedComps).Observe("components", Units(comps)).Expect("scrap", expectedScrap).Observe("scrap", Units(scrapMade))
-                        .Observe("value", worth);
-                    c.Step(gun.Destroyed && Units(comps) == expectedComps && Units(scrapMade) == expectedScrap,
-                        $"with the components fallback a pirate's {def.label} breaks into {Units(comps)} components and {Units(scrapMade)} scrap");
-                }
-                else c.Note($"{def.defName} is not a primary weapon, so the components kill was not run");
+                var carrier = EraReader.ItemEra(def, Pirates);
+                c.Observe("def", def.defName).Observe("candidates", noEra.Count).Observe("carrierEra", carrier.Era + "/" + carrier.Source);
+                // The colony-era and components fallbacks were cut in 0.6.0 (ticket 25); the carrier's era is the only one left.
+                c.Step(carrier.Era == (Era)Pirates.def.techLevel, "a pirate's copy takes the pirates' era");
                 c.Conclude();
             }
         }
 
-        // ---- 03: amounts and drop modes ----------------------------------------------------------------------------------
+        // ---- 03: amounts and the weapons rule ----------------------------------------------------------------------------------
         {
             var c = ctx.Begin(Amounts);
             ModHarness.RestoreSettings();
@@ -167,7 +139,7 @@ public sealed class OutcomesBatch : Batch
             c.Expect("chargeRifleUnits", rifleUnits).Observe("chargeRifleUnits", Units(made));
             c.Step(rifle.Destroyed && Units(made) == rifleUnits, $"a charge rifle becomes {Units(made)} spacer scrap (expected {rifleUnits})");
 
-            Rules.dropMode = DropMode.ScrapEverything;
+            ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.ScrapEverything);
             var neolithic = Scrap(ScrapTier.Neolithic);
             var knifeDef = Kit.Def("MeleeWeapon_Knife");
             ThingWithComps knife = null;
@@ -183,13 +155,13 @@ public sealed class OutcomesBatch : Batch
             }, out _);
             made = NewNear(map, neolithic, before, at);
             c.Expect("stoneKnifeUnits", knifeUnits).Observe("stoneKnifeUnits", Units(made)).Observe("knifeInReach", inReach);
-            c.Step(inReach && knife.Destroyed && Units(made) == knifeUnits, $"with scrap everything an in-reach stone knife becomes {Units(made)} neolithic scrap (expected {knifeUnits})");
+            c.Step(inReach && knife.Destroyed && Units(made) == knifeUnits, $"with the weapons rule on plain Scrap an in-reach stone knife becomes {Units(made)} neolithic scrap (expected {knifeUnits})");
 
-            Rules.dropMode = DropMode.Off;
+            ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.Off);
             ThingWithComps kept = null;
             int scrapBefore = ScrapOnMap(map);
             KillPirate(p => kept = Arm(p, rifleDef, QualityCategory.Normal), out _);
-            c.Step(!kept.Destroyed && kept.Spawned && ScrapOnMap(map) == scrapBefore, "with drop mode Off an out-of-reach charge rifle drops whole");
+            c.Step(!kept.Destroyed && kept.Spawned && ScrapOnMap(map) == scrapBefore, "with the weapons rule on Keep an out-of-reach charge rifle drops whole");
             c.Conclude();
         }
 
@@ -237,36 +209,6 @@ public sealed class OutcomesBatch : Batch
             c.Conclude();
         }
 
-        // ---- 08: degrade -------------------------------------------------------------------------------------------------
-        {
-            var c = ctx.Begin(Degrade);
-            ModHarness.RestoreSettings();
-            Rules.dropMode = DropMode.Off;
-            Rules.weapons = new CategoryRule(Outcome.Degrade);
-            var guns = new List<ThingWithComps>();
-            var cell = sites.Dequeue();
-            for (int i = 0; i < 8; i++)
-            {
-                var p = Spawn(ctx, Mercenary, Pirates, cell + new IntVec3(i % 4, 0, i / 4));
-                guns.Add(Arm(p, revolver, QualityCategory.Normal));
-                p.Kill(null);
-            }
-            int max = guns[0].MaxHitPoints;
-            int lo = Math.Max(1, (int)Math.Round(max * Rules.degradeMin, MidpointRounding.AwayFromZero));
-            int hi = (int)Math.Round(max * Rules.degradeMax, MidpointRounding.AwayFromZero);
-            c.Expect("hitPoints", $"{lo}..{hi} of {max}").Observe("hitPoints", string.Join(",", guns.Select(g => g.HitPoints)));
-            c.Step(guns.All(g => !g.Destroyed && g.HitPoints >= lo && g.HitPoints <= hi), "eight degraded revolvers all land inside the range");
-            c.Step(guns.All(g => g.TryGetQuality(out var q) && q == QualityCategory.Normal), "and keep their quality with the option off");
-
-            Rules.degradeLowersQuality = true;
-            ThingWithComps lowered = null;
-            KillPirate(p => lowered = Arm(p, revolver, QualityCategory.Normal), out _);
-            lowered.TryGetQuality(out var after);
-            c.Observe("qualityWithOption", after);
-            c.Step(after == QualityCategory.Poor, "with the option on a normal revolver becomes poor");
-            c.Conclude();
-        }
-
         // ---- 08: item-based disassembly --------------------------------------------------------------------------------
         {
             var c = ctx.Begin(ItemBased);
@@ -275,7 +217,7 @@ public sealed class OutcomesBatch : Batch
             foreach (float efficiency in new[] { 0.5f, 1f })
             {
                 ModHarness.RestoreSettings();
-                Rules.dropMode = DropMode.Off;
+                ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.Off);
                 Rules.weapons = new CategoryRule(Outcome.Disassemble);
                 Rules.disassemblyYield = DisassemblyYield.ItemBased;
                 Rules.disassemblyEfficiency = efficiency;
@@ -296,14 +238,19 @@ public sealed class OutcomesBatch : Batch
             c.Conclude();
         }
 
-        // ---- 08: era-typical disassembly -------------------------------------------------------------------------------
+        // ---- 08/25: colony-era disassembly --------------------------------------------------------------------------------
         {
             var c = ctx.Begin(EraTypical);
             ModHarness.RestoreSettings();
-            Rules.dropMode = DropMode.Off;
+            ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.Off);
             Rules.weapons = new CategoryRule(Outcome.Disassemble);
             Rules.disassemblyYield = DisassemblyYield.EraTypical;
-            var pool = TierDef(ScrapTier.Industrial).pool.Select(e => e.thing).ToList();
+            // Since 0.6.0 the yield is the colony era's pool (ticket 25, decision 7): a tribal colony takes industrial revolvers
+            // apart into neolithic materials.
+            var colonyTier = ScrapTiers.TierFor(EraReader.ColonyEra(), EraReader.ColonyEra());
+            var pool = TierDef(colonyTier).pool.Select(e => e.thing).ToList();
+            var industrialOnly = TierDef(ScrapTier.Industrial).pool.Select(e => e.thing).Where(d => d != null && !pool.Contains(d)).ToList();
+            c.Observe("colonyTier", colonyTier).Observe("industrialOnly", string.Join(", ", industrialOnly.Select(d => d.defName)));
             // Every material any tier's pool can return, so a product from the wrong pool would show too.
             var befores = DefDatabase<ScrapTierDef>.AllDefsListForReading.SelectMany(t => t.pool).Select(e => e.thing).Where(d => d != null).Distinct()
                 .ToDictionary(d => d, d => Kit.StackIds(map, d));
@@ -315,7 +262,7 @@ public sealed class OutcomesBatch : Batch
             const int carried = 20;
             Rules.other = new CategoryRule(Outcome.Disassemble);
             var revolversBefore = Kit.StackIds(map, revolver);
-            var tierDef = TierDef(ScrapTier.Industrial);
+            var tierDef = TierDef(colonyTier);
             double totalWeight = tierDef.pool.Where(e => e.thing != null && e.weight > 0f && e.thing.BaseMarketValue > 0f).Sum(e => (double)e.weight);
             double emptyPerUnit = tierDef.pool.Where(e => e.thing != null && e.weight > 0f && e.thing.BaseMarketValue > 0f)
                 .Sum(e => e.weight / totalWeight * Math.Max(0.0, 1.0 - tierDef.valuePerUnit / e.thing.BaseMarketValue));
@@ -333,7 +280,8 @@ public sealed class OutcomesBatch : Batch
             int whole = NewNear(map, revolver, revolversBefore, at, 7f).Count + (pirate.Corpse?.InnerPawn?.inventory?.innerContainer.Count(t => t.def == revolver) ?? 0);
             c.Observe("products", Describe(made)).Observe("revolversLeft", whole);
             c.Step(whole == 0, $"all {carried + 1} revolvers are disassembled, none left whole");
-            c.Step(made.Count > 0 && made.All(t => pool.Contains(t.def)), "era-typical revolvers return only industrial pool materials");
+            c.Step(colonyTier == ScrapTier.Neolithic && industrialOnly.Count > 0, "the tribal colony's tier is neolithic, and its pool lacks some industrial materials");
+            c.Step(made.Count > 0 && made.All(t => pool.Contains(t.def)), $"industrial revolvers return only {colonyTier} pool materials ({Describe(made)})");
             c.Conclude();
         }
 
@@ -341,7 +289,7 @@ public sealed class OutcomesBatch : Batch
         {
             var c = ctx.Begin(FullStacks);
             ModHarness.RestoreSettings();
-            Rules.dropMode = DropMode.Off;
+            ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.Off);
             Rules.medicine = new CategoryRule(Outcome.Disassemble);
             Rules.disassemblyYield = DisassemblyYield.ItemBased;
             Rules.disassemblyEfficiency = 1f;
@@ -371,11 +319,10 @@ public sealed class OutcomesBatch : Batch
             var belt = Kit.Def("Apparel_SmokepopBelt");
             var chemfuel = ThingDefOf.Chemfuel;
             int costChemfuel = belt.CostList?.Where(x => x.thingDef == chemfuel).Sum(x => x.count) ?? 0;
-            int Run(string label, Action setup, bool eject, out bool destroyed)
+            int Run(string label, Action setup, out bool destroyed)
             {
                 ModHarness.RestoreSettings();
                 setup();
-                Rules.ejectCharges = eject;
                 var before = Kit.StackIds(map, chemfuel);
                 Apparel worn = null;
                 var at = KillPirate(p => worn = Dress(p, belt), out _);
@@ -384,24 +331,23 @@ public sealed class OutcomesBatch : Batch
                 c.Observe(label, got);
                 return got;
             }
-            int scrapOn = Run("scrapEjectOn", () => { }, true, out bool d1);
-            int scrapOff = Run("scrapEjectOff", () => { }, false, out bool d2);
-            int deleteOn = Run("deleteEjectOn", () => { Rules.dropMode = DropMode.Off; Rules.apparel = new CategoryRule(Outcome.Delete); }, true, out bool d3);
-            int deleteOff = Run("deleteEjectOff", () => { Rules.dropMode = DropMode.Off; Rules.apparel = new CategoryRule(Outcome.Delete); }, false, out bool d4);
-            int disOn = Run("disassembleEjectOn", () =>
+            // Charges are always ejected since 0.6.0 (ticket 25); the setting that turned it off is gone.
+            int scrapped = Run("scrapped", () => { }, out bool d1);
+            int deleted = Run("deleted", () => { ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.Off); Rules.apparel = new CategoryRule(Outcome.Delete); }, out bool d2);
+            int disassembled = Run("disassembled", () =>
             {
-                Rules.dropMode = DropMode.Off; Rules.apparel = new CategoryRule(Outcome.Disassemble);
+                ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.Off); Rules.apparel = new CategoryRule(Outcome.Disassemble);
                 Rules.disassemblyYield = DisassemblyYield.ItemBased; Rules.disassemblyEfficiency = 1f;
-            }, true, out bool d5);
+            }, out bool d3);
             c.Observe("beltCostChemfuel", costChemfuel);
-            c.Step(d1 && d2 && d3 && d4 && d5, "each belt is used up");
-            c.Step(scrapOn == 10 && scrapOff == 0, $"scrapped: 10 chemfuel ejected with the setting on ({scrapOn}), none off ({scrapOff})");
-            c.Step(deleteOn == 10 && deleteOff == 0, $"deleted: 10 ejected on ({deleteOn}), none off ({deleteOff})");
-            c.Step(disOn == 10 + costChemfuel, $"disassembled: 10 ejected plus {costChemfuel} from the cost list ({disOn})");
+            c.Step(d1 && d2 && d3, "each belt is used up");
+            c.Step(scrapped == 10, $"scrapped: 10 chemfuel ejected ({scrapped})");
+            c.Step(deleted == 10, $"deleted: 10 ejected ({deleted})");
+            c.Step(disassembled == 10 + costChemfuel, $"disassembled: 10 ejected plus {costChemfuel} from the cost list ({disassembled})");
             c.Conclude();
         }
 
-        // ---- ammunition and the drop mode ----------------------------------------------------------------------------------
+        // ---- ammunition and its rule ----------------------------------------------------------------------------------
         {
             // The mod recognises ammo by an item category with "Ammo" in its def name, up the category tree. Vanilla has none,
             // so this needs an ammo mod such as Progression: Ammunition (--mods compat-progression).
@@ -422,8 +368,7 @@ public sealed class OutcomesBatch : Batch
                 var ammoTier = ScrapTiers.TierFor(era.Era, EraReader.ColonyEra());
                 var tierDef = Scrap(ammoTier);
                 c.Observe("ammoDef", ammo.defName).Observe("ammoEra", era.Era).Observe("loadedAmmo", string.Join(", ", ammoDefs.Select(d => d.defName)));
-                c.Step(!Rules.dropIncludesAmmunition && Rules.dropMode == DropMode.ScrapOutOfReach,
-                    "by default the drop mode is out-of-reach and leaves ammunition out");
+                c.Step(Rules.ammunition.outcome == Outcome.Keep, "by default ammunition is kept");
 
                 var before = Kit.StackIds(map, ammo);
                 var scrapBefore = Kit.StackIds(map, tierDef);
@@ -432,8 +377,8 @@ public sealed class OutcomesBatch : Batch
                 c.Expect("ammoDroppedDefault", count).Observe("ammoDroppedDefault", whole).Observe("scrapDefault", scrapDefault);
                 c.Step(whole == count && scrapDefault == 0, $"a pirate's {count} {ammo.label} drop whole ({whole}), no scrap ({scrapDefault})");
 
-                Rules.dropIncludesAmmunition = true;
-                c.Note("The player turns on \"drop mode includes ammunition\"");
+                Rules.ammunition = CategoryRule.ScrapBeyondReach();
+                c.Note("The player sets ammunition to Scrap, only beyond reach");
                 var stack = Stack(ammo, count);
                 int expected = ExpectedScrapIn(stack, ammoTier);
                 int perItem = ScrapAmounts.Units(stack.MarketValue, count);

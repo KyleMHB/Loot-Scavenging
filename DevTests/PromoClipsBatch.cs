@@ -79,14 +79,17 @@ public sealed class PromoClipsBatch : Batch
         ModHarness.SaveSettings();
         Settings.Apply(Presets.Apply(PresetId.Progression, Settings.Capture()));
         Settings.activePreset = PresetId.Progression;
-        ctx.Setup($"Developer applied the Progression preset: drop mode {Rules.dropMode}, loot at death {Settings.values.deathDrop}");
+        // The drop scenes show what lands beside the body, as before ticket 24 made keeping it on the body the default.
+        ModHarness.GearDrops(Settings.values);
+        ctx.Setup("Developer applied the Progression preset and turned off the hostile and non-hostile keep-gear boxes, so loot lands beside the body");
 
         var tribe = Tribe ?? throw new SetupException("no hostile neolithic faction in this world");
         var tribal = Kit.Def("Apparel_TribalA");
 
         // Four drop-mode scenes along one strip, 16 cells apart, so no earlier body shows in a later shot (the camera shows about
         // 18 cells across). Separate Kit.Area calls returned the same empty area, since nothing was built on it yet.
-        var dropModes = new[] { DropMode.ScrapOutOfReach, DropMode.ScrapEverything, DropMode.KeepOriginal, DropMode.Off };
+        // The four drop modes of 0.5.2, as rows and category rules.
+        var dropModes = new[] { ModHarness.LootStyle.ScrapOutOfReach, ModHarness.LootStyle.ScrapEverything, ModHarness.LootStyle.KeepOriginal, ModHarness.LootStyle.Off };
         var strip = Kit.Area(ctx, 64, 9);
         var dropAreas = dropModes.Select((_, i) => new CellRect(strip.minX + i * 16, strip.minZ, 16, 9)).ToList();
 
@@ -126,7 +129,7 @@ public sealed class PromoClipsBatch : Batch
             // ----- Drop modes: he stands a beat, dies, and what he carried lands -----
             for (int i = 0; i < dropModes.Length; i++)
             {
-                Rules.dropMode = dropModes[i];
+                ModHarness.ApplyStyle(Rules, dropModes[i]);
                 Unfamiliar.ResetCache();
                 var cell = dropAreas[i].CenterCell;
                 var w = Spawn(ctx, DefDatabase<PawnKindDef>.GetNamed("Tribal_Warrior"), tribe, cell);
@@ -155,7 +158,7 @@ public sealed class PromoClipsBatch : Batch
                 drops.Add($"{dropModes[i]}: {Describe(near)}");
                 ctx.Setup($"Drop mode {dropModes[i]}: warrior killed at {at}; beside him: {Describe(near)}");
                 var gun = near.FirstOrDefault(t => t.def.defName == "Gun_Autopistol");
-                if (dropModes[i] == DropMode.KeepOriginal && gun != null)
+                if (dropModes[i] == ModHarness.LootStyle.KeepOriginal && gun != null)
                 {
                     yield return Play(0.8, keep);
                     holdSelection = false;
@@ -168,7 +171,7 @@ public sealed class PromoClipsBatch : Batch
                 }
                 else yield return Play(2.5, keep);
             }
-            Rules.dropMode = DropMode.ScrapOutOfReach;
+            ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.ScrapOutOfReach);
 
             // ----- Settings: the page under each preset, switched the way its buttons do it -----
             Find.TickManager.CurTimeSpeed = TimeSpeed.Paused;

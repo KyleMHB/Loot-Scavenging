@@ -18,18 +18,18 @@ namespace LootScavenging.DevTests;
 public sealed class MomentsBatch : Batch
 {
     private const string P = "lootscavenging.moments.";
-    private const string DownStripOn = P + "downed-and-strip-on", DownStripOff = P + "downed-and-strip-off", Prisoner = P + "prisoner-strip",
-        OnBody = P + "scrap-on-body", OnBodyRemoved = P + "scrap-on-body-corpse-removed", OffMap = P + "off-map-death",
+    private const string DownStripOn = P + "downed-and-strip-on", ExcludeRow = P + "exclude-row-leaves-gear", Prisoner = P + "prisoner-strip",
+        MarkRow = P + "mark-row-keeps-gear-unfamiliar", KeepBoxes = P + "keep-gear-boxes", OffMap = P + "off-map-death",
         AllOnBody = P + "all-on-body", AllOnBodyDisassembled = P + "all-on-body-disassembled", AllOnBodyRemoved = P + "all-on-body-corpse-removed",
-        AllOnBodySkips = P + "all-on-body-skips", AllOnBodyDowned = P + "all-on-body-downed",
-        Butcher = P + "butchering-removes-apparel", HomeOnly = P + "home-map-only", NoErrors = P + "no-mod-errors",
+        AllOnBodySkips = P + "all-on-body-skips", DownedPack = P + "downed-box-off-drops-pack",
+        Butcher = P + "butchering-sorts-gear", HomeOnly = P + "home-map-only", NoErrors = P + "no-mod-errors",
         JudgedOnce = P + "downed-then-killed-judged-once", LockedApparel = P + "locked-apparel-at-death",
         FormerColonist = P + "former-colonist-keeps-gear", ProtectedFamiliar = P + "protected-never-unfamiliar",
         Arrest = P + "arrest-standing", Recruit = P + "recruit-downed-raider", Manipulation = P + "lost-manipulation",
         DropCallsOnce = P + "drop-calls-judged-once", KeepsWeapon = P + "downed-keeps-weapon-in-hand",
         Carried = P + "downed-carried-keeps-weapon", Rescued = P + "downed-rescued-keeps-weapon", CapturedGround = P + "downed-captured-weapon-sorted",
         CapturedInBed = P + "downed-in-bed-captured-weapon-sorted", HospitalityGuest = P + "hospitality-downed-guest",
-        JoinMark = P + "joiner-marked-unfamiliar", JoinLeave = P + "joiner-left-alone", JoinFollow = P + "joiner-follows-drop-mode",
+        JoinMark = P + "joiner-marked-unfamiliar", JoinLeave = P + "joiner-left-alone", JoinFollow = P + "joiner-apply-row",
         JoinPrisonerRules = P + "joiner-prisoner-setting", JoinProtected = P + "joiner-protected-never-marked", JoinFormer = P + "joiner-former-colonist-untouched",
         ColonistRescued = P + "colonist-downed-rescued-keeps-gear", ColonistKilled = P + "colonist-killed-keeps-gear", ColonistToggleOff = P + "colonist-gear-toggle-off",
         VisitorDropped = P + "visitor-drop-weapon-sorted";
@@ -40,42 +40,42 @@ public sealed class MomentsBatch : Batch
 
     public override IReadOnlyList<PlannedCase> Plan => new[]
     {
-        new PlannedCase(DownStripOn, Levels.Mechanical, "with downed pawns dropping the weapon, downing scraps an out-of-reach weapon and stripping scraps out-of-reach apparel"),
-        new PlannedCase(DownStripOff, Levels.Mechanical, "with downed pawns dropping the weapon and sorting when stripped off, downing still scraps the weapon and the strip drops the vest whole"),
+        new PlannedCase(DownStripOn, Levels.Mechanical, "with the hostiles box off, downing scraps an out-of-reach weapon and stripping scraps out-of-reach apparel"),
+        new PlannedCase(ExcludeRow, Levels.Mechanical, "with the hostiles box off and the Hostile row set to Exclude, downing drops the out-of-reach revolver whole and the strip drops the vest whole"),
+        new PlannedCase(MarkRow, Levels.Mechanical, "with the Hostile row set to Mark (looted gear only), a killed pirate's out-of-reach revolver and vest drop whole and are unfamiliar; a revolver nobody carried is not"),
+        new PlannedCase(KeepBoxes, Levels.Mechanical, "each \"Don't drop your stuff\" box, on and off: a downed pirate or visitor keeps his club in hand or drops it, and at death it stays in his corpse or lands beside it; the other box changes nothing"),
         new PlannedCase(Prisoner, Levels.Mechanical, "stripping a living colony prisoner scraps out-of-reach apparel"),
-        new PlannedCase(Arrest, Levels.Mechanical, "arresting a standing pirate scraps his out-of-reach revolver, also with sorting when stripped off; with sorting when arrested off it drops whole"),
+        new PlannedCase(Arrest, Levels.Mechanical, "arresting a standing pirate scraps his out-of-reach revolver; with the loot rows set to Exclude it drops whole"),
         new PlannedCase(Recruit, Levels.Mechanical, "recruiting (and, with Ideology, enslaving) a downed, captured raider scraps his out-of-reach flak vest"),
         new PlannedCase(Manipulation, Levels.Mechanical, "a standing pirate who loses both arms has his out-of-reach revolver scrapped, not dropped whole"),
-        new PlannedCase(DropCallsOnce, Levels.Mechanical, "a Degrade weapon rule judges the weapon once at death, downing then death (kept in hand, and dropped, each also with everything on the body), downing then capture, arrest and strip"),
-        new PlannedCase(KeepsWeapon, Levels.Mechanical, "a downed pirate keeps his out-of-reach revolver whole in hand and his medicine, nothing on the ground; a strip, a capture or his death scraps it, with stripping off a strip drops it whole, and he gets up still holding it"),
-        new PlannedCase(Carried, Levels.PlayerWorkflow, "a drafted colonist carries a downed pirate and is undrafted, which sets him down, twice: he keeps his out-of-reach revolver in hand, nothing lands, and he gets up holding it"),
-        new PlannedCase(Rescued, Levels.PlayerWorkflow, "a colonist rescues a downed visitor from a friendly faction into a medical bed: he keeps his out-of-reach revolver in hand and nothing is scrapped"),
-        new PlannedCase(CapturedGround, Levels.PlayerWorkflow, "a colonist captures a downed pirate into a prison bed: the arrest scraps his out-of-reach revolver"),
+        new PlannedCase(DropCallsOnce, Levels.Mechanical, "a weapon is judged once at death (box on and off), downing then death (kept in hand with the box on, dropped with it off), downing then capture, arrest and strip"),
+        new PlannedCase(KeepsWeapon, Levels.Mechanical, "with the hostiles box on, a downed pirate keeps his out-of-reach revolver whole in hand and his medicine, nothing on the ground; a strip, a capture or his death scraps it, and he gets up still holding it"),
+        new PlannedCase(Carried, Levels.PlayerWorkflow, "with the hostiles box on, a drafted colonist carries a downed pirate and is undrafted, which sets him down, twice: he keeps his out-of-reach revolver in hand, nothing lands, and he gets up holding it"),
+        new PlannedCase(Rescued, Levels.PlayerWorkflow, "with the non-hostiles box on, a colonist rescues a downed visitor from a friendly faction into a medical bed: he keeps his out-of-reach revolver in hand and nothing is scrapped"),
+        new PlannedCase(CapturedGround, Levels.PlayerWorkflow, "with the hostiles box on, a colonist captures a downed pirate into a prison bed: the arrest scraps his out-of-reach revolver"),
         new PlannedCase(CapturedInBed, Levels.PlayerWorkflow, "a colonist captures the rescued visitor from his medical bed into a prison bed: the arrest scraps his out-of-reach revolver"),
-        new PlannedCase(HospitalityGuest, Levels.PlayerWorkflow, "with Hospitality (--mods compat-hospitality): a downed friendly visitor keeps his revolver in hand and is rescued into a bed holding it; with downed pawns dropping the weapon his out-of-reach revolver drops as scrap; no error is logged"),
-        new PlannedCase(ColonistRescued, Levels.PlayerWorkflow, "with downed pawns dropping the weapon, a downed colonist keeps his out-of-reach revolver and medicine, is rescued into a medical bed holding it, still holds it when set down again, and gets up holding it; nothing is scrapped"),
-        new PlannedCase(ColonistKilled, Levels.Mechanical, "with loot on the ground at death, a killed colonist keeps his out-of-reach revolver and medicine in the corpse, whole; nothing lands"),
-        new PlannedCase(ColonistToggleOff, Levels.Mechanical, "with colonists keeping their gear off and downed pawns dropping the weapon, a downed colonist and a killed one drop the revolver whole"),
-        new PlannedCase(VisitorDropped, Levels.Mechanical, "with downed pawns dropping the weapon and friendly factions on, a downed visitor's out-of-reach revolver drops as scrap"),
-        new PlannedCase(JoinMark, Levels.Mechanical, "a wanderer joins in out-of-reach armour and a revolver and keeps them; both are unfamiliar in the scrap drop mode and in Off, even off him; a revolver in his pack is marked and his medicine is not"),
-        new PlannedCase(JoinLeave, Levels.Mechanical, "with joiner gear left alone, a wanderer's vest carries no mark"),
-        new PlannedCase(JoinFollow, Levels.Mechanical, "a wanderer, a recruited prisoner and (with Ideology) an enslaved one have vest, revolver and a pack revolver scrapped once and their medicine kept, with arrest and strip sorting off"),
-        new PlannedCase(JoinPrisonerRules, Levels.Mechanical, "a recruit follows the prisoner setting, not the other one: marked or left alone"),
+        new PlannedCase(HospitalityGuest, Levels.PlayerWorkflow, "with Hospitality (--mods compat-hospitality): with the non-hostiles box on, a downed friendly visitor keeps his revolver in hand and is rescued into a bed holding it; with it off his out-of-reach revolver drops as scrap; no error is logged"),
+        new PlannedCase(ColonistRescued, Levels.PlayerWorkflow, "with the other boxes off, a downed colonist keeps his out-of-reach revolver and medicine, is rescued into a medical bed holding it, still holds it when set down again, and gets up holding it; nothing is scrapped"),
+        new PlannedCase(ColonistKilled, Levels.Mechanical, "with the other boxes on and off, a killed colonist keeps his out-of-reach revolver and medicine in the corpse, whole; nothing lands"),
+        new PlannedCase(ColonistToggleOff, Levels.Mechanical, "with the colonists box off, a downed colonist and a killed one drop the revolver whole"),
+        new PlannedCase(VisitorDropped, Levels.Mechanical, "with the non-hostiles box off, a downed visitor's out-of-reach revolver drops as scrap"),
+        new PlannedCase(JoinMark, Levels.Mechanical, "a wanderer joins in out-of-reach armour and a revolver and keeps them; both are unfamiliar under the default rules and with every category on Keep, even off him; a revolver in his pack is marked and his medicine is not"),
+        new PlannedCase(JoinLeave, Levels.Mechanical, "with the Other joiners row set to Exclude, a wanderer's vest carries no mark"),
+        new PlannedCase(JoinFollow, Levels.Mechanical, "a wanderer, a recruited prisoner and (with Ideology) an enslaved one have vest, revolver and a pack revolver scrapped once and their medicine kept, under joiner rows set to Apply"),
+        new PlannedCase(JoinPrisonerRules, Levels.Mechanical, "a recruit follows the Recruited prisoners row, not Other joiners: Mark or Exclude"),
         new PlannedCase(JoinProtected, Levels.Mechanical, "a quest-tagged vest on a joiner is never marked or scrapped"),
         new PlannedCase(JoinFormer, Levels.Mechanical, "a former colonist rejoining keeps his vest unmarked and unsorted"),
-        new PlannedCase(OnBody, Levels.Mechanical, "scrap left on the body is in the corpse; stripping it drops the scrap"),
-        new PlannedCase(OnBodyRemoved, Levels.Mechanical, "with corpse removal on, scrap left on the body lands on the ground"),
-        new PlannedCase(AllOnBody, Levels.Mechanical, "everything on the body: scrap, ejected charges and inventory stay in the corpse; stripping drops them"),
-        new PlannedCase(AllOnBodyDisassembled, Levels.Mechanical, "everything on the body: disassembly products stay in the corpse"),
-        new PlannedCase(AllOnBodyRemoved, Levels.Mechanical, "everything on the body with corpse removal on: the loot lands on the ground"),
-        new PlannedCase(AllOnBodySkips, Levels.Mechanical, "everything on the body, colonists keeping their gear off: a colonist's gear and a mechanoid's scrap drop as usual"),
-        new PlannedCase(AllOnBodyDowned, Levels.Mechanical, "everything on the body, downed pawns dropping the weapon: the death setting does not apply at a downing, so a downed pirate's in-reach club drops whole, his carried revolver as scrap and his silver beside him, with arrest and strip sorting on and off"),
-        new PlannedCase(JudgedOnce, Levels.Mechanical, "everything on the body, downed pawns dropping the weapon: a club kept and dropped at a downing is not judged again when the pirate dies"),
+        new PlannedCase(AllOnBody, Levels.Mechanical, "hostiles box on: scrap, ejected charges and inventory stay in the corpse; stripping drops them"),
+        new PlannedCase(AllOnBodyDisassembled, Levels.Mechanical, "hostiles box on: disassembly products stay in the corpse"),
+        new PlannedCase(AllOnBodyRemoved, Levels.Mechanical, "hostiles box on with corpse removal on: the loot lands on the ground"),
+        new PlannedCase(AllOnBodySkips, Levels.Mechanical, "hostiles box on, colonists box off: a colonist's gear and a mechanoid's scrap drop as usual"),
+        new PlannedCase(DownedPack, Levels.Mechanical, "hostiles box off: a downed pirate's in-reach club drops whole, his carried revolver as scrap and his silver beside him"),
+        new PlannedCase(JudgedOnce, Levels.Mechanical, "hostiles box off: a club kept and dropped at a downing is not judged again when the pirate dies"),
         new PlannedCase(LockedApparel, Levels.Mechanical, "a pirate's locked out-of-reach vest is scrapped at death"),
-        new PlannedCase(FormerColonist, Levels.Mechanical, "with downed pawns dropping the weapon, a colonist who ran wild (no faction) keeps an out-of-reach revolver whole when downed"),
-        new PlannedCase(ProtectedFamiliar, Levels.Mechanical, "keep-original mode: a keep-listed (and, with Royalty, a persona) out-of-reach weapon is never unfamiliar"),
+        new PlannedCase(FormerColonist, Levels.Mechanical, "with the boxes off, a colonist who ran wild (no faction) keeps an out-of-reach revolver whole when downed"),
+        new PlannedCase(ProtectedFamiliar, Levels.Mechanical, "loot rows set to Mark: a keep-listed (and, with Royalty, a persona) out-of-reach weapon is never unfamiliar"),
         new PlannedCase(OffMap, Levels.Mechanical, "a world pawn's death (no map, no corpse) logs no error"),
-        new PlannedCase(Butcher, Levels.PlayerWorkflow, "a butcher bill destroys worn apparel with the option on and drops it with the option off"),
+        new PlannedCase(Butcher, Levels.PlayerWorkflow, "a butcher bill strips a pirate's corpse and sorts its out-of-reach shirt into scrap; with the Hostile row set to Exclude the game's own butchering drops it whole"),
         new PlannedCase(HomeOnly, Levels.Mechanical, "home-map-only leaves gear whole on an away map; off, it is scrapped there"),
         new PlannedCase(NoErrors, Levels.Mechanical, "no error naming the mod logged during the batch"),
     };
@@ -116,7 +116,7 @@ public sealed class MomentsBatch : Batch
     public override IEnumerable<Wait> Segment(int index, BatchContext ctx)
     {
         long modErrorsAtStart = CaseErrors.ModMark;
-        ModHarness.SaveSettings(ModHarness.LootOnGround);
+        ModHarness.SaveSettings(ModHarness.GearDrops);
         // The sites take an 80x14 area; the ward for the carry, rescue and capture cases goes in the first clear 30x10 beside
         // it. The dlcs map has no clear 80x24 near its centre, so the ward cannot always sit on top.
         var area = Kit.Area(ctx, 80, 14);
@@ -131,14 +131,17 @@ public sealed class MomentsBatch : Batch
         var vest = Kit.Def("Apparel_FlakVest");
         var industrial = Scrap(ScrapTier.Industrial);
 
-        // ---- 01: downed and strip on, then off ---------------------------------------------------------------------------
-        // Ticket 24: under DropWeapon a downing always sorts the weapon; only the strip follows its toggle.
+        // ---- 01: downed and stripped, under the Hostile row's Apply, then Exclude -----------------------------------------
+        // Ticket 24: with the box off a downing drops and sorts the weapon. Ticket 25: an Exclude row leaves the gear to the game.
         foreach (bool on in new[] { true, false })
         {
-            var c = ctx.Begin(on ? DownStripOn : DownStripOff);
+            var c = ctx.Begin(on ? DownStripOn : ExcludeRow);
             ModHarness.RestoreSettings();
-            Rules.sortWhenStripped = on;
-            Rules.downedGear = DownedGear.DropWeapon;
+            if (!on)
+            {
+                Rules.whoHostile = WhoRule.Exclude;
+                c.Note("The player sets the Hostile row to Exclude");
+            }
             var cell = sites.Dequeue();
             var p = Spawn(ctx, Mercenary, Pirates, cell);
             var gun = Arm(p, revolver, QualityCategory.Normal);
@@ -149,9 +152,10 @@ public sealed class MomentsBatch : Batch
             int Near() => map.listerThings.ThingsOfDef(industrial).Where(t => t.Spawned && t.Position.DistanceTo(cell) <= 5f).Sum(t => t.stackCount);
             int start = Near();
             HealthUtility.TryAnesthetize(p);
-            if (!Kit.Require(ctx, on ? DownStripOn : DownStripOff, (p.Downed && !p.Dead, "the pirate is downed and alive"))) continue;
+            if (!Kit.Require(ctx, on ? DownStripOn : ExcludeRow, (p.Downed && !p.Dead, "the pirate is downed and alive"))) continue;
             int afterDown = Near() - start;
-            c.Step(gun.Destroyed && afterDown > 0, $"downing turns the revolver into scrap ({afterDown} units)");
+            if (on) c.Step(gun.Destroyed && afterDown > 0, $"downing turns the revolver into scrap ({afterDown} units)");
+            else c.Step(!gun.Destroyed && gun.Spawned && afterDown == 0, "downing drops the revolver whole");
             c.Step(p.apparel.Contains(worn), "the vest stays on while downed");
             start = Near();
             p.Strip();
@@ -160,6 +164,104 @@ public sealed class MomentsBatch : Batch
             else c.Step(!worn.Destroyed && worn.Spawned && afterStrip == 0, "stripping drops the vest whole");
             c.Conclude();
             p.Destroy();
+            if (gun.Spawned) gun.Destroy();
+            if (worn.Spawned) worn.Destroy();
+        }
+
+        // ---- 25: a Mark row keeps gear whole and unfamiliar ------------------------------------------------------------
+        {
+            var c = ctx.Begin(MarkRow);
+            ModHarness.RestoreSettings();
+            Rules.whoHostile = WhoRule.Mark;
+            // Looted gear only, so the mark the row gives at the drop shows: a revolver that never dropped from anyone has none.
+            Settings.values.unfamiliarScope = UnfamiliarScope.LootedOnly;
+            Unfamiliar.ResetCache();
+            c.Note("The player sets the Hostile row to Mark and unfamiliar gear to looted gear only; a pirate with a revolver and a flak vest is killed");
+            var cell = sites.Dequeue();
+            var p = Spawn(ctx, Mercenary, Pirates, cell);
+            var gun = Arm(p, revolver, QualityCategory.Normal);
+            var worn = Dress(p, vest, QualityCategory.Normal);
+            var control = (ThingWithComps)GenSpawn.Spawn(Make(revolver, QualityCategory.Normal), cell + new IntVec3(2, 0, 2), map);
+            c.Subject(p);
+            c.Step(EraReader.ItemEra(revolver, Pirates).OutOfReach && EraReader.ItemEra(vest, Pirates).OutOfReach, "the revolver and flak vest are out of reach");
+            var before = AllScrap.ToDictionary(d => d, d => Kit.StackIds(map, d));
+            p.Kill(null);
+            p.Corpse?.Strip();
+            Unfamiliar.ResetCache();
+            int scrap = AllScrap.Sum(d => Units(NewNear(map, d, before[d], cell)));
+            c.Observe("revolver", gun.Destroyed ? "destroyed" : gun.Spawned ? "on ground" : "elsewhere").Observe("vest", worn.Destroyed ? "destroyed" : worn.Spawned ? "on ground" : "elsewhere")
+                .Observe("scrap", scrap).Observe("revolverUnfamiliar", Unfamiliar.IsUnfamiliar(gun)).Observe("vestUnfamiliar", Unfamiliar.IsUnfamiliar(worn));
+            c.Step(!gun.Destroyed && gun.Spawned && !worn.Destroyed && worn.Spawned && scrap == 0, "the revolver and vest drop whole and nothing is scrapped");
+            c.Step(Unfamiliar.IsUnfamiliar(gun) && Unfamiliar.IsUnfamiliar(worn), "both are unfamiliar");
+            c.Step(!Unfamiliar.IsUnfamiliar(control), "a revolver nobody carried is not");
+            c.Conclude();
+            p.Corpse?.Destroy();
+            foreach (var t in new Thing[] { gun, worn, control }) if (t.Spawned) t.Destroy();
+            Unfamiliar.ResetCache();
+        }
+
+        // ---- 25: the "Don't drop your stuff" boxes for hostiles and everyone else ---------------------------------------
+        // An in-reach club is kept by the rules, so only the box decides where it goes. Each round flips the two boxes the
+        // opposite ways, so a pawn the other box would cover shows it changes nothing for him.
+        {
+            var c = ctx.Begin(KeepBoxes);
+            var club = Kit.Def("MeleeWeapon_Club");
+            var friendlyFaction = Find.FactionManager.AllFactionsListForReading.FirstOrDefault(f => !f.IsPlayer && !f.Hidden && !f.temporary
+                && f.def.humanlikeFaction && !f.def.permanentEnemy && !f.HostileTo(Faction.OfPlayer));
+            if (friendlyFaction == null) c.Note("The world has no faction friendly to the colony; only the pirate runs");
+            bool ready = true;
+            var cell = sites.Dequeue();
+            foreach (bool hostilesKeep in new[] { true, false })
+            {
+                foreach (var faction in new[] { Pirates, friendlyFaction }.Where(f => f != null))
+                {
+                    ModHarness.RestoreSettings();
+                    ModHarness.KeepGear(Settings.values, true, hostilesKeep, !hostilesKeep);
+                    bool hostile = faction.HostileTo(Faction.OfPlayer);
+                    bool keeps = hostile ? hostilesKeep : !hostilesKeep;
+                    string tag = $"{(hostile ? "pirate" : "visitor")}, hostiles box {(hostilesKeep ? "on" : "off")}, non-hostiles box {(hostilesKeep ? "off" : "on")}";
+                    var kind = hostile ? Mercenary : faction.def.basicMemberKind ?? PawnKindDefOf.Villager;
+                    var p = Spawn(ctx, kind, faction, cell);
+                    var held = Arm(p, club, QualityCategory.Normal);
+                    c.Subject(p);
+                    if (EraReader.ItemEra(club, faction).OutOfReach)
+                    {
+                        c.SetupFailed($"the club is out of reach for {faction.Name}");
+                        ready = false;
+                        p.Destroy();
+                        break;
+                    }
+                    HealthUtility.TryAnesthetize(p);
+                    if (!Kit.Require(ctx, KeepBoxes, (p.Downed && !p.Dead && p.Spawned, "the pawn is downed and alive")))
+                    {
+                        ready = false;
+                        p.Destroy();
+                        break;
+                    }
+                    yield return Wait.Ticks(60);
+                    bool inHand = p.equipment.Primary == held && !held.Spawned && !held.Destroyed;
+                    bool onGround = held.Spawned;
+                    c.Observe(tag + ": downing", inHand ? "in hand" : onGround ? "on ground" : held.Destroyed ? "destroyed" : "elsewhere");
+                    if (keeps) c.Step(inHand, $"{tag}: downed, he keeps the club in hand");
+                    else c.Step(onGround && p.equipment.Primary == null, $"{tag}: downed, he drops the club whole");
+                    // Back in hand for the death, so the box decides there too.
+                    if (onGround)
+                    {
+                        held.DeSpawn();
+                        p.equipment.AddEquipment(held);
+                    }
+                    p.Kill(null);
+                    bool inCorpse = p.Corpse?.InnerPawn?.inventory?.innerContainer.Contains(held) ?? false;
+                    c.Observe(tag + ": death", inCorpse ? "in corpse" : held.Spawned ? "on ground" : held.Destroyed ? "destroyed" : "elsewhere");
+                    if (keeps) c.Step(inCorpse && !held.Spawned, $"{tag}: at death the club stays in his corpse");
+                    else c.Step(!inCorpse && held.Spawned && !held.Destroyed, $"{tag}: at death the club lands whole beside him");
+                    p.Corpse?.Destroy();
+                    if (!p.Destroyed) p.Destroy();
+                    if (held.Spawned) held.Destroy();
+                }
+                if (!ready) break;
+            }
+            if (ready) c.Conclude();
         }
 
         // ---- 01: living prisoner strip -----------------------------------------------------------------------------------
@@ -186,12 +288,12 @@ public sealed class MomentsBatch : Batch
         // The game's arrest path (Pawn_GuestTracker.SetGuestStatus) drops the weapon and pack through DropAndForbidEverything.
         {
             var c = ctx.Begin(Arrest);
-            foreach (var (on, strip) in new[] { (true, true), (true, false), (false, true) })
+            // An arrest is always sorted now (ticket 25); the Who rows decide. Exclude on every loot row leaves it to the game.
+            foreach (bool on in new[] { true, false })
             {
                 ModHarness.RestoreSettings();
-                Rules.sortWhenArrested = on;
-                Rules.sortWhenStripped = strip;
-                string tag = (on ? "On" : "Off") + (strip ? "" : "StripOff");
+                if (!on) ModHarness.LootRows(Rules, WhoRule.Exclude);
+                string tag = on ? "Apply" : "Exclude";
                 var cell = sites.Dequeue();
                 var p = Spawn(ctx, Mercenary, Pirates, cell);
                 var gun = Arm(p, revolver, QualityCategory.Normal);
@@ -208,6 +310,7 @@ public sealed class MomentsBatch : Batch
                 else c.Step(!gun.Destroyed && gun.Spawned && made == 0, $"{tag}: the revolver drops whole");
                 c.Step(silverOut == 30, $"{tag}: the carried silver drops untouched ({silverOut})");
                 p.Destroy();
+                if (gun.Spawned) gun.Destroy();
             }
             c.Conclude();
         }
@@ -296,16 +399,15 @@ public sealed class MomentsBatch : Batch
                 try
                 {
                     var cell = sites.Dequeue();
-                    // Kept in hand, a downed pawn's weapon is not judged at the downing; dropped, it is judged then. With everything
-                    // on the body a dropped-way weapon is judged at the downing and kept in hand, and death must not judge it again.
-                    foreach (string way in new[] { "death", "downed then death", "downed then capture", "dropped: downed then death",
-                        "on body: downed then death", "dropped, on body: downed then death", "arrest", "strip" })
+                    // Under the hostiles box ("kept") a downed pawn's weapon is not judged at the downing, and at death it is judged
+                    // once and stays on the body; with the box off ("dropped") it is judged at the downing and not again at death.
+                    // The in-reach club is kept by the default rules, so it survives every way and its count is the only change.
+                    foreach (string way in new[] { "kept: death", "dropped: death", "kept: downed then death", "kept: downed then capture",
+                        "dropped: downed then death", "arrest", "strip" })
                     {
                         ModHarness.RestoreSettings();
-                        Settings.values.deathDrop = way.Contains("on body") ? DeathDrop.AllOnBody : DeathDrop.Ground;
-                        Rules.weapons = new CategoryRule(Outcome.Degrade);
                         bool dropped = way.StartsWith("dropped");
-                        if (dropped) Rules.downedGear = DownedGear.DropWeapon;
+                        if (!dropped) Settings.values.hostilesKeepGear = true;
                         int expectedAtDowning = dropped ? 1 : 0;
                         var p = Spawn(ctx, Mercenary, Pirates, cell);
                         var weapon = Arm(p, club, QualityCategory.Normal);
@@ -313,16 +415,17 @@ public sealed class MomentsBatch : Batch
                         int downed = -1;
                         switch (way)
                         {
-                            case "death": p.Kill(null); break;
-                            case "downed then death":
+                            case "kept: death":
+                            case "dropped: death":
+                                p.Kill(null);
+                                break;
+                            case "kept: downed then death":
                             case "dropped: downed then death":
-                            case "on body: downed then death":
-                            case "dropped, on body: downed then death":
                                 HealthUtility.TryAnesthetize(p);
                                 downed = judged.TryGetValue(weapon, out int n) ? n : 0;
                                 p.Kill(null);
                                 break;
-                            case "downed then capture":
+                            case "kept: downed then capture":
                                 HealthUtility.TryAnesthetize(p);
                                 downed = judged.TryGetValue(weapon, out int m) ? m : 0;
                                 p.guest.SetGuestStatus(Faction.OfPlayer, GuestStatus.Prisoner);
@@ -334,7 +437,7 @@ public sealed class MomentsBatch : Batch
                         c.Observe(way, times);
                         if (downed >= 0) c.Observe("atDowning", downed);
                         c.Step(times == 1 && (downed < 0 || downed == expectedAtDowning), $"{way}: the club is judged once ({times}{(downed >= 0 ? $", {downed} at the downing, expected {expectedAtDowning}" : "")})");
-                        c.Step(!weapon.Destroyed && weapon.HitPoints < weapon.MaxHitPoints, $"{way}: the club is degraded ({weapon.HitPoints}/{weapon.MaxHitPoints}), not destroyed");
+                        c.Step(!weapon.Destroyed, $"{way}: the in-reach club is kept whole");
                         p.Corpse?.Destroy();
                         if (!p.Destroyed) p.Destroy();
                         if (weapon.Spawned) weapon.Destroy();
@@ -345,48 +448,7 @@ public sealed class MomentsBatch : Batch
             }
         }
 
-        // ---- 03/10: scrap on the body ------------------------------------------------------------------------------------
-        {
-            var c = ctx.Begin(OnBody);
-            ModHarness.RestoreSettings();
-            Settings.values.deathDrop = DeathDrop.ScrapOnBody;
-            var cell = sites.Dequeue();
-            var p = Spawn(ctx, Mercenary, Pirates, cell);
-            var gun = Arm(p, revolver, QualityCategory.Normal);
-            int expected = ExpectedScrap(gun, Pirates);
-            var before = Kit.StackIds(map, industrial);
-            p.Kill(null);
-            var corpse = p.Corpse;
-            int inCorpse = corpse?.InnerPawn?.inventory?.innerContainer.Where(t => t.def == industrial).Sum(t => t.stackCount) ?? 0;
-            int onGround = Units(NewNear(map, industrial, before, cell));
-            c.Expect("inCorpse", expected).Observe("inCorpse", inCorpse).Observe("onGroundAtDeath", onGround);
-            c.Step(gun.Destroyed && inCorpse == expected && onGround == 0, $"the scrap ({inCorpse}) stays in the corpse's inventory");
-            before = Kit.StackIds(map, industrial);
-            corpse?.Strip();
-            int dropped = Units(NewNear(map, industrial, before, cell));
-            c.Observe("droppedByStrip", dropped);
-            c.Step(dropped == expected, "stripping the corpse drops it");
-            c.Conclude();
-        }
-        {
-            var c = ctx.Begin(OnBodyRemoved);
-            ModHarness.RestoreSettings();
-            Settings.values.deathDrop = DeathDrop.ScrapOnBody;
-            Settings.values.corpses.humanlike = true;
-            var cell = sites.Dequeue();
-            var p = Spawn(ctx, Mercenary, Pirates, cell);
-            var gun = Arm(p, revolver, QualityCategory.Normal);
-            int expected = ExpectedScrap(gun, Pirates);
-            var before = Kit.StackIds(map, industrial);
-            p.Kill(null);
-            int onGround = Units(NewNear(map, industrial, before, cell));
-            c.Expect("onGround", expected).Observe("onGround", onGround);
-            c.Step(p.Corpse == null || p.Corpse.Destroyed, "the corpse is removed");
-            c.Step(onGround == expected, "the scrap it carried lies on the ground");
-            c.Conclude();
-        }
-
-        // ---- 03/08/10: everything stays on the body ----------------------------------------------------------------------
+        // ---- 03/08/10: the hostiles box keeps everything on the body ---------------------------------------------------
         var silver = ThingDefOf.Silver;
         var chemfuel = ThingDefOf.Chemfuel;
         int InCorpse(Pawn dead, ThingDef def) =>
@@ -394,8 +456,7 @@ public sealed class MomentsBatch : Batch
         {
             var c = ctx.Begin(AllOnBody);
             ModHarness.RestoreSettings();
-            Settings.values.deathDrop = DeathDrop.AllOnBody;
-            Rules.ejectCharges = true;
+            Settings.values.hostilesKeepGear = true;
             var cell = sites.Dequeue();
             var p = Spawn(ctx, Mercenary, Pirates, cell);
             var gun = Arm(p, revolver, QualityCategory.Normal);
@@ -426,8 +487,8 @@ public sealed class MomentsBatch : Batch
         {
             var c = ctx.Begin(AllOnBodyDisassembled);
             ModHarness.RestoreSettings();
-            Settings.values.deathDrop = DeathDrop.AllOnBody;
-            Rules.dropMode = DropMode.Off;
+            Settings.values.hostilesKeepGear = true;
+            ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.Off);
             Rules.weapons = new CategoryRule(Outcome.Disassemble);
             Rules.disassemblyYield = DisassemblyYield.ItemBased;
             Rules.disassemblyEfficiency = 1f;
@@ -450,7 +511,7 @@ public sealed class MomentsBatch : Batch
         {
             var c = ctx.Begin(AllOnBodyRemoved);
             ModHarness.RestoreSettings();
-            Settings.values.deathDrop = DeathDrop.AllOnBody;
+            Settings.values.hostilesKeepGear = true;
             Settings.values.corpses.humanlike = true;
             var cell = sites.Dequeue();
             var p = Spawn(ctx, Mercenary, Pirates, cell);
@@ -470,7 +531,7 @@ public sealed class MomentsBatch : Batch
         {
             var c = ctx.Begin(AllOnBodySkips);
             ModHarness.RestoreSettings();
-            Settings.values.deathDrop = DeathDrop.AllOnBody;
+            Settings.values.hostilesKeepGear = true;
             // With colonists keeping their gear on (the default), the colonist's gear stays in his corpse: ColonistKilled.
             Settings.values.colonistsKeepGear = false;
             c.Note("Colonists keep their gear: off");
@@ -480,12 +541,11 @@ public sealed class MomentsBatch : Batch
             colonist.Kill(null);
             c.Step(!ownGun.Destroyed && ownGun.Spawned && InCorpse(colonist, revolver) == 0, "a colonist's revolver drops whole on the ground, not into the corpse");
 
-            // The wreck cannot be stripped, so scrap left in it would be stuck: both on-body options drop it as usual.
+            // The wreck cannot be stripped, so scrap left in it would be stuck: the box never holds a mechanoid's gear.
             cell = sites.Dequeue();
             bool ready = true;
-            foreach (var mode in new[] { DeathDrop.AllOnBody, DeathDrop.ScrapOnBody })
+            foreach (var mode in new[] { "hostilesBoxOn" })
             {
-                Settings.values.deathDrop = mode;
                 var mech = PawnGenerator.GeneratePawn(new PawnGenerationRequest(DefDatabase<PawnKindDef>.GetNamed("Mech_Lancer"), Faction.OfMechanoids, forceGenerateNewPawn: true));
                 GenSpawn.Spawn(mech, cell, map);
                 var weapon = mech.equipment?.Primary;
@@ -511,19 +571,14 @@ public sealed class MomentsBatch : Batch
             if (ready) c.Conclude();
         }
 
-        // ---- the death setting does not apply at a downing (ticket 24) -------------------------------------------------------
+        // ---- with the hostiles box off a downed pawn drops his pack (ticket 24, ticket 25) ------------------------------
         {
-            var c = ctx.Begin(AllOnBodyDowned);
+            var c = ctx.Begin(DownedPack);
             var club = Kit.Def("MeleeWeapon_Club");
             bool ready = true;
-            foreach (bool toggles in new[] { true, false })
+            foreach (string tag in new[] { "BoxOff" })
             {
                 ModHarness.RestoreSettings();
-                Settings.values.deathDrop = DeathDrop.AllOnBody;
-                Rules.sortWhenArrested = toggles;
-                Rules.sortWhenStripped = toggles;
-                Rules.downedGear = DownedGear.DropWeapon;
-                string tag = toggles ? "On" : "Off";
                 var cell = sites.Dequeue();
                 var p = Spawn(ctx, Mercenary, Pirates, cell);
                 var held = Arm(p, club, QualityCategory.Normal);
@@ -531,14 +586,14 @@ public sealed class MomentsBatch : Batch
                 p.inventory.innerContainer.TryAdd(carried);
                 p.inventory.innerContainer.TryAdd(Stack(silver, 50));
                 c.Subject(p);
-                c.Note($"Everything stays on the body at death; downed pawns drop the weapon; sorting when arrested and stripped {(toggles ? "on" : "off")}. A pirate with a club in hand and a revolver and 50 silver in his pack is downed");
+                c.Note("Hostiles box off. A pirate with a club in hand and a revolver and 50 silver in his pack is downed");
                 c.Step(!EraReader.ItemEra(club, Pirates).OutOfReach && EraReader.ItemEra(revolver, Pirates).OutOfReach,
                     "the club is in reach of the tribal colony and the revolver is not");
                 int expectedScrap = ExpectedScrap(carried, Pirates);
                 var before = AllScrap.Concat(new[] { silver, club, revolver }).ToDictionary(d => d, d => Kit.StackIds(map, d));
                 int Ground(ThingDef def) => Units(NewNear(map, def, before[def], cell));
                 HealthUtility.TryAnesthetize(p);
-                if (!Kit.Require(ctx, AllOnBodyDowned, (p.Downed && !p.Dead && p.Spawned, "the pirate is downed and alive")))
+                if (!Kit.Require(ctx, DownedPack, (p.Downed && !p.Dead && p.Spawned, "the pirate is downed and alive")))
                 {
                     ready = false;
                     break;
@@ -565,8 +620,6 @@ public sealed class MomentsBatch : Batch
         {
             var c = ctx.Begin(JudgedOnce);
             ModHarness.RestoreSettings();
-            Settings.values.deathDrop = DeathDrop.AllOnBody;
-            Rules.downedGear = DownedGear.DropWeapon;
             Rules.weapons.outcome = Outcome.Keep;
             Rules.other.outcome = Outcome.Delete;
             Rules.other.chance = 1f;
@@ -575,7 +628,7 @@ public sealed class MomentsBatch : Batch
             var p = Spawn(ctx, Mercenary, Pirates, cell);
             var held = Arm(p, club, QualityCategory.Normal);
             c.Subject(p);
-            c.Note("Everything on the body, downed pawns drop the weapon, weapons Keep, other inventory Delete. A pirate holding a club is downed, then killed");
+            c.Note("Hostiles box off, weapons Keep, other inventory Delete. A pirate holding a club is downed, then killed");
             c.Step(!EraReader.ItemEra(club, Pirates).OutOfReach, "the club is in reach of the tribal colony");
             HealthUtility.TryAnesthetize(p);
             if (Kit.Require(ctx, JudgedOnce, (p.Downed && !p.Dead, "the pirate is downed and alive")))
@@ -595,13 +648,12 @@ public sealed class MomentsBatch : Batch
         {
             var c = ctx.Begin(LockedApparel);
             ModHarness.RestoreSettings();
-            Settings.values.deathDrop = DeathDrop.Ground;
             var cell = sites.Dequeue();
             var p = Spawn(ctx, Mercenary, Pirates, cell);
             var worn = Dress(p, vest, QualityCategory.Normal);
             p.apparel.Lock(worn);
             c.Subject(p);
-            c.Note("Loot lands on the ground. A pirate wears a flak vest the game has locked on him, then dies");
+            c.Note("Hostiles box off. A pirate wears a flak vest the game has locked on him, then dies");
             c.Step(EraReader.ItemEra(vest, Pirates).OutOfReach && p.apparel.IsLocked(worn), "the vest is out of reach and locked");
             var before = Kit.StackIds(map, industrial);
             p.Kill(null);
@@ -616,7 +668,6 @@ public sealed class MomentsBatch : Batch
         {
             var c = ctx.Begin(FormerColonist);
             ModHarness.RestoreSettings();
-            Rules.downedGear = DownedGear.DropWeapon;
             var cell = sites.Dequeue();
             var p = Spawn(ctx, PawnKindDefOf.Colonist, Faction.OfPlayer, cell);
             var gun = Arm(p, revolver, QualityCategory.Normal);
@@ -627,8 +678,8 @@ public sealed class MomentsBatch : Batch
             p.SetFaction(null);
             ctx.Setup("Developer ran one 80-tick records update for the colonist and removed its faction (as a wild-man break does)");
             c.Subject(p);
-            c.Step(p.Faction == null && Rules.IsGroupOn(OwnerGroup.NoFaction) && EraReader.ItemEra(revolver, null).OutOfReach,
-                "he has no faction, the no-faction group is on and the revolver is out of reach");
+            c.Step(p.Faction == null && Rules.RowFor(OwnerGroup.NoFaction) != WhoRule.Exclude && EraReader.ItemEra(revolver, null).OutOfReach,
+                "he has no faction, the Wild row is not Exclude and the revolver is out of reach");
             HealthUtility.TryAnesthetize(p);
             if (Kit.Require(ctx, FormerColonist, (p.Downed && !p.Dead, "he is downed and alive")))
             {
@@ -650,11 +701,12 @@ public sealed class MomentsBatch : Batch
         {
             var c = ctx.Begin(ColonistKilled);
             var cell = sites.Dequeue();
-            c.Note("Colonists keep their gear (the default). A colonist with a revolver and 3 industrial medicine is killed under each death setting");
-            foreach (var drop in new[] { DeathDrop.Ground, DeathDrop.ScrapOnBody, DeathDrop.AllOnBody })
+            c.Note("Colonists keep their gear (the default). A colonist with a revolver and 3 industrial medicine is killed with the other two boxes off, then on");
+            foreach (bool others in new[] { false, true })
             {
                 ModHarness.RestoreSettings();
-                Settings.values.deathDrop = drop;
+                ModHarness.KeepGear(Settings.values, true, others, others);
+                string drop = others ? "other boxes on" : "other boxes off";
                 var p = Spawn(ctx, PawnKindDefOf.Colonist, Faction.OfPlayer, cell);
                 var gun = Arm(p, revolver, QualityCategory.Normal);
                 p.inventory.innerContainer.TryAdd(Stack(medicineDef, 3));
@@ -680,8 +732,7 @@ public sealed class MomentsBatch : Batch
             var c = ctx.Begin(ColonistToggleOff);
             ModHarness.RestoreSettings();
             Settings.values.colonistsKeepGear = false;
-            Rules.downedGear = DownedGear.DropWeapon;
-            c.Note("Colonists keep their gear: off; downed pawns drop the weapon; loot lands on the ground at death. One colonist with a revolver is downed, another is killed");
+            c.Note("All three boxes off. One colonist with a revolver is downed, another is killed");
             var cell = sites.Dequeue();
             bool ready = true;
             foreach (bool kill in new[] { false, true })
@@ -708,7 +759,7 @@ public sealed class MomentsBatch : Batch
             if (ready) c.Conclude();
         }
 
-        // ---- 24: under DropWeapon a downed visitor's gear is sorted --------------------------------------------------------
+        // ---- 24/25: with the non-hostiles box off a downed visitor's gear is sorted -----------------------------------------
         {
             var c = ctx.Begin(VisitorDropped);
             var visitorFaction = Find.FactionManager.AllFactionsListForReading.FirstOrDefault(f => !f.IsPlayer && !f.Hidden && !f.temporary
@@ -717,13 +768,11 @@ public sealed class MomentsBatch : Batch
             else
             {
                 ModHarness.RestoreSettings();
-                Rules.nonHostileFaction = true;
-                Rules.downedGear = DownedGear.DropWeapon;
                 var cell = sites.Dequeue();
                 var p = Spawn(ctx, visitorFaction.def.basicMemberKind ?? PawnKindDefOf.Villager, visitorFaction, cell);
                 var gun = Arm(p, revolver, QualityCategory.Normal);
                 c.Subject(p);
-                c.Note($"Downed pawns drop the weapon; friendly factions on. A visitor of {visitorFaction.Name} with a revolver is downed");
+                c.Note($"Non-hostiles box off. A visitor of {visitorFaction.Name} with a revolver is downed");
                 c.Step(EraReader.ItemEra(revolver, visitorFaction).OutOfReach, "the revolver is out of reach");
                 var before = Kit.StackIds(map, industrial);
                 HealthUtility.TryAnesthetize(p);
@@ -742,25 +791,23 @@ public sealed class MomentsBatch : Batch
 
         // ---- review 2026-11-24: protected items are never unfamiliar --------------------------------------------------
         // ---- 21/23: a downed pawn keeps his weapon in hand ------------------------------------------------------------------
-        // The default (ticket 23): nothing drops or is judged at the downing; the gear is sorted when he is stripped, captured
-        // or dies. Being carried and set down, rescued and captured through the game's own jobs follow this case.
+        // Under the hostiles box (tickets 23, 25): nothing drops or is judged at the downing; the gear is sorted when he is
+        // stripped, captured or dies, and at death what it makes stays in his corpse. Being carried and set down, rescued and captured through the game's own jobs follow this case.
         {
             var c = ctx.Begin(KeepsWeapon);
             bool ready = true;
             var cell = sites.Dequeue();
-            foreach (string way in new[] { "strip", "capture", "kill", "strip with stripping off", "gets up" })
+            foreach (string way in new[] { "strip", "capture", "kill", "gets up" })
             {
                 ModHarness.RestoreSettings();
-                Settings.values.deathDrop = DeathDrop.Ground;
-                bool stripOff = way == "strip with stripping off";
-                if (stripOff) Rules.sortWhenStripped = false;
+                Settings.values.hostilesKeepGear = true;
                 var p = Spawn(ctx, Mercenary, Pirates, cell);
                 var gun = Arm(p, revolver, QualityCategory.Normal);
                 var medicine = Stack(ThingDefOf.MedicineIndustrial, 3);
                 p.inventory.innerContainer.TryAdd(medicine);
                 c.Subject(p);
-                c.Note($"Downed pawns keep their weapon (the default); sorting when stripped {(stripOff ? "off" : "on")}. A pirate with a revolver and 3 industrial medicine in his pack is downed, then: {way}");
-                if (way == "strip") c.Step(EraReader.ItemEra(revolver, Pirates).OutOfReach && Rules.downedGear == DownedGear.KeepWeapon, "the revolver is out of reach and the downed setting is its default, keep his weapon");
+                c.Note($"Hostiles box on. A pirate with a revolver and 3 industrial medicine in his pack is downed, then: {way}");
+                if (way == "strip") c.Step(EraReader.ItemEra(revolver, Pirates).OutOfReach && Settings.values.hostilesKeepGear, "the revolver is out of reach and the hostiles box is on");
                 var before = Kit.StackIds(map, industrial);
                 var beforeGun = Kit.StackIds(map, revolver);
                 int Medicine() => p.inventory.innerContainer.Where(t => t.def == ThingDefOf.MedicineIndustrial).Sum(t => t.stackCount);
@@ -792,13 +839,13 @@ public sealed class MomentsBatch : Batch
                         break;
                     default: p.Strip(); break;
                 }
-                int made = Units(NewNear(map, industrial, before, cell)) + (p.Dead ? 0 : ScrapInPack() - packBefore);
+                // At death the box keeps the scrap in his corpse.
+                int made = Units(NewNear(map, industrial, before, cell)) + (p.Dead ? InCorpse(p, industrial) : ScrapInPack() - packBefore);
                 c.Observe(way + ": revolver", gun.Destroyed ? "destroyed" : gun.Spawned ? "on ground" : p.equipment?.Primary == gun ? "in hand" : "elsewhere")
                     .Observe(way + ": scrap", made);
                 if (way == "gets up")
                     c.Step(!p.Downed && !p.Dead && p.equipment.Primary == gun && !gun.Destroyed && made == 0 && Medicine() == 3,
                         $"{way}: he is up, still holding the whole revolver, with his medicine");
-                else if (stripOff) c.Step(!gun.Destroyed && gun.Spawned && made == 0, $"{way}: the strip drops the revolver whole");
                 else c.Step(gun.Destroyed && made == expected, $"{way}: the revolver becomes {made} industrial scrap (expected {expected})");
                 p.Corpse?.Destroy();
                 if (!p.Destroyed) p.Destroy();
@@ -811,7 +858,7 @@ public sealed class MomentsBatch : Batch
 
         // ---- 23: carried, rescued and captured through the game's own jobs ---------------------------------------------------
         // A colonist with only cleaning on is handed the player's orders: carry while drafted, rescue, capture. The game drops a
-        // downed pawn's weapon as he is set down outside a bed; under "Keep his weapon" the mod skips that drop.
+        // downed pawn's weapon as he is set down outside a bed; under his "Don't drop your stuff" box the mod skips that drop.
         if (new[] { Carried, Rescued, CapturedGround, CapturedInBed, HospitalityGuest, ColonistRescued }.Any(ctx.Selected))
         {
             IntVec3 W(int dx, int dz) => new IntVec3(ward.minX + dx, 0, ward.minZ + dz);
@@ -887,12 +934,13 @@ public sealed class MomentsBatch : Batch
                 else
                 {
                     ModHarness.RestoreSettings();
+                    Settings.values.hostilesKeepGear = true;
                     var armed = new ThingWithComps[1];
                     var p = Downed(ctx, Mercenary, Pirates, armed);
                     var gun = armed[0];
                     c.Subject(p, worker);
-                    c.Note("Downed pawns keep their weapon (the default). A pirate with a revolver and 3 industrial medicine is downed; a drafted colonist carries him and sets him down, twice");
-                    c.Step(p.Downed && DownedGears.KeepsWeapon(Rules, OwnerGroup.Hostile, MapKind.Home) && EraReader.ItemEra(revolver, Pirates).OutOfReach,
+                    c.Note("Hostiles box on. A pirate with a revolver and 3 industrial medicine is downed; a drafted colonist carries him and sets him down, twice");
+                    c.Step(p.Downed && Settings.values.KeepsGear(OwnerGroup.Hostile, true) && EraReader.ItemEra(revolver, Pirates).OutOfReach,
                         "he is down, the setting covers him and his revolver is out of reach");
                     int scrapBefore = Kit.CountOnMap(map, industrial);
                     var gunsBefore = Kit.StackIds(map, revolver);
@@ -963,13 +1011,13 @@ public sealed class MomentsBatch : Batch
                 else
                 {
                     ModHarness.RestoreSettings();
-                    Rules.nonHostileFaction = true;
+                    Settings.values.nonHostilesKeepGear = true;
                     var armed = new ThingWithComps[1];
                     var p = Downed(ctx, friendly.def.basicMemberKind ?? PawnKindDefOf.Villager, friendly, armed);
                     var gun = armed[0];
                     c.Subject(p, worker);
-                    c.Note($"Downed pawns keep their weapon; friendly factions on. A visitor of {friendly.Name} with a revolver and 3 industrial medicine is downed; a colonist rescues him into a medical bed");
-                    c.Step(p.Downed && p.equipment.Primary == gun && DownedGears.KeepsWeapon(Rules, OwnerGroup.NonHostileFaction, MapKind.Home) && EraReader.ItemEra(revolver, friendly).OutOfReach,
+                    c.Note($"Non-hostiles box on. A visitor of {friendly.Name} with a revolver and 3 industrial medicine is downed; a colonist rescues him into a medical bed");
+                    c.Step(p.Downed && p.equipment.Primary == gun && Settings.values.KeepsGear(OwnerGroup.NonHostileFaction, false) && EraReader.ItemEra(revolver, friendly).OutOfReach,
                         "he is down holding the revolver, the setting covers him and the revolver is out of reach");
                     int scrapBefore = Kit.CountOnMap(map, industrial);
                     var gunsBefore = Kit.StackIds(map, revolver);
@@ -1018,9 +1066,8 @@ public sealed class MomentsBatch : Batch
                     foreach (var keep in new[] { true, false })
                     {
                         ModHarness.RestoreSettings();
-                        Rules.nonHostileFaction = true;
-                        Rules.downedGear = keep ? DownedGear.KeepWeapon : DownedGear.DropWeapon;
-                        string label = keep ? "keep his weapon" : "drop the weapon";
+                        Settings.values.nonHostilesKeepGear = keep;
+                        string label = keep ? "box on" : "box off";
                         var armed = new ThingWithComps[1];
                         int scrapBefore = Kit.CountOnMap(map, industrial);
                         var gunsBefore = Kit.StackIds(map, revolver);
@@ -1043,7 +1090,7 @@ public sealed class MomentsBatch : Batch
                                 && !Kit.NewStacks(map, revolver, gunsBefore).Any(), $"{label}: rescued into a bed, he still holds it and nothing is scrapped or dropped");
                             worker.jobs.StopAll();
                         }
-                        // Ticket 24: under DropWeapon the mod drops a covered pawn's gear itself when Hospitality skips the drop.
+                        // Ticket 24: with the box off the mod drops a covered pawn's gear itself when Hospitality skips the drop.
                         else c.Step(gun.Destroyed && Kit.CountOnMap(map, industrial) > scrapBefore, $"{label}: at the downing the out-of-reach revolver drops as scrap");
                         if (!p.Destroyed) p.Destroy();
                         if (!gun.Destroyed) gun.Destroy();
@@ -1063,14 +1110,13 @@ public sealed class MomentsBatch : Batch
                 else
                 {
                     ModHarness.RestoreSettings();
-                    Rules.downedGear = DownedGear.DropWeapon;
                     var armed = new ThingWithComps[1];
                     int scrapBefore = Kit.CountOnMap(map, industrial);
                     var gunsBefore = Kit.StackIds(map, revolver);
                     var p = Downed(ctx, PawnKindDefOf.Colonist, Faction.OfPlayer, armed);
                     var gun = armed[0];
                     c.Subject(p, worker);
-                    c.Note("Colonists keep their gear (the default); downed pawns drop the weapon. A colonist with a revolver and 3 industrial medicine is downed, "
+                    c.Note("Colonists keep their gear (the default), the other boxes off. A colonist with a revolver and 3 industrial medicine is downed, "
                         + "rescued into a medical bed by another colonist, then despawned and spawned again outside the bed (as a carry or a load sets him down)");
                     yield return Wait.Ticks(30, KeepDown(p));
                     int Scrap() => Kit.CountOnMap(map, industrial) - scrapBefore;
@@ -1123,7 +1169,7 @@ public sealed class MomentsBatch : Batch
                 var p = rescued;
                 var gun = rescuedGun;
                 ModHarness.RestoreSettings();
-                Rules.nonHostileFaction = true;
+                Settings.values.nonHostilesKeepGear = true;
                 c.Subject(p, worker);
                 c.Note("The rescued visitor, still holding his revolver in the medical bed, is captured into a prison bed");
                 int expected = ScrapAmounts.Units(gun.MarketValue, 1);
@@ -1202,12 +1248,12 @@ public sealed class MomentsBatch : Batch
         {
             var c = ctx.Begin(ProtectedFamiliar);
             ModHarness.RestoreSettings();
-            Rules.dropMode = DropMode.KeepOriginal;
+            ModHarness.LootRows(Rules, WhoRule.Mark);
             Settings.values.unfamiliarScope = UnfamiliarScope.AllOutOfReach;
             Unfamiliar.ResetCache();
             var cell = sites.Dequeue();
             var rifle = (ThingWithComps)GenSpawn.Spawn(Make(Kit.Def("Gun_ChargeRifle"), QualityCategory.Normal), cell, map);
-            c.Note("Keep-original mode, all out-of-reach gear. A charge rifle lies on the map");
+            c.Note("Loot rows set to Mark, all out-of-reach gear. A charge rifle lies on the map");
             bool before = Unfamiliar.IsUnfamiliar(rifle);
             Rules.keepList.Add(rifle.def.defName);
             bool listed = Unfamiliar.IsUnfamiliar(rifle);
@@ -1236,9 +1282,7 @@ public sealed class MomentsBatch : Batch
         {
             var c = ctx.Begin(JoinMark);
             ModHarness.RestoreSettings();
-            Rules.dropMode = DropMode.ScrapOutOfReach;
-            Rules.prisonerJoinGear = JoinerGear.FollowDropMode;
-            Rules.otherJoinGear = JoinerGear.MarkUnfamiliar;
+            Rules.whoOtherJoiners = WhoRule.Mark;
             var club = Kit.Def("MeleeWeapon_Club");
             var p = Spawn(ctx, Mercenary, null, sharedCell);
             var worn = Dress(p, vest, QualityCategory.Normal);
@@ -1255,7 +1299,7 @@ public sealed class MomentsBatch : Batch
             c.Observe("vest", worn.Destroyed ? "destroyed" : p.apparel.Contains(worn) ? "worn" : "elsewhere")
                 .Observe("revolver", gun.Destroyed ? "destroyed" : p.equipment.Contains(gun) ? "held" : "elsewhere");
             c.Step(p.Faction == Faction.OfPlayer && p.apparel.Contains(worn) && p.equipment.Contains(gun), "he joins the colony still wearing the vest and holding the revolver");
-            c.Step(Unfamiliar.IsUnfamiliar(worn) && Unfamiliar.IsUnfamiliar(gun), "both are unfamiliar although the drop mode is scrap out-of-reach");
+            c.Step(Unfamiliar.IsUnfamiliar(worn) && Unfamiliar.IsUnfamiliar(gun), "both are unfamiliar although the loot rows scrap out-of-reach gear");
             c.Step(Unfamiliar.Blocks(worn, p) && Unfamiliar.Blocks(gun, p), "no colonist, himself included, can equip them");
             c.Step(!Unfamiliar.IsUnfamiliar(control), "a vest nobody joined in is not unfamiliar");
             var medicineIn = p.inventory.innerContainer.Where(t => t.def == ThingDefOf.MedicineIndustrial).ToList();
@@ -1266,9 +1310,9 @@ public sealed class MomentsBatch : Batch
                 "his 5 industrial medicine stay in his pack, unmarked");
             p.apparel.Remove(worn);
             c.Step(Unfamiliar.IsUnfamiliar(worn), "the vest stays unfamiliar once it is off him");
-            Rules.dropMode = DropMode.Off;
+            ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.Off);
             Unfamiliar.ResetCache();
-            c.Step(Unfamiliar.IsUnfamiliar(worn), "and in drop mode Off");
+            c.Step(Unfamiliar.IsUnfamiliar(worn), "and with every category on Keep");
             p.Destroy();
             worn.Destroy();
             control.Destroy();
@@ -1277,7 +1321,7 @@ public sealed class MomentsBatch : Batch
         {
             var c = ctx.Begin(JoinLeave);
             ModHarness.RestoreSettings();
-            Rules.otherJoinGear = JoinerGear.LeaveAlone;
+            Rules.whoOtherJoiners = WhoRule.Exclude;
             var p = Spawn(ctx, Mercenary, null, sharedCell);
             var worn = Dress(p, vest, QualityCategory.Normal);
             c.Subject(p);
@@ -1298,11 +1342,8 @@ public sealed class MomentsBatch : Batch
             foreach (string way in ways)
             {
                 ModHarness.RestoreSettings();
-                // The join settings decide on their own.
-                Rules.sortWhenArrested = false;
-                Rules.sortWhenStripped = false;
-                Rules.prisonerJoinGear = JoinerGear.FollowDropMode;
-                Rules.otherJoinGear = JoinerGear.FollowDropMode;
+                Rules.whoRecruitedPrisoners = WhoRule.Apply;
+                Rules.whoOtherJoiners = WhoRule.Apply;
                 var p = Spawn(ctx, Mercenary, way == "wanderer" ? null : Pirates, sharedCell);
                 var worn = Dress(p, vest, QualityCategory.Normal);
                 if (way != "wanderer")
@@ -1335,19 +1376,19 @@ public sealed class MomentsBatch : Batch
         }
         {
             var c = ctx.Begin(JoinPrisonerRules);
-            // The prisoner setting, not the one for everyone else, decides for a recruit.
-            foreach (JoinerGear setting in new[] { JoinerGear.MarkUnfamiliar, JoinerGear.LeaveAlone })
+            // The Recruited prisoners row, not Other joiners, decides for a recruit.
+            foreach (WhoRule setting in new[] { WhoRule.Mark, WhoRule.Exclude })
             {
                 ModHarness.RestoreSettings();
-                Rules.prisonerJoinGear = setting;
-                Rules.otherJoinGear = JoinerGear.FollowDropMode;
+                Rules.whoRecruitedPrisoners = setting;
+                Rules.whoOtherJoiners = WhoRule.Apply;
                 var p = Spawn(ctx, Mercenary, Pirates, sharedCell);
                 var worn = Dress(p, vest, QualityCategory.Normal);
                 p.guest.SetGuestStatus(Faction.OfPlayer, GuestStatus.Prisoner);
                 c.Subject(p);
                 RecruitUtility.Recruit(p, Faction.OfPlayer);
                 Unfamiliar.ResetCache();
-                bool marked = setting == JoinerGear.MarkUnfamiliar;
+                bool marked = setting == WhoRule.Mark;
                 c.Observe(setting.ToString(), worn.Destroyed ? "destroyed" : Unfamiliar.IsUnfamiliar(worn) ? "unfamiliar" : "plain");
                 c.Step(!worn.Destroyed && p.apparel.Contains(worn), $"{setting}: the recruit keeps wearing the vest");
                 c.Step(Unfamiliar.IsUnfamiliar(worn) == marked, $"{setting}: the vest is {(marked ? "" : "not ")}unfamiliar");
@@ -1357,10 +1398,10 @@ public sealed class MomentsBatch : Batch
         }
         {
             var c = ctx.Begin(JoinProtected);
-            foreach (JoinerGear setting in new[] { JoinerGear.MarkUnfamiliar, JoinerGear.FollowDropMode })
+            foreach (WhoRule setting in new[] { WhoRule.Mark, WhoRule.Apply })
             {
                 ModHarness.RestoreSettings();
-                Rules.otherJoinGear = setting;
+                Rules.whoOtherJoiners = setting;
                 var p = Spawn(ctx, Mercenary, null, sharedCell);
                 var worn = Dress(p, vest, QualityCategory.Normal);
                 worn.questTags = new List<string> { "LootTest" };
@@ -1374,10 +1415,10 @@ public sealed class MomentsBatch : Batch
         }
         {
             var c = ctx.Begin(JoinFormer);
-            foreach (JoinerGear setting in new[] { JoinerGear.MarkUnfamiliar, JoinerGear.FollowDropMode })
+            foreach (WhoRule setting in new[] { WhoRule.Mark, WhoRule.Apply })
             {
                 ModHarness.RestoreSettings();
-                Rules.otherJoinGear = setting;
+                Rules.whoOtherJoiners = setting;
                 var p = Spawn(ctx, PawnKindDefOf.Colonist, Faction.OfPlayer, sharedCell);
                 var worn = Dress(p, vest, QualityCategory.Normal);
                 p.records.RecordsTickMothballed(80);
@@ -1410,7 +1451,6 @@ public sealed class MomentsBatch : Batch
         {
             var c = ctx.Begin(Butcher);
             ModHarness.RestoreSettings();
-            Rules.dropMode = DropMode.Off;
             var spotCell = sites.Dequeue();
             var spot = Kit.Place(ctx, "ButcherSpot", spotCell);
             var cook = Kit.Worker(ctx, spotCell + new IntVec3(0, 0, -3), DefDatabase<WorkTypeDef>.GetNamed("Cooking"), SkillDefOf.Cooking);
@@ -1421,28 +1461,38 @@ public sealed class MomentsBatch : Batch
             // Everything the recipe can take, special filters (strangers' corpses) included.
             bill.ingredientFilter.SetAllowAll(recipe.fixedIngredientFilter);
             ((IBillGiver)spot).BillStack.AddBill(bill);
-            var results = new List<(bool option, bool butchered, bool destroyed, bool spawned)>();
-            foreach (bool option in new[] { true, false })
+            var shirtDef = Kit.Def("Apparel_CollarShirt");
+            c.Step(EraReader.ItemEra(shirtDef, Pirates).OutOfReach, "the collared shirt is out of reach of the tribal colony");
+            var results = new List<(string row, bool butchered, bool destroyed, bool spawned, int scrap)>();
+            foreach (var row in new[] { WhoRule.Apply, WhoRule.Exclude })
             {
-                Settings.values.corpses.butcherRemovesApparel = option;
+                // Every category on Keep at death, so the shirt stays on the corpse; then the butcher bill meets the rules.
+                ModHarness.RestoreSettings();
+                ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.Off);
                 var p = Spawn(ctx, Mercenary, Pirates, spotCell + new IntVec3(3, 0, 0));
-                var shirt = Dress(p, Kit.Def("Apparel_CollarShirt"), QualityCategory.Normal);
+                var shirt = Dress(p, shirtDef, QualityCategory.Normal);
                 p.Kill(null);
                 var corpse = p.Corpse;
+                bool worn = corpse?.InnerPawn?.apparel?.Contains(shirt) ?? false;
+                Rules.apparel = CategoryRule.ScrapBeyondReach();
+                Rules.whoHostile = row;
                 corpse?.SetForbidden(false, false);
-                c.Note($"Butchering removes worn apparel: {(option ? "on" : "off")}; a pirate's corpse in a collared shirt lies by the butcher spot");
+                c.Note($"Hostile row {row}, apparel scraps out-of-reach items; a pirate's corpse in a collared shirt lies by the butcher spot");
+                int scrapBefore = AllScrap.Sum(d => Kit.CountOnMap(map, d));
                 var done = Wait.Until(() => corpse == null || corpse.Destroyed, 6000, Kit.KeepRested(cook));
                 yield return done;
-                results.Add((option, !done.TimedOut, shirt.Destroyed, shirt.Spawned));
-                c.Observe(option ? "optionOn" : "optionOff", $"butchered {!done.TimedOut}, shirt destroyed {shirt.Destroyed}, on ground {shirt.Spawned}");
+                int scrap = AllScrap.Sum(d => Kit.CountOnMap(map, d)) - scrapBefore;
+                results.Add((row.ToString(), worn && !done.TimedOut, shirt.Destroyed, shirt.Spawned, scrap));
+                c.Observe(row + ": shirtWornAtDeath", worn).Observe(row.ToString(), $"butchered {!done.TimedOut}, shirt destroyed {shirt.Destroyed}, on ground {shirt.Spawned}, scrap {scrap}");
+                if (shirt.Spawned) shirt.Destroy();
             }
             if (results.Any(r => !r.butchered))
-                c.WorkflowInconclusive("the cook did not butcher a corpse within 6000 ticks",
+                c.WorkflowInconclusive("the cook did not butcher a corpse still wearing its shirt within 6000 ticks",
                     (cook.Spawned && !cook.Dead, "the cook is alive"), (bill.ShouldDoNow(), "the bill wants doing"));
             else
             {
-                c.Step(results[0].destroyed && !results[0].spawned, "with the option on the shirt is destroyed with the corpse");
-                c.Step(!results[1].destroyed && results[1].spawned, "with the option off the shirt is left on the ground");
+                c.Step(results[0].destroyed && !results[0].spawned && results[0].scrap > 0, $"Apply: the butcher strips the corpse and the shirt becomes {results[0].scrap} scrap");
+                c.Step(!results[1].destroyed && results[1].spawned && results[1].scrap == 0, "Exclude: the game's own butchering drops the shirt whole");
                 c.Conclude();
             }
             bill.suspended = true;

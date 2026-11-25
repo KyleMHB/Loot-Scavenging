@@ -29,7 +29,7 @@ public sealed class SmokeBatch : Batch
         new PlannedCase(Defaults, Levels.Mechanical, "a fresh config holds the Progression preset, not marked changed"),
         new PlannedCase(Fixture, Levels.Mechanical, "colony era Neolithic, revolver research unfinished, hostile pirates, no scrap"),
         new PlannedCase(TribalScrap, Levels.Mechanical, "a dead pirate's revolver becomes industrial scrap by the value-capped ScrapAmounts.Units, kept in his corpse with his silver and steel; a colonist keeps his revolver whole in his corpse; a wild death changes nothing"),
-        new PlannedCase(TribalMedicine, Levels.Mechanical, "ticket 16: industrial medicine drops whole by default; scrap of its era with dropIncludesMedicine on"),
+        new PlannedCase(TribalMedicine, Levels.Mechanical, "ticket 16: industrial medicine drops whole by default; scrap of its era with the medicine rule set to Scrap beyond reach"),
         new PlannedCase(Cleanup, Levels.Mechanical, "poor weapon deleted, good weapon kept, corpse removed, kept apparel on the ground"),
         new PlannedCase(Recycling, Levels.Mechanical, "machining table recycles three tiers, smithy no industrial, vanilla bills kept, products from the pool"),
         new PlannedCase(Study, Levels.Mechanical, "5 medieval units pay 37.5 points at factor 1; factor 0 and industrial scrap pay nothing"),
@@ -51,16 +51,22 @@ public sealed class SmokeBatch : Batch
         {
             var c = ctx.Begin(Defaults);
             var s = Settings;
-            c.Observe("activePreset", s.activePreset).Observe("dropMode", s.values.rules.dropMode)
-                .Observe("hostile", s.values.rules.hostile).Observe("corpses.humanlike", s.values.corpses.humanlike);
+            c.Observe("activePreset", s.activePreset).Observe("weapons", s.values.rules.weapons.outcome).Observe("apparel", s.values.rules.apparel.outcome)
+                .Observe("whoHostile", s.values.rules.whoHostile).Observe("whoOtherJoiners", s.values.rules.whoOtherJoiners)
+                .Observe("corpses.humanlike", s.values.corpses.humanlike);
             c.Step(s.activePreset == PresetId.Progression, "the settings page shows the Progression preset");
             c.Step(!s.PresetChanged, "the preset is not marked changed");
             c.Step(s.values.SameAs(Presets.Build(PresetId.Progression)), "every value equals the Progression preset");
-            c.Step(s.values.rules.dropMode == DropMode.ScrapOutOfReach, "out-of-reach gear becomes scrap");
-            c.Observe("deathDrop", s.values.deathDrop).Observe("colonistsKeepGear", s.values.colonistsKeepGear)
-                .Observe("sortWhenArrested", s.values.rules.sortWhenArrested).Observe("sortWhenStripped", s.values.rules.sortWhenStripped);
-            c.Step(s.values.deathDrop == DeathDrop.AllOnBody && s.values.colonistsKeepGear && s.values.rules.sortWhenArrested && s.values.rules.sortWhenStripped,
-                "everything stays on the body at death, colonists keep their gear, and arrests and strips are sorted");
+            var r = s.values.rules;
+            c.Step(r.weapons.outcome == Outcome.Scrap && r.weapons.onlyBeyondReach && r.apparel.outcome == Outcome.Scrap && r.apparel.onlyBeyondReach,
+                "weapons and apparel beyond the colony's reach become scrap");
+            c.Step(r.whoHostile == WhoRule.Apply && r.whoNonHostile == WhoRule.Apply && r.whoWild == WhoRule.Apply && r.whoPrisoners == WhoRule.Apply
+                && r.whoRecruitedPrisoners == WhoRule.Apply && r.whoOtherJoiners == WhoRule.Mark,
+                "every Who row applies the rules, except other joiners, whose gear is marked unfamiliar");
+            c.Observe("colonistsKeepGear", s.values.colonistsKeepGear).Observe("hostilesKeepGear", s.values.hostilesKeepGear)
+                .Observe("nonHostilesKeepGear", s.values.nonHostilesKeepGear);
+            c.Step(s.values.colonistsKeepGear && s.values.hostilesKeepGear && s.values.nonHostilesKeepGear,
+                "colonists, hostiles and everyone else keep their gear on them");
             c.Conclude();
         }
 
@@ -103,7 +109,7 @@ public sealed class SmokeBatch : Batch
             var steelBefore = Kit.StackIds(map, ThingDefOf.Steel);
             var before = Kit.StackIds(map, industrial);
             c.Note($"A pirate with only a revolver (market value {value:0.#}), 50 silver and 30 steel dies (default settings: everything stays on the body)");
-            c.Step(Settings.values.deathDrop == DeathDrop.AllOnBody, "by default everything stays on the body at death");
+            c.Step(Settings.values.hostilesKeepGear, "by default a hostile keeps his gear on him at death");
             pirate.Kill(null);
             var corpse = pirate.Corpse;
             int InCorpse(Pawn dead, ThingDef def) => dead.Corpse?.InnerPawn?.inventory?.innerContainer.Where(t => t.def == def).Sum(t => t.stackCount) ?? 0;
@@ -141,9 +147,9 @@ public sealed class SmokeBatch : Batch
             var c = ctx.Begin(TribalMedicine);
             var industrial = Scrap(ScrapTier.Industrial);
             var mercenary = DefDatabase<PawnKindDef>.GetNamed("Mercenary_Gunner");
-            c.Step(!Settings.values.rules.dropIncludesMedicine, "by default the drop mode leaves medicine out");
+            c.Step(Settings.values.rules.medicine.outcome == Outcome.Keep, "by default medicine is kept");
             // Counts what lands on the map, so the loot goes to the ground rather than the default, everything on the body.
-            Settings.values.deathDrop = DeathDrop.Ground;
+            ModHarness.GearDrops(Settings.values);
             c.Note("Loot lands on the ground at death");
 
             var medic = Spawn(ctx, mercenary, pirates, sites[6]);
@@ -163,8 +169,8 @@ public sealed class SmokeBatch : Batch
             c.Step(gun.Destroyed && gunScrap == expectedGun, $"the revolver becomes {gunScrap} industrial scrap (expected {expectedGun})");
             c.Step(medsAfter == medsBefore && medsBefore >= 3, "the 3 industrial medicine drop whole");
 
-            Settings.values.rules.dropIncludesMedicine = true;
-            c.Note("The player turns on \"drop mode includes medicine\"");
+            Settings.values.rules.medicine = CategoryRule.ScrapBeyondReach();
+            c.Note("The player sets medicine to Scrap, only beyond reach");
             var medic2 = Spawn(ctx, mercenary, pirates, sites[7]);
             var kit2 = Stack(medicine, 3);
             float medValue = kit2.MarketValue;
@@ -189,7 +195,13 @@ public sealed class SmokeBatch : Batch
             Settings.Apply(Presets.Apply(PresetId.Cleanup, Settings.Capture()));
             Settings.activePreset = PresetId.Cleanup;
             c.Note("The player picks the Cleanup preset");
-            c.Step(Settings.values.rules.dropMode == DropMode.Off && Settings.values.corpses.humanlike, "Cleanup turns era handling off and removes humanlike corpses");
+            var cr = Settings.values.rules;
+            c.Step(cr.whoHostile == WhoRule.Apply && cr.whoNonHostile == WhoRule.Exclude && cr.whoWild == WhoRule.Exclude && cr.whoPrisoners == WhoRule.Exclude
+                && cr.whoRecruitedPrisoners == WhoRule.Exclude && cr.whoOtherJoiners == WhoRule.Exclude,
+                "Cleanup applies the rules to hostiles only");
+            c.Step(cr.weapons.outcome == Outcome.Delete && !cr.weapons.onlyBeyondReach && cr.apparel.outcome == Outcome.Delete
+                && cr.ammunition.outcome == Outcome.Delete && Settings.values.corpses.humanlike,
+                "Cleanup deletes poor weapons, poor apparel and ammunition, with no era handling, and removes humanlike corpses");
 
             var poorOwner = Spawn(ctx, DefDatabase<PawnKindDef>.GetNamed("Mercenary_Gunner"), pirates, sites[3]);
             var poor = Arm(poorOwner, revolver, QualityCategory.Poor);
@@ -329,9 +341,9 @@ public sealed class SmokeBatch : Batch
             c.Step(!shot.IsFinished, "charged shot is not researched");
             c.Step(EquipmentUtility.CanEquip(rifle, colonist), "in the default scrap mode a colonist can equip the charge rifle (control)");
 
-            Settings.values.rules.dropMode = DropMode.KeepOriginal;
+            ModHarness.LootRows(Settings.values.rules, WhoRule.Mark);
             Unfamiliar.ResetCache();
-            c.Note("The player switches the drop mode to keep originals");
+            c.Note("The player sets the Who rows to Mark unfamiliar");
             bool equip = EquipmentUtility.CanEquip(rifle, colonist, out string reason);
             string tag = "LootScavenging_UnfamiliarLabel".Translate("").Resolve().Trim(); // the marker words without the label slot
             c.Observe("label", rifle.LabelNoCount).Observe("cantReason", reason);

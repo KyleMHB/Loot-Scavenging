@@ -65,7 +65,6 @@ public sealed class ProgressionBatch : Batch
         var researcher = map.mapPawns.FreeColonistsSpawned.First();
         Find.Storyteller.difficulty.researchSpeedFactor = 1f;
         ctx.Setup("Developer set the storyteller research factor to 1");
-        Settings.values.studyEras = StudyEraLimit.ColonyEraAndBelow;
 
         // A tribal colony in the pack's terms: no research, and the player faction's tech level (with VFE Tribals' saved copy)
         // at Neolithic. Research Papers' papers for Crashlanded's research are cleared first, so losing one later cannot

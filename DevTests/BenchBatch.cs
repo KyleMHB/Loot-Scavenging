@@ -35,7 +35,7 @@ public sealed class BenchBatch : Batch
         new PlannedCase(StudyBill, Levels.PlayerWorkflow, "keep 3 of 8: one iteration studies 5 for 37.5 points, work 1125, Intellectual XP gained, 3 left"),
         new PlannedCase(StudyFinish, Levels.PlayerWorkflow, "15 points short: the bill studies 2 units, work 450, and finishes the project"),
         new PlannedCase(OriginalRecycle, Levels.PlayerWorkflow, "an unticked unfamiliar rifle is never taken; ticked, it is recycled as its scrap; a lower bench refuses it"),
-        new PlannedCase(OriginalStudy, Levels.Mechanical, "an unfamiliar rifle studies as its scrap equivalent when its era is allowed"),
+        new PlannedCase(OriginalStudy, Levels.Mechanical, "an unfamiliar rifle above the colony's era is refused; in a colony of its era it studies as its scrap equivalent"),
         new PlannedCase(Techprint, Levels.Mechanical, "a techprint project gets nothing with the setting off, and stops a point short with it on"),
         new PlannedCase(NoErrors, Levels.Mechanical, "no error naming the mod logged during the batch"),
     };
@@ -303,7 +303,7 @@ public sealed class BenchBatch : Batch
 
         // ---- 07: original items ------------------------------------------------------------------------------------------
         var rifleDef = Kit.Def("Gun_ChargeRifle");
-        Rules.dropMode = DropMode.KeepOriginal;
+        ModHarness.LootRows(Rules, WhoRule.Mark);
         Unfamiliar.ResetCache();
         {
             var c = ctx.Begin(OriginalRecycle);
@@ -359,10 +359,13 @@ public sealed class BenchBatch : Batch
             bill.suspended = true;
             bill.ingredientFilter.SetAllow(rifleDef, true);
             var rifle = GenSpawn.Spawn(Make(rifleDef, QualityCategory.Normal), bench.Position + new IntVec3(2, 0, -4), map);
-            c.Step(!bill.IsFixedOrAllowedIngredient(rifle), "with study limited to the colony's era, the spacer rifle is refused");
-            Settings.values.studyEras = StudyEraLimit.AnyEra;
+            c.Step(!bill.IsFixedOrAllowedIngredient(rifle), "the spacer rifle is above the colony's era and refused");
+            // Only scrap of the colony's era and below is studied (ticket 25): the colony is made spacer for the rest of the case.
+            var savedEra = EraReader.ColonyEraOverride;
+            EraReader.ColonyEraOverride = () => Era.Spacer;
+            ctx.Setup("Developer set the colony's era to Spacer");
             yield return Wait.Ticks(1); // the bill's verdict is cached for the tick
-            c.Step(bill.IsFixedOrAllowedIngredient(rifle), "with any era allowed it is accepted");
+            c.Step(bill.IsFixedOrAllowedIngredient(rifle), "in a spacer colony it is accepted");
             ScrapStudy.TryGetWorth(rifle, out StudyWorth worth);
             float before = Find.ResearchManager.GetProgress(stone);
             float expected = Math.Min(worth.UnitsPerThing * worth.PointsPerUnit, stone.Cost - before);
@@ -372,6 +375,7 @@ public sealed class BenchBatch : Batch
             c.Observe("unitsPerThing", worth.UnitsPerThing).Observe("tier", worth.Tier).Expect("paid", expected).Observe("paid", paid);
             c.Step(worth.Tier == ScrapTier.Spacer && Kit.Near(paid, expected, 0.5f), $"the rifle pays as {worth.UnitsPerThing} spacer units: {paid:0.#} points");
             c.Step(rifle.Destroyed, "the rifle is used up");
+            EraReader.ColonyEraOverride = savedEra;
             c.Conclude();
         }
 
@@ -385,7 +389,9 @@ public sealed class BenchBatch : Batch
                 var c = ctx.Begin(Techprint);
                 if (tp.prerequisites != null) Kit.Research(ctx, tp.prerequisites.Select(p => p.defName).ToArray());
                 Find.ResearchManager.SetCurrentProject(tp);
-                Settings.values.studyEras = StudyEraLimit.AnyEra;
+                // Only scrap of the colony's era and below is studied (ticket 25): the colony is put at the project's era.
+                var savedEra = EraReader.ColonyEraOverride;
+                EraReader.ColonyEraOverride = () => (Era)tp.techLevel;
                 var scrapDef = Scrap(ScrapTiers.TierFor((Era)tp.techLevel, EraReader.ColonyEra()));
                 ScrapStudy.TryGetWorth(scrapDef, out StudyWorth worth);
                 var worker = (RecipeWorker_Study)DefDatabase<RecipeDef>.GetNamed(StudyRecipesName(scrapDef)).Worker;
@@ -405,6 +411,7 @@ public sealed class BenchBatch : Batch
                     .Observe("leftAfterOn", left).Observe("finished", tp.IsFinished);
                 c.Step(verdictOff == StudyVerdict.NeedsTechprints && off == 0f, $"with the setting off {tp.defName} gets nothing");
                 c.Step(verdictOn == StudyVerdict.Eligible && !tp.IsFinished && Kit.Near(left, 1f, 0.01f), "with it on, study stops one point short of finishing");
+                EraReader.ColonyEraOverride = savedEra;
                 c.Conclude();
             }
         }

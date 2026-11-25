@@ -95,7 +95,7 @@ public static class Fixtures
         string.Join(", ", things.GroupBy(t => t.def.defName).Select(g => g.Sum(t => t.stackCount) + " " + g.Key));
 
     // What one unit of a tier's scrap is worth: the larger of its recycle value and its market value setting (the same rule the mod uses).
-    public static float ScrapWorth(ScrapTier tier) => ScrapAmounts.WorthPerUnit(TierDef(tier).valuePerUnit, Settings.values.scrapMarketValue);
+    public static float ScrapWorth(ScrapTier tier) => ScrapAmounts.WorthPerUnit(TierDef(tier).valuePerUnit, Settings.values.ScrapMarketValue(tier));
 
     // The tier a thing's scrap is in, for the colony as it is now.
     public static ScrapTier TierOf(ThingDef def, Faction owner) => ScrapTiers.TierFor(EraReader.ItemEra(def, owner).Era, EraReader.ColonyEra());

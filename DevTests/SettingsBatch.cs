@@ -21,7 +21,7 @@ public sealed class SettingsBatch : Batch
     private const string P = "lootscavenging.settings.";
     private const string PresetsCase = P + "presets-and-changed", Vanilla = P + "vanilla-preset-in-game",
         Locks = P + "locked-setting", Lists = P + "keep-and-remove-lists", RoundTrip = P + "missing-def-list-entry", Picker = P + "item-picker-search",
-        Partial = P + "imported-partial-file", CleanupTrip = P + "cleanup-round-trip", OldKey = P + "old-downed-and-strip-key", NoErrors = P + "no-mod-errors";
+        Partial = P + "imported-partial-file", CleanupTrip = P + "cleanup-round-trip", OldFile = P + "old-settings-file", NoErrors = P + "no-mod-errors";
 
     private const string DevMod = "lootscavenging-devtest"; // not translated
 
@@ -37,8 +37,8 @@ public sealed class SettingsBatch : Batch
         new PlannedCase(RoundTrip, Levels.Mechanical, "a list entry for a missing def saves, loads and is evaluated with no error"),
         new PlannedCase(Picker, Levels.Mechanical, "the item picker's search finds the revolver and skips buildings"),
         new PlannedCase(Partial, Levels.Mechanical, "a hand-written partial file with no seeded flag keeps its keys, fills the rest from a patched Def default and ends a locked key at the pack value"),
-        new PlannedCase(CleanupTrip, Levels.Mechanical, "a Cleanup config with one key at Progression's value saves that key too, and keeps it when the pack's default changes; the arrest, strip and colonist gear toggles save and read back"),
-        new PlannedCase(OldKey, Levels.Mechanical, "a file or Def from before the split with the shared toggle off turns both toggles off, a resave drops the old key, a lock on it locks both; the defaults are everything on the body and colonists keeping their gear"),
+        new PlannedCase(CleanupTrip, Levels.Mechanical, "a Cleanup config with one key at Progression's value saves that key too, and keeps it when the pack's default changes; the keep-gear boxes save and read back; no 0.5.2 key is written"),
+        new PlannedCase(OldFile, Levels.Mechanical, "a 0.5.2 settings file loads into the 0.6.0 rows, rules and boxes, a resave writes no old key, an old Def node and old lock names translate"),
         new PlannedCase(NoErrors, Levels.Mechanical, "no error naming the mod logged during the batch"),
     };
 
@@ -46,15 +46,15 @@ public sealed class SettingsBatch : Batch
     private static SettingValues PatchedProgression()
     {
         var v = Presets.Config.Progression.Clone();
-        v.scrapMarketValue = 0.5f;
-        v.rules.dropMode = DropMode.KeepOriginal;
+        v.scrapMarketValueIndustrial = 0.5f;
+        v.rules.whoHostile = WhoRule.Mark;
         return v;
     }
 
     public override IEnumerable<Wait> Segment(int index, BatchContext ctx)
     {
         long modErrorsAtStart = CaseErrors.ModMark;
-        ModHarness.SaveSettings(ModHarness.LootOnGround);
+        ModHarness.SaveSettings(ModHarness.GearDrops);
         var area = Kit.Area(ctx, 40, 12);
         yield return Wait.Ticks(1);
         var map = ctx.Map;
@@ -71,9 +71,9 @@ public sealed class SettingsBatch : Batch
                 Settings.Apply(Presets.Apply(preset, Settings.Capture()));
                 Settings.activePreset = preset;
                 bool clean = !Settings.PresetChanged;
-                Settings.values.corpses.chance = 0.5f;
+                Settings.values.studyPointsArchotech += 1f;
                 bool marked = Settings.PresetChanged;
-                c.Step(clean && marked, $"{preset}: applies unchanged, and editing the corpse chance marks it changed");
+                c.Step(clean && marked, $"{preset}: applies unchanged, and editing the archotech research points marks it changed");
             }
             ModHarness.RestoreSettings();
             Settings.values.rules.keepList.Add("Gun_Revolver");
@@ -114,19 +114,19 @@ public sealed class SettingsBatch : Batch
             c.Step(names.Count > 0 && packLocks.Unknown.Count == 0, "every setting the pack locks is a lockable setting");
 
             var original = Presets.Config;
-            var locked = new SettingLocks(names.Concat(new[] { SettingNames.DropMode }));
+            var locked = new SettingLocks(names.Concat(new[] { SettingNames.WhoNonHostile }));
             Presets.Configure(new PresetConfig(original.Progression, locked));
-            c.Note("The presets are configured with the pack's locks plus the drop mode (applied directly; the pack's patch is not loaded)");
+            c.Note("The presets are configured with the pack's locks plus the non-hostile row (applied directly; the pack's patch is not loaded)");
             Settings.Apply(Presets.Apply(PresetId.Cleanup, Settings.Capture()));
             Settings.activePreset = PresetId.Cleanup;
-            c.Observe("dropModeAfterCleanup", Rules.dropMode).Observe("corpsesAfterCleanup", Settings.values.corpses.humanlike);
-            c.Step(Rules.dropMode == original.Progression.rules.dropMode && Settings.values.corpses.humanlike,
-                "applying Cleanup sets its other rows but leaves the locked drop mode at the pack value");
-            Rules.dropMode = DropMode.Off;
+            c.Observe("whoNonHostileAfterCleanup", Rules.whoNonHostile).Observe("corpsesAfterCleanup", Settings.values.corpses.humanlike);
+            c.Step(Rules.whoNonHostile == original.Progression.rules.whoNonHostile && Settings.values.corpses.humanlike,
+                "applying Cleanup sets its other rows but leaves the locked non-hostile row at the pack value");
+            Rules.whoNonHostile = WhoRule.Exclude;
             Rules.disassemblyYield = DisassemblyYield.ItemBased;
             Settings.OnDefaultsLoaded();
-            c.Observe("dropModeAfterLoad", Rules.dropMode).Observe("yieldAfterLoad", Rules.disassemblyYield);
-            c.Step(Rules.dropMode == original.Progression.rules.dropMode && Rules.disassemblyYield == original.Progression.rules.disassemblyYield,
+            c.Observe("whoNonHostileAfterLoad", Rules.whoNonHostile).Observe("yieldAfterLoad", Rules.disassemblyYield);
+            c.Step(Rules.whoNonHostile == original.Progression.rules.whoNonHostile && Rules.disassemblyYield == original.Progression.rules.disassemblyYield,
                 "a saved config holding other values returns to the pack's values for locked settings when the defaults load");
             ModHarness.RestoreSettings();
             c.Conclude();
@@ -182,7 +182,7 @@ public sealed class SettingsBatch : Batch
         // that did nothing would leave the compiled-in values and fail.
         {
             var c = ctx.Begin(Partial);
-            var pack = new PresetConfig(PatchedProgression(), new SettingLocks(new[] { SettingNames.DropMode }));
+            var pack = new PresetConfig(PatchedProgression(), new SettingLocks(new[] { SettingNames.WhoHostile }));
 
             // The envelope comes from a real write; its body is replaced with what an Auto Mod Config preset could hold.
             LoadedModManager.WriteModSettings(DevMod, "Partial", new LootScavengingSettings());
@@ -193,8 +193,8 @@ public sealed class SettingsBatch : Batch
                 var doc = XDocument.Load(file);
                 var body = doc.Root.Element("ModSettings");
                 body.RemoveNodes();
-                body.Add(new XElement("activePreset", "Cleanup"), new XElement("corpseChance", "0.25"),
-                    new XElement("deathDrop", "Ground"), new XElement("dropMode", "Off"));
+                body.Add(new XElement("activePreset", "Cleanup"), new XElement("corpseAnimal", "True"),
+                    new XElement("hostilesKeepGear", "False"), new XElement("whoHostile", "Exclude"));
                 doc.Save(file);
                 c.Observe("file", body.ToString(SaveOptions.DisableFormatting));
 
@@ -204,17 +204,17 @@ public sealed class SettingsBatch : Batch
                 read.OnDefaultsLoaded();
                 var v = read.values;
                 bool seeded = (bool)typeof(LootScavengingSettings).GetField("defaultsSeeded", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(read);
-                c.Observe("activePreset", read.activePreset).Observe("corpseChance", v.corpses.chance).Observe("deathDrop", v.deathDrop)
-                    .Observe("dropMode", v.rules.dropMode).Observe("scrapMarketValue", v.scrapMarketValue).Observe("defaultsSeeded", seeded);
-                c.Step(read.activePreset == PresetId.Cleanup && Math.Abs(v.corpses.chance - 0.25f) < 0.0001f && v.deathDrop == DeathDrop.Ground,
+                c.Observe("activePreset", read.activePreset).Observe("corpseAnimal", v.corpses.animal).Observe("hostilesKeepGear", v.hostilesKeepGear)
+                    .Observe("whoHostile", v.rules.whoHostile).Observe("scrapMarketValueIndustrial", v.scrapMarketValueIndustrial).Observe("defaultsSeeded", seeded);
+                c.Step(read.activePreset == PresetId.Cleanup && v.corpses.animal && !v.hostilesKeepGear,
                     "the file's preset and two setting keys are kept although it has no seeded flag");
-                c.Step(Math.Abs(v.scrapMarketValue - 0.5f) < 0.0001f, "a key the file lacks takes the patched Def default, not the compiled-in one");
+                c.Step(Math.Abs(v.scrapMarketValueIndustrial - 0.5f) < 0.0001f, "a key the file lacks takes the patched Def default, not the compiled-in one");
                 var expected = Presets.Defaults();
-                expected.corpses.chance = 0.25f;
-                expected.deathDrop = DeathDrop.Ground;
+                expected.corpses.animal = true;
+                expected.hostilesKeepGear = false;
                 c.Step(v.SameAs(expected), "every other key holds the Def's Progression value");
-                c.Step(v.rules.dropMode == DropMode.KeepOriginal && Presets.Config.Locks.IsLocked(SettingNames.DropMode),
-                    "the locked drop mode the file set ends at the pack's value, and the page's lock set names it");
+                c.Step(v.rules.whoHostile == WhoRule.Mark && Presets.Config.Locks.IsLocked(SettingNames.WhoHostile),
+                    "the locked hostile row the file set ends at the pack's value, and the page's lock set names it");
                 c.Step(seeded, "the seeded flag is set after the defaults step");
             }
             foreach (var f in Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_*")) File.Delete(f);
@@ -222,7 +222,7 @@ public sealed class SettingsBatch : Batch
             c.Conclude();
         }
 
-        // ---- auto-config 01 / 18: Cleanup round trip -----------------------------------------------------------------------
+        // ---- auto-config 01 / 18 / 25: Cleanup round trip ------------------------------------------------------------------
         // The save writes every key, one equal to its default (the Def's Progression) too, so a pack that later changes that
         // default does not move the saved value.
         {
@@ -234,117 +234,126 @@ public sealed class SettingsBatch : Batch
             written.OnDefaultsLoaded();
             written.Apply(Presets.Apply(PresetId.Cleanup, written.Capture()));
             written.activePreset = PresetId.Cleanup;
-            written.values.rules.dropMode = pack.Progression.rules.dropMode; // Cleanup sets Off
-            // Ticket 20: one joiner setting equal to its default and one set by Cleanup, both read back as saved.
-            written.values.rules.prisonerJoinGear = pack.Progression.rules.prisonerJoinGear;
-            written.values.rules.otherJoinGear = JoinerGear.LeaveAlone;
-            // Tickets 21 and 23: the downed setting away from its default.
-            written.values.rules.downedGear = DownedGear.DropWeapon;
-            // Ticket 24: the two toggles apart (Cleanup sets both off) and the colonist toggle off (Cleanup sets it on).
-            written.values.rules.sortWhenArrested = true;
+            written.values.rules.whoHostile = pack.Progression.rules.whoHostile; // Cleanup sets Apply
+            // Ticket 25: the keep-gear boxes away from their defaults (Cleanup keeps the Progression value, on).
+            written.values.hostilesKeepGear = false;
             written.values.colonistsKeepGear = false;
             LoadedModManager.WriteModSettings(DevMod, "Cleanup", written);
             var file = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_Cleanup*.xml").FirstOrDefault();
             string text = file != null ? File.ReadAllText(file) : "";
 
-            // Read back with the compiled-in config, then the defaults step under a pack whose drop mode default changed.
+            // Read back with the compiled-in config, then the defaults step under a pack whose hostile row default changed.
             Presets.Configure(PresetConfig.Code());
             var read = LoadedModManager.ReadModSettings<LootScavengingSettings>(DevMod, "Cleanup");
             read.OnDefaultsLoaded();
-            string savedMode = "<dropMode>" + pack.Progression.rules.dropMode + "</dropMode>";
-            c.Observe("dropModeSaved", text.Contains(savedMode)).Observe("dropModeRead", read.values.rules.dropMode)
-                .Observe("dropModeDefaultAtRead", Presets.Config.Progression.rules.dropMode)
+            string savedRow = "<whoHostile>" + pack.Progression.rules.whoHostile + "</whoHostile>";
+            c.Observe("whoHostileSaved", text.Contains(savedRow)).Observe("whoHostileRead", read.values.rules.whoHostile)
+                .Observe("whoHostileDefaultAtRead", Presets.Config.Progression.rules.whoHostile)
                 .Observe("activePreset", read.activePreset).Observe("corpseHumanlike", read.values.corpses.humanlike);
-            c.Step(Presets.Config.Progression.rules.dropMode != pack.Progression.rules.dropMode, "the default drop mode at the read differs from the one at the save");
-            c.Step(file != null && text.Contains(savedMode) && text.Contains("<activePreset>Cleanup</activePreset>"),
-                "the save writes the drop mode, although it equals its default, and the Cleanup preset");
+            c.Step(Presets.Config.Progression.rules.whoHostile != pack.Progression.rules.whoHostile, "the default hostile row at the read differs from the one at the save");
+            c.Step(file != null && text.Contains(savedRow) && text.Contains("<activePreset>Cleanup</activePreset>"),
+                "the save writes the hostile row, although it equals its default, and the Cleanup preset");
             c.Step(SettingKeys.All.All(k => text.Contains("<" + k.Key + ">") || text.Contains("<" + k.Key + " />") || text.Contains("<" + k.Key + "/>")),
                 "the save holds every setting key");
             c.Step(read.activePreset == PresetId.Cleanup && read.values.SameAs(written.values),
-                "read back and through the defaults step, every value matches what was saved, the drop mode included");
-            c.Observe("prisonerJoinGearRead", read.values.rules.prisonerJoinGear).Observe("otherJoinGearRead", read.values.rules.otherJoinGear);
-            c.Step(text.Contains("<prisonerJoinGear>" + pack.Progression.rules.prisonerJoinGear + "</prisonerJoinGear>")
-                && text.Contains("<otherJoinGear>LeaveAlone</otherJoinGear>")
-                && read.values.rules.prisonerJoinGear == pack.Progression.rules.prisonerJoinGear && read.values.rules.otherJoinGear == JoinerGear.LeaveAlone,
-                "both joiner settings are saved, the one equal to its default too, and read back as saved");
-            c.Observe("downedGearRead", read.values.rules.downedGear);
-            c.Step(text.Contains("<downedGear>DropWeapon</downedGear>") && read.values.rules.downedGear == DownedGear.DropWeapon,
-                "the downed setting is saved as Drop the weapon and read back as saved");
-            // Ticket 23: the default's saved name is KeepWeapon (KeepInPack before it, never released).
-            written.values.rules.downedGear = DownedGear.KeepWeapon;
-            LoadedModManager.WriteModSettings(DevMod, "CleanupKeep", written);
-            var keepFile = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_CleanupKeep*.xml").FirstOrDefault();
-            string keepText = keepFile != null ? File.ReadAllText(keepFile) : "";
-            var keepRead = LoadedModManager.ReadModSettings<LootScavengingSettings>(DevMod, "CleanupKeep");
-            c.Observe("downedGearDefaultRead", keepRead.values.rules.downedGear);
-            c.Step(keepText.Contains("<downedGear>KeepWeapon</downedGear>") && keepRead.values.rules.downedGear == DownedGear.KeepWeapon,
-                "the default, Keep his weapon, is saved as KeepWeapon and read back as saved");
-            // Ticket 24: the split toggles and the colonist toggle are saved and read back; the old key is no longer written.
-            string arrestedKey = SettingKeys.KeyFor(SettingNames.SortWhenArrested), strippedKey = SettingKeys.KeyFor(SettingNames.SortWhenStripped),
-                colonistKey = SettingKeys.KeyFor(SettingNames.ColonistsKeepGear);
-            c.Observe("sortWhenArrestedRead", read.values.rules.sortWhenArrested).Observe("sortWhenStrippedRead", read.values.rules.sortWhenStripped)
-                .Observe("colonistsKeepGearRead", read.values.colonistsKeepGear);
-            c.Step(text.Contains("<" + arrestedKey + ">") && text.Contains("<" + strippedKey + ">") && text.Contains("<" + colonistKey + ">")
-                && !text.Contains("<" + SettingsLoad.OldDownedAndStripKey)
-                && read.values.rules.sortWhenArrested == written.values.rules.sortWhenArrested && read.values.rules.sortWhenStripped == written.values.rules.sortWhenStripped
-                && read.values.colonistsKeepGear == written.values.colonistsKeepGear,
-                "the arrest, strip and colonist gear toggles are saved and read back as saved, and the old shared key is not written");
+                "read back and through the defaults step, every value matches what was saved, the hostile row included");
+            c.Observe("hostilesKeepGearRead", read.values.hostilesKeepGear).Observe("colonistsKeepGearRead", read.values.colonistsKeepGear);
+            c.Step(text.Contains("<hostilesKeepGear>False</hostilesKeepGear>") && text.Contains("<colonistsKeepGear>False</colonistsKeepGear>")
+                && text.Contains("<nonHostilesKeepGear>True</nonHostilesKeepGear>")
+                && !read.values.hostilesKeepGear && !read.values.colonistsKeepGear && read.values.nonHostilesKeepGear,
+                "the three keep-gear boxes are saved and read back as saved");
+            var oldWritten = LegacySettings.Keys.Where(k => text.Contains("<" + k + ">") || text.Contains("<" + k + " />")).ToList();
+            c.Observe("oldKeysWritten", string.Join(",", oldWritten));
+            c.Step(oldWritten.Count == 0, "no setting from before 0.6.0 is written");
             foreach (var f in Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_*")) File.Delete(f);
             ModHarness.RestoreSettings();
             c.Conclude();
         }
 
-        // ---- 24: the old "Also when stripped or arrested" key ---------------------------------------------------------------
+        // ---- 25: a settings file from 0.5.2 -------------------------------------------------------------------------------
+        // Only 0.5.2 keys, so the file is read in the old format. The pack's Progression has the keep-gear boxes off, so a
+        // death drop left at its 0.5.2 default (Ground) is seen to take the new default and a body drop is seen to tick them.
         {
-            var c = ctx.Begin(OldKey);
-            string arrestedKey = SettingKeys.KeyFor(SettingNames.SortWhenArrested), strippedKey = SettingKeys.KeyFor(SettingNames.SortWhenStripped);
-            LoadedModManager.WriteModSettings(DevMod, "OldKey", new LootScavengingSettings());
-            var file = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_OldKey*.xml").FirstOrDefault();
-            if (file == null) c.SetupFailed("WriteModSettings left no file to edit");
-            else
+            var c = ctx.Begin(OldFile);
+            var boxesOff = Presets.Config.Progression.Clone();
+            ModHarness.KeepGear(boxesOff, true, false, false);
+            var pack = new PresetConfig(boxesOff, SettingLocks.None);
+            SettingValues ReadOld(string name, params XElement[] keys)
             {
-                // A file from 0.5.1 with the shared toggle off.
-                var doc = XDocument.Load(file);
+                LoadedModManager.WriteModSettings(DevMod, name, new LootScavengingSettings());
+                var path = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_" + name + "*.xml").FirstOrDefault();
+                if (path == null) return null;
+                var doc = XDocument.Load(path);
                 var body = doc.Root.Element("ModSettings");
                 body.RemoveNodes();
-                body.Add(new XElement("activePreset", "Progression"), new XElement(SettingsLoad.OldDownedAndStripKey, "False"));
-                doc.Save(file);
-                c.Observe("file", body.ToString(SaveOptions.DisableFormatting));
+                body.Add(new XElement("activePreset", "Progression"));
+                body.Add(keys);
+                doc.Save(path);
+                c.Observe(name + "File", body.ToString(SaveOptions.DisableFormatting));
                 Presets.Configure(PresetConfig.Code());
-                var read = LoadedModManager.ReadModSettings<LootScavengingSettings>(DevMod, "OldKey");
-                read.OnDefaultsLoaded();
-                c.Observe("sortWhenArrested", read.values.rules.sortWhenArrested).Observe("sortWhenStripped", read.values.rules.sortWhenStripped);
-                c.Step(!read.values.rules.sortWhenArrested && !read.values.rules.sortWhenStripped, "an old file with the shared toggle off reads as both new toggles off");
+                var settings = LoadedModManager.ReadModSettings<LootScavengingSettings>(DevMod, name);
+                Presets.Configure(pack);
+                settings.OnDefaultsLoaded();
+                return settings.values;
+            }
 
-                LoadedModManager.WriteModSettings(DevMod, "OldKeyResave", read);
-                var resaved = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_OldKeyResave*.xml").FirstOrDefault();
+            // A 0.5.2 player who kept the defaults, apart from the shared strip toggle (cut).
+            var plain = ReadOld("OldDefaults", new XElement("dropMode", "ScrapOutOfReach"), new XElement("deathDrop", "Ground"),
+                new XElement("otherJoinGear", "MarkUnfamiliar"), new XElement("downedGear", "KeepWeapon"), new XElement("onDownedAndStrip", "False"),
+                new XElement("corpseChance", "0.4"));
+            // A 0.5.2 player who changed the drop mode, the death drop, a group, a joiner and a category.
+            var changed = ReadOld("OldChanged", new XElement("dropMode", "KeepOriginal"), new XElement("deathDrop", "AllOnBody"),
+                new XElement("hostile", "False"), new XElement("prisonerJoinGear", "LeaveAlone"), new XElement("weaponsOutcome", "Degrade"),
+                new XElement("medicineOutcome", "Scrap"));
+            if (plain == null || changed == null) c.SetupFailed("WriteModSettings left no file to edit");
+            else
+            {
+                var expected = Presets.Defaults();
+                c.Observe("plainHostilesKeepGear", plain.hostilesKeepGear).Observe("plainWeapons", plain.rules.weapons.outcome + "/" + plain.rules.weapons.onlyBeyondReach);
+                c.Step(plain.SameAs(expected), "a file at the 0.5.2 defaults reads as the pack's 0.6.0 defaults, keep-gear boxes off as the pack sets them");
+
+                var r = changed.rules;
+                c.Observe("rows", string.Join(",", LootRules.RowGroups.Select(g => g + "=" + r.RowFor(g))))
+                    .Observe("categories", string.Join(",", ItemCategories.All.Select(cat => cat.Field + "=" + cat.Rule(r).outcome)))
+                    .Observe("boxes", $"{changed.colonistsKeepGear}/{changed.hostilesKeepGear}/{changed.nonHostilesKeepGear}");
+                c.Step(changed.hostilesKeepGear && changed.nonHostilesKeepGear, "everything on the body at death ticks both keep-gear boxes");
+                c.Step(r.whoHostile == WhoRule.Exclude, "hostiles turned off become an Exclude row");
+                c.Step(r.whoRecruitedPrisoners == WhoRule.Exclude, "recruited prisoners' gear left alone becomes an Exclude row");
+                c.Step(r.whoNonHostile == WhoRule.Mark && r.whoWild == WhoRule.Mark && r.whoPrisoners == WhoRule.Mark && r.whoOtherJoiners == WhoRule.Mark,
+                    "keep original turns the rows still applying the rules into Mark rows");
+                c.Step(r.weapons.outcome == Outcome.Keep && r.medicine.outcome == Outcome.Scrap && r.apparel.outcome == Outcome.Keep,
+                    "the cut Degrade reads as Keep, the file's own medicine rule is kept, and a category the file left out is a Keep rule of its day");
+
+                // Saved again, the file holds the new keys only.
+                var resave = new LootScavengingSettings();
+                resave.Apply(changed);
+                LoadedModManager.WriteModSettings(DevMod, "OldResave", resave);
+                var resaved = Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_OldResave*.xml").FirstOrDefault();
                 string text = resaved != null ? File.ReadAllText(resaved) : "";
-                var reread = LoadedModManager.ReadModSettings<LootScavengingSettings>(DevMod, "OldKeyResave");
-                reread.OnDefaultsLoaded();
-                c.Step(!text.Contains("<" + SettingsLoad.OldDownedAndStripKey) && text.Contains("<" + arrestedKey + ">") && text.Contains("<" + strippedKey + ">")
-                    && !reread.values.rules.sortWhenArrested && !reread.values.rules.sortWhenStripped,
-                    "saved again, the file holds both new keys, off, and not the old one");
+                var oldWritten = LegacySettings.Keys.Where(k => text.Contains("<" + k + ">") || text.Contains("<" + k + " />")).ToList();
+                c.Step(resaved != null && oldWritten.Count == 0 && text.Contains("<whoHostile>Exclude</whoHostile>"),
+                    $"saved again, the file holds the Who rows and none of the old keys ({string.Join(",", oldWritten)})");
             }
             foreach (var f in Directory.GetFiles(GenFilePaths.ConfigFolderPath, "Mod_" + DevMod + "_*")) File.Delete(f);
 
-            // A pack's Def patch that still sets the old node.
+            // A pack's Def patch that still sets the old nodes.
             var xml = new XmlDocument();
-            xml.LoadXml("<rules><onDownedAndStrip>false</onDownedAndStrip></rules>");
-            var rules = DirectXmlToObject.ObjectFromXml<LootRules>(xml.DocumentElement, false);
-            string bound = (string)typeof(LootRules).GetField("onDownedAndStrip", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(rules);
-            typeof(LootRules).GetMethod("ApplyOldDownedAndStrip", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(rules, null);
-            c.Observe("defNodeBound", bound ?? "null");
-            c.Step(bound == "false" && !rules.sortWhenArrested && !rules.sortWhenStripped, "a Def's old node set to false binds and turns both toggles off");
+            xml.LoadXml("<values><deathDrop>ScrapOnBody</deathDrop><hostilesKeepGear>false</hostilesKeepGear><nonHostilesKeepGear>false</nonHostilesKeepGear>"
+                + "<rules><dropMode>ScrapEverything</dropMode></rules></values>");
+            var defValues = DirectXmlToObject.ObjectFromXml<SettingValues>(xml.DocumentElement, false);
+            SettingsLoad.MigrateDef(defValues);
+            c.Observe("defWeapons", defValues.rules.weapons.outcome + "/" + defValues.rules.weapons.onlyBeyondReach)
+                .Observe("defMedicine", defValues.rules.medicine.outcome).Observe("defBoxes", $"{defValues.hostilesKeepGear}/{defValues.nonHostilesKeepGear}");
+            c.Step(defValues.rules.weapons.outcome == Outcome.Scrap && !defValues.rules.weapons.onlyBeyondReach && defValues.rules.medicine.outcome == Outcome.Keep
+                && defValues.hostilesKeepGear && defValues.nonHostilesKeepGear,
+                "a Def's old scrap-everything node scraps weapons in reach or not, leaves medicine kept, and its body drop ticks both boxes");
 
-            // A pack lock on the old name.
-            var locks = new SettingLocks(new[] { "rules.onDownedAndStrip" });
-            c.Step(locks.Unknown.Count == 0 && locks.IsLocked(SettingNames.SortWhenArrested) && locks.IsLocked(SettingNames.SortWhenStripped),
-                "a lock on the old name locks both toggles");
-
-            var d = Presets.Defaults();
-            c.Observe("defaultDeathDrop", d.deathDrop).Observe("defaultColonistsKeepGear", d.colonistsKeepGear);
-            c.Step(d.deathDrop == DeathDrop.AllOnBody && d.colonistsKeepGear && d.rules.sortWhenArrested && d.rules.sortWhenStripped && d.rules.downedGear == DownedGear.KeepWeapon,
-                "the defaults: everything on the body at death, colonists keep their gear, arrests and strips sorted, downed pawns keep their weapon");
+            // A pack lock list with the old names.
+            var locks = new SettingLocks(new[] { "rules.dropMode", "deathDrop", "rules.onDownedAndStrip", "corpses.chance" });
+            c.Observe("unknownLocks", string.Join(",", locks.Unknown));
+            c.Step(locks.Unknown.Count == 0 && locks.IsLocked(SettingNames.WhoHostile) && locks.IsLocked(SettingNames.Category(ItemCategories.All.First()))
+                && locks.IsLocked(SettingNames.HostilesKeepGear) && locks.IsLocked(SettingNames.NonHostilesKeepGear),
+                "old lock names are known: the drop mode locks the rows and categories, the death drop both boxes, and cut ones lock nothing");
             ModHarness.RestoreSettings();
             c.Conclude();
         }

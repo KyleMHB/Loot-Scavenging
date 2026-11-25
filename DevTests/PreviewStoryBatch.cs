@@ -57,14 +57,11 @@ public sealed class PreviewStoryBatch : Batch
         ctx.Setup("Developer set clear weather and moved the clock to midday");
 
         ModHarness.SaveSettings();
-        Rules.dropMode = DropMode.ScrapEverything;
-        Rules.sortWhenArrested = true;
-        Rules.sortWhenStripped = true;
-        // Shot before ticket 21: downed raiders drop their gear, scrapped as it drops, and the drop scene's pirate drops his rifle.
-        Rules.downedGear = DownedGear.DropWeapon;
-        // Shot before ticket 24 made everything on the body the default: the scrap lies beside the bodies.
-        Settings.values.deathDrop = DeathDrop.Ground;
-        ctx.Setup("Developer set the drop mode to scrap everything, downed pawns dropping the weapon and loot on the ground at death, so every raider's gear becomes scrap beside him");
+        ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.ScrapEverything);
+        // Shot before tickets 21 and 24: downed raiders drop their gear, scrapped as it drops, and the scrap of the dead lies
+        // beside the bodies.
+        ModHarness.GearDrops(Settings.values);
+        ctx.Setup("Developer set every category but medicine and ammunition to Scrap and turned off the hostile and non-hostile keep-gear boxes, so every raider's gear becomes scrap beside him");
 
         var tribe = Tribe ?? throw new SetupException("no hostile neolithic faction in this world");
         var area = Kit.Area(ctx, 64, 18);
@@ -158,8 +155,8 @@ public sealed class PreviewStoryBatch : Batch
 
         // ----- Drop: one pirate downed keeping his rifle, which is laid whole beside him; vest and helmet beside him too.
         // Between the two shots each item is replaced by industrial scrap where it lay. -----
-        // Since ticket 24 a downing under DropWeapon always sorts the weapon, so this pirate keeps it and it is laid down below.
-        Rules.downedGear = DownedGear.KeepWeapon;
+        // Since ticket 24 a downing with the box off always sorts the weapon, so this pirate keeps it and it is laid down below.
+        Settings.values.hostilesKeepGear = true;
         // Its own area, asked for once the other scenes stand, so it lands clear of their pawns and buildings.
         var dropArea = Kit.Area(ctx, 22, 14);
         var dropCell = dropArea.CenterCell;
@@ -187,7 +184,7 @@ public sealed class PreviewStoryBatch : Batch
             GenPlace.TryPlaceThing(item, dropCell + offset, map, ThingPlaceMode.Direct);
             gear.Add(item);
         }
-        Rules.downedGear = DownedGear.DropWeapon;
+        Settings.values.hostilesKeepGear = false;
         Point("drop", dropCell);
         ctx.Setup($"Drop scene: a downed pirate at {dropCell} with {string.Join(", ", gear.Select(g => $"{g.def.defName} at {g.Position}"))}");
 
@@ -244,7 +241,7 @@ public sealed class PreviewStoryBatch : Batch
                         pile.DeSpawn();
                         victim.inventory.innerContainer.TryAdd(pile);
                     }
-                    Settings.values.deathDrop = DeathDrop.AllOnBody;
+                    Settings.values.hostilesKeepGear = true;
                     victim.Kill(null);
                     // Scrap everything also took his clothes into the corpse as scrap; dressed again so the body reads as a raider.
                     Dress(victim, Kit.Def("Apparel_CollarShirt"), QualityCategory.Normal);
