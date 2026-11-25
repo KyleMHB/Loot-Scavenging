@@ -61,6 +61,11 @@ Gallery images are 1920x1080 PNG. Order:
 | 05 | Gallery: settings page and inspect text | 01 |
 | 06 | Illustrated description and page preview | 02, 03, 04, 05 |
 | 07 | Publish the images, description and gallery | 06 |
+| 08 | Media for 0.5.2 | 06 |
+| 09 | Workshop text fixes for 0.6.0 | None |
+| 10 | Gallery settings image for 0.6.0 | None |
+| 11 | Replace the drop-modes gallery image | Kyle's choice |
+| 12 | Push and publish 0.6.0 | 09, 10, 11 |
 
 ## Left out
 
