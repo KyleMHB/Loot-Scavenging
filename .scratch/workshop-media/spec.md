@@ -42,9 +42,9 @@ Gallery images are 1920x1080 PNG. Order:
    - the study points per unit.
 
    A caption says that a bench handles its own tier and every tier below it.
-3. **`gallery-loot-styles.png`**: a fallen tribal warrior in four panels, one per loot style, cut from the promo footage. A chip above the panels shows the Hostiles "Don't drop your stuff" box off, and each panel has a chip naming the setting behind its style:
+3. **`gallery-loot-styles.png`**: a fallen tribal warrior in four panels, one per loot style, cut from the promo footage. A chip above the panels shows the Hostiles "Don't drop your stuff" box off, and each panel has a chip naming the setting behind its style (a switch only for the on/off toggle, none for dropdown settings):
    - only gear beyond the colony's reach is scrapped;
-   - everything he carried is scrapped;
+   - with that toggle off, his weapons and apparel are scrapped (a second chip, "Weapons, Apparel: Scrap", the 0.6.0 default; other categories are not claimed);
    - hostile pawns' gear is marked unfamiliar, shown selected with the unfamiliar line in its inspect pane;
    - weapons and apparel left vanilla.
 4. **`gallery-settings.png`**: an in-game screenshot of the settings page on Progression. It shows the preset line with its sentence, the three "Don't drop your stuff" boxes and the first Who rows with theirs, framed with a short title.

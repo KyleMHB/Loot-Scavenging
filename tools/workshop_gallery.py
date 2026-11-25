@@ -7,7 +7,7 @@
 
 inspect cuts stills from a lootscavenging-workshop-clips run (shots.json marks, layout.json cameras); loot-styles cuts them from
 a lootscavenging-promo-clips run (PROMO_RUN by default). settings uses work/gallery/settings-frame.png, a frame from a `lootscavenging-ui --record
---show-ui` run (see TESTING.md). Numbers come from Defs/ (study points from SettingsDefaults.xml), bench labels from the game's Data, mode labels from the English Keyed
+--show-ui` run (see TESTING.md). Numbers come from Defs/ (study points from SettingsDefaults.xml), bench labels from the game's Data, setting labels from the English Keyed
 file, and the inspect text is the game's own, cropped from the stills.
 """
 from pathlib import Path
@@ -264,7 +264,7 @@ def cropped(img, frame, centre, src_h, box, caption, band=52):
 # off scene's crop stays west of the map's edge at x 2290.
 STYLES = [
     ("drop-scrapoutofreach-dead", 1.8, (1110, 650), "The autopistol is scrap; the club drops whole"),
-    ("drop-scrapeverything-dead", 1.8, (1260, 530), "Everything he carried is scrap"),
+    ("drop-scrapeverything-dead", 1.8, (1260, 530), "His weapons and apparel are scrap"),
     ("drop-keeporiginal-selected", 1.8, (1180, 610), "Both drop whole; the autopistol reads unfamiliar"),
     ("drop-off-dead", 1.8, (1340, 640), "Nothing is sorted: both drop whole"),
 ]
@@ -275,10 +275,10 @@ def loot_styles(run):
     reach = text["LootScavenging_OnlyBeyondReach"]
     gear = f"{text['LootScavenging_CategoryWeapons']}, {text['LootScavenging_CategoryApparel']}"
     chips = [
-        (reach, True),
-        (reach, False),
-        (f"{text['LootScavenging_WhoHostile']}: {text['LootScavenging_WhoMark']}", True),
-        (f"{gear}: {text['LootScavenging_OutcomeKeep']}", True),
+        [(reach, True)],
+        [(reach, False), (f"{gear}: {text['LootScavenging_OutcomeScrap']}", None)],
+        [(f"{text['LootScavenging_WhoHostile']}: {text['LootScavenging_WhoMark']}", None)],
+        [(f"{gear}: {text['LootScavenging_OutcomeKeep']}", None)],
     ]
     frames = [still(run, name, after) for name, after, _, _ in STYLES]
     img = backdrop(frames[0])
@@ -286,16 +286,18 @@ def loot_styles(run):
     # Every still shows gear landing at death, which 0.6.0 does only with the Hostiles box off; the chip says so.
     label = text["LootScavenging_HostilesKeepGear"]
     probe = Image.new("RGBA", CANVAS, (0, 0, 0, 0))
-    setting_chip(probe, (0, 0), label, False, 1400, size=22)
-    chip_w = probe.getbbox()[2]
+    chip_w = setting_chip(probe, (0, 0), label, False, 1400, size=22)
     setting_chip(img, ((CANVAS[0] - chip_w) // 2, 168), label, False, 1400, size=22)
     w, h, gap, top = 925, 385, 24, 232
     left = (CANVAS[0] - 2 * w - gap) // 2
-    for i, ((name, _, centre, caption), frame, (chip, on)) in enumerate(zip(STYLES, frames, chips)):
+    for i, ((name, _, centre, caption), frame, chip) in enumerate(zip(STYLES, frames, chips)):
         x = left + (i % 2) * (w + gap)
         y = top + (i // 2) * (h + gap)
         cropped(img, frame, centre, 470, (x, y, w, h), caption)
-        setting_chip(img, (x + 10, y + 10), chip, on, w - 20)
+        cx = x + 10
+        for label_, on in chip:
+            # Toggles carry a switch; dropdown settings (on is None) do not.
+            cx += setting_chip(img, (cx, y + 10), label_, on, x + w - 10 - cx) + 8
         if name == "drop-keeporiginal-selected":
             inset = pane(frame)
             inset = inset.resize((round(inset.width * 0.8), round(inset.height * 0.8)), Image.LANCZOS)

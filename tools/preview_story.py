@@ -177,20 +177,24 @@ def switch(on, height):
 
 
 def setting_chip(img, xy, text, on, max_width, size=17):
-    """A dark chip with a setting's label and its switch. The label shrinks until the chip fits `max_width`."""
+    """A dark chip with a setting's label and its switch, or with no switch when `on` is None (a dropdown setting). The label
+    shrinks until the chip fits `max_width`."""
     text = text.lower()
-    icon = switch(on, size + 9)
-    pad, gap = 10, 12
-    while size > 11 and font(False, size).getlength(text) + icon.width + pad * 2 + gap > max_width:
+    icon = switch(on, size + 9) if on is not None else None
+    iw = icon.width + 12 if icon else 0
+    pad = 10
+    while size > 11 and font(False, size).getlength(text) + iw + pad * 2 > max_width:
         size -= 1
     fnt = font(False, size)
-    w = round(pad + fnt.getlength(text) + gap + icon.width + pad)
-    h = icon.height + 2 * 6
+    w = round(pad + fnt.getlength(text) + iw + pad)
+    h = size + 9 + 2 * 6
     chip = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     ImageDraw.Draw(chip).rounded_rectangle([0, 0, w - 1, h - 1], radius=8, fill=(20, 20, 20, 205), outline=(235, 225, 200, 120))
     ImageDraw.Draw(chip).text((pad, h / 2), text, font=fnt, anchor="lm", fill=WHITE)
-    chip.alpha_composite(icon, (w - pad - icon.width, 6))
+    if icon:
+        chip.alpha_composite(icon, (w - pad - icon.width, 6))
     img.alpha_composite(chip, xy)
+    return w
 
 
 def framed(img, shot, frame, centre, height, box, caption, band=52):
