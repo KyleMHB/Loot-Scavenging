@@ -140,16 +140,15 @@ public class InventoryRulesTests
     }
 
     // The drop mode used to return first, so an out-of-reach item on the remove list was kept whole in keep-original
-    // mode and scrapped in the scrap modes.
+    // mode. A row set to Mark is checked after the remove list for the same reason (ticket 25).
     [Theory]
-    [InlineData(DropMode.ScrapOutOfReach)]
-    [InlineData(DropMode.ScrapEverything)]
-    [InlineData(DropMode.KeepOriginal)]
-    [InlineData(DropMode.Off)]
-    public void RemoveListBeatsEveryDropModeForOutOfReachItems(DropMode mode)
+    [InlineData(WhoRule.Apply)]
+    [InlineData(WhoRule.Mark)]
+    public void RemoveListBeatsTheRowForOutOfReachItems(WhoRule row)
     {
         var rules = TestRules.Basic();
-        rules.dropMode = mode;
+        rules.whoHostile = row;
+        rules.weapons = CategoryRule.ScrapBeyondReach();
         rules.weapons.outcome = Outcome.Keep;
         rules.removeList.Add("Gun_ChargeRifle");
         var item = Item(ItemCategory.Weapon, "Gun_ChargeRifle");

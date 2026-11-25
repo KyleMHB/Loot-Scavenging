@@ -28,7 +28,7 @@ public class LootEvaluatorTests
     [Fact]
     public void ColonyGearIsNeverTouchedEvenWithEveryGroupOn()
     {
-        var rules = TestRules.Basic(r => { r.hostile = true; r.nonHostileFaction = true; r.noFaction = true; r.prisoners = true; });
+        var rules = TestRules.Basic(r => { foreach (OwnerGroup g in LootRules.RowGroups) r.SetRow(g, WhoRule.Apply); });
 
         var decision = LootEvaluator.Evaluate(Drop(owner: OwnerGroup.Colony), rules);
 
@@ -37,10 +37,10 @@ public class LootEvaluatorTests
     }
 
     [Fact]
-    public void WildAnimalGearIsLeftAloneWhileTheNoFactionGroupIsOff()
+    public void WildGearIsLeftAloneWhileTheWildRowIsExcluded()
     {
-        var off = LootEvaluator.Evaluate(Drop(owner: OwnerGroup.NoFaction), TestRules.Basic(r => { r.noFaction = false; }));
-        var on = LootEvaluator.Evaluate(Drop(owner: OwnerGroup.NoFaction), TestRules.Basic(r => { r.noFaction = true; }));
+        var off = LootEvaluator.Evaluate(Drop(owner: OwnerGroup.NoFaction), TestRules.Basic(r => { r.whoWild = WhoRule.Exclude; }));
+        var on = LootEvaluator.Evaluate(Drop(owner: OwnerGroup.NoFaction), TestRules.Basic(r => { r.whoWild = WhoRule.Apply; }));
 
         Assert.Equal(Outcome.Keep, off.Outcome);
         Assert.Equal(DecisionReason.OwnerGroupOff, off.Reason);
@@ -52,15 +52,15 @@ public class LootEvaluatorTests
     [InlineData(OwnerGroup.NonHostileFaction)]
     [InlineData(OwnerGroup.NoFaction)]
     [InlineData(OwnerGroup.Prisoner)]
-    public void EachOwnerGroupHasItsOwnToggle(OwnerGroup group)
+    [InlineData(OwnerGroup.RecruitedPrisoner)]
+    [InlineData(OwnerGroup.OtherJoiner)]
+    public void EachOwnerGroupHasItsOwnRow(OwnerGroup group)
     {
-        var allOff = TestRules.Basic(r => { r.hostile = false; r.nonHostileFaction = false; r.noFaction = false; r.prisoners = false; });
+        var allOff = TestRules.Basic(r => { foreach (OwnerGroup g in LootRules.RowGroups) r.SetRow(g, WhoRule.Exclude); });
         var onlyThis = TestRules.Basic(r =>
         {
-            r.hostile = group == OwnerGroup.Hostile;
-            r.nonHostileFaction = group == OwnerGroup.NonHostileFaction;
-            r.noFaction = group == OwnerGroup.NoFaction;
-            r.prisoners = group == OwnerGroup.Prisoner;
+            foreach (OwnerGroup g in LootRules.RowGroups)
+                r.SetRow(g, g == group ? WhoRule.Apply : WhoRule.Exclude);
         });
 
         Assert.Equal(DecisionReason.OwnerGroupOff, LootEvaluator.Evaluate(Drop(owner: group), allOff).Reason);
@@ -97,35 +97,16 @@ public class LootEvaluatorTests
         Assert.Equal(DecisionReason.NoMap, decision.Reason);
     }
 
-    [Fact]
-    public void AnArrestFollowsOnlyItsOwnSetting()
-    {
-        var off = LootEvaluator.Evaluate(Drop(moment: Moment.Arrest), TestRules.Basic(r => { r.sortWhenArrested = false; r.sortWhenStripped = true; }));
-        var on = LootEvaluator.Evaluate(Drop(moment: Moment.Arrest), TestRules.Basic(r => { r.sortWhenArrested = true; r.sortWhenStripped = false; }));
-
-        Assert.Equal(Outcome.Keep, off.Outcome);
-        Assert.Equal(DecisionReason.MomentOff, off.Reason);
-        Assert.Equal(Outcome.Delete, on.Outcome);
-    }
-
-    [Fact]
-    public void AStripFollowsOnlyItsOwnSetting()
-    {
-        var off = LootEvaluator.Evaluate(Drop(moment: Moment.Strip), TestRules.Basic(r => { r.sortWhenStripped = false; r.sortWhenArrested = true; }));
-        var on = LootEvaluator.Evaluate(Drop(moment: Moment.Strip), TestRules.Basic(r => { r.sortWhenStripped = true; r.sortWhenArrested = false; }));
-
-        Assert.Equal(Outcome.Keep, off.Outcome);
-        Assert.Equal(DecisionReason.MomentOff, off.Reason);
-        Assert.Equal(Outcome.Delete, on.Outcome);
-    }
-
-    // A downing is neither an arrest nor a strip (ticket 24): what drops there is always sorted.
+    // The arrest and strip toggles are cut (ticket 25): gear is sorted at every moment it comes off.
     [Theory]
     [InlineData(Moment.Death)]
     [InlineData(Moment.Downed)]
-    public void DeathAndDowningAlwaysApplyWhateverTheMomentSettings(Moment moment)
+    [InlineData(Moment.Strip)]
+    [InlineData(Moment.Arrest)]
+    [InlineData(Moment.Join)]
+    public void EveryMomentIsSorted(Moment moment)
     {
-        var decision = LootEvaluator.Evaluate(Drop(moment: moment), TestRules.Basic(r => { r.sortWhenArrested = false; r.sortWhenStripped = false; }));
+        var decision = LootEvaluator.Evaluate(Drop(moment: moment), TestRules.Basic());
 
         Assert.Equal(Outcome.Delete, decision.Outcome);
     }
@@ -151,12 +132,60 @@ public class LootEvaluatorTests
     }
 
     [Fact]
-    public void TheOwnerCheckComesBeforeThePlaceAndMomentChecks()
+    public void TheOwnerCheckComesBeforeThePlaceCheck()
     {
-        var rules = TestRules.Basic(r => { r.noFaction = false; r.homeMapOnly = true; r.sortWhenStripped = false; });
+        var rules = TestRules.Basic(r => { r.whoWild = WhoRule.Exclude; r.homeMapOnly = true; });
 
         var decision = LootEvaluator.Evaluate(Drop(owner: OwnerGroup.NoFaction, map: MapKind.Away, moment: Moment.Strip), rules);
 
         Assert.Equal(DecisionReason.OwnerGroupOff, decision.Reason);
+    }
+
+    // Ticket 25: a row set to Mark is checked after the owner, place, protection and remove list, before the category rule.
+    [Fact]
+    public void ThePlaceCheckComesBeforeAMarkRow()
+    {
+        var rules = TestRules.Basic(r => { r.whoHostile = WhoRule.Mark; r.homeMapOnly = true; });
+        Assert.Equal(DecisionReason.NotHomeMap, LootEvaluator.Evaluate(Drop(map: MapKind.Away), rules).Reason);
+        Assert.Equal(DecisionReason.NoMap, LootEvaluator.Evaluate(Drop(map: MapKind.None), rules).Reason);
+    }
+
+    [Fact]
+    public void ProtectionComesBeforeAMarkRow()
+    {
+        var rules = TestRules.Basic(r => r.whoHostile = WhoRule.Mark);
+        var drop = Drop();
+        drop.QuestTagged = true;
+        Assert.Equal(DecisionReason.Protected, LootEvaluator.Evaluate(drop, rules).Reason);
+    }
+
+    [Fact]
+    public void TheRemoveListComesBeforeAMarkRow()
+    {
+        var rules = TestRules.Basic(r => r.whoHostile = WhoRule.Mark);
+        rules.removeList.Add("Gun_Autopistol");
+        var drop = Drop();
+        drop.DefName = "Gun_Autopistol";
+        var decision = LootEvaluator.Evaluate(drop, rules);
+        Assert.Equal(DecisionReason.RemoveList, decision.Reason);
+        Assert.Equal(Outcome.Delete, decision.Outcome);
+    }
+
+    [Fact]
+    public void AMarkRowComesBeforeTheCategoryRule()
+    {
+        var rules = TestRules.Basic(r => r.whoHostile = WhoRule.Mark);
+        var decision = LootEvaluator.Evaluate(Drop(), rules);
+        Assert.Equal(DecisionReason.MarkRow, decision.Reason);
+        Assert.Equal(Outcome.Keep, decision.Outcome);
+        Assert.True(LootEvaluator.CoversPawn(OwnerGroup.Hostile, MapKind.Home, rules));
+    }
+
+    [Fact]
+    public void AnExcludedRowDoesNotCoverThePawn()
+    {
+        var rules = TestRules.Basic(r => r.whoHostile = WhoRule.Exclude);
+        Assert.False(LootEvaluator.CoversPawn(OwnerGroup.Hostile, MapKind.Home, rules));
+        Assert.False(LootEvaluator.CoversPawn(OwnerGroup.Colony, MapKind.Home, TestRules.Basic()));
     }
 }

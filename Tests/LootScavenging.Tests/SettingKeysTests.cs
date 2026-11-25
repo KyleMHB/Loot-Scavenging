@@ -7,8 +7,9 @@ namespace LootScavenging.Tests;
 
 public class SettingKeysTests
 {
-    // Every key the settings file used before the settings were walked by field, copied from the old ExposeData. A changed
-    // key would make existing configs lose that value.
+    // Every key the settings file used before the settings were walked by field, copied from the old ExposeData, less the
+    // settings 0.6.0 cut or replaced (ticket 25), plus the ones it added. A changed key would make existing configs lose
+    // that value.
     private static Dictionary<string, string> SavedKeys()
     {
         var keys = new Dictionary<string, string>
@@ -16,39 +17,31 @@ public class SettingKeysTests
             ["corpses.humanlike"] = "corpseHumanlike",
             ["corpses.animal"] = "corpseAnimal",
             ["corpses.mechanoid"] = "corpseMechanoid",
-            ["corpses.chance"] = "corpseChance",
-            ["corpses.butcherRemovesApparel"] = "butcherRemovesApparel",
-            ["rules.hostile"] = "hostile",
-            ["rules.nonHostileFaction"] = "nonHostileFaction",
-            ["rules.noFaction"] = "noFaction",
-            ["rules.prisoners"] = "prisoners",
+            ["rules.whoHostile"] = "whoHostile",
+            ["rules.whoNonHostile"] = "whoNonHostile",
+            ["rules.whoWild"] = "whoWild",
+            ["rules.whoPrisoners"] = "whoPrisoners",
+            ["rules.whoRecruitedPrisoners"] = "whoRecruitedPrisoners",
+            ["rules.whoOtherJoiners"] = "whoOtherJoiners",
             ["rules.homeMapOnly"] = "homeMapOnly",
-            ["rules.sortWhenArrested"] = "sortWhenArrested",
-            ["rules.sortWhenStripped"] = "sortWhenStripped",
-            ["rules.downedGear"] = "downedGear",
-            ["rules.prisonerJoinGear"] = "prisonerJoinGear",
-            ["rules.otherJoinGear"] = "otherJoinGear",
-            ["rules.dropMode"] = "dropMode",
-            ["rules.dropIncludesMedicine"] = "dropIncludesMedicine",
-            ["rules.dropIncludesAmmunition"] = "dropIncludesAmmunition",
-            ["rules.degradeMin"] = "degradeMin",
-            ["rules.degradeMax"] = "degradeMax",
-            ["rules.degradeLowersQuality"] = "degradeLowersQuality",
             ["rules.disassemblyYield"] = "disassemblyYield",
             ["rules.disassemblyEfficiency"] = "disassemblyEfficiency",
-            ["rules.ejectCharges"] = "ejectCharges",
             ["rules.protectQuestItems"] = "protectQuestItems",
             ["rules.protectUniqueWeapons"] = "protectUniqueWeapons",
             ["rules.protectPersonaWeapons"] = "protectPersonaWeapons",
             ["rules.protectRelics"] = "protectRelics",
             ["rules.keepList"] = "keepList",
             ["rules.removeList"] = "removeList",
-            ["eraFallback"] = "eraFallback",
-            ["scrapMarketValue"] = "scrapMarketValue",
-            ["deathDrop"] = "deathDrop",
             ["colonistsKeepGear"] = "colonistsKeepGear",
+            ["hostilesKeepGear"] = "hostilesKeepGear",
+            ["nonHostilesKeepGear"] = "nonHostilesKeepGear",
+            ["scrapMarketValueNeolithic"] = "scrapMarketValueNeolithic",
+            ["scrapMarketValueMedieval"] = "scrapMarketValueMedieval",
+            ["scrapMarketValueIndustrial"] = "scrapMarketValueIndustrial",
+            ["scrapMarketValueSpacer"] = "scrapMarketValueSpacer",
+            ["scrapMarketValueUltra"] = "scrapMarketValueUltra",
+            ["scrapMarketValueArchotech"] = "scrapMarketValueArchotech",
             ["unfamiliarScope"] = "unfamiliarScope",
-            ["studyEras"] = "studyEras",
             ["recycleOrStudy"] = "recycleOrStudy",
             ["studyTechprintProjects"] = "studyTechprintProjects",
             ["studyPointsNeolithic"] = "studyPointsNeolithic",
@@ -57,7 +50,6 @@ public class SettingKeysTests
             ["studyPointsSpacer"] = "studyPointsSpacer",
             ["studyPointsUltra"] = "studyPointsUltra",
             ["studyPointsArchotech"] = "studyPointsArchotech",
-            ["studyPointsMultiplier"] = "studyPointsMultiplier",
         };
         string[] categories = { "weapons", "apparel", "ammunition", "drugs", "medicine", "food", "other" };
         string[,] ruleFields =
@@ -80,6 +72,14 @@ public class SettingKeysTests
         Dictionary<string, string> expected = SavedKeys();
         Dictionary<string, string> actual = SettingKeys.All.ToDictionary(k => k.Path, k => k.Key);
         Assert.Equal(expected.OrderBy(k => k.Key), actual.OrderBy(k => k.Key));
+    }
+
+    // An old key read into a new setting of another type would lose the value or fail to parse, so none is reused.
+    [Fact]
+    public void NoSettingReusesAKeyFrom052()
+    {
+        foreach (string old in LegacySettings.Keys)
+            Assert.DoesNotContain(SettingKeys.All, k => k.Key == old);
     }
 
     [Fact]

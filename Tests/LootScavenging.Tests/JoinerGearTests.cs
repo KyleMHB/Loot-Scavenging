@@ -3,17 +3,18 @@ using Xunit;
 
 namespace LootScavenging.Tests;
 
+/// <summary>The two joiner Who rows (ticket 20, ticket 25): Recruited prisoners and Other joiners.</summary>
 public class JoinerGearTests
 {
     [Fact]
     public void DefaultsSortPrisonersAndMarkEveryoneElse()
     {
         var rules = new LootRules();
-        Assert.Equal(JoinerGear.FollowDropMode, rules.prisonerJoinGear);
-        Assert.Equal(JoinerGear.MarkUnfamiliar, rules.otherJoinGear);
+        Assert.Equal(WhoRule.Apply, rules.whoRecruitedPrisoners);
+        Assert.Equal(WhoRule.Mark, rules.whoOtherJoiners);
         var progression = Presets.Build(PresetId.Progression).rules;
-        Assert.Equal(JoinerGear.FollowDropMode, progression.prisonerJoinGear);
-        Assert.Equal(JoinerGear.MarkUnfamiliar, progression.otherJoinGear);
+        Assert.Equal(WhoRule.Apply, progression.whoRecruitedPrisoners);
+        Assert.Equal(WhoRule.Mark, progression.whoOtherJoiners);
     }
 
     [Theory]
@@ -22,62 +23,60 @@ public class JoinerGearTests
     public void CleanupAndVanillaLeaveJoinersAlone(PresetId preset)
     {
         var rules = Presets.Build(preset).rules;
-        Assert.Equal(JoinerGear.LeaveAlone, rules.prisonerJoinGear);
-        Assert.Equal(JoinerGear.LeaveAlone, rules.otherJoinGear);
+        Assert.Equal(WhoRule.Exclude, rules.whoRecruitedPrisoners);
+        Assert.Equal(WhoRule.Exclude, rules.whoOtherJoiners);
     }
 
     [Fact]
-    public void EachKindOfJoinerReadsItsOwnSetting()
+    public void EachKindOfJoinerReadsItsOwnRow()
     {
-        var rules = new LootRules { prisonerJoinGear = JoinerGear.LeaveAlone, otherJoinGear = JoinerGear.FollowDropMode };
-        Assert.Equal(JoinerGear.LeaveAlone, JoinerGears.For(rules, wasPrisoner: true));
-        Assert.Equal(JoinerGear.FollowDropMode, JoinerGears.For(rules, wasPrisoner: false));
+        var rules = new LootRules { whoRecruitedPrisoners = WhoRule.Exclude, whoOtherJoiners = WhoRule.Apply };
+        Assert.Equal(WhoRule.Exclude, rules.RowFor(OwnerGroup.RecruitedPrisoner));
+        Assert.Equal(WhoRule.Apply, rules.RowFor(OwnerGroup.OtherJoiner));
     }
 
     [Fact]
-    public void ChangingAJoinSettingMakesAPresetChanged()
+    public void ChangingAJoinerRowMakesAPresetChanged()
     {
         SettingValues current = Presets.Build(PresetId.Progression);
-        current.rules.otherJoinGear = JoinerGear.LeaveAlone;
+        current.rules.whoOtherJoiners = WhoRule.Exclude;
         Assert.True(Presets.IsChanged(PresetId.Progression, current));
     }
 
-    [Theory]
-    [InlineData(Moment.Arrest)]
-    [InlineData(Moment.Strip)]
-    public void JoiningIsNotGatedByTheArrestAndStripSettings(Moment gated)
+    // A joiner's gear is judged under his joiner row, not the row of the group he came from.
+    [Fact]
+    public void AJoinerSetToApplyHasHisGearSortedByTheItemRules()
     {
-        var rules = TestRules.Basic(r => { r.sortWhenArrested = false; r.sortWhenStripped = false; });
-        var drop = new DropCandidate { Owner = OwnerGroup.Hostile, Moment = Moment.Join, Map = MapKind.Home, Category = ItemCategory.Weapon };
-        Assert.Equal(Outcome.Delete, LootEvaluator.Evaluate(drop, rules).Outcome);
-
-        drop.Moment = gated;
-        Assert.Equal(DecisionReason.MomentOff, LootEvaluator.Evaluate(drop, rules).Reason);
+        var rules = TestRules.Basic(r => { r.whoHostile = WhoRule.Exclude; r.whoRecruitedPrisoners = WhoRule.Apply; });
+        var drop = new DropCandidate { Owner = OwnerGroup.RecruitedPrisoner, Moment = Moment.Join, Map = MapKind.Home, Category = ItemCategory.Weapon };
+        var d = LootEvaluator.Evaluate(drop, rules);
+        Assert.Equal(Outcome.Delete, d.Outcome);
+        Assert.Equal(DecisionReason.CategoryRule, d.Reason);
     }
 
     [Fact]
-    public void JoiningStillNeedsTheOwnerGroupOn()
+    public void AnExcludedJoinerRowLeavesTheGearAlone()
     {
-        var rules = TestRules.Basic(r => { r.prisoners = false; });
-        var drop = new DropCandidate { Owner = OwnerGroup.Prisoner, Moment = Moment.Join, Map = MapKind.Home, Category = ItemCategory.Weapon };
+        var rules = TestRules.Basic(r => { r.whoOtherJoiners = WhoRule.Exclude; });
+        var drop = new DropCandidate { Owner = OwnerGroup.OtherJoiner, Moment = Moment.Join, Map = MapKind.Home, Category = ItemCategory.Weapon };
         Assert.Equal(DecisionReason.OwnerGroupOff, LootEvaluator.Evaluate(drop, rules).Reason);
     }
 
     [Theory]
-    [InlineData(JoinerGear.MarkUnfamiliar, true, true)]
-    [InlineData(JoinerGear.MarkUnfamiliar, false, false)]
-    [InlineData(JoinerGear.FollowDropMode, true, false)]
-    [InlineData(JoinerGear.LeaveAlone, true, false)]
-    public void OnlyOutOfReachGearIsMarked(JoinerGear setting, bool outOfReach, bool marked)
+    [InlineData(WhoRule.Mark, true, true)]
+    [InlineData(WhoRule.Mark, false, false)]
+    [InlineData(WhoRule.Apply, true, false)]
+    [InlineData(WhoRule.Exclude, true, false)]
+    public void OnlyOutOfReachGearIsMarked(WhoRule row, bool outOfReach, bool marked)
     {
-        Assert.Equal(marked, UnfamiliarRule.ShouldMarkJoining(setting, outOfReach));
+        Assert.Equal(marked, UnfamiliarRule.ShouldMarkJoining(row, outOfReach));
     }
 
     [Fact]
-    public void AJoinMarkNeedsNoDropMode()
+    public void AJoinMarkNeedsNoLootRowSetToMark()
     {
-        // The mark is not behind IsUnfamiliar(mode, ...): the ordinary rule says no in every drop mode but keep-original.
-        Assert.False(UnfamiliarRule.IsUnfamiliar(DropMode.ScrapOutOfReach, UnfamiliarScope.AllOutOfReach, true, Era.Spacer, Era.Neolithic));
+        // The mark is not behind IsUnfamiliar: with no loot row set to Mark the ordinary rule says no.
+        Assert.False(UnfamiliarRule.IsUnfamiliar(false, UnfamiliarScope.AllOutOfReach, true, Era.Spacer, Era.Neolithic));
         Assert.True(UnfamiliarRule.JoinMarkHolds(Era.Spacer, true, Era.Neolithic));
     }
 

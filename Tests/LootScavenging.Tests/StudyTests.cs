@@ -10,8 +10,8 @@ public class StudyTests
             specialSource: false, prerequisitesCompleted: true);
 
     private static StudyVerdict Check(ScrapTier tier, Era colony, ProjectFacts project,
-        StudyEraLimit eras = StudyEraLimit.ColonyEraAndBelow, bool techprints = false, float factor = 1f) =>
-        StudyRules.Check(tier, colony, project, eras, techprints, pointsPerUnit: 20f, researchFactor: factor);
+        bool techprints = false, float factor = 1f) =>
+        StudyRules.Check(tier, colony, project, techprints, pointsPerUnit: 20f, researchFactor: factor);
 
     [Fact]
     public void SameEraScrapPaysIntoTheCurrentProject()
@@ -38,18 +38,11 @@ public class StudyTests
     }
 
     [Fact]
-    public void ScrapAboveTheColonysEraWaitsByDefault()
+    public void ScrapAboveTheColonysEraWaits()
     {
         Assert.Equal(StudyVerdict.ScrapAboveColonyEra, Check(ScrapTier.Industrial, Era.Neolithic, Project(Era.Neolithic)));
         // Neolithic scrap also covers Animal-era gear, so an Animal-era colony can study it.
         Assert.Equal(StudyVerdict.Eligible, Check(ScrapTier.Neolithic, Era.Animal, Project(Era.Neolithic)));
-    }
-
-    [Fact]
-    public void AnyEraSettingLetsHigherScrapBeStudied()
-    {
-        Assert.Equal(StudyVerdict.Eligible,
-            Check(ScrapTier.Industrial, Era.Neolithic, Project(Era.Neolithic), StudyEraLimit.AnyEra));
     }
 
     [Fact]

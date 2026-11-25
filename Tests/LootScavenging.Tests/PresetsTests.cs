@@ -88,17 +88,21 @@ public class PresetsTests
     [InlineData(PresetId.Progression)]
     [InlineData(PresetId.Cleanup)]
     [InlineData(PresetId.Vanilla)]
-    public void NoPresetIncludesMedicineInTheDropMode(PresetId preset)
+    public void NoPresetScrapsMedicine(PresetId preset)
     {
-        Assert.False(Presets.Build(preset).rules.dropIncludesMedicine);
+        Assert.Equal(Outcome.Keep, Presets.Build(preset).rules.medicine.outcome);
     }
 
     [Fact]
     public void CleanupAndVanillaHaveNoEraHandling()
     {
         Assert.Equal(Outcome.Keep, Judge(PresetId.Cleanup, Drop(ItemCategory.Weapon, quality: ItemQuality.Good, outOfReach: true)));
-        Assert.Equal(DropMode.Off, Presets.Build(PresetId.Cleanup).rules.dropMode);
-        Assert.Equal(DropMode.Off, Presets.Build(PresetId.Vanilla).rules.dropMode);
+        foreach (PresetId preset in new[] { PresetId.Cleanup, PresetId.Vanilla })
+        {
+            LootRules rules = Presets.Build(preset).rules;
+            foreach (CategoryInfo category in ItemCategories.All)
+                Assert.False(category.Rule(rules).onlyBeyondReach);
+        }
     }
 
     [Theory]
@@ -112,16 +116,11 @@ public class PresetsTests
     }
 
     [Fact]
-    public void CleanupActsAtDeathAndDowningOnly()
+    // The arrest and strip toggles are cut (ticket 25), so Cleanup acts at every moment too.
+    public void CleanupActsAtEveryMoment()
     {
-        var poor = Drop(quality: ItemQuality.Poor);
-        Assert.Equal(Outcome.Delete, Judge(PresetId.Cleanup, poor));
-        poor.Moment = Moment.Downed;
-        Assert.Equal(Outcome.Delete, Judge(PresetId.Cleanup, poor));
-        poor.Moment = Moment.Arrest;
-        Assert.Equal(DecisionReason.MomentOff, LootEvaluator.Evaluate(poor, Presets.Build(PresetId.Cleanup).rules).Reason);
-        poor.Moment = Moment.Strip;
-        Assert.Equal(DecisionReason.MomentOff, LootEvaluator.Evaluate(poor, Presets.Build(PresetId.Cleanup).rules).Reason);
+        foreach (Moment moment in new[] { Moment.Death, Moment.Downed, Moment.Arrest, Moment.Strip })
+            Assert.Equal(Outcome.Delete, Judge(PresetId.Cleanup, Drop(moment: moment, quality: ItemQuality.Poor)));
     }
 
     [Theory]
@@ -129,16 +128,23 @@ public class PresetsTests
     [InlineData(PresetId.Progression, OwnerGroup.NonHostileFaction, true)]
     [InlineData(PresetId.Progression, OwnerGroup.NoFaction, true)]
     [InlineData(PresetId.Progression, OwnerGroup.Prisoner, true)]
+    [InlineData(PresetId.Progression, OwnerGroup.RecruitedPrisoner, true)]
+    [InlineData(PresetId.Progression, OwnerGroup.OtherJoiner, true)]
     [InlineData(PresetId.Cleanup, OwnerGroup.Hostile, true)]
     [InlineData(PresetId.Cleanup, OwnerGroup.NonHostileFaction, false)]
     [InlineData(PresetId.Cleanup, OwnerGroup.NoFaction, false)]
     [InlineData(PresetId.Cleanup, OwnerGroup.Prisoner, false)]
+    [InlineData(PresetId.Cleanup, OwnerGroup.RecruitedPrisoner, false)]
+    [InlineData(PresetId.Cleanup, OwnerGroup.OtherJoiner, false)]
     [InlineData(PresetId.Vanilla, OwnerGroup.Hostile, false)]
     [InlineData(PresetId.Vanilla, OwnerGroup.NonHostileFaction, false)]
     [InlineData(PresetId.Vanilla, OwnerGroup.NoFaction, false)]
     [InlineData(PresetId.Vanilla, OwnerGroup.Prisoner, false)]
+    [InlineData(PresetId.Vanilla, OwnerGroup.RecruitedPrisoner, false)]
+    [InlineData(PresetId.Vanilla, OwnerGroup.OtherJoiner, false)]
     public void OwnerGroupsMatchTheTable(PresetId preset, OwnerGroup owner, bool affected)
     {
+        Assert.Equal(affected, Presets.Build(preset).rules.RowFor(owner) != WhoRule.Exclude);
         var decision = LootEvaluator.Evaluate(Drop(owner: owner, quality: ItemQuality.Awful, outOfReach: true), Presets.Build(preset).rules);
         Assert.Equal(affected, decision.Reason != DecisionReason.OwnerGroupOff);
     }
@@ -154,7 +160,7 @@ public class PresetsTests
     {
         SettingValues v = Presets.Build(preset);
         var corpse = new CorpseCandidate { Owner = OwnerGroup.Hostile, Map = MapKind.Home, Kind = kind };
-        return CorpseEvaluator.Evaluate(corpse, v.rules, v.corpses, 0.999);
+        return CorpseEvaluator.Evaluate(corpse, v.rules, v.corpses);
     }
 
     [Fact]
@@ -175,15 +181,51 @@ public class PresetsTests
         Assert.NotEqual(CorpseDecision.Remove, Corpse(preset, CorpseKind.Mechanoid));
     }
 
+    // Butchering always strips the corpse and sorts its gear wherever the owner's row covers it (ticket 25).
     [Theory]
-    [InlineData(PresetId.Progression)]
-    [InlineData(PresetId.Cleanup)]
-    [InlineData(PresetId.Vanilla)]
-    public void NoPresetRemovesApparelWhenButchering(PresetId preset)
+    [InlineData(PresetId.Progression, true)]
+    [InlineData(PresetId.Cleanup, true)]
+    [InlineData(PresetId.Vanilla, false)]
+    public void ButcheringSortsWhereTheHostileRowCovers(PresetId preset, bool sorts)
     {
         SettingValues v = Presets.Build(preset);
-        v.rules.hostile = true;
-        Assert.False(CorpseEvaluator.RemovesApparelOnButchering(OwnerGroup.Hostile, MapKind.Home, v.rules, v.corpses));
+        Assert.Equal(sorts, CorpseEvaluator.ButcherSorts(OwnerGroup.Hostile, MapKind.Home, v.rules));
+    }
+
+    [Fact]
+    public void ProgressionMarksOtherJoinersAndAppliesToEveryoneElse()
+    {
+        LootRules rules = Presets.Build(PresetId.Progression).rules;
+        foreach (OwnerGroup group in LootRules.RowGroups)
+            Assert.Equal(group == OwnerGroup.OtherJoiner ? WhoRule.Mark : WhoRule.Apply, rules.RowFor(group));
+    }
+
+    [Fact]
+    public void ProgressionScrapsWeaponsAndApparelBeyondReachAndKeepsTheRest()
+    {
+        LootRules rules = Presets.Build(PresetId.Progression).rules;
+        foreach (CategoryInfo category in ItemCategories.All)
+        {
+            CategoryRule rule = category.Rule(rules);
+            bool gear = category.Category == ItemCategory.Weapon || category.Category == ItemCategory.Apparel;
+            Assert.Equal(gear ? Outcome.Scrap : Outcome.Keep, rule.outcome);
+            Assert.Equal(gear, rule.onlyBeyondReach);
+        }
+    }
+
+    [Fact]
+    public void EveryPresetStartsWithTheSamePerEraValues()
+    {
+        SettingValues progression = Presets.Build(PresetId.Progression);
+        foreach (PresetId preset in new[] { PresetId.Cleanup, PresetId.Vanilla })
+        {
+            SettingValues v = Presets.Build(preset);
+            foreach (ScrapTier tier in SettingValues.Tiers)
+            {
+                Assert.Equal(progression.ScrapMarketValue(tier), v.ScrapMarketValue(tier));
+                Assert.Equal(progression.StudyPoints(tier), v.StudyPoints(tier));
+            }
+        }
     }
 
     [Fact]
@@ -213,13 +255,14 @@ public class PresetsTests
     {
         var edits = new System.Action<SettingValues>[]
         {
-            v => v.rules.prisoners = !v.rules.prisoners,
+            v => v.rules.whoPrisoners = WhoRule.Mark,
             v => v.rules.apparel.belowQuality = ItemQuality.Excellent,
             v => v.rules.weapons.chance = 0.75f,
-            v => v.rules.degradeMax = 0.6f,
+            v => v.hostilesKeepGear = !v.hostilesKeepGear,
             v => v.corpses.animal = true,
-            v => v.scrapMarketValue = 1f,
-            v => v.studyEras = StudyEraLimit.AnyEra,
+            v => v.SetScrapMarketValue(ScrapTier.Medieval, 1f),
+            v => v.SetStudyPoints(ScrapTier.Spacer, 5f),
+            v => v.rules.ammunition = CategoryRule.ScrapBeyondReach(),
             v => v.unfamiliarScope = UnfamiliarScope.LootedOnly,
         };
         foreach (var edit in edits)

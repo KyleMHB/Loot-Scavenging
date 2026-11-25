@@ -23,18 +23,18 @@ public class SettingsLoadTests
     {
         PresetConfig pack = Pack(null);
         SettingValues loaded = Presets.CodeProgression();
-        loaded.corpses.chance = 0.5f;
-        loaded.deathDrop = DeathDrop.AllOnBody;
+        loaded.corpses.humanlike = true;
+        loaded.hostilesKeepGear = false;
         loaded.rules.apparel.outcome = Outcome.Delete; // not in the file: a stale value must be replaced
 
-        SettingValues result = SettingsLoad.Resolve(loaded, false, Keys("activePreset", "corpseChance", "deathDrop"), pack, out bool kept);
+        SettingValues result = SettingsLoad.Resolve(loaded, false, Keys("activePreset", "corpseHumanlike", "hostilesKeepGear"), pack, out bool kept);
 
         Assert.True(kept);
-        Assert.Equal(0.5f, result.corpses.chance);
-        Assert.Equal(DeathDrop.AllOnBody, result.deathDrop);
+        Assert.True(result.corpses.humanlike);
+        Assert.False(result.hostilesKeepGear);
         SettingValues expected = Presets.Defaults(pack);
-        expected.corpses.chance = 0.5f;
-        expected.deathDrop = DeathDrop.AllOnBody;
+        expected.corpses.humanlike = true;
+        expected.hostilesKeepGear = false;
         Assert.True(result.SameAs(expected));
     }
 
@@ -43,57 +43,57 @@ public class SettingsLoadTests
     {
         PresetConfig pack = Pack(v =>
         {
-            v.rules.dropMode = DropMode.KeepOriginal;
-            v.scrapMarketValue = 2f;
+            v.rules.whoHostile = WhoRule.Mark;
+            v.SetScrapMarketValue(ScrapTier.Spacer, 2f);
             v.rules.keepList = new List<string> { "Gun_Revolver" };
         });
         SettingValues loaded = Presets.CodeProgression();
-        loaded.deathDrop = DeathDrop.AllOnBody;
+        loaded.hostilesKeepGear = false;
 
-        SettingValues result = SettingsLoad.Resolve(loaded, false, Keys("deathDrop"), pack, out _);
+        SettingValues result = SettingsLoad.Resolve(loaded, false, Keys("hostilesKeepGear"), pack, out _);
 
-        Assert.Equal(DropMode.KeepOriginal, result.rules.dropMode);
-        Assert.Equal(2f, result.scrapMarketValue);
+        Assert.Equal(WhoRule.Mark, result.rules.whoHostile);
+        Assert.Equal(2f, result.ScrapMarketValue(ScrapTier.Spacer));
         Assert.Equal(new List<string> { "Gun_Revolver" }, result.rules.keepList);
-        Assert.Equal(DeathDrop.AllOnBody, result.deathDrop);
+        Assert.False(result.hostilesKeepGear);
     }
 
     [Fact]
     public void AnUpgradedSeededConfigAlsoTakesThePatchedDefaultForAMissingKey()
     {
-        PresetConfig pack = Pack(v => v.rules.dropMode = DropMode.KeepOriginal);
+        PresetConfig pack = Pack(v => v.rules.whoHostile = WhoRule.Mark);
         SettingValues loaded = Presets.CodeProgression();
         loaded.corpses.humanlike = true;
 
         SettingValues result = SettingsLoad.Resolve(loaded, true, Keys("defaultsSeeded", "corpseHumanlike"), pack, out bool kept);
 
         Assert.True(kept);
-        Assert.Equal(DropMode.KeepOriginal, result.rules.dropMode);
+        Assert.Equal(WhoRule.Mark, result.rules.whoHostile);
         Assert.True(result.corpses.humanlike);
     }
 
     [Fact]
     public void ALockedKeyInTheFileEndsAtThePackValue()
     {
-        PresetConfig pack = Pack(v => v.rules.dropMode = DropMode.KeepOriginal, SettingNames.DropMode, "rules.weapons");
+        PresetConfig pack = Pack(v => v.rules.whoHostile = WhoRule.Mark, SettingNames.WhoHostile, "rules.weapons");
         SettingValues loaded = Presets.CodeProgression();
-        loaded.rules.dropMode = DropMode.Off;
+        loaded.rules.whoHostile = WhoRule.Exclude;
         loaded.rules.weapons.outcome = Outcome.Delete;
-        loaded.deathDrop = DeathDrop.AllOnBody;
+        loaded.hostilesKeepGear = false;
 
-        SettingValues result = SettingsLoad.Resolve(loaded, false, Keys("dropMode", "weaponsOutcome", "deathDrop"), pack, out _);
+        SettingValues result = SettingsLoad.Resolve(loaded, false, Keys("whoHostile", "weaponsOutcome", "hostilesKeepGear"), pack, out _);
 
-        Assert.Equal(DropMode.KeepOriginal, result.rules.dropMode);
-        Assert.Equal(Outcome.Keep, result.rules.weapons.outcome);
-        Assert.Equal(DeathDrop.AllOnBody, result.deathDrop);
+        Assert.Equal(WhoRule.Mark, result.rules.whoHostile);
+        Assert.Equal(Outcome.Scrap, result.rules.weapons.outcome);
+        Assert.False(result.hostilesKeepGear);
     }
 
     [Fact]
     public void AFileWithNoSavedKeyIsUnseededAndTakesTheDefaults()
     {
-        PresetConfig pack = Pack(v => v.scrapMarketValue = 2f);
+        PresetConfig pack = Pack(v => v.SetScrapMarketValue(ScrapTier.Industrial, 2f));
         SettingValues loaded = Presets.CodeProgression();
-        loaded.deathDrop = DeathDrop.AllOnBody;
+        loaded.hostilesKeepGear = false;
 
         Assert.False(SettingsLoad.IsSeeded(false, null));
         Assert.False(SettingsLoad.IsSeeded(false, Keys()));
@@ -115,7 +115,7 @@ public class SettingsLoadTests
     [Fact]
     public void AFileHoldingOnlyActivePresetIsKeptAndFilledFromTheBaseline()
     {
-        PresetConfig pack = Pack(v => v.scrapMarketValue = 2f);
+        PresetConfig pack = Pack(v => v.SetScrapMarketValue(ScrapTier.Industrial, 2f));
         SettingValues result = SettingsLoad.Resolve(Presets.CodeProgression(), false, Keys("activePreset"), pack, out bool kept);
         Assert.True(kept);
         Assert.True(result.SameAs(Presets.Defaults(pack)));
@@ -124,17 +124,17 @@ public class SettingsLoadTests
     [Fact]
     public void WithNoFileReadSinceTheLastLoadNothingIsFilledButLocksHold()
     {
-        PresetConfig pack = Pack(null, SettingNames.DropMode);
+        PresetConfig pack = Pack(null, SettingNames.WhoHostile);
         SettingValues current = Presets.Defaults(pack);
-        current.rules.dropMode = DropMode.Off;
-        current.deathDrop = DeathDrop.AllOnBody;
+        current.rules.whoHostile = WhoRule.Exclude;
+        current.hostilesKeepGear = false;
 
         SettingValues result = SettingsLoad.Resolve(current, true, null, pack, out bool kept);
 
         Assert.True(kept);
-        Assert.Equal(DropMode.ScrapOutOfReach, result.rules.dropMode);
-        Assert.Equal(DeathDrop.AllOnBody, result.deathDrop);
-        Assert.Equal(DropMode.Off, current.rules.dropMode); // the input is not edited
+        Assert.Equal(WhoRule.Apply, result.rules.whoHostile);
+        Assert.False(result.hostilesKeepGear);
+        Assert.Equal(WhoRule.Exclude, current.rules.whoHostile); // the input is not edited
     }
 
     [Fact]
@@ -143,12 +143,12 @@ public class SettingsLoadTests
         // A file saved before 0.5.2 left out a value equal to the baseline, so the fill must give back that same value.
         PresetConfig pack = Pack(null);
         SettingValues cleanup = Presets.Build(PresetId.Cleanup, pack);
-        cleanup.rules.dropMode = pack.Progression.rules.dropMode;
+        cleanup.rules.whoNonHostile = pack.Progression.rules.whoNonHostile;
         SettingValues baseline = SettingsLoad.Baseline(pack);
         var written = new HashSet<string>(SettingKeys.All
             .Where(k => k.Path.StartsWith("rules.keep") || k.Path.StartsWith("rules.remove") || !LeafEqual(cleanup, baseline, k.Path))
             .Select(k => k.Key)) { "activePreset" };
-        Assert.DoesNotContain("dropMode", written);
+        Assert.DoesNotContain("whoNonHostile", written);
 
         SettingValues result = SettingsLoad.Resolve(cleanup, true, written, pack, out _);
         Assert.True(result.SameAs(cleanup));
@@ -165,18 +165,18 @@ public class SettingsLoadTests
         PresetConfig before = Pack(v => v.corpses.animal = false);
         SettingValues saved = Presets.Build(PresetId.Cleanup, before);
         saved.corpses.animal = false;
-        saved.rules.dropMode = before.Progression.rules.dropMode;
+        saved.rules.whoNonHostile = before.Progression.rules.whoNonHostile;
 
         PresetConfig after = Pack(v =>
         {
             v.corpses.animal = true;
-            v.rules.dropMode = DropMode.KeepOriginal;
+            v.rules.whoNonHostile = WhoRule.Mark;
         });
         SettingValues result = SettingsLoad.Resolve(saved, true, EveryKey(), after, out bool kept);
 
         Assert.True(kept);
         Assert.False(result.corpses.animal);
-        Assert.Equal(before.Progression.rules.dropMode, result.rules.dropMode);
+        Assert.Equal(before.Progression.rules.whoNonHostile, result.rules.whoNonHostile);
         Assert.True(result.SameAs(saved));
     }
 
@@ -221,14 +221,12 @@ public class SettingsLoadTests
         SettingValues values = Presets.CodeProgression();
         values.studyPointsSpacer = 40f;
         values.studyPointsUltra = 0f;
-        values.studyPointsMultiplier = 3f;
         var present = Keys(SettingNames.StudyPoints(ScrapTier.Spacer), SettingNames.StudyPoints(ScrapTier.Ultra));
 
         Assert.True(SettingsLoad.HalveOldStudyPoints(values, present, new SettingLocks(new string[0])));
 
         Assert.Equal(20f, values.studyPointsSpacer);
         Assert.Equal(0f, values.studyPointsUltra);
-        Assert.Equal(3f, values.studyPointsMultiplier); // halving it too would halve the points twice
     }
 
     [Fact]
@@ -272,78 +270,357 @@ public class SettingsLoadTests
         Assert.Equal(12.5f, result.studyPointsSpacer);
     }
 
-    // Ticket 24: "Also when stripped or arrested" split into two toggles. A file from before keeps its choice in both.
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void AnOldDownedAndStripValueCarriesIntoBothToggles(bool old)
+    // ---- Ticket 25, decision 11: a settings file from 0.5.2 translated into the new settings. ----
+
+    // Every old setting at its 0.5.2 default, as the mod's own 0.5.2 save wrote it.
+    private static LegacySettings OldDefaults()
+    {
+        var legacy = new LegacySettings();
+        legacy.Set(LegacySettings.Hostile, "True");
+        legacy.Set(LegacySettings.NonHostileFaction, "True");
+        legacy.Set(LegacySettings.NoFaction, "True");
+        legacy.Set(LegacySettings.Prisoners, "True");
+        legacy.Set(LegacySettings.PrisonerJoinGear, LegacySettings.FollowDropMode);
+        legacy.Set(LegacySettings.OtherJoinGear, LegacySettings.MarkUnfamiliar);
+        legacy.Set(LegacySettings.DropMode, LegacySettings.ScrapOutOfReach);
+        legacy.Set(LegacySettings.DropIncludesMedicine, "False");
+        legacy.Set(LegacySettings.DropIncludesAmmunition, "False");
+        legacy.Set(LegacySettings.DeathDrop, LegacySettings.Ground);
+        legacy.Set(LegacySettings.StudyPointsMultiplier, "1");
+        legacy.Set(LegacySettings.ScrapMarketValue, "0.01");
+        legacy.Set("eraFallback", "CarrierFaction");
+        legacy.Set("corpseChance", "1");
+        legacy.Set("sortWhenArrested", "True");
+        return legacy;
+    }
+
+    // The keys a 0.5.2 save holds that 0.6.0 still reads: every category rule, the corpse toggles, the study settings and
+    // the colonist box. The Who rows, the two new boxes and the per-tier market values are new, so it never holds them.
+    private static HashSet<string> OldFileKeys()
+    {
+        var keys = new HashSet<string> { "activePreset", "defaultsSeeded" };
+        foreach (SettingKey key in SettingKeys.All)
+        {
+            bool isNew = key.Path.StartsWith("rules.who") || key.Path == SettingNames.HostilesKeepGear
+                || key.Path == SettingNames.NonHostilesKeepGear || key.Path.StartsWith("scrapMarketValue");
+            if (!isNew)
+                keys.Add(key.Key);
+        }
+        return keys;
+    }
+
+    // The values a 0.5.2 save at its defaults leaves after loading: every category rule was Keep in 0.5.2.
+    private static SettingValues OldLoaded()
+    {
+        SettingValues loaded = Presets.CodeProgression();
+        foreach (CategoryInfo category in ItemCategories.All)
+            loaded.rules.SetRule(category, new CategoryRule(Outcome.Keep));
+        return loaded;
+    }
+
+    private static SettingValues FromOldFile(System.Action<LegacySettings> change, PresetConfig pack = null,
+        System.Action<SettingValues> loadedChange = null, HashSet<string> present = null)
+    {
+        LegacySettings legacy = OldDefaults();
+        change?.Invoke(legacy);
+        SettingValues loaded = OldLoaded();
+        loadedChange?.Invoke(loaded);
+        return SettingsLoad.Resolve(loaded, false, present ?? OldFileKeys(), pack ?? Pack(null), out _, legacy);
+    }
+
+    // Decision 13: an old value equal to its 0.5.2 default becomes the 0.6.0 default.
+    [Fact]
+    public void AnOldFileAtEveryDefaultLoadsAsTheNewDefaults()
     {
         PresetConfig pack = Pack(null);
-        SettingValues loaded = Presets.CodeProgression();
-        var present = Keys("activePreset", "dropMode");
-
-        SettingsLoad.MigrateDownedAndStrip(loaded, present, old);
-        SettingValues result = SettingsLoad.Resolve(loaded, false, present, pack, out _);
-
-        Assert.Equal(old, result.rules.sortWhenArrested);
-        Assert.Equal(old, result.rules.sortWhenStripped);
+        Assert.True(FromOldFile(null, pack).SameAs(Presets.Defaults(pack)));
     }
 
     [Fact]
-    public void WithoutTheOldKeyBothTogglesTakeTheDefault()
+    public void AnOldFileAtEveryDefaultTakesThePacksNewDefaults()
     {
-        PresetConfig pack = Pack(null);
-        SettingValues loaded = Presets.CodeProgression();
-        var present = Keys("activePreset", "dropMode");
-
-        SettingsLoad.MigrateDownedAndStrip(loaded, present, null);
-        SettingValues result = SettingsLoad.Resolve(loaded, false, present, pack, out _);
-
-        Assert.True(result.rules.sortWhenArrested);
-        Assert.True(result.rules.sortWhenStripped);
+        PresetConfig pack = Pack(v =>
+        {
+            v.rules.whoOtherJoiners = WhoRule.Exclude;
+            v.rules.apparel = new CategoryRule(Outcome.Keep);
+            v.SetScrapMarketValue(ScrapTier.Spacer, 3f);
+            v.nonHostilesKeepGear = false;
+        });
+        Assert.True(FromOldFile(null, pack).SameAs(Presets.Defaults(pack)));
     }
 
     [Fact]
-    public void ANewToggleTheFileHoldsWinsOverTheOldKey()
+    public void AFileHoldingOnlyOldKeysCountsAsSaved()
     {
-        SettingValues loaded = Presets.CodeProgression();
-        loaded.rules.sortWhenStripped = true;
-        var present = Keys("sortWhenStripped");
-
-        SettingsLoad.MigrateDownedAndStrip(loaded, present, false);
-
-        Assert.False(loaded.rules.sortWhenArrested);
-        Assert.True(loaded.rules.sortWhenStripped);
-    }
-
-    [Fact]
-    public void ALockOnTheOldKeyLocksBothToggles()
-    {
-        PresetConfig pack = Pack(v => { v.rules.sortWhenArrested = false; v.rules.sortWhenStripped = false; }, "rules.onDownedAndStrip");
-        SettingValues loaded = Presets.CodeProgression();
-
-        SettingValues result = SettingsLoad.Resolve(loaded, true, Keys("sortWhenArrested", "sortWhenStripped"), pack, out _);
-
-        Assert.True(pack.Locks.IsLocked(SettingNames.SortWhenArrested));
-        Assert.True(pack.Locks.IsLocked(SettingNames.SortWhenStripped));
-        Assert.Empty(pack.Locks.Unknown);
-        Assert.False(result.rules.sortWhenArrested);
-        Assert.False(result.rules.sortWhenStripped);
+        var legacy = new LegacySettings();
+        legacy.Set(LegacySettings.Hostile, "False");
+        SettingValues result = SettingsLoad.Resolve(Presets.CodeProgression(), false, Keys(), Pack(null), out bool kept, legacy);
+        Assert.True(kept);
+        Assert.Equal(WhoRule.Exclude, result.rules.whoHostile);
     }
 
     [Theory]
-    [InlineData("false", false)]
-    [InlineData("true", true)]
-    [InlineData(null, true)]
-    public void AnOldDefNodeSetsBothToggles(string node, bool expected)
+    [InlineData(LegacySettings.Hostile, OwnerGroup.Hostile)]
+    [InlineData(LegacySettings.NonHostileFaction, OwnerGroup.NonHostileFaction)]
+    [InlineData(LegacySettings.NoFaction, OwnerGroup.NoFaction)]
+    [InlineData(LegacySettings.Prisoners, OwnerGroup.Prisoner)]
+    public void AGroupSwitchedOffBecomesAnExcludedRow(string key, OwnerGroup group)
     {
-        var rules = new LootRules { onDownedAndStrip = node };
+        SettingValues result = FromOldFile(l => l.Set(key, "False"));
+        foreach (OwnerGroup other in LootRules.RowGroups)
+            Assert.Equal(other == group ? WhoRule.Exclude : Presets.CodeProgression().rules.RowFor(other), result.rules.RowFor(other));
+    }
 
-        rules.ApplyOldDownedAndStrip();
+    [Theory]
+    [InlineData(LegacySettings.PrisonerJoinGear, LegacySettings.MarkUnfamiliar, OwnerGroup.RecruitedPrisoner, WhoRule.Mark)]
+    [InlineData(LegacySettings.PrisonerJoinGear, LegacySettings.LeaveAlone, OwnerGroup.RecruitedPrisoner, WhoRule.Exclude)]
+    [InlineData(LegacySettings.OtherJoinGear, LegacySettings.FollowDropMode, OwnerGroup.OtherJoiner, WhoRule.Apply)]
+    [InlineData(LegacySettings.OtherJoinGear, LegacySettings.LeaveAlone, OwnerGroup.OtherJoiner, WhoRule.Exclude)]
+    public void AChangedJoinerChoiceBecomesItsRow(string key, string old, OwnerGroup group, WhoRule expected)
+    {
+        Assert.Equal(expected, FromOldFile(l => l.Set(key, old)).rules.RowFor(group));
+    }
 
-        Assert.Equal(expected, rules.sortWhenArrested);
-        Assert.Equal(expected, rules.sortWhenStripped);
-        Assert.Null(rules.onDownedAndStrip);
+    [Fact]
+    public void ScrapEverythingScrapsEveryKeptCategoryButMedicineAndAmmunition()
+    {
+        SettingValues result = FromOldFile(l => l.Set(LegacySettings.DropMode, LegacySettings.ScrapEverything),
+            loadedChange: v => v.rules.food = new CategoryRule(Outcome.Delete));
+        foreach (ItemCategory category in new[] { ItemCategory.Weapon, ItemCategory.Apparel, ItemCategory.Drugs, ItemCategory.Other })
+        {
+            Assert.Equal(Outcome.Scrap, result.rules.RuleFor(category).outcome);
+            Assert.False(result.rules.RuleFor(category).onlyBeyondReach);
+        }
+        Assert.Equal(Outcome.Delete, result.rules.food.outcome); // a rule of the player's own is not touched
+        Assert.Equal(Outcome.Keep, result.rules.medicine.outcome);
+        Assert.Equal(Outcome.Keep, result.rules.ammunition.outcome);
+    }
+
+    [Fact]
+    public void ScrapEverythingScrapsMedicineAndAmmunitionWhenTheyWereIncluded()
+    {
+        SettingValues result = FromOldFile(l =>
+        {
+            l.Set(LegacySettings.DropMode, LegacySettings.ScrapEverything);
+            l.Set(LegacySettings.DropIncludesMedicine, "True");
+            l.Set(LegacySettings.DropIncludesAmmunition, "True");
+        });
+        Assert.Equal(Outcome.Scrap, result.rules.medicine.outcome);
+        Assert.Equal(Outcome.Scrap, result.rules.ammunition.outcome);
+    }
+
+    [Fact]
+    public void ScrapOutOfReachWithAmmunitionIncludedScrapsAmmunitionBeyondReach()
+    {
+        SettingValues result = FromOldFile(l => l.Set(LegacySettings.DropIncludesAmmunition, "True"));
+        Assert.Equal(Outcome.Scrap, result.rules.ammunition.outcome);
+        Assert.True(result.rules.ammunition.onlyBeyondReach);
+        Assert.Equal(Outcome.Keep, result.rules.medicine.outcome);
+        Assert.True(result.rules.weapons.onlyBeyondReach);
+    }
+
+    [Fact]
+    public void KeepOriginalMarksEveryAppliedRowAndKeepsTheCategories()
+    {
+        SettingValues result = FromOldFile(l =>
+        {
+            l.Set(LegacySettings.DropMode, LegacySettings.KeepOriginal);
+            l.Set(LegacySettings.Prisoners, "False");
+        });
+        Assert.Equal(WhoRule.Mark, result.rules.whoHostile);
+        Assert.Equal(WhoRule.Mark, result.rules.whoNonHostile);
+        Assert.Equal(WhoRule.Mark, result.rules.whoWild);
+        Assert.Equal(WhoRule.Mark, result.rules.whoRecruitedPrisoners);
+        Assert.Equal(WhoRule.Mark, result.rules.whoOtherJoiners);
+        Assert.Equal(WhoRule.Exclude, result.rules.whoPrisoners);
+        foreach (CategoryInfo category in ItemCategories.All)
+            Assert.Equal(Outcome.Keep, category.Rule(result.rules).outcome);
+    }
+
+    [Fact]
+    public void OffKeepsTheCategoriesAndTheRows()
+    {
+        SettingValues result = FromOldFile(l => l.Set(LegacySettings.DropMode, "Off"));
+        foreach (CategoryInfo category in ItemCategories.All)
+            Assert.Equal(Outcome.Keep, category.Rule(result.rules).outcome);
+        Assert.Equal(WhoRule.Apply, result.rules.whoHostile);
+    }
+
+    // Decision 5: Degrade is cut, and the category it was set on loads as Keep in every drop mode.
+    [Theory]
+    [InlineData(LegacySettings.ScrapOutOfReach)]
+    [InlineData(LegacySettings.ScrapEverything)]
+    public void ADegradeOutcomeLoadsAsKeep(string mode)
+    {
+        CategoryInfo weapons = ItemCategories.Of(ItemCategory.Weapon);
+        SettingValues result = FromOldFile(l =>
+        {
+            l.Set(LegacySettings.DropMode, mode);
+            l.Set(LegacySettings.OutcomeKey(weapons), LegacySettings.Degrade);
+        });
+        Assert.Equal(Outcome.Keep, result.rules.weapons.outcome);
+        Assert.False(result.rules.weapons.onlyBeyondReach);
+        Assert.Equal(Outcome.Scrap, result.rules.apparel.outcome);
+    }
+
+    [Fact]
+    public void ABodyDeathDropTicksBothKeepGearBoxes()
+    {
+        PresetConfig pack = Pack(v => { v.hostilesKeepGear = false; v.nonHostilesKeepGear = false; });
+        SettingValues ground = FromOldFile(null, pack);
+        Assert.False(ground.hostilesKeepGear);
+        Assert.False(ground.nonHostilesKeepGear);
+        SettingValues body = FromOldFile(l => l.Set(LegacySettings.DeathDrop, "AllOnBody"), pack);
+        Assert.True(body.hostilesKeepGear);
+        Assert.True(body.nonHostilesKeepGear);
+    }
+
+    [Fact]
+    public void AnOldMultiplierIsMultipliedIntoEveryTierAndCapped()
+    {
+        SettingValues result = FromOldFile(l => l.Set(LegacySettings.StudyPointsMultiplier, "2"),
+            loadedChange: v => v.studyPointsSpacer = 600f);
+        SettingValues defaults = Presets.CodeProgression();
+        Assert.Equal(SettingValues.MaxStudyPoints, result.studyPointsSpacer);
+        Assert.Equal(defaults.studyPointsIndustrial * 2f, result.studyPointsIndustrial);
+        Assert.Equal(defaults.studyPointsNeolithic * 2f, result.studyPointsNeolithic);
+    }
+
+    [Theory]
+    [InlineData("0.5", 0.5f)]
+    [InlineData("50", 10f)]
+    [InlineData("0.001", 0.01f)]
+    public void AnOldMarketValueGoesToEveryTierClamped(string old, float expected)
+    {
+        SettingValues result = FromOldFile(l => l.Set(LegacySettings.ScrapMarketValue, old));
+        foreach (ScrapTier tier in SettingValues.Tiers)
+            Assert.Equal(expected, result.ScrapMarketValue(tier));
+    }
+
+    [Fact]
+    public void ATierMarketValueTheFileHoldsWinsOverTheOldValue()
+    {
+        var present = OldFileKeys();
+        present.Add(SettingNames.ScrapMarketValue(ScrapTier.Spacer));
+        SettingValues result = FromOldFile(l => l.Set(LegacySettings.ScrapMarketValue, "0.5"),
+            loadedChange: v => v.SetScrapMarketValue(ScrapTier.Spacer, 3f), present: present);
+        Assert.Equal(3f, result.ScrapMarketValue(ScrapTier.Spacer));
+        Assert.Equal(0.5f, result.ScrapMarketValue(ScrapTier.Medieval));
+    }
+
+    [Fact]
+    public void ARowTheFileHoldsWinsOverTheOldGroupSwitch()
+    {
+        var present = OldFileKeys();
+        present.Add("whoHostile");
+        SettingValues result = FromOldFile(l => l.Set(LegacySettings.Hostile, "False"),
+            loadedChange: v => v.rules.whoHostile = WhoRule.Mark, present: present);
+        Assert.Equal(WhoRule.Mark, result.rules.whoHostile);
+    }
+
+    // A file in the 0.6.0 format holds its own rows and category rules, so a stray old drop mode changes neither.
+    [Fact]
+    public void AFileInTheNewFormatIgnoresTheOldDropMode()
+    {
+        var legacy = new LegacySettings();
+        legacy.Set(LegacySettings.DropMode, LegacySettings.KeepOriginal);
+        SettingValues loaded = Presets.CodeProgression();
+        SettingValues result = SettingsLoad.Resolve(loaded, true, EveryKey(), Pack(null), out _, legacy);
+        Assert.True(result.SameAs(loaded));
+    }
+
+    [Fact]
+    public void AnOldLockHoldsTheTranslatedSetting()
+    {
+        PresetConfig pack = Pack(null, "rules.hostile");
+        SettingValues result = FromOldFile(l => l.Set(LegacySettings.Hostile, "False"), pack);
+        Assert.Equal(WhoRule.Apply, result.rules.whoHostile);
+    }
+
+    // ---- Ticket 25, decisions 11 and 13: a pack's patch on the old nodes of the defaults Def. ----
+
+    // The Def as the loader leaves it: the 0.6.0 defaults, and every old node at its 0.5.2 default.
+    private static SettingValues OldDef()
+    {
+        SettingValues def = Presets.CodeProgression();
+        def.rules.hostile = "true";
+        def.rules.nonHostileFaction = "true";
+        def.rules.noFaction = "true";
+        def.rules.prisoners = "true";
+        def.rules.prisonerJoinGear = LegacySettings.FollowDropMode;
+        def.rules.otherJoinGear = LegacySettings.MarkUnfamiliar;
+        def.rules.dropMode = LegacySettings.ScrapOutOfReach;
+        def.rules.dropIncludesMedicine = "false";
+        def.rules.dropIncludesAmmunition = "false";
+        def.rules.sortWhenArrested = "true";
+        def.rules.degradeMin = "0.2";
+        def.corpses.chance = "1";
+        def.deathDrop = LegacySettings.Ground;
+        def.studyPointsMultiplier = "1";
+        def.scrapMarketValue = "0.01";
+        def.eraFallback = "CarrierFaction";
+        return def;
+    }
+
+    [Fact]
+    public void ADefWithEveryOldNodeAtItsDefaultIsUnchanged()
+    {
+        SettingValues def = OldDef();
+        SettingsLoad.MigrateDef(def);
+        Assert.True(def.SameAs(Presets.CodeProgression()));
+        Assert.Null(def.rules.dropMode);
+        Assert.Null(def.corpses.chance);
+        Assert.Null(def.scrapMarketValue);
+    }
+
+    [Fact]
+    public void APatchedOldDefNodeIsTranslated()
+    {
+        SettingValues def = OldDef();
+        def.rules.hostile = "false";
+        def.rules.otherJoinGear = LegacySettings.LeaveAlone;
+        def.scrapMarketValue = "0.5";
+        def.studyPointsMultiplier = "2";
+
+        SettingsLoad.MigrateDef(def);
+
+        SettingValues code = Presets.CodeProgression();
+        Assert.Equal(WhoRule.Exclude, def.rules.whoHostile);
+        Assert.Equal(WhoRule.Exclude, def.rules.whoOtherJoiners);
+        Assert.Equal(WhoRule.Apply, def.rules.whoNonHostile);
+        Assert.Equal(0.5f, def.ScrapMarketValue(ScrapTier.Industrial));
+        Assert.Equal(code.studyPointsSpacer * 2f, def.studyPointsSpacer);
+        Assert.True(def.rules.weapons.onlyBeyondReach); // the default drop mode keeps the new category defaults
+    }
+
+    // An old pack never set the new category rules: under a drop mode it changed, they were the Keep rules of its day.
+    [Fact]
+    public void APatchedOldDefDropModeTranslatesTheCategories()
+    {
+        SettingValues def = OldDef();
+        def.rules.dropMode = LegacySettings.ScrapEverything;
+        def.rules.drugs = new CategoryRule(Outcome.Delete); // a category the pack patched itself
+
+        SettingsLoad.MigrateDef(def);
+
+        Assert.Equal(Outcome.Scrap, def.rules.weapons.outcome);
+        Assert.False(def.rules.weapons.onlyBeyondReach);
+        Assert.Equal(Outcome.Scrap, def.rules.food.outcome);
+        Assert.Equal(Outcome.Delete, def.rules.drugs.outcome);
+        Assert.Equal(Outcome.Keep, def.rules.medicine.outcome);
+    }
+
+    [Fact]
+    public void AnOldDefKeepOriginalMarksTheRows()
+    {
+        SettingValues def = OldDef();
+        def.rules.dropMode = LegacySettings.KeepOriginal;
+
+        SettingsLoad.MigrateDef(def);
+
+        Assert.Equal(WhoRule.Mark, def.rules.whoHostile);
+        Assert.Equal(WhoRule.Mark, def.rules.whoOtherJoiners);
+        Assert.Equal(Outcome.Keep, def.rules.weapons.outcome);
     }
 
     private static bool LeafEqual(SettingValues a, SettingValues b, string path)

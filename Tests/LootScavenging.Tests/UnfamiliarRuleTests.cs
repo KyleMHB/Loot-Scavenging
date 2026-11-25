@@ -5,16 +5,13 @@ namespace LootScavenging.Tests;
 
 public class UnfamiliarRuleTests
 {
-    private const DropMode Keep = DropMode.KeepOriginal;
+    private const bool Keep = true;
 
-    [Theory]
-    [InlineData(DropMode.ScrapOutOfReach)]
-    [InlineData(DropMode.ScrapEverything)]
-    [InlineData(DropMode.Off)]
-    public void OtherDropModesNeverMakeAnythingUnfamiliar(DropMode mode)
+    [Fact]
+    public void NothingIsUnfamiliarWhileNoLootRowMarks()
     {
-        Assert.False(UnfamiliarRule.IsUnfamiliar(mode, UnfamiliarScope.AllOutOfReach, true, Era.Undefined, Era.Neolithic));
-        Assert.False(UnfamiliarRule.IsUnfamiliar(mode, UnfamiliarScope.LootedOnly, true, Era.Spacer, Era.Neolithic));
+        Assert.False(UnfamiliarRule.IsUnfamiliar(false, UnfamiliarScope.AllOutOfReach, true, Era.Undefined, Era.Neolithic));
+        Assert.False(UnfamiliarRule.IsUnfamiliar(false, UnfamiliarScope.LootedOnly, true, Era.Spacer, Era.Neolithic));
     }
 
     [Fact]
@@ -41,11 +38,11 @@ public class UnfamiliarRuleTests
     [Fact]
     public void OnlyLootedOutOfReachGearFromOutsideTheColonyIsMarked()
     {
-        Assert.True(UnfamiliarRule.ShouldMark(Keep, UnfamiliarScope.LootedOnly, OwnerGroup.Hostile, true));
-        Assert.False(UnfamiliarRule.ShouldMark(Keep, UnfamiliarScope.LootedOnly, OwnerGroup.Colony, true));
-        Assert.False(UnfamiliarRule.ShouldMark(Keep, UnfamiliarScope.LootedOnly, OwnerGroup.Hostile, false));
-        Assert.False(UnfamiliarRule.ShouldMark(Keep, UnfamiliarScope.AllOutOfReach, OwnerGroup.Hostile, true));
-        Assert.False(UnfamiliarRule.ShouldMark(DropMode.Off, UnfamiliarScope.LootedOnly, OwnerGroup.Hostile, true));
+        Assert.True(UnfamiliarRule.ShouldMark(WhoRule.Mark, UnfamiliarScope.LootedOnly, OwnerGroup.Hostile, true));
+        Assert.False(UnfamiliarRule.ShouldMark(WhoRule.Mark, UnfamiliarScope.LootedOnly, OwnerGroup.Colony, true));
+        Assert.False(UnfamiliarRule.ShouldMark(WhoRule.Mark, UnfamiliarScope.LootedOnly, OwnerGroup.Hostile, false));
+        Assert.False(UnfamiliarRule.ShouldMark(WhoRule.Mark, UnfamiliarScope.AllOutOfReach, OwnerGroup.Hostile, true));
+        Assert.False(UnfamiliarRule.ShouldMark(WhoRule.Apply, UnfamiliarScope.LootedOnly, OwnerGroup.Hostile, true));
     }
 
     [Fact]

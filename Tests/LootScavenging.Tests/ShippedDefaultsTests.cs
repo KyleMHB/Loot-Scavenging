@@ -26,7 +26,7 @@ public class ShippedDefaultsTests
     {
         foreach (XElement child in node.Elements())
         {
-            // Non-public too, as the game's loader binds them: the old onDownedAndStrip node is read that way (ticket 24).
+            // Non-public too, as the game's loader binds them: the old nodes kept for old patches are read that way (ticket 25).
             FieldInfo field = target.GetType().GetField(child.Name.LocalName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             Assert.True(field != null, "no field " + child.Name.LocalName + " on " + target.GetType().Name);
             object value;
@@ -59,7 +59,7 @@ public class ShippedDefaultsTests
     {
         var values = new SettingValues();
         Fill(values, Def().Element("values"));
-        values.rules.ApplyOldDownedAndStrip();
+        SettingsLoad.MigrateDef(values);
         Assert.True(values.SameAs(Presets.CodeProgression()));
     }
 

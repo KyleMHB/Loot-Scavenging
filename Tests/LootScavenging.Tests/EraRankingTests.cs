@@ -6,9 +6,8 @@ namespace LootScavenging.Tests;
 public class EraRankingTests
 {
     private static EraResult Rank(Era research = Era.Undefined, bool unfinished = false, Era item = Era.Undefined,
-        Era faction = Era.Undefined, EraFallback fallback = EraFallback.CarrierFaction, Era colony = Era.Industrial,
-        bool gear = true)
-        => EraRanking.Resolve(research, unfinished, item, faction, gear, fallback, colony);
+        Era faction = Era.Undefined, Era colony = Era.Industrial, bool gear = true)
+        => EraRanking.Resolve(research, unfinished, item, faction, gear, colony);
 
     [Fact]
     public void ResearchEraWinsOverItemAndFaction()
@@ -35,28 +34,9 @@ public class EraRankingTests
     }
 
     [Fact]
-    public void ColonyFallbackReplacesFactionEra()
+    public void TheCarrierEraDoesNotApplyWhenResearchOrItemEraKnown()
     {
-        var r = Rank(faction: Era.Spacer, fallback: EraFallback.ColonyEra, colony: Era.Neolithic);
-        Assert.Equal(Era.Neolithic, r.Era);
-        Assert.Equal(EraSource.ColonyFallback, r.Source);
-        Assert.False(r.OutOfReach);
-    }
-
-    [Fact]
-    public void ComponentsFallbackBreaksGearDown()
-    {
-        var r = Rank(faction: Era.Spacer, fallback: EraFallback.Components);
-        Assert.Equal(EraSource.Components, r.Source);
-        Assert.True(r.BreakIntoComponents);
-        Assert.False(r.OutOfReach);
-    }
-
-    [Fact]
-    public void FallbacksDoNotApplyWhenResearchOrItemEraKnown()
-    {
-        Assert.Equal(EraSource.Item, Rank(item: Era.Industrial, fallback: EraFallback.Components).Source);
-        Assert.False(Rank(item: Era.Industrial, fallback: EraFallback.Components).BreakIntoComponents);
+        Assert.Equal(EraSource.Item, Rank(item: Era.Industrial, faction: Era.Spacer).Source);
     }
 
     [Fact]
@@ -99,17 +79,13 @@ public class EraRankingTests
     }
 
     // Spec: "Step 3 covers modded and uncraftable gear with no era of its own." Silver, steel or raw food carried by a
-    // raider are not gear, so none of the three fallbacks gives them an era and they stay within reach.
-    [Theory]
-    [InlineData(EraFallback.CarrierFaction)]
-    [InlineData(EraFallback.ColonyEra)]
-    [InlineData(EraFallback.Components)]
-    public void FallbacksApplyOnlyToGear(EraFallback fallback)
+    // raider are not gear, so the carrier's era does not apply to them and they stay within reach.
+    [Fact]
+    public void TheCarrierEraAppliesOnlyToGear()
     {
-        var r = Rank(faction: Era.Spacer, fallback: fallback, colony: Era.Neolithic, gear: false);
+        var r = Rank(faction: Era.Spacer, colony: Era.Neolithic, gear: false);
         Assert.Equal(EraSource.Unknown, r.Source);
         Assert.False(r.OutOfReach);
-        Assert.False(r.BreakIntoComponents);
     }
 
     [Fact]

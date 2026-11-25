@@ -25,9 +25,9 @@ public class PackDefaultsTests
     [Fact]
     public void APatchedDefaultIsWhatAFreshConfigStartsWith()
     {
-        PresetConfig pack = Pack(v => v.rules.dropMode = DropMode.KeepOriginal);
-        Assert.Equal(DropMode.KeepOriginal, Presets.Defaults(pack).rules.dropMode);
-        Assert.Equal(DropMode.KeepOriginal, Presets.Build(PresetId.Progression, pack).rules.dropMode);
+        PresetConfig pack = Pack(v => v.rules.whoHostile = WhoRule.Mark);
+        Assert.Equal(WhoRule.Mark, Presets.Defaults(pack).rules.whoHostile);
+        Assert.Equal(WhoRule.Mark, Presets.Build(PresetId.Progression, pack).rules.whoHostile);
     }
 
     [Fact]
@@ -35,8 +35,8 @@ public class PackDefaultsTests
     {
         PresetConfig pack = Pack(v =>
         {
-            v.rules.dropMode = DropMode.KeepOriginal;
-            v.scrapMarketValue = 2f;
+            v.rules.whoHostile = WhoRule.Mark;
+            v.SetScrapMarketValue(ScrapTier.Industrial, 2f);
         });
         SettingValues fresh = Presets.Defaults(pack);
         Assert.False(Presets.IsChanged(PresetId.Progression, fresh, pack));
@@ -47,14 +47,14 @@ public class PackDefaultsTests
     {
         PresetConfig pack = Pack(v =>
         {
-            v.scrapMarketValue = 2f;
+            v.SetScrapMarketValue(ScrapTier.Spacer, 2f);
             v.corpses.humanlike = true; // Vanilla must still leave corpses alone
             v.rules.drugs = new CategoryRule(Outcome.Delete);
         });
         SettingValues cleanup = Presets.Build(PresetId.Cleanup, pack);
         SettingValues vanilla = Presets.Build(PresetId.Vanilla, pack);
-        Assert.Equal(2f, cleanup.scrapMarketValue);
-        Assert.Equal(2f, vanilla.scrapMarketValue);
+        Assert.Equal(2f, cleanup.ScrapMarketValue(ScrapTier.Spacer));
+        Assert.Equal(2f, vanilla.ScrapMarketValue(ScrapTier.Spacer));
         Assert.False(vanilla.corpses.humanlike);
         Assert.Equal(Outcome.Keep, vanilla.rules.drugs.outcome);
         Assert.Equal(Outcome.Keep, cleanup.rules.drugs.outcome);
@@ -70,7 +70,7 @@ public class PackDefaultsTests
         {
             SettingValues applied = Presets.Apply(preset, current, pack);
             Assert.Equal(DisassemblyYield.EraTypical, applied.rules.disassemblyYield);
-            Assert.Equal(Outcome.Keep, applied.rules.weapons.outcome); // Cleanup would delete poor weapons
+            Assert.Equal(Outcome.Scrap, applied.rules.weapons.outcome); // Cleanup would delete poor weapons
             Assert.False(applied.corpses.humanlike); // Cleanup would remove corpses
             Assert.False(Presets.IsChanged(preset, applied, pack));
         }
@@ -79,16 +79,16 @@ public class PackDefaultsTests
     [Fact]
     public void EnforcingPutsALockedValueBackAndLeavesOthersAlone()
     {
-        PresetConfig pack = Pack(null, "rules.dropMode", "deathDrop", "rules.weapons");
+        PresetConfig pack = Pack(null, "rules.whoHostile", "hostilesKeepGear", "rules.weapons");
         SettingValues edited = Presets.Defaults(pack);
-        edited.rules.dropMode = DropMode.Off;
-        edited.deathDrop = DeathDrop.Ground;
+        edited.rules.whoHostile = WhoRule.Exclude;
+        edited.hostilesKeepGear = false;
         edited.rules.weapons.outcome = Outcome.Delete;
         edited.rules.apparel.outcome = Outcome.Delete;
         pack.Locks.Enforce(edited, pack.Progression);
-        Assert.Equal(DropMode.ScrapOutOfReach, edited.rules.dropMode);
-        Assert.Equal(DeathDrop.AllOnBody, edited.deathDrop);
-        Assert.Equal(Outcome.Keep, edited.rules.weapons.outcome);
+        Assert.Equal(WhoRule.Apply, edited.rules.whoHostile);
+        Assert.True(edited.hostilesKeepGear);
+        Assert.Equal(Outcome.Scrap, edited.rules.weapons.outcome);
         Assert.Equal(Outcome.Delete, edited.rules.apparel.outcome);
         Assert.NotSame(pack.Progression.rules.weapons, edited.rules.weapons);
     }
@@ -96,7 +96,7 @@ public class PackDefaultsTests
     [Fact]
     public void AnUnlockedPresetChangeStillCountsAsChanged()
     {
-        PresetConfig pack = Pack(null, "rules.dropMode");
+        PresetConfig pack = Pack(null, "rules.whoHostile");
         SettingValues current = Presets.Defaults(pack);
         current.rules.apparel.outcome = Outcome.Delete;
         Assert.True(Presets.IsChanged(PresetId.Progression, current, pack));
@@ -105,10 +105,58 @@ public class PackDefaultsTests
     [Fact]
     public void UnknownLockNamesAreIgnoredAndReported()
     {
-        var locks = new SettingLocks(new[] { "rules.dropMode", "rules.noSuchSetting", "  ", null, "rules.keepList" });
-        Assert.True(locks.IsLocked("rules.dropMode"));
+        var locks = new SettingLocks(new[] { "rules.whoHostile", "rules.noSuchSetting", "  ", null, "rules.keepList" });
+        Assert.True(locks.IsLocked("rules.whoHostile"));
         Assert.False(locks.IsLocked("rules.noSuchSetting"));
         Assert.Equal(new List<string> { "rules.noSuchSetting", "rules.keepList" }, locks.Unknown);
+    }
+
+    [Fact]
+    public void AnOldLockNameLocksTheSettingsThatReplacedIt()
+    {
+        var locks = new SettingLocks(new[] { "rules.hostile", "rules.otherJoinGear", "deathDrop", "scrapMarketValue", "studyPointsMultiplier", "rules.dropIncludesMedicine" });
+        Assert.True(locks.IsLocked(SettingNames.WhoHostile));
+        Assert.False(locks.IsLocked(SettingNames.WhoNonHostile));
+        Assert.True(locks.IsLocked(SettingNames.WhoOtherJoiners));
+        Assert.True(locks.IsLocked(SettingNames.HostilesKeepGear));
+        Assert.True(locks.IsLocked(SettingNames.NonHostilesKeepGear));
+        Assert.False(locks.IsLocked(SettingNames.ColonistsKeepGear));
+        Assert.True(locks.IsLocked("rules.medicine"));
+        foreach (ScrapTier tier in SettingValues.Tiers)
+        {
+            Assert.True(locks.IsLocked(SettingNames.ScrapMarketValue(tier)));
+            Assert.True(locks.IsLocked(SettingNames.StudyPoints(tier)));
+        }
+        Assert.Empty(locks.Unknown);
+    }
+
+    [Fact]
+    public void TheOldDropModeLockLocksEveryRowAndCategory()
+    {
+        var locks = new SettingLocks(new[] { "rules.dropMode" });
+        foreach (OwnerGroup group in LootRules.RowGroups)
+            Assert.True(locks.IsLocked(SettingNames.Row(group)));
+        foreach (CategoryInfo category in ItemCategories.All)
+            Assert.True(locks.IsLocked(SettingNames.Category(category)));
+    }
+
+    [Theory]
+    [InlineData("rules.sortWhenArrested")]
+    [InlineData("rules.sortWhenStripped")]
+    [InlineData("rules.onDownedAndStrip")]
+    [InlineData("rules.degradeMin")]
+    [InlineData("rules.degradeMax")]
+    [InlineData("rules.degradeLowersQuality")]
+    [InlineData("rules.ejectCharges")]
+    [InlineData("corpses.chance")]
+    [InlineData("corpses.butcherRemovesApparel")]
+    [InlineData("eraFallback")]
+    [InlineData("studyEras")]
+    public void ACutLockNameIsAcceptedAndLocksNothing(string name)
+    {
+        var locks = new SettingLocks(new[] { name });
+        Assert.False(locks.Any);
+        Assert.Empty(locks.Unknown);
     }
 
     [Fact]
@@ -125,16 +173,16 @@ public class PackDefaultsTests
     {
         string[] expected =
         {
-            "rules.hostile", "rules.nonHostileFaction", "rules.noFaction", "rules.prisoners", "rules.homeMapOnly",
-            "rules.sortWhenArrested", "rules.sortWhenStripped", "rules.downedGear", "rules.prisonerJoinGear", "rules.otherJoinGear", "rules.dropMode", "rules.dropIncludesMedicine", "rules.dropIncludesAmmunition",
+            "rules.whoHostile", "rules.whoNonHostile", "rules.whoWild", "rules.whoPrisoners", "rules.whoRecruitedPrisoners",
+            "rules.whoOtherJoiners", "rules.homeMapOnly", "colonistsKeepGear", "hostilesKeepGear", "nonHostilesKeepGear",
             "rules.weapons", "rules.apparel", "rules.ammunition", "rules.drugs", "rules.medicine", "rules.food", "rules.other",
-            "rules.degradeMin", "rules.degradeMax", "rules.degradeLowersQuality",
-            "rules.disassemblyYield", "rules.disassemblyEfficiency", "rules.ejectCharges",
-            "corpses.humanlike", "corpses.animal", "corpses.mechanoid", "corpses.chance", "corpses.butcherRemovesApparel",
-            "eraFallback", "scrapMarketValue", "deathDrop", "colonistsKeepGear", "unfamiliarScope", "studyEras", "recycleOrStudy",
-            "studyTechprintProjects",
+            "rules.disassemblyYield", "rules.disassemblyEfficiency",
+            "corpses.humanlike", "corpses.animal", "corpses.mechanoid",
+            "unfamiliarScope", "recycleOrStudy", "studyTechprintProjects",
             "studyPointsNeolithic", "studyPointsMedieval", "studyPointsIndustrial", "studyPointsSpacer", "studyPointsUltra",
-            "studyPointsArchotech", "studyPointsMultiplier",
+            "studyPointsArchotech",
+            "scrapMarketValueNeolithic", "scrapMarketValueMedieval", "scrapMarketValueIndustrial", "scrapMarketValueSpacer",
+            "scrapMarketValueUltra", "scrapMarketValueArchotech",
         };
         Assert.Equal(expected.OrderBy(n => n), SettingLocks.Lockable.OrderBy(n => n));
     }
@@ -143,7 +191,7 @@ public class PackDefaultsTests
     public void LocksAreOutsideTheSettingsSnapshot()
     {
         // SettingValues only copies and compares fields it supports; the lock set must never become one of them.
-        SettingValues v = Presets.Defaults(Pack(null, "rules.dropMode"));
+        SettingValues v = Presets.Defaults(Pack(null, "rules.whoHostile"));
         Assert.True(v.Clone().SameAs(v));
     }
 }
