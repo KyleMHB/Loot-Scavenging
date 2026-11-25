@@ -278,7 +278,7 @@ def loot_styles(run):
         (reach, True),
         (reach, False),
         (f"{text['LootScavenging_WhoHostile']}: {text['LootScavenging_WhoMark']}", True),
-        (f"{gear}: {text['LootScavenging_OutcomeKeep']}", False),
+        (f"{gear}: {text['LootScavenging_OutcomeKeep']}", True),
     ]
     frames = [still(run, name, after) for name, after, _, _ in STYLES]
     img = backdrop(frames[0])

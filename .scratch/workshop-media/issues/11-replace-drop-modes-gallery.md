@@ -34,5 +34,6 @@ Recommended: C if the promo run's stills frame well, since it needs no new filmi
 - Source run: `20261123-004719-lootscavenging-promo-clips-s1`. Stills are cut at each `drop-X-dead` mark + 1.8 s (`drop-keeporiginal-selected` for the unfamiliar panel) and cropped in frame pixels, since the run has no `layout.json`.
 - The footage was filmed under 0.5.2 drop modes. Chips name the 0.6.0 setting that gives the same result, as `ModHarness.ApplyStyle` maps them: "Only gear beyond the colony's reach" on and off, "Hostile pawns: Mark unfamiliar", and "Weapons, Apparel: Vanilla".
 - A centred chip shows the Hostiles "Don't drop your stuff" box off, since it defaults on in 0.6.0 and a dead raider would otherwise drop nothing.
+- The spec's ticket table keeps the original titles of tickets 04 and 11, which name drop modes.
 - As in ticket 04, the four warriors are different pawns, so pose and clothes vary slightly.
 - Checked: viewed at full size and at 640 px; each outcome reads (scrap block and whole club, wood and leather scrap, selected autopistol with its unfamiliar line, autopistol and club loose).
