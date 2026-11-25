@@ -1209,11 +1209,12 @@ public sealed class MomentsBatch : Batch
                 else
                 {
                     ModHarness.RestoreSettings();
+                    Settings.values.hostilesKeepGear = true;
                     var armed = new ThingWithComps[1];
                     var p = Downed(ctx, Mercenary, Pirates, armed);
                     var gun = armed[0];
                     c.Subject(p, worker);
-                    c.Note("Downed pawns keep their weapon. A downed pirate holding a revolver is captured into a prison bed");
+                    c.Note("Hostiles box on. A downed pirate holding a revolver is captured into a prison bed");
                     int expected = ScrapAmounts.Units(gun.MarketValue, 1);
                     int scrapBefore = Kit.CountOnMap(map, industrial);
                     var gunsBefore = Kit.StackIds(map, revolver);
