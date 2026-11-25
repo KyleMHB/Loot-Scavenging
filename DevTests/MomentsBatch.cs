@@ -155,13 +155,13 @@ public sealed class MomentsBatch : Batch
             if (!Kit.Require(ctx, on ? DownStripOn : ExcludeRow, (p.Downed && !p.Dead, "the pirate is downed and alive"))) continue;
             int afterDown = Near() - start;
             if (on) c.Step(gun.Destroyed && afterDown > 0, $"downing turns the revolver into scrap ({afterDown} units)");
-            else c.Step(!gun.Destroyed && gun.Spawned && afterDown == 0, "downing drops the revolver whole");
+            else c.Step(!gun.Destroyed && Dropped(gun) && afterDown == 0, "downing drops the revolver whole");
             c.Step(p.apparel.Contains(worn), "the vest stays on while downed");
             start = Near();
             p.Strip();
             int afterStrip = Near() - start;
             if (on) c.Step(worn.Destroyed && afterStrip > 0, $"stripping turns the vest into scrap ({afterStrip} units)");
-            else c.Step(!worn.Destroyed && worn.Spawned && afterStrip == 0, "stripping drops the vest whole");
+            else c.Step(!worn.Destroyed && Dropped(worn) && afterStrip == 0, "stripping drops the vest whole");
             c.Conclude();
             p.Destroy();
             if (gun.Spawned) gun.Destroy();
@@ -243,7 +243,8 @@ public sealed class MomentsBatch : Batch
                     bool onGround = held.Spawned;
                     c.Observe(tag + ": downing", inHand ? "in hand" : onGround ? "on ground" : held.Destroyed ? "destroyed" : "elsewhere");
                     if (keeps) c.Step(inHand, $"{tag}: downed, he keeps the club in hand");
-                    else c.Step(onGround && p.equipment.Primary == null, $"{tag}: downed, he drops the club whole");
+                    // Under Non uno Pinata the club stays in hand when the box lets it drop; the check is that it stays whole.
+                    else c.Step(PinataLoaded ? Dropped(held) : onGround && p.equipment.Primary == null, $"{tag}: downed, he drops the club whole");
                     // Back in hand for the death, so the box decides there too.
                     if (onGround)
                     {
@@ -254,7 +255,7 @@ public sealed class MomentsBatch : Batch
                     bool inCorpse = p.Corpse?.InnerPawn?.inventory?.innerContainer.Contains(held) ?? false;
                     c.Observe(tag + ": death", inCorpse ? "in corpse" : held.Spawned ? "on ground" : held.Destroyed ? "destroyed" : "elsewhere");
                     if (keeps) c.Step(inCorpse && !held.Spawned, $"{tag}: at death the club stays in his corpse");
-                    else c.Step(!inCorpse && held.Spawned && !held.Destroyed, $"{tag}: at death the club lands whole beside him");
+                    else c.Step(PinataLoaded ? Dropped(held) : !inCorpse && held.Spawned && !held.Destroyed, $"{tag}: at death the club lands whole beside him");
                     p.Corpse?.Destroy();
                     if (!p.Destroyed) p.Destroy();
                     if (held.Spawned) held.Destroy();
@@ -539,7 +540,7 @@ public sealed class MomentsBatch : Batch
             var colonist = Spawn(ctx, PawnKindDefOf.Colonist, Faction.OfPlayer, cell);
             var ownGun = Arm(colonist, revolver, QualityCategory.Normal);
             colonist.Kill(null);
-            c.Step(!ownGun.Destroyed && ownGun.Spawned && InCorpse(colonist, revolver) == 0, "a colonist's revolver drops whole on the ground, not into the corpse");
+            c.Step(!ownGun.Destroyed && Dropped(ownGun) && InCorpse(colonist, revolver) == 0, "a colonist's revolver drops whole on the ground, not into the corpse");
 
             // The wreck cannot be stripped, so scrap left in it would be stuck: the box never holds a mechanoid's gear.
             cell = sites.Dequeue();
@@ -655,9 +656,9 @@ public sealed class MomentsBatch : Batch
             c.Subject(p);
             c.Note("Hostiles box off. A pirate wears a flak vest the game has locked on him, then dies");
             c.Step(EraReader.ItemEra(vest, Pirates).OutOfReach && p.apparel.IsLocked(worn), "the vest is out of reach and locked");
-            var before = Kit.StackIds(map, industrial);
+            var before = HeldStackIds(map, industrial);
             p.Kill(null);
-            int scrap = Units(NewNear(map, industrial, before, cell));
+            int scrap = Units(HeldNewNear(map, industrial, before, cell));
             c.Observe("vestDestroyed", worn.Destroyed).Observe("scrapNear", scrap);
             c.Step(worn.Destroyed && scrap > 0, $"the locked vest is scrapped at death ({scrap} scrap)");
             c.Conclude();
@@ -741,7 +742,7 @@ public sealed class MomentsBatch : Batch
                 var p = Spawn(ctx, PawnKindDefOf.Colonist, Faction.OfPlayer, cell);
                 var gun = Arm(p, revolver, QualityCategory.Normal);
                 c.Subject(p);
-                var before = Kit.StackIds(map, industrial);
+                var before = HeldStackIds(map, industrial);
                 if (kill) p.Kill(null);
                 else
                 {
@@ -749,9 +750,9 @@ public sealed class MomentsBatch : Batch
                     if (!Kit.Require(ctx, ColonistToggleOff, (p.Downed && !p.Dead, "the colonist is downed and alive"))) { ready = false; p.Destroy(); break; }
                     yield return Wait.Ticks(60);
                 }
-                int scrap = Units(NewNear(map, industrial, before, cell));
+                int scrap = Units(HeldNewNear(map, industrial, before, cell));
                 c.Observe(tag + ": revolver", gun.Destroyed ? "destroyed" : gun.Spawned ? "on ground" : "elsewhere").Observe(tag + ": scrap", scrap);
-                c.Step(!gun.Destroyed && gun.Spawned && scrap == 0, $"{tag}: the colonist's revolver drops whole on the ground");
+                c.Step(!gun.Destroyed && Dropped(gun) && scrap == 0, $"{tag}: the colonist's revolver drops whole on the ground");
                 p.Corpse?.Destroy();
                 if (!p.Destroyed) p.Destroy();
                 if (gun.Spawned) gun.Destroy();
@@ -1528,10 +1529,10 @@ public sealed class MomentsBatch : Batch
                     Rules.homeMapOnly = homeOnly;
                     var p = Spawn(ctx, Mercenary, Pirates, cell, away);
                     var gun = Arm(p, revolver, QualityCategory.Normal);
-                    int scrapBefore = AllScrap.Sum(d => Kit.CountOnMap(away, d));
+                    int scrapBefore = AllScrap.Sum(d => HeldCount(away, d));
                     p.Kill(null);
-                    int made = AllScrap.Sum(d => Kit.CountOnMap(away, d)) - scrapBefore;
-                    if (homeOnly) c.Step(!gun.Destroyed && gun.Spawned && made == 0, "with home-map-only on, a pirate's revolver drops whole on the camp map");
+                    int made = AllScrap.Sum(d => HeldCount(away, d)) - scrapBefore;
+                    if (homeOnly) c.Step(!gun.Destroyed && Dropped(gun) && made == 0, "with home-map-only on, a pirate's revolver drops whole on the camp map");
                     else c.Step(gun.Destroyed && made > 0, $"with it off, the revolver becomes {made} scrap there");
                     cell = CellFinder.RandomClosewalkCellNear(away.Center, away, 8);
                 }

@@ -133,9 +133,9 @@ public sealed class OutcomesBatch : Batch
             var spacer = Scrap(ScrapTier.Spacer);
             ThingWithComps rifle = null;
             int rifleUnits = 0;
-            var before = Kit.StackIds(map, spacer);
+            var before = HeldStackIds(map, spacer);
             var at = KillPirate(p => { rifle = Arm(p, rifleDef, QualityCategory.Normal); rifleUnits = ExpectedScrapIn(rifle, ScrapTier.Spacer); }, out _);
-            var made = NewNear(map, spacer, before, at);
+            var made = HeldNewNear(map, spacer, before, at);
             c.Expect("chargeRifleUnits", rifleUnits).Observe("chargeRifleUnits", Units(made));
             c.Step(rifle.Destroyed && Units(made) == rifleUnits, $"a charge rifle becomes {Units(made)} spacer scrap (expected {rifleUnits})");
 
@@ -145,7 +145,7 @@ public sealed class OutcomesBatch : Batch
             ThingWithComps knife = null;
             int knifeUnits = 0;
             bool inReach = !EraReader.ItemEra(knifeDef, Pirates).OutOfReach;
-            before = Kit.StackIds(map, neolithic);
+            before = HeldStackIds(map, neolithic);
             at = KillPirate(p =>
             {
                 knife = (ThingWithComps)ThingMaker.MakeThing(knifeDef, Kit.Def("BlocksGranite"));
@@ -153,15 +153,15 @@ public sealed class OutcomesBatch : Batch
                 p.equipment.AddEquipment(knife);
                 knifeUnits = ExpectedScrapIn(knife, ScrapTier.Neolithic);
             }, out _);
-            made = NewNear(map, neolithic, before, at);
+            made = HeldNewNear(map, neolithic, before, at);
             c.Expect("stoneKnifeUnits", knifeUnits).Observe("stoneKnifeUnits", Units(made)).Observe("knifeInReach", inReach);
             c.Step(inReach && knife.Destroyed && Units(made) == knifeUnits, $"with the weapons rule on plain Scrap an in-reach stone knife becomes {Units(made)} neolithic scrap (expected {knifeUnits})");
 
             ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.Off);
             ThingWithComps kept = null;
-            int scrapBefore = ScrapOnMap(map);
+            int scrapBefore = HeldScrap(map);
             KillPirate(p => kept = Arm(p, rifleDef, QualityCategory.Normal), out _);
-            c.Step(!kept.Destroyed && kept.Spawned && ScrapOnMap(map) == scrapBefore, "with the weapons rule on Keep an out-of-reach charge rifle drops whole");
+            c.Step(!kept.Destroyed && Dropped(kept) && HeldScrap(map) == scrapBefore, "with the weapons rule on Keep an out-of-reach charge rifle drops whole");
             c.Conclude();
         }
 
@@ -171,7 +171,7 @@ public sealed class OutcomesBatch : Batch
             ModHarness.RestoreSettings();
             var centre = sites.Dequeue();
             sites.Dequeue();
-            var before = Kit.StackIds(map, industrial);
+            var before = HeldStackIds(map, industrial);
             var raiders = new List<Pawn>();
             foreach (var cell in GenRadial.RadialCellsAround(centre, 2.5f, true).Where(x => x.Standable(map)).Take(10))
             {
@@ -181,10 +181,12 @@ public sealed class OutcomesBatch : Batch
             }
             int expected = raiders.Sum(p => ExpectedScrap(p.equipment.Primary, Pirates));
             foreach (var p in raiders) p.Kill(null);
-            var made = Kit.NewStacks(map, industrial, before).ToList();
+            var made = HeldNewStacks(map, industrial, before).ToList();
             c.Observe("bodies", raiders.Count).Observe("piles", made.Count).Expect("units", expected).Observe("units", Units(made));
             c.Step(Units(made) == expected, $"the raid's revolvers become {Units(made)} industrial scrap (expected {expected})");
-            c.Step(made.Count < raiders.Count, $"{raiders.Count} bodies leave {made.Count} piles");
+            // Under Non uno Pinata each body keeps its own scrap, so piles cannot merge.
+            if (PinataLoaded) c.Note($"Non uno Pinata keeps the scrap in each of the {raiders.Count} bodies, so the piles are not compared");
+            else c.Step(made.Count < raiders.Count, $"{raiders.Count} bodies leave {made.Count} piles");
             c.Conclude();
         }
 
@@ -194,7 +196,7 @@ public sealed class OutcomesBatch : Batch
             ModHarness.RestoreSettings();
             ThingWithComps gun = null;
             KillPirate(p => { gun = Arm(p, revolver, QualityCategory.Normal); gun.questTags = new List<string> { "LootTest" }; }, out _);
-            c.Step(!gun.Destroyed && gun.Spawned, "a quest-tagged out-of-reach revolver drops whole");
+            c.Step(!gun.Destroyed && Dropped(gun), "a quest-tagged out-of-reach revolver drops whole");
             c.Conclude();
         }
 
@@ -438,8 +440,8 @@ public sealed class OutcomesBatch : Batch
                     c.Observe("devilstrandEra", era.Era + "/" + era.Source).Observe("devilstrandOutOfReach", era.OutOfReach);
                     c.Step(era.Source == EraSource.Unknown && !era.OutOfReach, $"EraReader gives devilstrand no era and not out of reach ({era.Era}/{era.Source})");
 
-                    var tiers = ((ScrapTier[])Enum.GetValues(typeof(ScrapTier))).ToDictionary(t => t, t => Kit.CountOnMap(map, Scrap(t)));
-                    int devilBefore = Kit.CountOnMap(map, devilstrand), steelBefore = Kit.CountOnMap(map, steel), plasteelBefore = Kit.CountOnMap(map, plasteel);
+                    var tiers = ((ScrapTier[])Enum.GetValues(typeof(ScrapTier))).ToDictionary(t => t, t => HeldCount(map, Scrap(t)));
+                    int devilBefore = HeldCount(map, devilstrand), steelBefore = HeldCount(map, steel), plasteelBefore = HeldCount(map, plasteel);
                     ThingWithComps gun = null;
                     int gunUnits = 0;
                     KillPirate(p =>
@@ -450,9 +452,9 @@ public sealed class OutcomesBatch : Batch
                         p.inventory.innerContainer.TryAdd(Stack(steel, 30));
                         p.inventory.innerContainer.TryAdd(Stack(plasteel, 20));
                     }, out _);
-                    int devil = Kit.CountOnMap(map, devilstrand) - devilBefore, steelGot = Kit.CountOnMap(map, steel) - steelBefore,
-                        plasteelGot = Kit.CountOnMap(map, plasteel) - plasteelBefore;
-                    var scrapGot = tiers.ToDictionary(kv => kv.Key, kv => Kit.CountOnMap(map, Scrap(kv.Key)) - kv.Value);
+                    int devil = HeldCount(map, devilstrand) - devilBefore, steelGot = HeldCount(map, steel) - steelBefore,
+                        plasteelGot = HeldCount(map, plasteel) - plasteelBefore;
+                    var scrapGot = tiers.ToDictionary(kv => kv.Key, kv => HeldCount(map, Scrap(kv.Key)) - kv.Value);
                     c.Expect("devilstrand", 53).Observe("devilstrand", devil).Observe("steel", steelGot).Observe("plasteel", plasteelGot)
                         .Expect("industrialScrap", gunUnits).Observe("scrapByTier", string.Join(", ", scrapGot.Where(kv => kv.Value != 0).Select(kv => kv.Value + " " + kv.Key)));
                     c.Step(devil == 53, $"the pirate's 53 devilstrand drop whole ({devil})");
@@ -466,9 +468,9 @@ public sealed class OutcomesBatch : Batch
                     // means equippable weapons only, so behind the same recipe it drops whole as well.
                     c = ctx.Begin(ToolMaterials);
                     var woodEra = EraReader.ItemEra(wood, Pirates);
-                    int woodBefore = Kit.CountOnMap(map, wood), spacerBefore = Kit.CountOnMap(map, Scrap(ScrapTier.Spacer));
+                    int woodBefore = HeldCount(map, wood), spacerBefore = HeldCount(map, Scrap(ScrapTier.Spacer));
                     KillPirate(p => p.inventory.innerContainer.TryAdd(Stack(wood, 50)), out _);
-                    int woodGot = Kit.CountOnMap(map, wood) - woodBefore, woodSpacer = Kit.CountOnMap(map, Scrap(ScrapTier.Spacer)) - spacerBefore;
+                    int woodGot = HeldCount(map, wood) - woodBefore, woodSpacer = HeldCount(map, Scrap(ScrapTier.Spacer)) - spacerBefore;
                     c.Observe("woodEra", woodEra.Era + "/" + woodEra.Source).Observe("woodIsGear", EraReader.IsGear(wood)).Observe("woodDropped", woodGot).Observe("woodSpacerScrap", woodSpacer);
                     ThingDef beer = DefDatabase<ThingDef>.GetNamedSilentFail("Beer");
                     c.Step(!EraReader.IsGear(wood) && (beer == null || !EraReader.IsGear(beer)), "wood and beer, which the game counts as melee weapons, are not gear");
@@ -477,9 +479,9 @@ public sealed class OutcomesBatch : Batch
                     c.Observe("hornIsGear", EraReader.IsGear(horn)).Observe("tuskIsGear", EraReader.IsGear(tusk)).Observe("fragIsGear", EraReader.IsGear(frag));
                     c.Step(!EraReader.IsGear(horn) && !EraReader.IsGear(tusk), "a thrumbo horn and an elephant tusk are not gear");
                     c.Step(EraReader.IsGear(frag) && EraReader.IsGear(revolver), "frag grenades and a revolver are still gear");
-                    int hornBefore = Kit.CountOnMap(map, horn);
+                    int hornBefore = HeldCount(map, horn);
                     KillPirate(p => p.inventory.innerContainer.TryAdd(Stack(horn, 2)), out _);
-                    int hornGot = Kit.CountOnMap(map, horn) - hornBefore;
+                    int hornGot = HeldCount(map, horn) - hornBefore;
                     c.Observe("hornsDropped", hornGot);
                     c.Step(hornGot == 2, $"a pirate's 2 thrumbo horns drop whole ({hornGot})");
                     c.Step(woodGot == 50 && woodSpacer == 0 && woodEra.Source == EraSource.Unknown,
@@ -506,7 +508,7 @@ public sealed class OutcomesBatch : Batch
             ModHarness.RestoreSettings();
             Rules.other = new CategoryRule(Outcome.Scrap);
             c.Note("The player sets the other-items inventory rule to Scrap");
-            int ScrapOf(ScrapTier t) => Kit.CountOnMap(map, Scrap(t));
+            int ScrapOf(ScrapTier t) => HeldCount(map, Scrap(t));
             ThingWithComps gun = null;
             int gunUnits = 0;
             foreach (var (def, count, withGun) in new[] { (Kit.Def("DevilstrandCloth"), 53, true), (Kit.Def("Cloth"), 50, false) })

@@ -158,12 +158,12 @@ public sealed class SmokeBatch : Batch
             medic.inventory.innerContainer.TryAdd(kit);
             c.Subject(medic);
             int expectedGun = ExpectedScrap(gun, pirates);
-            int medsBefore = Kit.CountOnMap(map, medicine);
-            var before = Kit.StackIds(map, industrial);
+            int medsBefore = HeldCount(map, medicine);
+            var before = HeldStackIds(map, industrial);
             c.Note("A pirate with a revolver and 3 industrial medicine dies (default settings)");
             medic.Kill(null);
-            int gunScrap = Kit.NewStacks(map, industrial, before).Sum(t => t.stackCount);
-            int medsAfter = Kit.CountOnMap(map, medicine);
+            int gunScrap = HeldNewStacks(map, industrial, before).Sum(t => t.stackCount);
+            int medsAfter = HeldCount(map, medicine);
             c.Expect("medicineAfter", medsBefore).Observe("medicineAfter", medsAfter)
                 .Expect("scrapDefault", expectedGun).Observe("scrapDefault", gunScrap);
             c.Step(gun.Destroyed && gunScrap == expectedGun, $"the revolver becomes {gunScrap} industrial scrap (expected {expectedGun})");
@@ -177,11 +177,11 @@ public sealed class SmokeBatch : Batch
             medic2.inventory.innerContainer.TryAdd(kit2);
             c.Subject(medic2);
             int expectedMed = ExpectedScrap(kit2, pirates); // stackable items round once per stack and are capped by value
-            medsBefore = Kit.CountOnMap(map, medicine);
-            before = Kit.StackIds(map, industrial);
+            medsBefore = HeldCount(map, medicine);
+            before = HeldStackIds(map, industrial);
             medic2.Kill(null);
-            int medScrap = Kit.NewStacks(map, industrial, before).Sum(t => t.stackCount);
-            medsAfter = Kit.CountOnMap(map, medicine);
+            int medScrap = HeldNewStacks(map, industrial, before).Sum(t => t.stackCount);
+            medsAfter = HeldCount(map, medicine);
             c.Expect("scrapIncluded", expectedMed).Observe("scrapIncluded", medScrap).Observe("medicineLost", medsBefore - medsAfter);
             c.Step(medsBefore - medsAfter == 3, "a second pirate's 3 industrial medicine are gone");
             c.Step(medScrap == expectedMed, $"they become {medScrap} industrial scrap (expected {expectedMed})");

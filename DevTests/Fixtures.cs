@@ -16,6 +16,51 @@ public static class Fixtures
     public static ScrapTierDef TierDef(ScrapTier tier) => DefDatabase<ScrapTierDef>.AllDefsListForReading.First(d => d.tier == tier);
     public static IEnumerable<ThingDef> AllScrap => ((ScrapTier[])Enum.GetValues(typeof(ScrapTier))).Select(Scrap);
     public static int ScrapOnMap(Map map) => AllScrap.Sum(d => Kit.CountOnMap(map, d));
+
+    // Non uno Pinata leaves equipment and packs on the body at death and downing (TESTING.md, 2026-11-25), so under it
+    // the Held counts below also take in what pawns and corpses hold. Without Pinata they are Kit's, unchanged. Only cases
+    // that check gear is kept whole or scrapped use them; cases that tell the ground from the corpse keep Kit's counts.
+    public static bool PinataLoaded => ModsConfig.IsActive("avilmask.nonunopinata");
+
+    // Equipment, pack and carried things of spawned pawns and of corpses on the map. Worn apparel is left out.
+    static IEnumerable<Thing> HeldOnMap(Map map)
+    {
+        var pawns = map.mapPawns.AllPawnsSpawned.Concat(map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse).OfType<Corpse>().Select(c => c.InnerPawn));
+        foreach (var p in pawns.Where(p => p != null))
+        {
+            if (p.equipment != null) foreach (var t in p.equipment.AllEquipmentListForReading) yield return t;
+            if (p.inventory != null) foreach (var t in p.inventory.innerContainer) yield return t;
+            if (p.carryTracker?.CarriedThing != null) yield return p.carryTracker.CarriedThing;
+        }
+    }
+
+    public static int HeldCount(Map map, ThingDef def)
+    {
+        int count = Kit.CountOnMap(map, def);
+        if (!PinataLoaded) return count;
+        // Kit already counts spawned pawns' packs and carried things.
+        count += map.mapPawns.AllPawnsSpawned.Sum(p => p.equipment?.AllEquipmentListForReading.Where(t => t.def == def).Sum(t => t.stackCount) ?? 0);
+        count += map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse).OfType<Corpse>().Select(c => c.InnerPawn).Where(p => p != null)
+            .Sum(p => (p.equipment?.AllEquipmentListForReading.Where(t => t.def == def).Sum(t => t.stackCount) ?? 0)
+                + (p.inventory?.innerContainer.Where(t => t.def == def).Sum(t => t.stackCount) ?? 0));
+        return count;
+    }
+
+    public static HashSet<int> HeldStackIds(Map map, ThingDef def)
+    {
+        var ids = Kit.StackIds(map, def);
+        if (PinataLoaded) ids.UnionWith(HeldOnMap(map).Where(t => t.def == def).Select(t => t.thingIDNumber));
+        return ids;
+    }
+
+    public static IEnumerable<Thing> HeldNewStacks(Map map, ThingDef def, HashSet<int> before)
+    {
+        var found = Kit.NewStacks(map, def, before);
+        return PinataLoaded ? found.Concat(HeldOnMap(map).Where(t => t.def == def && !before.Contains(t.thingIDNumber))).ToList() : found;
+    }
+
+    // Kept whole: on the ground, or under Pinata still on the body or in the corpse.
+    public static bool Dropped(Thing t) => t.Spawned || PinataLoaded && !t.Destroyed && t.MapHeld != null;
     public static ResearchProjectDef Project(string name) => DefDatabase<ResearchProjectDef>.GetNamed(name);
     public static LootScavengingSettings Settings => LootScavengingMod.Settings;
     public static LootRules Rules => Settings.values.rules;
@@ -88,6 +133,11 @@ public static class Fixtures
     // New stacks of a def since a StackIds snapshot, within a radius of a cell.
     public static List<Thing> NewNear(Map map, ThingDef def, HashSet<int> before, IntVec3 near, float radius = 5f) =>
         Kit.NewStacks(map, def, before).Where(t => t.Position.DistanceTo(near) <= radius).ToList();
+
+    public static List<Thing> HeldNewNear(Map map, ThingDef def, HashSet<int> before, IntVec3 near, float radius = 5f) =>
+        HeldNewStacks(map, def, before).Where(t => t.PositionHeld.DistanceTo(near) <= radius).ToList();
+
+    public static int HeldScrap(Map map) => AllScrap.Sum(d => HeldCount(map, d));
 
     public static int Units(IEnumerable<Thing> things) => things.Sum(t => t.stackCount);
 
