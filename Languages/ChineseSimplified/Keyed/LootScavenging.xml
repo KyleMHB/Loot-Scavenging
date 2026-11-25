@@ -21,12 +21,12 @@
 	<LootScavenging_StudyWhyColonyEra>暂时无法调查：殖民地尚未达到{0}。</LootScavenging_StudyWhyColonyEra>
 	<LootScavenging_StudyWhyProjectEra>无法为{0}调查：它是{1}研究项目，高于{2}废料。</LootScavenging_StudyWhyProjectEra>
 	<LootScavenging_StudyWhyNoGain>现在无法调查：故事叙述者的研究速度为零。</LootScavenging_StudyWhyNoGain>
-	<LootScavenging_RecycleOriginalLabel>回收原物品</LootScavenging_RecycleOriginalLabel>
-	<LootScavenging_RecycleOriginalJob>正在回收原物品。</LootScavenging_RecycleOriginalJob>
-	<LootScavenging_RecycleOriginalDescription>将一件陌生的原物品按其本应变成的废料进行分解：产出相同。勾选你愿意消耗的物品；默认不勾选任何物品。</LootScavenging_RecycleOriginalDescription>
-	<LootScavenging_StudyOriginalLabel>调查原物品</LootScavenging_StudyOriginalLabel>
-	<LootScavenging_StudyOriginalJob>正在调查原物品。</LootScavenging_StudyOriginalJob>
-	<LootScavenging_StudyOriginalDescription>将一件陌生的原物品按其本应变成的废料进行调查以获取研究点数：点数相同。勾选你愿意消耗的物品；默认不勾选任何物品。</LootScavenging_StudyOriginalDescription>
+	<LootScavenging_RecycleOriginalLabel>回收陌生物品</LootScavenging_RecycleOriginalLabel>
+	<LootScavenging_RecycleOriginalJob>正在回收陌生物品。</LootScavenging_RecycleOriginalJob>
+	<LootScavenging_RecycleOriginalDescription>将一件陌生物品按其本应变成的废料进行分解：产出相同。勾选你愿意消耗的物品；默认不勾选任何物品。</LootScavenging_RecycleOriginalDescription>
+	<LootScavenging_StudyOriginalLabel>调查陌生物品</LootScavenging_StudyOriginalLabel>
+	<LootScavenging_StudyOriginalJob>正在调查陌生物品。</LootScavenging_StudyOriginalJob>
+	<LootScavenging_StudyOriginalDescription>将一件陌生物品按其本应变成的废料进行调查以获取研究点数：点数相同。勾选你愿意消耗的物品；默认不勾选任何物品。</LootScavenging_StudyOriginalDescription>
 	<LootScavenging_StudyDone>{PAWN_labelShort}调查了{1}个{2}：为{4}提供+{3}研究点数。</LootScavenging_StudyDone>
 	<LootScavenging_SectionPresets>预设</LootScavenging_SectionPresets>
 	<LootScavenging_PresetActive>当前预设：{0}</LootScavenging_PresetActive>
@@ -38,15 +38,15 @@
 	<LootScavenging_LockedReason>已被整合包锁定：此设置始终使用整合包的值，因此无法在此更改。</LootScavenging_LockedReason>
 	<LootScavenging_LockedSummary>部分设置已被整合包锁定。无论选择哪个预设，它们都保持整合包的值。</LootScavenging_LockedSummary>
 	<LootScavenging_PresetReset>恢复默认</LootScavenging_PresetReset>
-	<LootScavenging_PresetProgressionExplain>敌对、非敌对和野生角色以及殖民地的囚犯：超出殖民地研究水平的武器和衣物会变为废料，其余照常掉落。其他加入者保留装备，超出能力范围的装备被标记为陌生。倒地或死亡时无人丢下装备，尸体保留。</LootScavenging_PresetProgressionExplain>
-	<LootScavenging_PresetCleanupExplain>不处理时代。仅针对敌对角色：品质低于一般的武器、品质低于良好的衣物，以及耐久度低于50%的武器或衣物会被删除，其所有弹药也会被删除；其余照常掉落。所有敌对的人类尸体都会被移除。</LootScavenging_PresetCleanupExplain>
-	<LootScavenging_PresetVanillaExplain>所有群体均被排除，每个角色倒地或死亡时都会丢下装备，因此战利品和尸体的表现与原版游戏相同。</LootScavenging_PresetVanillaExplain>
+	<LootScavenging_PresetProgressionExplain>敌对、非敌对和野生角色以及殖民地的囚犯：超出你研究水平的武器和衣物会变为废料，其余照常掉落。其他加入者保留装备，超出你研究水平的装备被标记为陌生。倒地或死亡时无人丢下装备，尸体保留。</LootScavenging_PresetProgressionExplain>
+	<LootScavenging_PresetCleanupExplain>忽略研究。仅针对敌对角色：品质低于一般的武器、品质低于良好的衣物，以及耐久度低于50%的武器或衣物会被删除，其所有弹药也会被删除；其余照常掉落。所有敌对的人类尸体都会被移除。</LootScavenging_PresetCleanupExplain>
+	<LootScavenging_PresetVanillaExplain>所有群体均不受影响，每个角色倒地或死亡时都会丢下装备，因此战利品和尸体的表现与原版游戏相同。</LootScavenging_PresetVanillaExplain>
 	<LootScavenging_ResetConfirm>将所有设置恢复为默认值（「渐进」预设），并清空保留列表和移除列表？</LootScavenging_ResetConfirm>
 	<LootScavenging_SectionWho>对象</LootScavenging_SectionWho>
 	<LootScavenging_HomeMapOnly>仅限主地图</LootScavenging_HomeMapOnly>
 	<LootScavenging_HomeMapOnlyOn>远行队、任务和哨所地图上的战利品不受影响。</LootScavenging_HomeMapOnlyOn>
 	<LootScavenging_HomeMapOnlyOff>规则适用于所有地图。</LootScavenging_HomeMapOnlyOff>
-	<LootScavenging_NoGroupOn>所有群体均被排除，因此物品规则不会改变任何战利品和尸体。</LootScavenging_NoGroupOn>
+	<LootScavenging_NoGroupOn>所有群体均设为「不受影响」，因此物品规则不会改变任何战利品和尸体。</LootScavenging_NoGroupOn>
 	<LootScavenging_SectionItems>物品规则</LootScavenging_SectionItems>
 	<LootScavenging_CategoryWeapons>武器</LootScavenging_CategoryWeapons>
 	<LootScavenging_CategoryApparel>衣物</LootScavenging_CategoryApparel>
@@ -55,12 +55,12 @@
 	<LootScavenging_CategoryMedicine>医疗药品</LootScavenging_CategoryMedicine>
 	<LootScavenging_CategoryFood>食物</LootScavenging_CategoryFood>
 	<LootScavenging_CategoryOther>其他随身物品</LootScavenging_CategoryOther>
-	<LootScavenging_OutcomeKeep>原版</LootScavenging_OutcomeKeep>
+	<LootScavenging_OutcomeKeep>照常掉落</LootScavenging_OutcomeKeep>
 	<LootScavenging_OutcomeScrap>变为废料</LootScavenging_OutcomeScrap>
-	<LootScavenging_OutcomeDisassemble>拆解</LootScavenging_OutcomeDisassemble>
+	<LootScavenging_OutcomeDisassemble>就地拆解</LootScavenging_OutcomeDisassemble>
 	<LootScavenging_OutcomeDelete>删除</LootScavenging_OutcomeDelete>
 	<LootScavenging_DisassemblyEfficiency>拆解效率（%，所有拆解规则共用）</LootScavenging_DisassemblyEfficiency>
-	<LootScavenging_OnlyBeyondReach>仅限超出殖民地能力范围的装备</LootScavenging_OnlyBeyondReach>
+	<LootScavenging_OnlyBeyondReach>仅限超出你研究水平的装备</LootScavenging_OnlyBeyondReach>
 	<LootScavenging_LimitQuality>仅限低于某一品质</LootScavenging_LimitQuality>
 	<LootScavenging_BelowQuality>品质低于</LootScavenging_BelowQuality>
 	<LootScavenging_LimitHitPoints>仅限低于某一耐久度</LootScavenging_LimitHitPoints>
@@ -74,14 +74,14 @@
 	<LootScavenging_RuleActHitPointsChance>来自受影响角色的{0}在耐久度低于{3}时有{4}的几率{1}，否则照常掉落。</LootScavenging_RuleActHitPointsChance>
 	<LootScavenging_RuleActQualityOrHitPoints>来自受影响角色的{0}在品质低于{2}或耐久度低于{3}时会{1}，否则照常掉落。</LootScavenging_RuleActQualityOrHitPoints>
 	<LootScavenging_RuleActQualityOrHitPointsChance>来自受影响角色的{0}在品质低于{2}或耐久度低于{3}时有{4}的几率{1}，否则照常掉落。</LootScavenging_RuleActQualityOrHitPointsChance>
-	<LootScavenging_RuleActReach>来自受影响角色的{0}在超出殖民地能力范围时会{1}，否则照常掉落。</LootScavenging_RuleActReach>
-	<LootScavenging_RuleActReachChance>来自受影响角色的{0}在超出殖民地能力范围时有{4}的几率{1}，否则照常掉落。</LootScavenging_RuleActReachChance>
-	<LootScavenging_RuleActReachQuality>来自受影响角色的{0}在超出殖民地能力范围且品质低于{2}时会{1}，否则照常掉落。</LootScavenging_RuleActReachQuality>
-	<LootScavenging_RuleActReachQualityChance>来自受影响角色的{0}在超出殖民地能力范围且品质低于{2}时有{4}的几率{1}，否则照常掉落。</LootScavenging_RuleActReachQualityChance>
-	<LootScavenging_RuleActReachHitPoints>来自受影响角色的{0}在超出殖民地能力范围且耐久度低于{3}时会{1}，否则照常掉落。</LootScavenging_RuleActReachHitPoints>
-	<LootScavenging_RuleActReachHitPointsChance>来自受影响角色的{0}在超出殖民地能力范围且耐久度低于{3}时有{4}的几率{1}，否则照常掉落。</LootScavenging_RuleActReachHitPointsChance>
-	<LootScavenging_RuleActReachQualityOrHitPoints>来自受影响角色的{0}在超出殖民地能力范围，且品质低于{2}或耐久度低于{3}时会{1}，否则照常掉落。</LootScavenging_RuleActReachQualityOrHitPoints>
-	<LootScavenging_RuleActReachQualityOrHitPointsChance>来自受影响角色的{0}在超出殖民地能力范围，且品质低于{2}或耐久度低于{3}时有{4}的几率{1}，否则照常掉落。</LootScavenging_RuleActReachQualityOrHitPointsChance>
+	<LootScavenging_RuleActReach>来自受影响角色的{0}在超出你的研究水平时会{1}，否则照常掉落。</LootScavenging_RuleActReach>
+	<LootScavenging_RuleActReachChance>来自受影响角色的{0}在超出你的研究水平时有{4}的几率{1}，否则照常掉落。</LootScavenging_RuleActReachChance>
+	<LootScavenging_RuleActReachQuality>来自受影响角色的{0}在超出你的研究水平且品质低于{2}时会{1}，否则照常掉落。</LootScavenging_RuleActReachQuality>
+	<LootScavenging_RuleActReachQualityChance>来自受影响角色的{0}在超出你的研究水平且品质低于{2}时有{4}的几率{1}，否则照常掉落。</LootScavenging_RuleActReachQualityChance>
+	<LootScavenging_RuleActReachHitPoints>来自受影响角色的{0}在超出你的研究水平且耐久度低于{3}时会{1}，否则照常掉落。</LootScavenging_RuleActReachHitPoints>
+	<LootScavenging_RuleActReachHitPointsChance>来自受影响角色的{0}在超出你的研究水平且耐久度低于{3}时有{4}的几率{1}，否则照常掉落。</LootScavenging_RuleActReachHitPointsChance>
+	<LootScavenging_RuleActReachQualityOrHitPoints>来自受影响角色的{0}在超出你的研究水平，且品质低于{2}或耐久度低于{3}时会{1}，否则照常掉落。</LootScavenging_RuleActReachQualityOrHitPoints>
+	<LootScavenging_RuleActReachQualityOrHitPointsChance>来自受影响角色的{0}在超出你的研究水平，且品质低于{2}或耐久度低于{3}时有{4}的几率{1}，否则照常掉落。</LootScavenging_RuleActReachQualityOrHitPointsChance>
 	<LootScavenging_VerbScrap>变为其时代的废料</LootScavenging_VerbScrap>
 	<LootScavenging_VerbDisassembleEra>被当场拆解为殖民地时代的典型材料</LootScavenging_VerbDisassembleEra>
 	<LootScavenging_VerbDisassembleItem>被当场拆解为其自身原料的{0}</LootScavenging_VerbDisassembleItem>
@@ -101,12 +101,12 @@
 	<LootScavenging_TechprintProjectsOn>调查可为需要科研蓝图的研究项目提供点数，即使科研蓝图尚未应用。在应用之前，进度会停在只差一点的位置。</LootScavenging_TechprintProjectsOn>
 	<LootScavenging_TechprintProjectsOff>仍需科研蓝图的研究项目无法从调查中获得任何点数。</LootScavenging_TechprintProjectsOff>
 	<LootScavenging_UnfamiliarScope>陌生标签</LootScavenging_UnfamiliarScope>
-	<LootScavenging_UnfamiliarAll>所有超出能力范围的装备</LootScavenging_UnfamiliarAll>
+	<LootScavenging_UnfamiliarAll>所有超出你研究水平的装备</LootScavenging_UnfamiliarAll>
 	<LootScavenging_UnfamiliarLooted>仅限战利品装备</LootScavenging_UnfamiliarLooted>
-	<LootScavenging_UnfamiliarAllExplain>任何超出殖民地研究水平的装备都是陌生的，无论来自何处。不会在物品上保存任何数据。</LootScavenging_UnfamiliarAllExplain>
-	<LootScavenging_UnfamiliarLootedExplain>只有从角色身上获得的战利品装备才是陌生的。每件战利品都带有一个保存的标记。</LootScavenging_UnfamiliarLootedExplain>
-	<LootScavenging_UnfamiliarAllExplainUnused>任何超出殖民地研究水平的装备，无论来自何处，都是陌生的。不会在物品上保存任何数据。仅用于设为「标记为陌生」的群体。</LootScavenging_UnfamiliarAllExplainUnused>
-	<LootScavenging_UnfamiliarLootedExplainUnused>只有从角色身上获得的战利品装备才是陌生的。每件战利品都带有一个保存的标记。仅用于设为「标记为陌生」的群体。</LootScavenging_UnfamiliarLootedExplainUnused>
+	<LootScavenging_UnfamiliarAllExplain>任何超出你研究水平的装备都是陌生的，无论来自何处，因此从商人处购买或作为任务奖励获得的装备也是陌生的。</LootScavenging_UnfamiliarAllExplain>
+	<LootScavenging_UnfamiliarLootedExplain>只有从角色身上脱下的装备才是陌生的。从商人处购买或作为任务奖励获得的装备可以使用。</LootScavenging_UnfamiliarLootedExplain>
+	<LootScavenging_UnfamiliarAllExplainUnused>任何超出你研究水平的装备都是陌生的，无论来自何处，因此从商人处购买或作为任务奖励获得的装备也是陌生的。仅用于设为「标记为陌生」的群体。</LootScavenging_UnfamiliarAllExplainUnused>
+	<LootScavenging_UnfamiliarLootedExplainUnused>只有从角色身上脱下的装备才是陌生的。从商人处购买或作为任务奖励获得的装备可以使用。仅用于设为「标记为陌生」的群体。</LootScavenging_UnfamiliarLootedExplainUnused>
 	<LootScavenging_SectionCorpses>尸体</LootScavenging_SectionCorpses>
 	<LootScavenging_CorpseHumanlike>移除人类尸体</LootScavenging_CorpseHumanlike>
 	<LootScavenging_CorpseHumanlikeOn>设为「应用物品规则」的群体中的人类尸体，在其装备经过规则处理后会被移除。</LootScavenging_CorpseHumanlikeOn>
@@ -133,7 +133,7 @@
 	<LootScavenging_KeepList>始终保留</LootScavenging_KeepList>
 	<LootScavenging_KeepListExplain>此列表中的物品永远不会被处理，无论其他规则如何规定。此列表优先于移除列表。</LootScavenging_KeepListExplain>
 	<LootScavenging_RemoveList>始终移除</LootScavenging_RemoveList>
-	<LootScavenging_RemoveListExplain>此列表中的物品跳过其规则的条件和几率。它们会得到其类别的结果；若该结果为原版，则被删除。</LootScavenging_RemoveListExplain>
+	<LootScavenging_RemoveListExplain>此列表中的物品跳过其规则的条件和几率。它们会得到其类别的结果；若该结果为「照常掉落」，则被删除。</LootScavenging_RemoveListExplain>
 	<LootScavenging_ListEmpty>（空）</LootScavenging_ListEmpty>
 	<LootScavenging_ListRemove>移除</LootScavenging_ListRemove>
 	<LootScavenging_ListAdd>添加</LootScavenging_ListAdd>
@@ -149,19 +149,19 @@
 	<LootScavenging_StudyBulkLabel>调查{0} x10</LootScavenging_StudyBulkLabel>
 	<LootScavenging_BulkBillNote>一次工作完成十个清单的量，库存至少有{0}单位时才会开始。</LootScavenging_BulkBillNote>
 	<LootScavenging_StudyPointsHalvedNote>0.5.2版降低了废料的价值，因此每单位的研究点数已减半，总量保持不变。</LootScavenging_StudyPointsHalvedNote>
-	<LootScavenging_ColonistsKeepGear>殖民者倒地或死亡时保留武器</LootScavenging_ColonistsKeepGear>
-	<LootScavenging_ColonistsKeepGearOn>倒地的殖民者或殖民地奴隶会把武器握在手中并保留背包，被搬运、被救援或读取存档后也是如此。死亡的殖民者会把它们留在尸体上。殖民地的装备永远不会被处理。</LootScavenging_ColonistsKeepGearOn>
-	<LootScavenging_ColonistsKeepGearOff>倒地或死亡的殖民者会掉落武器和背包，与原版游戏相同。殖民地的装备永远不会被处理。</LootScavenging_ColonistsKeepGearOff>
-	<LootScavenging_SectionKeepGear>不要丢下装备</LootScavenging_SectionKeepGear>
-	<LootScavenging_HostilesKeepGear>敌对角色倒地或死亡时，不会把装备、武器和战利品丢在地上</LootScavenging_HostilesKeepGear>
-	<LootScavenging_HostilesKeepGearOn>倒地的敌对角色即使被搬运，也会手持武器并保留背包；死亡的则把所有东西留在尸体上，直到尸体被剥光、屠宰或火化。</LootScavenging_HostilesKeepGearOn>
-	<LootScavenging_HostilesKeepGearOff>倒地或死亡的敌对角色会像原版游戏那样丢下武器和背包，掉落的物品在掉落时按规则处理。</LootScavenging_HostilesKeepGearOff>
-	<LootScavenging_NonHostilesKeepGear>非敌对角色倒地或死亡时，不会把装备、武器和战利品丢在地上</LootScavenging_NonHostilesKeepGear>
-	<LootScavenging_NonHostilesKeepGearOn>非敌对派系的角色和野人同样适用：倒地者手持武器并保留背包，死者把所有东西留在尸体上。</LootScavenging_NonHostilesKeepGearOn>
-	<LootScavenging_NonHostilesKeepGearOff>倒地或死亡的非敌对角色或野人会像原版游戏那样丢下武器和背包，掉落的物品在掉落时按规则处理。</LootScavenging_NonHostilesKeepGearOff>
-	<LootScavenging_KeepGearExplain>这些勾选框决定物品落在哪里；下方各行决定是否对其进行处理。机械族等无法被剥光的角色仍会掉在地上。</LootScavenging_KeepGearExplain>
+	<LootScavenging_ColonistsKeepGear>殖民者</LootScavenging_ColonistsKeepGear>
+	<LootScavenging_ColonistsKeepGearOn>倒地的殖民者或殖民地奴隶会把武器握在手中并保留随身物品，被搬运、被救援或读取存档后也是如此。死亡的会把它们留在尸体上。殖民地的装备永远不会经过物品规则。</LootScavenging_ColonistsKeepGearOn>
+	<LootScavenging_ColonistsKeepGearOff>倒地或死亡的殖民者会掉落武器和随身物品，与原版游戏相同。殖民地的装备永远不会经过物品规则。</LootScavenging_ColonistsKeepGearOff>
+	<LootScavenging_SectionKeepGear>装备留在身上</LootScavenging_SectionKeepGear>
+	<LootScavenging_HostilesKeepGear>敌对角色</LootScavenging_HostilesKeepGear>
+	<LootScavenging_HostilesKeepGearOn>倒地的敌对角色即使被搬运，也会手持武器并保留随身物品；死亡的则把所有东西留在尸体上，直到尸体被剥光、屠宰或火化。</LootScavenging_HostilesKeepGearOn>
+	<LootScavenging_HostilesKeepGearOff>倒地或死亡的敌对角色会像原版游戏那样丢下武器和随身物品，掉落的物品在掉落时遵循物品规则。</LootScavenging_HostilesKeepGearOff>
+	<LootScavenging_NonHostilesKeepGear>非敌对角色和野人</LootScavenging_NonHostilesKeepGear>
+	<LootScavenging_NonHostilesKeepGearOn>非敌对派系的角色和野人：倒地者手持武器并保留随身物品，死者把所有东西留在尸体上。</LootScavenging_NonHostilesKeepGearOn>
+	<LootScavenging_NonHostilesKeepGearOff>倒地或死亡的非敌对角色或野人会像原版游戏那样丢下武器和随身物品，掉落的物品在掉落时遵循物品规则。</LootScavenging_NonHostilesKeepGearOff>
+	<LootScavenging_KeepGearExplain>这些勾选框决定装备落在哪里；下方「对象」各行决定其是否遵循物品规则。机械族等无法被剥光的角色仍会掉在地上。</LootScavenging_KeepGearExplain>
 	<LootScavenging_WhoApply>应用物品规则</LootScavenging_WhoApply>
-	<LootScavenging_WhoExclude>排除</LootScavenging_WhoExclude>
+	<LootScavenging_WhoExclude>不受影响</LootScavenging_WhoExclude>
 	<LootScavenging_WhoMark>标记为陌生</LootScavenging_WhoMark>
 	<LootScavenging_WhoHostile>敌对角色</LootScavenging_WhoHostile>
 	<LootScavenging_WhoHostileApply>敌对角色（如袭击者）倒地或死亡时脱落的装备遵循下方物品规则。</LootScavenging_WhoHostileApply>
@@ -173,16 +173,16 @@
 	<LootScavenging_WhoWildApply>野人的装备遵循下方物品规则，野生动物的尸体可以被移除。</LootScavenging_WhoWildApply>
 	<LootScavenging_WhoWildExclude>野人和野生动物不受影响，装备和尸体都是如此。</LootScavenging_WhoWildExclude>
 	<LootScavenging_WhoPrisoners>囚犯</LootScavenging_WhoPrisoners>
-	<LootScavenging_WhoPrisonersApply>囚犯身上脱落的装备遵循下方物品规则：被剥光时，或站立的角色被拘捕时。</LootScavenging_WhoPrisonersApply>
+	<LootScavenging_WhoPrisonersApply>囚犯身上脱落的装备遵循下方物品规则：囚犯被剥光时，或站立的角色被拘捕时。</LootScavenging_WhoPrisonersApply>
 	<LootScavenging_WhoPrisonersExclude>囚犯身上脱落的装备像原版游戏那样完整掉落。</LootScavenging_WhoPrisonersExclude>
 	<LootScavenging_WhoRecruitedPrisoners>被招募或奴役的囚犯</LootScavenging_WhoRecruitedPrisoners>
-	<LootScavenging_WhoRecruitedPrisonersApply>加入时，其穿着的衣物、手持的武器和背包按物品规则处理，如同被剥光。</LootScavenging_WhoRecruitedPrisonersApply>
+	<LootScavenging_WhoRecruitedPrisonersApply>加入时，其穿着的衣物、手持的武器和随身物品遵循物品规则，如同被剥光。</LootScavenging_WhoRecruitedPrisonersApply>
 	<LootScavenging_WhoRecruitedPrisonersExclude>加入时不会处理其装备。</LootScavenging_WhoRecruitedPrisonersExclude>
 	<LootScavenging_WhoOtherJoiners>其他加入者</LootScavenging_WhoOtherJoiners>
-	<LootScavenging_WhoOtherJoinersApply>流浪者、难民和任务加入者加入时，其穿着的衣物、手持的武器和背包按物品规则处理，如同被剥光。</LootScavenging_WhoOtherJoinersApply>
+	<LootScavenging_WhoOtherJoinersApply>流浪者、难民和任务加入者加入时，其穿着的衣物、手持的武器和随身物品遵循物品规则，如同被剥光。</LootScavenging_WhoOtherJoinersApply>
 	<LootScavenging_WhoOtherJoinersExclude>流浪者、难民和任务加入者加入时，其装备不会被处理。</LootScavenging_WhoOtherJoinersExclude>
-	<LootScavenging_WhoMarkExplain>其装备完整掉落。超出殖民地研究水平的装备会被标为陌生，在研究完成前无法使用；可像废料一样回收或调查。该群体不使用物品规则。</LootScavenging_WhoMarkExplain>
-	<LootScavenging_WhoJoinMarkExplain>他们继续穿戴并手持来时所带之物，保留背包。超出殖民地研究水平的装备（包括背包中的）会被标记，一旦脱下，在研究完成前任何殖民者都无法使用。</LootScavenging_WhoJoinMarkExplain>
+	<LootScavenging_WhoMarkExplain>其装备完整掉落。超出你研究水平的装备会被标记为陌生，在研究完成前无法使用；可像废料一样回收或调查。该群体不使用物品规则。</LootScavenging_WhoMarkExplain>
+	<LootScavenging_WhoJoinMarkExplain>他们继续穿戴并手持来时所带之物，保留随身物品。超出你研究水平的装备（包括随身物品中的）会被标记，一旦脱下，在研究完成前任何殖民者都无法使用。</LootScavenging_WhoJoinMarkExplain>
 	<LootScavenging_ItemsNote>这些规则决定设为「应用物品规则」的群体的装备会如何处理。</LootScavenging_ItemsNote>
 	<LootScavenging_ChanceScrap>变为废料的几率（%）</LootScavenging_ChanceScrap>
 	<LootScavenging_ChanceDisassemble>拆解几率（%）</LootScavenging_ChanceDisassemble>
@@ -190,5 +190,5 @@
 	<LootScavenging_ScrapValuePerTier>各时代废料的单位市场价值</LootScavenging_ScrapValuePerTier>
 	<LootScavenging_ScrapValuePerTierExplain>库存中的废料会计入殖民地财富，并可按此价值出售。价值较低可避免库存拉高殖民地财富。</LootScavenging_ScrapValuePerTierExplain>
 	<LootScavenging_SectionOther>其他</LootScavenging_SectionOther>
-	<LootScavenging_ButcherExplain>屠宰人类尸体时会先将其剥光，剥下的物品按其所属群体那一行的物品规则处理。被排除群体的尸体或殖民者的尸体，按原版游戏的方式屠宰。</LootScavenging_ButcherExplain>
+	<LootScavenging_ButcherExplain>屠宰人类尸体时会先将其剥光，剥下的物品按其所属群体那一行的物品规则处理。设为「不受影响」的群体的尸体或殖民者的尸体，按原版游戏的方式屠宰。</LootScavenging_ButcherExplain>
 </LanguageData>

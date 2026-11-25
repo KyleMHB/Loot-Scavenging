@@ -21,12 +21,12 @@
 	<LootScavenging_StudyWhyColonyEra>Пока нельзя изучить — поселению нужен технический уровень «{0}».</LootScavenging_StudyWhyColonyEra>
 	<LootScavenging_StudyWhyProjectEra>Нельзя изучить для «{0}», так как технический уровень технологии ({1}) выше, чем у лома ({2}).</LootScavenging_StudyWhyProjectEra>
 	<LootScavenging_StudyWhyNoGain>Сейчас нельзя изучить: скорость исследования у рассказчика равна нулю.</LootScavenging_StudyWhyNoGain>
-	<LootScavenging_RecycleOriginalLabel>переработать исходные предметы</LootScavenging_RecycleOriginalLabel>
-	<LootScavenging_RecycleOriginalJob>Перерабатывает исходный предмет.</LootScavenging_RecycleOriginalJob>
-	<LootScavenging_RecycleOriginalDescription>Разобрать один незнакомый исходный предмет так, будто это лом, которым он стал бы: выход тот же. Отметьте предметы, которые не жалко израсходовать; по умолчанию ни один не отмечен.</LootScavenging_RecycleOriginalDescription>
-	<LootScavenging_StudyOriginalLabel>изучить исходные предметы</LootScavenging_StudyOriginalLabel>
-	<LootScavenging_StudyOriginalJob>Изучает исходный предмет.</LootScavenging_StudyOriginalJob>
-	<LootScavenging_StudyOriginalDescription>Изучить один незнакомый исходный предмет ради очков исследования так, будто это лом, которым он стал бы: очков столько же. Отметьте предметы, которые не жалко израсходовать; по умолчанию ни один не отмечен.</LootScavenging_StudyOriginalDescription>
+	<LootScavenging_RecycleOriginalLabel>переработать незнакомые предметы</LootScavenging_RecycleOriginalLabel>
+	<LootScavenging_RecycleOriginalJob>Перерабатывает незнакомый предмет.</LootScavenging_RecycleOriginalJob>
+	<LootScavenging_RecycleOriginalDescription>Разобрать один незнакомый предмет так, будто это лом, которым он стал бы: выход тот же. Отметьте предметы, которые не жалко израсходовать; по умолчанию ни один не отмечен.</LootScavenging_RecycleOriginalDescription>
+	<LootScavenging_StudyOriginalLabel>изучить незнакомые предметы</LootScavenging_StudyOriginalLabel>
+	<LootScavenging_StudyOriginalJob>Изучает незнакомый предмет.</LootScavenging_StudyOriginalJob>
+	<LootScavenging_StudyOriginalDescription>Изучить один незнакомый предмет ради очков исследования так, будто это лом, которым он стал бы: очков столько же. Отметьте предметы, которые не жалко израсходовать; по умолчанию ни один не отмечен.</LootScavenging_StudyOriginalDescription>
 	<LootScavenging_StudyDone>{PAWN_labelShort} {PAWN_gender ? завершил : завершила} изучение — {2} ({1} шт.). Очки исследования для «{4}»: +{3}.</LootScavenging_StudyDone>
 	<LootScavenging_SectionPresets>Пресеты</LootScavenging_SectionPresets>
 	<LootScavenging_PresetActive>Текущий пресет: {0}</LootScavenging_PresetActive>
@@ -38,15 +38,15 @@
 	<LootScavenging_LockedReason>Заблокировано сборкой: эта настройка всегда берёт значение сборки, поэтому её нельзя изменить здесь.</LootScavenging_LockedReason>
 	<LootScavenging_LockedSummary>Некоторые настройки заблокированы сборкой. Они сохраняют значения сборки при любом пресете.</LootScavenging_LockedSummary>
 	<LootScavenging_PresetReset>Восстановить по умолчанию</LootScavenging_PresetReset>
-	<LootScavenging_PresetProgressionExplain>Враждебные, невраждебные и дикие персонажи и пленники поселения: их оружие и одежда, опережающие исследования поселения, становятся ломом, а остальное выпадает как обычно. Другие вступающие сохраняют снаряжение, а недосягаемое помечается как незнакомое. Никто не роняет снаряжение, когда обездвижен или убит, трупы остаются.</LootScavenging_PresetProgressionExplain>
-	<LootScavenging_PresetCleanupExplain>Без учёта эпох. Только с враждебных персонажей удаляются оружие с качеством ниже «нормально», одежда с качеством ниже «хорошо», любое из них с прочностью ниже 50%, а также все их боеприпасы; остальное выпадает как обычно. Все трупы враждебных людей убираются.</LootScavenging_PresetCleanupExplain>
-	<LootScavenging_PresetVanillaExplain>Все группы исключены, и каждый роняет снаряжение, когда обездвижен или убит, поэтому добыча и трупы ведут себя как в базовой игре.</LootScavenging_PresetVanillaExplain>
+	<LootScavenging_PresetProgressionExplain>Враждебные, невраждебные и дикие персонажи и пленники поселения: их оружие и одежда, опережающие ваши исследования, становятся ломом, а остальное выпадает как обычно. Другие вступающие сохраняют снаряжение, а опережающее ваши исследования помечается как незнакомое. Никто не роняет снаряжение, когда обездвижен или убит, трупы остаются.</LootScavenging_PresetProgressionExplain>
+	<LootScavenging_PresetCleanupExplain>Не учитывает исследования. Только с враждебных персонажей удаляются оружие с качеством ниже «нормально», одежда с качеством ниже «хорошо», любое из них с прочностью ниже 50%, а также все их боеприпасы; остальное выпадает как обычно. Все трупы враждебных людей убираются.</LootScavenging_PresetCleanupExplain>
+	<LootScavenging_PresetVanillaExplain>Ни одна группа не затрагивается, и каждый роняет снаряжение, когда обездвижен или убит, поэтому добыча и трупы ведут себя как в базовой игре.</LootScavenging_PresetVanillaExplain>
 	<LootScavenging_ResetConfirm>Вернуть все настройки по умолчанию (пресет «Прогрессия») и очистить списки «Всегда оставлять» и «Всегда удалять»?</LootScavenging_ResetConfirm>
 	<LootScavenging_SectionWho>Кого касается</LootScavenging_SectionWho>
 	<LootScavenging_HomeMapOnly>Только домашняя карта</LootScavenging_HomeMapOnly>
 	<LootScavenging_HomeMapOnlyOn>Добыча на картах караванов, заданий и аванпостов не затрагивается.</LootScavenging_HomeMapOnlyOn>
 	<LootScavenging_HomeMapOnlyOff>Правила действуют на всех картах.</LootScavenging_HomeMapOnlyOff>
-	<LootScavenging_NoGroupOn>Все группы исключены, поэтому правила для предметов не меняют ни добычу, ни трупы.</LootScavenging_NoGroupOn>
+	<LootScavenging_NoGroupOn>Для всех групп выбрано «Не трогать», поэтому правила для предметов не меняют ни добычу, ни трупы.</LootScavenging_NoGroupOn>
 	<LootScavenging_SectionItems>Правила для предметов</LootScavenging_SectionItems>
 	<LootScavenging_CategoryWeapons>Оружие</LootScavenging_CategoryWeapons>
 	<LootScavenging_CategoryApparel>Одежда</LootScavenging_CategoryApparel>
@@ -55,12 +55,12 @@
 	<LootScavenging_CategoryMedicine>Медикаменты</LootScavenging_CategoryMedicine>
 	<LootScavenging_CategoryFood>Продовольствие</LootScavenging_CategoryFood>
 	<LootScavenging_CategoryOther>Прочий инвентарь</LootScavenging_CategoryOther>
-	<LootScavenging_OutcomeKeep>Ваниль</LootScavenging_OutcomeKeep>
+	<LootScavenging_OutcomeKeep>Выпадает как обычно</LootScavenging_OutcomeKeep>
 	<LootScavenging_OutcomeScrap>В лом</LootScavenging_OutcomeScrap>
-	<LootScavenging_OutcomeDisassemble>Разобрать</LootScavenging_OutcomeDisassemble>
+	<LootScavenging_OutcomeDisassemble>Разобрать на месте</LootScavenging_OutcomeDisassemble>
 	<LootScavenging_OutcomeDelete>Удалить</LootScavenging_OutcomeDelete>
 	<LootScavenging_DisassemblyEfficiency>Эффективность разборки, % (общая для всех правил «Разобрать»)</LootScavenging_DisassemblyEfficiency>
-	<LootScavenging_OnlyBeyondReach>Только снаряжение вне досягаемости поселения</LootScavenging_OnlyBeyondReach>
+	<LootScavenging_OnlyBeyondReach>Только снаряжение, опережающее ваши исследования</LootScavenging_OnlyBeyondReach>
 	<LootScavenging_LimitQuality>Только ниже порога качества</LootScavenging_LimitQuality>
 	<LootScavenging_BelowQuality>Качество ниже</LootScavenging_BelowQuality>
 	<LootScavenging_LimitHitPoints>Только ниже порога прочности</LootScavenging_LimitHitPoints>
@@ -74,14 +74,14 @@
 	<LootScavenging_RuleActHitPointsChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если их прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActHitPointsChance>
 	<LootScavenging_RuleActQualityOrHitPoints>Предметы категории «{0}» с затронутых персонажей {1}, если их качество ниже «{2}» или прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActQualityOrHitPoints>
 	<LootScavenging_RuleActQualityOrHitPointsChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если их качество ниже «{2}» или прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActQualityOrHitPointsChance>
-	<LootScavenging_RuleActReach>Предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReach>
-	<LootScavenging_RuleActReachChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachChance>
-	<LootScavenging_RuleActReachQuality>Предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения и их качество ниже «{2}». В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQuality>
-	<LootScavenging_RuleActReachQualityChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения и их качество ниже «{2}». В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQualityChance>
-	<LootScavenging_RuleActReachHitPoints>Предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения и их прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachHitPoints>
-	<LootScavenging_RuleActReachHitPointsChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения и их прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachHitPointsChance>
-	<LootScavenging_RuleActReachQualityOrHitPoints>Предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения и их качество ниже «{2}» или прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQualityOrHitPoints>
-	<LootScavenging_RuleActReachQualityOrHitPointsChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если они вне досягаемости поселения и их качество ниже «{2}» или прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQualityOrHitPointsChance>
+	<LootScavenging_RuleActReach>Предметы категории «{0}» с затронутых персонажей {1}, если они опережают ваши исследования. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReach>
+	<LootScavenging_RuleActReachChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если они опережают ваши исследования. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachChance>
+	<LootScavenging_RuleActReachQuality>Предметы категории «{0}» с затронутых персонажей {1}, если они опережают ваши исследования и их качество ниже «{2}». В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQuality>
+	<LootScavenging_RuleActReachQualityChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если они опережают ваши исследования и их качество ниже «{2}». В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQualityChance>
+	<LootScavenging_RuleActReachHitPoints>Предметы категории «{0}» с затронутых персонажей {1}, если они опережают ваши исследования и их прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachHitPoints>
+	<LootScavenging_RuleActReachHitPointsChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если они опережают ваши исследования и их прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachHitPointsChance>
+	<LootScavenging_RuleActReachQualityOrHitPoints>Предметы категории «{0}» с затронутых персонажей {1}, если они опережают ваши исследования и их качество ниже «{2}» или прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQualityOrHitPoints>
+	<LootScavenging_RuleActReachQualityOrHitPointsChance>С шансом {4} предметы категории «{0}» с затронутых персонажей {1}, если они опережают ваши исследования и их качество ниже «{2}» или прочность ниже {3}. В остальных случаях они выпадают как обычно.</LootScavenging_RuleActReachQualityOrHitPointsChance>
 	<LootScavenging_VerbScrap>превращаются в лом своей эпохи</LootScavenging_VerbScrap>
 	<LootScavenging_VerbDisassembleEra>сразу разбираются на материалы, типичные для технического уровня поселения</LootScavenging_VerbDisassembleEra>
 	<LootScavenging_VerbDisassembleItem>сразу разбираются, возвращая {0} своих ингредиентов</LootScavenging_VerbDisassembleItem>
@@ -101,12 +101,12 @@
 	<LootScavenging_TechprintProjectsOn>Изучение вкладывается в технологии, которым нужны чертежи, даже до применения чертежей. Пока они не применены, до завершения не хватает одного очка.</LootScavenging_TechprintProjectsOn>
 	<LootScavenging_TechprintProjectsOff>Технологии, которым ещё нужны чертежи, ничего не получают от изучения.</LootScavenging_TechprintProjectsOff>
 	<LootScavenging_UnfamiliarScope>Пометка «незнакомая технология»</LootScavenging_UnfamiliarScope>
-	<LootScavenging_UnfamiliarAll>Всё снаряжение вне досягаемости</LootScavenging_UnfamiliarAll>
+	<LootScavenging_UnfamiliarAll>Всё снаряжение, опережающее ваши исследования</LootScavenging_UnfamiliarAll>
 	<LootScavenging_UnfamiliarLooted>Только добытое снаряжение</LootScavenging_UnfamiliarLooted>
-	<LootScavenging_UnfamiliarAllExplain>Любое снаряжение, опережающее исследования поселения, незнакомо, откуда бы оно ни взялось. На предметах ничего не сохраняется.</LootScavenging_UnfamiliarAllExplain>
-	<LootScavenging_UnfamiliarLootedExplain>Незнакомо только снаряжение, добытое с персонажей. Каждый добытый предмет хранит сохраняемую пометку.</LootScavenging_UnfamiliarLootedExplain>
-	<LootScavenging_UnfamiliarAllExplainUnused>Любое снаряжение, опережающее исследования поселения, незнакомо, откуда бы оно ни взялось. На предметах ничего не сохраняется. Используется только для групп с выбором «Помечать как незнакомое».</LootScavenging_UnfamiliarAllExplainUnused>
-	<LootScavenging_UnfamiliarLootedExplainUnused>Незнакомо только снаряжение, добытое с персонажей. Каждый добытый предмет хранит сохраняемую пометку. Используется только для групп с выбором «Помечать как незнакомое».</LootScavenging_UnfamiliarLootedExplainUnused>
+	<LootScavenging_UnfamiliarAllExplain>Любое снаряжение, опережающее ваши исследования, незнакомо, откуда бы оно ни взялось, поэтому купленное у торговцев или полученное в награду за задание тоже незнакомо.</LootScavenging_UnfamiliarAllExplain>
+	<LootScavenging_UnfamiliarLootedExplain>Незнакомо только снаряжение, снятое с персонажей. Купленное у торговцев или полученное в награду за задание можно использовать.</LootScavenging_UnfamiliarLootedExplain>
+	<LootScavenging_UnfamiliarAllExplainUnused>Любое снаряжение, опережающее ваши исследования, незнакомо, откуда бы оно ни взялось, поэтому купленное у торговцев или полученное в награду за задание тоже незнакомо. Используется только для групп с выбором «Помечать как незнакомое».</LootScavenging_UnfamiliarAllExplainUnused>
+	<LootScavenging_UnfamiliarLootedExplainUnused>Незнакомо только снаряжение, снятое с персонажей. Купленное у торговцев или полученное в награду за задание можно использовать. Используется только для групп с выбором «Помечать как незнакомое».</LootScavenging_UnfamiliarLootedExplainUnused>
 	<LootScavenging_SectionCorpses>Трупы</LootScavenging_SectionCorpses>
 	<LootScavenging_CorpseHumanlike>Убирать трупы людей</LootScavenging_CorpseHumanlike>
 	<LootScavenging_CorpseHumanlikeOn>Трупы людей из групп с выбором «Применять правила для предметов» убираются после того, как их снаряжение прошло через правила.</LootScavenging_CorpseHumanlikeOn>
@@ -133,7 +133,7 @@
 	<LootScavenging_KeepList>Всегда оставлять</LootScavenging_KeepList>
 	<LootScavenging_KeepListExplain>Предметы из этого списка никогда не затрагиваются, что бы ни говорили другие правила. Этот список важнее списка «Всегда удалять».</LootScavenging_KeepListExplain>
 	<LootScavenging_RemoveList>Всегда удалять</LootScavenging_RemoveList>
-	<LootScavenging_RemoveListExplain>Для предметов из этого списка условия и шанс правила не действуют. Они получают исход своей категории, а если этот исход — «Ваниль», удаляются.</LootScavenging_RemoveListExplain>
+	<LootScavenging_RemoveListExplain>Для предметов из этого списка условия и шанс правила не действуют. Они получают исход своей категории, а если этот исход — «Выпадает как обычно», удаляются.</LootScavenging_RemoveListExplain>
 	<LootScavenging_ListEmpty>(пусто)</LootScavenging_ListEmpty>
 	<LootScavenging_ListRemove>Убрать</LootScavenging_ListRemove>
 	<LootScavenging_ListAdd>Добавить</LootScavenging_ListAdd>
@@ -149,19 +149,19 @@
 	<LootScavenging_StudyBulkLabel>изучить {0} x10</LootScavenging_StudyBulkLabel>
 	<LootScavenging_BulkBillNote>Выполняет работу десяти заданий за один раз и начинается, только когда в наличии не меньше единиц: {0}.</LootScavenging_BulkBillNote>
 	<LootScavenging_StudyPointsHalvedNote>В версии 0.5.2 лом стал дешевле, поэтому ваши очки исследования за единицу уменьшены вдвое, чтобы итог остался прежним.</LootScavenging_StudyPointsHalvedNote>
-	<LootScavenging_ColonistsKeepGear>Поселенцы сохраняют оружие, когда обездвижены или убиты</LootScavenging_ColonistsKeepGear>
-	<LootScavenging_ColonistsKeepGearOn>Обездвиженный поселенец или раб поселения держит оружие в руках и сохраняет инвентарь, в том числе когда его переносят, спасают или загружают сохранение. Погибший сохраняет их на трупе. Снаряжение поселения никогда не обрабатывается.</LootScavenging_ColonistsKeepGearOn>
-	<LootScavenging_ColonistsKeepGearOff>Обездвиженный или погибший поселенец роняет оружие и инвентарь, как в базовой игре. Снаряжение поселения никогда не обрабатывается.</LootScavenging_ColonistsKeepGearOff>
-	<LootScavenging_SectionKeepGear>Не бросать снаряжение</LootScavenging_SectionKeepGear>
-	<LootScavenging_HostilesKeepGear>Враждебные персонажи не роняют снаряжение, оружие и добычу на землю, когда обездвижены или убиты</LootScavenging_HostilesKeepGear>
+	<LootScavenging_ColonistsKeepGear>Поселенцы</LootScavenging_ColonistsKeepGear>
+	<LootScavenging_ColonistsKeepGearOn>Обездвиженный поселенец или раб поселения держит оружие в руках и сохраняет инвентарь, в том числе когда его переносят, спасают или загружают сохранение. Погибший сохраняет их на трупе. Снаряжение поселения никогда не подчиняется правилам для предметов.</LootScavenging_ColonistsKeepGearOn>
+	<LootScavenging_ColonistsKeepGearOff>Обездвиженный или погибший поселенец роняет оружие и инвентарь, как в базовой игре. Снаряжение поселения никогда не подчиняется правилам для предметов.</LootScavenging_ColonistsKeepGearOff>
+	<LootScavenging_SectionKeepGear>Снаряжение остаётся на теле</LootScavenging_SectionKeepGear>
+	<LootScavenging_HostilesKeepGear>Враги</LootScavenging_HostilesKeepGear>
 	<LootScavenging_HostilesKeepGearOn>Обездвиженный враг сохраняет оружие в руках и инвентарь, в том числе когда его несут. Убитый сохраняет всё на теле, пока труп не раздет, не разделан и не кремирован.</LootScavenging_HostilesKeepGearOn>
-	<LootScavenging_HostilesKeepGearOff>Обездвиженный или убитый враг роняет оружие и инвентарь, как в базовой игре, а выпавшее обрабатывается в момент выпадения.</LootScavenging_HostilesKeepGearOff>
-	<LootScavenging_NonHostilesKeepGear>Невраждебные персонажи не роняют снаряжение, оружие и добычу на землю, когда обездвижены или убиты</LootScavenging_NonHostilesKeepGear>
-	<LootScavenging_NonHostilesKeepGearOn>То же для персонажей невраждебных фракций и одичалых: обездвиженный сохраняет оружие в руках и инвентарь, убитый — всё на теле.</LootScavenging_NonHostilesKeepGearOn>
-	<LootScavenging_NonHostilesKeepGearOff>Обездвиженный или убитый невраждебный или одичалый персонаж роняет оружие и инвентарь, как в базовой игре, а выпавшее обрабатывается в момент выпадения.</LootScavenging_NonHostilesKeepGearOff>
-	<LootScavenging_KeepGearExplain>Эти флажки определяют, где окажутся предметы; строки ниже — обрабатываются ли они. Механоиды и другие персонажи, которых нельзя раздеть, всё равно роняют вещи на землю.</LootScavenging_KeepGearExplain>
+	<LootScavenging_HostilesKeepGearOff>Обездвиженный или убитый враг роняет оружие и инвентарь, как в базовой игре, а выпавшее в момент выпадения подчиняется правилам для предметов.</LootScavenging_HostilesKeepGearOff>
+	<LootScavenging_NonHostilesKeepGear>Невраждебные и одичалые</LootScavenging_NonHostilesKeepGear>
+	<LootScavenging_NonHostilesKeepGearOn>Персонажи невраждебных фракций и одичалые: обездвиженный сохраняет оружие в руках и инвентарь, убитый — всё на теле.</LootScavenging_NonHostilesKeepGearOn>
+	<LootScavenging_NonHostilesKeepGearOff>Обездвиженный или убитый невраждебный или одичалый персонаж роняет оружие и инвентарь, как в базовой игре, а выпавшее в момент выпадения подчиняется правилам для предметов.</LootScavenging_NonHostilesKeepGearOff>
+	<LootScavenging_KeepGearExplain>Эти флажки определяют, где окажется снаряжение; строки «Кого касается» ниже — подчиняется ли оно правилам для предметов. Механоиды и другие персонажи, которых нельзя раздеть, всё равно роняют вещи на землю.</LootScavenging_KeepGearExplain>
 	<LootScavenging_WhoApply>Применять правила для предметов</LootScavenging_WhoApply>
-	<LootScavenging_WhoExclude>Исключить</LootScavenging_WhoExclude>
+	<LootScavenging_WhoExclude>Не трогать</LootScavenging_WhoExclude>
 	<LootScavenging_WhoMark>Помечать как незнакомое</LootScavenging_WhoMark>
 	<LootScavenging_WhoHostile>Враждебные персонажи</LootScavenging_WhoHostile>
 	<LootScavenging_WhoHostileApply>Снаряжение, снятое с враждебных персонажей, например налётчиков, когда они обездвижены или убиты, подчиняется правилам для предметов ниже.</LootScavenging_WhoHostileApply>
@@ -173,16 +173,16 @@
 	<LootScavenging_WhoWildApply>Снаряжение одичалых подчиняется правилам для предметов ниже, а туши диких животных можно убирать.</LootScavenging_WhoWildApply>
 	<LootScavenging_WhoWildExclude>Одичалые и дикие животные не затрагиваются — ни снаряжение, ни трупы.</LootScavenging_WhoWildExclude>
 	<LootScavenging_WhoPrisoners>Пленники</LootScavenging_WhoPrisoners>
-	<LootScavenging_WhoPrisonersApply>Снаряжение, снятое с пленника, подчиняется правилам для предметов ниже: когда его раздевают или когда арестовывают стоящего персонажа.</LootScavenging_WhoPrisonersApply>
+	<LootScavenging_WhoPrisonersApply>Снаряжение, снятое с пленника, подчиняется правилам для предметов ниже: когда пленника раздевают или когда арестовывают стоящего персонажа.</LootScavenging_WhoPrisonersApply>
 	<LootScavenging_WhoPrisonersExclude>Снаряжение, снятое с пленника, выпадает целым, как в базовой игре.</LootScavenging_WhoPrisonersExclude>
 	<LootScavenging_WhoRecruitedPrisoners>Завербованные или порабощённые пленники</LootScavenging_WhoRecruitedPrisoners>
-	<LootScavenging_WhoRecruitedPrisonersApply>При вступлении их надетая одежда, оружие в руках и инвентарь обрабатываются по правилам для предметов, как будто их раздели.</LootScavenging_WhoRecruitedPrisonersApply>
+	<LootScavenging_WhoRecruitedPrisonersApply>При вступлении их надетая одежда, оружие в руках и инвентарь подчиняются правилам для предметов, как будто их раздели.</LootScavenging_WhoRecruitedPrisonersApply>
 	<LootScavenging_WhoRecruitedPrisonersExclude>Их снаряжение при вступлении не затрагивается.</LootScavenging_WhoRecruitedPrisonersExclude>
 	<LootScavenging_WhoOtherJoiners>Другие вступающие</LootScavenging_WhoOtherJoiners>
-	<LootScavenging_WhoOtherJoinersApply>Когда странники, беженцы и участники заданий вступают в поселение, их надетая одежда, оружие в руках и инвентарь обрабатываются по правилам для предметов, как будто их раздели.</LootScavenging_WhoOtherJoinersApply>
+	<LootScavenging_WhoOtherJoinersApply>Когда странники, беженцы и участники заданий вступают в поселение, их надетая одежда, оружие в руках и инвентарь подчиняются правилам для предметов, как будто их раздели.</LootScavenging_WhoOtherJoinersApply>
 	<LootScavenging_WhoOtherJoinersExclude>Снаряжение странников, беженцев и участников заданий не затрагивается при вступлении.</LootScavenging_WhoOtherJoinersExclude>
-	<LootScavenging_WhoMarkExplain>Их снаряжение выпадает целым. Снаряжение, опережающее исследования поселения, помечается как незнакомое и непригодно, пока исследование не завершено; его можно переработать или изучить, как лом. Правила для предметов для этой группы не используются.</LootScavenging_WhoMarkExplain>
-	<LootScavenging_WhoJoinMarkExplain>Они продолжают носить и держать то, с чем пришли, и сохраняют инвентарь. Снаряжение, опережающее исследования поселения, в том числе в инвентаре, помечается, и после снятия ни один поселенец не сможет использовать его, пока исследование не завершено.</LootScavenging_WhoJoinMarkExplain>
+	<LootScavenging_WhoMarkExplain>Их снаряжение выпадает целым. Снаряжение, опережающее ваши исследования, помечается как незнакомое и непригодно, пока исследование не завершено; его можно переработать или изучить, как лом. Правила для предметов для этой группы не используются.</LootScavenging_WhoMarkExplain>
+	<LootScavenging_WhoJoinMarkExplain>Они продолжают носить и держать то, с чем пришли, и сохраняют инвентарь. Снаряжение, опережающее ваши исследования, в том числе в инвентаре, помечается, и после снятия ни один поселенец не сможет использовать его, пока исследование не завершено.</LootScavenging_WhoJoinMarkExplain>
 	<LootScavenging_ItemsNote>Эти правила определяют, что происходит со снаряжением групп, для которых выбрано «Применять правила для предметов».</LootScavenging_ItemsNote>
 	<LootScavenging_ChanceScrap>Шанс превратить в лом, %</LootScavenging_ChanceScrap>
 	<LootScavenging_ChanceDisassemble>Шанс разбора, %</LootScavenging_ChanceDisassemble>
@@ -190,5 +190,5 @@
 	<LootScavenging_ScrapValuePerTier>Рыночная стоимость единицы лома по техническим уровням</LootScavenging_ScrapValuePerTier>
 	<LootScavenging_ScrapValuePerTierExplain>Лом на складе учитывается в богатстве поселения и продаётся по этой цене. Низкая стоимость не даёт запасу лома повышать богатство поселения.</LootScavenging_ScrapValuePerTierExplain>
 	<LootScavenging_SectionOther>Прочее</LootScavenging_SectionOther>
-	<LootScavenging_ButcherExplain>При разделке трупа человека его сначала раздевают, а снятое подчиняется правилам для предметов из строки его владельца. Труп из исключённой группы или труп поселенца разделывается, как в базовой игре.</LootScavenging_ButcherExplain>
+	<LootScavenging_ButcherExplain>При разделке трупа человека его сначала раздевают, а снятое подчиняется правилам для предметов из строки его владельца. Труп из группы с выбором «Не трогать» или труп поселенца разделывается, как в базовой игре.</LootScavenging_ButcherExplain>
 </LanguageData>

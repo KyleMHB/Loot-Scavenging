@@ -104,7 +104,6 @@ Vanilla uses "study" for Anomaly's entity study. This mod's study is the same ac
 | downed | 倒地 | обездвижен | Keyed `DownedLower` |
 | strip / stripped | 剥光 / 被剥光 | раздеть / раздет | Keyed `Strip`, `GoodwillChangedReason_PawnStripped` |
 | arrest / arrested | 拘捕 / 被拘捕 | арестовать / арестован | Keyed `Arrest`, `TryToArrest` |
-| pack (a pawn's inventory) | 背包 | инвентарь | This mod's earlier Keyed texts (`DeathDropAllOnBodyExplain`) |
 | butcher / butchered | 屠宰 | разделать / разделка | RecipeDef `ButcherCorpseFlesh.label`; Keyed `Difficulty_ButcherYieldFactor_Label` |
 | storyteller | 故事叙述者 | рассказчик | Keyed `Storyteller` (Chinese 当前故事叙述者 = "current storyteller") |
 | Options > Mod Settings | 选项 > Mod 设置 | Настройки > Настройки модов | Keyed `Options` (Menus_Main), `ModSettings` (Menu_Options) |
@@ -122,30 +121,26 @@ Vanilla uses "study" for Anomaly's entity study. This mod's study is the same ac
 | scrap | 废料 | лом |
 | <era> scrap | <era>废料 (石器时代废料, 中世纪废料) | <era> лом (неолитический лом, космический лом) |
 | studied scrap / studied <era> scrap | 已调查废料 / 已调查的<era>废料 | изученный лом / изученный <era> лом |
-| fresh scrap | 未调查的废料 | неизученный лом |
+| unstudied scrap | 未调查的废料 | неизученный лом |
 | recycle / recycling | 回收 | переработать / переработка |
 | unfamiliar | 陌生 | незнакомый |
 | unfamiliar (item label marker) | 陌生 | незнакомая технология |
 | unfamiliar technology | 陌生技术 | незнакомая технология |
-| original item | 原物品 | исходный предмет |
+| unfamiliar item | 陌生物品 | незнакомый предмет |
 | Who (settings section) | 对象 | Кого касается |
 | Apply item rules (Who choice) | 应用物品规则 | Применять правила для предметов |
-| Exclude (Who choice) | 排除 | Исключить |
+| Leave alone (Who choice) | 不受影响 | Не трогать |
 | Mark unfamiliar (Who choice) | 标记为陌生 | Помечать как незнакомое |
-| Don't drop your stuff (settings section) | 不要丢下装备 | Не бросать снаряжение |
-| outcome: Vanilla (as in the base game) | 原版 | Ваниль |
-| beyond the colony's reach / out of reach | 超出殖民地能力范围 | вне досягаемости поселения |
-| within reach | 在殖民地能力范围内 | в пределах досягаемости |
+| Keep gear on the body (settings section) | 装备留在身上 | Снаряжение остаётся на теле |
+| outcome: Drop as normal | 照常掉落 | Выпадает как обычно |
+| beyond your research | 超出你的研究水平 | опережающий ваши исследования |
 | era | 时代 | технический уровень (эпоха only where no era word follows) |
 | gear with no era of its own | 没有自身时代的装备 | снаряжение без собственного уровня |
 | item rule / rule | 物品规则 / 规则 | правило для предметов / правило |
-| outcome: Keep | 保留 | оставить |
-| outcome: Degrade | 损坏 | повредить |
 | outcome: Scrap | 变为废料 | в лом |
-| outcome: Disassemble | 拆解 | разобрать |
+| outcome: Disassemble on the spot | 就地拆解 | Разобрать на месте |
 | outcome: Delete | 删除 | удалить |
 | chance | 几率 | шанс |
-| degrade / degraded | 损坏 / 已损坏 | повредить / повреждённый |
 | preset | 预设 | пресет |
 | Progression (preset) | 渐进 | Прогрессия |
 | Cleanup (preset) | 清理 | Очистка |
@@ -160,7 +155,7 @@ Vanilla uses "study" for Anomaly's entity study. This mod's study is the same ac
 | left alone | 不受影响 | не затрагивается |
 | never touched | 永远不会被处理 | никогда не затрагиваются |
 | follows the rules below | 遵循下方规则 | подчиняется правилам ниже |
-| inventory (carried items) | 随身物品 | инвентарь |
+| inventory (a pawn's carried items) | 随身物品 | инвентарь |
 | unit (of scrap) | 单位 | единица (avoid with a count: see Style) |
 | on the body / beside the body | 留在尸体上 / 尸体旁 | остаётся на трупе / рядом с трупом |
 | worn (apparel) | 穿着的 | надетый |
@@ -169,7 +164,7 @@ Vanilla uses "study" for Anomaly's entity study. This mod's study is the same ac
 | the base game | 原版游戏 | базовая игра |
 | cremated | 火化 | кремирован |
 | disassembly efficiency | 拆解效率 | эффективность разборки |
-| sort / sorted (the rules judge gear) | 处理 | обрабатывать / обрабатывается |
+| follows the item rules | 遵循物品规则 | подчиняется правилам для предметов |
 | drops whole | 完整掉落 | выпадает целым |
 | sold (a pawn, by trade) | 被出售 | продажа (при аресте или продаже) |
 
