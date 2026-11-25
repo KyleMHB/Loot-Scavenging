@@ -60,6 +60,8 @@ Commercial use is allowed. Distributed modified versions must remain under GPLv3
 
 ## Links
 
+[![Join the Discord](https://img.shields.io/badge/Join_the_Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/jSdyTbSYWQ)
+
 Support me on Ko-fi.
 
 [![Support me on Ko-fi](https://img.shields.io/badge/Support_me_on_Ko--fi-72a4f2?style=for-the-badge&logo=kofi&logoColor=white)](https://ko-fi.com/I7L525WMJ6)

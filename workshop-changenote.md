@@ -1,7 +1,7 @@
-Materials such as devilstrand, steel and modded stone no longer turn into scrap, and neither do wood, beer or horns. A scrapped stack is counted as a whole, so 53 devilstrand no longer gives 53 scrap, and scrap is never worth more than the item it came from.
+A new Who list sets what happens to the gear of each group of pawns: hostile pawns, non-hostile pawns, wild people and animals, prisoners, recruited prisoners and other joiners. Each row applies the item rules, excludes the group, or keeps its gear whole and marks out-of-reach gear unfamiliar.
 
-Scrap is cheaper: a unit is worth half as much and studies for half the research, so gear gives about twice as many units. Scrap stacks to 1,000, and new x10 recycle and study bills handle ten units at a time. Scrap already in your save is doubled once when it loads, and research points per unit that you set yourself are halved once.
+Three new "Don't drop your stuff" boxes, for colonists, hostiles and non-hostiles, are on by default. A downed pawn keeps his weapon in hand, and a dead one keeps everything on the body until the corpse is stripped, butchered or cremated. Untick a box and that group drops loot as in the base game.
 
-Two new settings choose what happens to the gear of pawns who join your colony: one for recruited or enslaved prisoners, one for everyone else.
+The drop mode setting is gone. The item rules decide everything, and each category now chooses Scrap, Disassemble, Delete or Vanilla.
 
-Every setting is now saved, so a modpack or mod update can't change a choice you made.
+Your 0.5.2 settings carry over once. A value you left at its 0.5.2 default moves to the 0.6.0 default, so set it again if you chose it on purpose, such as dropping loot at death.

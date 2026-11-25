@@ -79,9 +79,15 @@ One fresh Crashlanded colony; the batch resets research to tribal first and rais
 - `lootscavenging-preview`: the earlier showcase of the six scrap piles in front of their benches, filmed for the first preview image (`tools/preview_image.py`). No longer used for `About/Preview.png`.
 - `lootscavenging-stacks`: a scene outside run-all for looking at the scrap art by hand. Each era gets piles of 1, 10 and 500 (the small, mid and full textures) and a full studied stack. Run it with `--keep-open`.
 
-Not covered: clicking in the settings page and bill tabs (the ui batch only draws them), a played raid with the Progression pack, Non uno Pinata, Progression: Ammunition and Progression: Hospitality (ticket 14), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
+Not covered: clicking in the settings page and bill tabs (the ui batch only draws them), a played raid with the Progression pack, Progression: Ammunition and Progression: Hospitality (ticket 14), a `MayRequire` pool entry (none exists), and pawn-job recycling at a smithy or crafting spot.
 
 ## Result recording
+
+### 2026-11-25 - Settings still for the 0.6.0 gallery (workshop-media ticket 10)
+
+- Version/environment: RimWorld 1.7, default mod set, English, seed 1, from the `ticket-10` worktree. `deploy.ps1` and the DevTests build first, the display nudged awake, then `python tools/ls_test.py run lootscavenging-ui --seed 1 --record --show-ui --frames 40 --quit-on-finish`.
+- Run: `20261125-174001-lootscavenging-ui-s1`, 6 of 6 passed. The video at 5.5 s, inside the 4 s hold, shows the preset line, the "Don't drop your stuff" boxes and the Who rows down to "Other joiners"; no item rule row fits. `tools/workshop_gallery.py settings` cuts that frame (`work/gallery/settings-frame.png`) into the gallery image.
+- Status: Passed.
 
 ### 2026-11-25 - Semi Random Research study and the moments map (test fixes, 0.6.0)
 

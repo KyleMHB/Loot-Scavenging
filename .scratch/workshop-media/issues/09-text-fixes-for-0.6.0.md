@@ -1,6 +1,6 @@
 # 09: Workshop text fixes for 0.6.0
 
-Status: ready-for-agent
+Status: resolved
 
 **Recommended model:** `sonnet`: short copy edits against a checklist.
 
@@ -26,7 +26,11 @@ Read `E:\Coding\Templates\writing-copy.md` before editing reader-facing copy, an
 
 ## Acceptance
 
-- [ ] `steam-description.md` is under 8,000 characters with the Discord badge kept.
-- [ ] `workshop-changenote.md` describes 0.6.0 and agrees with `CHANGELOG.md`.
-- [ ] CHANGELOG lines 9 and 43 and TESTING.md line 82 are corrected.
-- [ ] Nothing in `Source/` changed; one commit per file group (description and change note; CHANGELOG; TESTING.md; README).
+- [x] `steam-description.md` is under 8,000 characters with the Discord badge kept.
+- [x] `workshop-changenote.md` describes 0.6.0 and agrees with `CHANGELOG.md`.
+- [x] CHANGELOG lines 9 and 43 and TESTING.md line 82 are corrected.
+- [x] Nothing in `Source/` changed; one commit per file group (description and change note; CHANGELOG; TESTING.md; README).
+
+## Comments
+
+2026-11-25: Description cut from 8,104 to 7,809 characters (CRLF counted as one) with the Discord badge kept: shorter License and cleanup paragraphs, the plain Ko-fi line and two small phrases removed. Change note rewritten for 0.6.0 (910 characters). CHANGELOG Hostiles/Non-hostiles sentence split and `rules.downedGear` removed; TESTING.md no longer lists Non uno Pinata as not covered; README links the Discord server. `Source/` untouched. The preview tool is gone, so the page was not previewed.
