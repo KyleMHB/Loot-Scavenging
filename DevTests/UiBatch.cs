@@ -293,7 +293,7 @@ public sealed class UiBatch : Batch
             }
             var project = DefDatabase<ResearchProjectDef>.AllDefsListForReading
                 .FirstOrDefault(p => !p.IsFinished && p.CanStartNow && p.techLevel <= TechLevel.Neolithic);
-            if (project != null) Find.ResearchManager.SetCurrentProject(project);
+            if (project != null) PickProject(project);
             ctx.Setup($"Developer set the current project to {project?.defName ?? "none"}");
             foreach (var tier in new[] { ScrapTier.Neolithic, ScrapTier.Industrial })
             {

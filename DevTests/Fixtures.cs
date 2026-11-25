@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using LootScavenging.Model;
 using RimWorld;
 using RimWorldDevTests;
@@ -21,6 +22,26 @@ public static class Fixtures
     // the Held counts below also take in what pawns and corpses hold. Without Pinata they are Kit's, unchanged. Only cases
     // that check gear is kept whole or scrapped use them; cases that tell the ground from the corpse keep Kit's counts.
     public static bool PinataLoaded => ModsConfig.IsActive("avilmask.nonunopinata");
+
+    // Semi Random Research rejects a direct ResearchManager.SetCurrentProject (TESTING.md, 2026-11-25), so a case picks its project
+    // through the tracker when that mod is active, as its research window does.
+    public static void PickProject(ResearchProjectDef p)
+    {
+        var tracker = SrrTracker();
+        if (tracker != null)
+        {
+            var type = tracker.GetType();
+            var key = AccessTools.Method(type, "GetCategoryKey", new[] { typeof(ResearchProjectDef) }).Invoke(null, new object[] { p });
+            AccessTools.Method(type, "SetCurrentProjectByKey").Invoke(tracker, new[] { p, key });
+        }
+        else Find.ResearchManager.SetCurrentProject(p);
+    }
+
+    public static object SrrTracker()
+    {
+        var utility = AccessTools.TypeByName("CM_Semi_Random_Research.SemiRandomResearchUtility");
+        return utility == null ? null : AccessTools.Property(utility, "Tracker").GetValue(null);
+    }
 
     // Equipment, pack and carried things of spawned pawns and of corpses on the map. Worn apparel is left out.
     static IEnumerable<Thing> HeldOnMap(Map map)

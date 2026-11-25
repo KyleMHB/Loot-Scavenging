@@ -141,7 +141,7 @@ public sealed class ProgressionBatch : Batch
             {
                 var c = ctx.Begin(Papers);
                 c.Subject(researcher);
-                Pick(medieval);
+                PickProject(medieval);
                 StudyToFinish(medieval, researcher, out int used);
                 yield return Wait.Ticks(2);
                 CloseInterruptions();
@@ -168,7 +168,7 @@ public sealed class ProgressionBatch : Batch
                     c.Step(!medieval.IsFinished && Math.Abs(left - expected) < 0.5f, $"the project is unfinished with {retain}% of its progress");
                     ScrapStudy.TryGetWorth(Scrap(ScrapTier.Medieval), out StudyWorth worth);
                     c.Step(ScrapStudy.Verdict(worth, medieval) == StudyVerdict.Eligible || !IsCurrent(medieval), "the partly lost project can be studied again");
-                    Pick(medieval);
+                    PickProject(medieval);
                     StudyToFinish(medieval, researcher, out int used);
                     yield return Wait.Ticks(2);
                     CloseInterruptions();
@@ -197,7 +197,7 @@ public sealed class ProgressionBatch : Batch
                     c.SetupFailed("no studyable offer and second project (picked " + (picked?.defName ?? "none") + ", other " + (other?.defName ?? "none") + ")");
                 else
                 {
-                    Pick(picked);
+                    PickProject(picked);
                     c.Observe("picked", picked.defName).Observe("other", other.defName);
                     c.Step(IsCurrent(picked), "picking an offer through Semi Random Research makes it the current project");
                     Find.ResearchManager.SetCurrentProject(other);
@@ -293,27 +293,6 @@ public sealed class ProgressionBatch : Batch
     }
 
     private static bool IsCurrent(ResearchProjectDef p) => Find.ResearchManager.GetProject() == p;
-
-    // Through Semi Random Research's tracker when it is active, since it rejects the direct call.
-    private static void Pick(ResearchProjectDef p)
-    {
-        var tracker = SrrTracker();
-        if (tracker != null)
-        {
-            // The research window's pick: the tracker records it and applies it to the game (its SetCurrentProject rejects a
-            // pick it is not applying itself).
-            var type = tracker.GetType();
-            var key = AccessTools.Method(type, "GetCategoryKey", new[] { typeof(ResearchProjectDef) }).Invoke(null, new object[] { p });
-            AccessTools.Method(type, "SetCurrentProjectByKey").Invoke(tracker, new[] { p, key });
-        }
-        else Find.ResearchManager.SetCurrentProject(p);
-    }
-
-    private static object SrrTracker()
-    {
-        var utility = AccessTools.TypeByName("CM_Semi_Random_Research.SemiRandomResearchUtility");
-        return utility == null ? null : AccessTools.Property(utility, "Tracker").GetValue(null);
-    }
 
     private static List<ResearchProjectDef> Offers(object tracker) =>
         ((IEnumerable)AccessTools.Method(tracker.GetType(), "PeekAvailableProjects").Invoke(tracker, null) ?? new List<ResearchProjectDef>()).Cast<ResearchProjectDef>().ToList();

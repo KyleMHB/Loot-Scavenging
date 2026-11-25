@@ -85,7 +85,7 @@ public sealed class MilestoneBatch : Batch
         MakeTribal(ctx);
         Find.Storyteller.difficulty.researchSpeedFactor = 1f;
         var recurve = Project("RecurveBow");
-        Find.ResearchManager.SetCurrentProject(recurve);
+        PickProject(recurve);
         ctx.Setup("Developer set the research factor to 1 and Recurve Bow as the current project");
 
         map.weatherManager.curWeather = WeatherDefOf.Clear;

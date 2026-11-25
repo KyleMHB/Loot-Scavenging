@@ -279,7 +279,7 @@ public sealed class SmokeBatch : Batch
             var c = ctx.Begin(Study);
             Kit.Research(ctx, "Smithing");
             var project = Project("ComplexClothing");
-            Find.ResearchManager.SetCurrentProject(project);
+            PickProject(project);
             var difficulty = Find.Storyteller.difficulty;
             float savedFactor = difficulty.researchSpeedFactor;
             var scholar = Spawn(ctx, PawnKindDefOf.Colonist, Faction.OfPlayer, sites[5]);
@@ -290,7 +290,8 @@ public sealed class SmokeBatch : Batch
                 var medieval = Scrap(ScrapTier.Medieval);
                 var studyMedieval = (RecipeWorker_Study)DefDatabase<RecipeDef>.GetNamed("LS_Study_Medieval").Worker;
                 ScrapStudy.TryGetWorth(medieval, out StudyWorth worth);
-                c.Observe("colonyEra", EraReader.ColonyEra()).Observe("project", project.defName).Observe("pointsPerUnit", worth.PointsPerUnit);
+                c.Observe("colonyEra", EraReader.ColonyEra()).Observe("project", project.defName).Observe("pointsPerUnit", worth.PointsPerUnit)
+                    .Observe("currentProject", ScrapStudy.CurrentProject?.defName ?? "none").Observe("verdict", ScrapStudy.Verdict(worth, project));
                 c.Step(ScrapStudy.CurrentProject == project && ScrapStudy.Verdict(worth, project) == StudyVerdict.Eligible,
                     "complex clothing is the current project and medieval scrap may be studied for it");
 

@@ -252,7 +252,7 @@ public sealed class BenchBatch : Batch
         {
             var c = ctx.Begin(StudyBill);
             c.Subject(researcher);
-            Find.ResearchManager.SetCurrentProject(project);
+            PickProject(project);
             c.Note("Complex Clothing becomes the current project; the bill keeps 3 medieval units in stock");
             var watch = new JobWatch { Recipe = studyBill.recipe, Pawn = researcher, Project = project };
             var done = Wait.Until(() => watch.Ended, 15000, rest);
@@ -354,7 +354,7 @@ public sealed class BenchBatch : Batch
         {
             var c = ctx.Begin(OriginalStudy);
             var stone = Project("Stonecutting");
-            Find.ResearchManager.SetCurrentProject(stone);
+            PickProject(stone);
             var bill = AddBill(bench, "LS_StudyOriginal");
             bill.suspended = true;
             bill.ingredientFilter.SetAllow(rifleDef, true);
@@ -388,7 +388,7 @@ public sealed class BenchBatch : Batch
             {
                 var c = ctx.Begin(Techprint);
                 if (tp.prerequisites != null) Kit.Research(ctx, tp.prerequisites.Select(p => p.defName).ToArray());
-                Find.ResearchManager.SetCurrentProject(tp);
+                PickProject(tp);
                 // Only scrap of the colony's era and below is studied (ticket 25): the colony is put at the project's era.
                 var savedEra = EraReader.ColonyEraOverride;
                 EraReader.ColonyEraOverride = () => (Era)tp.techLevel;
