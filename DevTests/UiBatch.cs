@@ -30,15 +30,15 @@ public sealed class UiBatch : Batch
 
     public override IReadOnlyList<PlannedCase> Plan => new[]
     {
-        new PlannedCase(Page, Levels.Mechanical, "the mod's settings window opens and draws all six sections, the active preset and the four preset buttons"),
-        new PlannedCase(Switch, Levels.Mechanical, "after each preset switch the page still draws all six sections in one column, top to bottom"),
+        new PlannedCase(Page, Levels.Mechanical, "the mod's settings window opens and draws all eight sections, the active preset and the four preset buttons"),
+        new PlannedCase(Switch, Levels.Mechanical, "after each preset switch the page still draws all eight sections in one column, top to bottom"),
         new PlannedCase(Locks, Levels.Mechanical, "with the pack's locks the page shows the locked summary and reasons, and drawing leaves a locked value at the pack's value"),
         new PlannedCase(Bills, Levels.Mechanical, "the machining table's and research bench's Bills tabs draw their recycle and study bills; the study bench offers only study bills"),
         new PlannedCase(Translated, Levels.Mechanical, "no text the mod drew or built in the batch holds a raw LootScavenging_ key, an unfilled { slot, or English left in a key whose translation differs"),
         new PlannedCase(NoErrors, Levels.Mechanical, "no error naming the mod logged during the batch"),
     };
 
-    private static readonly List<(string text, Rect rect)> drawn = new List<(string, Rect)>();
+    private static readonly List<(string text, Rect rect, GameFont font)> drawn = new List<(string, Rect, GameFont)>();
     // Every label drawn in the batch, for the translated-text case: Draw clears `drawn` each time.
     private static readonly List<(string text, Rect rect, GameFont font)> seen = new List<(string, Rect, GameFont)>();
     private static bool recording;
@@ -47,7 +47,7 @@ public sealed class UiBatch : Batch
     private static void RecordLabel(Rect rect, string label)
     {
         if (!recording || string.IsNullOrEmpty(label)) return;
-        drawn.Add((label, rect));
+        drawn.Add((label, rect, Text.Font));
         seen.Add((label, rect, Text.Font));
     }
 
@@ -103,17 +103,17 @@ public sealed class UiBatch : Batch
 
     private static bool Drew(string text) => drawn.Any(d => d.text == text);
     private static bool DrewPart(string part) => drawn.Any(d => d.text.Contains(part));
-    private static IEnumerable<Rect> Where(string text) => drawn.Where(d => d.text == text).Select(d => d.rect);
 
     private static readonly string[] SectionKeys =
     {
-        "LootScavenging_SectionPresets", "LootScavenging_SectionWho", "LootScavenging_SectionItems", "LootScavenging_SectionScrap",
-        "LootScavenging_SectionCorpses", "LootScavenging_SectionLists",
+        "LootScavenging_SectionPresets", "LootScavenging_SectionKeepGear", "LootScavenging_SectionWho", "LootScavenging_SectionItems",
+        "LootScavenging_SectionScrap", "LootScavenging_SectionCorpses", "LootScavenging_SectionLists", "LootScavenging_SectionOther",
     };
 
-    // Each section title's first drawn rect this frame, in page order.
+    // Each section title's first drawn rect this frame, in page order. Titles are the page's only Medium labels: the Scrap
+    // title shares its text with the Scrap choice on an item rule's button.
     private static List<(string key, Rect? rect)> Sections() =>
-        SectionKeys.Select(k => (k, Where(k.Translate()).Select(r => (Rect?)r).FirstOrDefault())).ToList();
+        SectionKeys.Select(k => (k, drawn.Where(d => d.font == GameFont.Medium && d.text == k.Translate()).Select(d => (Rect?)d.rect).FirstOrDefault())).ToList();
 
     private static bool OneColumn(List<(string key, Rect? rect)> sections, out string layout)
     {
@@ -150,9 +150,9 @@ public sealed class UiBatch : Batch
             foreach (var w in Draw()) yield return w;
             c.Observe("labelsDrawn", drawn.Count).Observe("windowOpen", Find.WindowStack.IsOpen(window));
             c.Step(Find.WindowStack.IsOpen(window), "the Loot Scavenging settings window is open");
-            var missing = SectionKeys.Where(k => !Drew(k.Translate())).ToList();
+            var missing = Sections().Where(s => !s.rect.HasValue).Select(s => s.key).ToList();
             c.Observe("missingSections", string.Join(", ", missing));
-            c.Step(missing.Count == 0, "all six section titles were drawn");
+            c.Step(missing.Count == 0, "all eight section titles were drawn");
             c.Step(Drew("LootScavenging_PresetActive".Translate("LootScavenging_PresetProgression".Translate())), "the active preset line names Progression");
             var buttons = new[] { "LootScavenging_PresetProgression", "LootScavenging_PresetCleanup", "LootScavenging_PresetVanilla", "LootScavenging_PresetReset" };
             c.Step(buttons.All(b => Drew(b.Translate())), "the three preset buttons and Reset were drawn");
@@ -189,7 +189,7 @@ public sealed class UiBatch : Batch
                     foreach (var w in Draw()) yield return w;
                     bool ok = OneColumn(Sections(), out string layout);
                     c.Observe("after" + preset + drawn.Count, layout);
-                    c.Step(ok, $"after switching to {preset} all six sections are drawn in one column, top to bottom");
+                    c.Step(ok, $"after switching to {preset} all eight sections are drawn in one column, top to bottom");
                 }
                 c.Conclude();
             }
