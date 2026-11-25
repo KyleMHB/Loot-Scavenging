@@ -257,14 +257,14 @@ def cropped(img, frame, centre, src_h, box, caption, band=52):
     shadowed(img, (x + w / 2, y + h - band / 2), caption, font(True, size), fill=ps.CREAM)
 
 
-# The same kind of tribal warrior (club, an autopistol in his pack) killed under four sets of rules, from the promo run's
+# The same kind of tribal warrior (club, an autopistol in their inventory) killed under four sets of rules, from the promo run's
 # 0.5.2 drop-mode beats: each still is taken `after` seconds past the death or selection mark, past the picture's 0.55 s lag. The
 # chips name the 0.6.0 setting that gives the same outcome, as ModHarness.ApplyStyle sets it. Each centre (px in the
 # 2560x1440 frame) puts the body and what he dropped right of the inset and between the chip and the caption band; the
 # off scene's crop stays west of the map's edge at x 2290.
 STYLES = [
     ("drop-scrapoutofreach-dead", 1.8, (1110, 650), "The autopistol is scrap; the club drops whole"),
-    ("drop-scrapeverything-dead", 1.8, (1260, 530), "His weapons and apparel are scrap"),
+    ("drop-scrapeverything-dead", 1.8, (1260, 530), "Their weapons and apparel are scrap"),
     ("drop-keeporiginal-selected", 1.8, (1180, 610), "Both drop whole; the autopistol reads unfamiliar"),
     ("drop-off-dead", 1.8, (1340, 640), "No rules apply: both drop whole"),
 ]
