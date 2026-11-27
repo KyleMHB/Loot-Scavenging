@@ -109,13 +109,16 @@ internal static class BodyLoot
     public static bool KeepsWeaponAtDowning(Pawn pawn) => pawn.MapHeld != null && KeepsGear(pawn);
 
     /// <summary>
-    /// Whether the colonists box of "Don't drop your stuff" (tickets 24 and 25) covers this pawn: a colonist or colony slave, whose weapon and pack
-
-    /// then stay with him, unsorted, when he is downed, set down again or killed. Animals and mechanoids are not covered,
-    /// and nor are pawns whose gear the game destroys on drop or that cannot be stripped.
+    /// Whether the colonists box of "Don't drop your stuff" (tickets 24 and 25) covers this pawn: a colonist, colony slave
+    /// or colony animal, whose weapon and pack then stay with him, unsorted, when he is downed, set down again or killed. A
+    /// pack animal's load is covered so it is not scattered when the animal goes down. Mechanoids are not covered, and nor
+    /// are pawns whose gear the game destroys on drop or that cannot be stripped.
     /// </summary>
     public static bool ColonistKeepsGear(Pawn pawn) =>
-        LootScavengingMod.Settings.values.colonistsKeepGear && (pawn.IsColonist || pawn.IsSlaveOfColony) && CanHoldLoot(pawn);
+        LootScavengingMod.Settings.values.colonistsKeepGear && (pawn.IsColonist || pawn.IsSlaveOfColony || IsColonyAnimal(pawn))
+        && CanHoldLoot(pawn);
+
+    private static bool IsColonyAnimal(Pawn pawn) => pawn.RaceProps.Animal && pawn.Faction != null && pawn.Faction.IsPlayer;
 
     /// <summary>At a death: marks a colonist who keeps his gear, so HoldGear takes his weapon and pack off him unsorted and
     /// PlaceOnBody puts them in his corpse's inventory. Returns whether he was marked.</summary>

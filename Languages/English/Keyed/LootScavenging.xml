@@ -60,8 +60,8 @@
   <LootScavenging_HomeMapOnlyOn>Loot on caravan, quest and outpost maps is left alone.</LootScavenging_HomeMapOnlyOn>
   <LootScavenging_HomeMapOnlyOff>The rules apply on every map.</LootScavenging_HomeMapOnlyOff>
   <LootScavenging_ColonistsKeepGear>Colonists</LootScavenging_ColonistsKeepGear>
-  <LootScavenging_ColonistsKeepGearOn>A downed colonist or colony slave keeps their weapon in hand and their inventory, also when carried, rescued or loaded from a save. A dead one keeps them on the body. Colony gear never goes through the item rules.</LootScavenging_ColonistsKeepGearOn>
-  <LootScavenging_ColonistsKeepGearOff>A downed or dead colonist drops their weapon and inventory, as in the base game. Colony gear never goes through the item rules.</LootScavenging_ColonistsKeepGearOff>
+  <LootScavenging_ColonistsKeepGearOn>A downed colonist, colony slave or colony animal keeps their weapon in hand and their inventory, also when carried, rescued or loaded from a save, so a pack animal's load stays packed. A dead one keeps them on the body. Colony gear never goes through the item rules.</LootScavenging_ColonistsKeepGearOn>
+  <LootScavenging_ColonistsKeepGearOff>A downed or dead colonist or colony animal drops their weapon and inventory, as in the base game. Colony gear never goes through the item rules.</LootScavenging_ColonistsKeepGearOff>
   <LootScavenging_HostilesKeepGear>Hostiles</LootScavenging_HostilesKeepGear>
   <LootScavenging_HostilesKeepGearOn>A downed hostile keeps their weapon in hand and their inventory, also when carried. A dead one keeps everything on the body until the corpse is stripped or butchered.</LootScavenging_HostilesKeepGearOn>
   <LootScavenging_HostilesKeepGearOff>A downed or dead hostile drops their weapon and inventory, as in the base game, and what drops follows the item rules as it drops.</LootScavenging_HostilesKeepGearOff>

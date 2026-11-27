@@ -155,8 +155,8 @@
 	<LootScavenging_BulkBillNote>一次工作完成十个清单的量，库存至少有{0}单位时才会开始。</LootScavenging_BulkBillNote>
 	<LootScavenging_StudyPointsHalvedNote>0.5.2版降低了废料的价值，因此每单位的研究点数已减半，总量保持不变。</LootScavenging_StudyPointsHalvedNote>
 	<LootScavenging_ColonistsKeepGear>殖民者</LootScavenging_ColonistsKeepGear>
-	<LootScavenging_ColonistsKeepGearOn>倒地的殖民者或殖民地奴隶会把武器握在手中并保留随身物品，被搬运、被救援或读取存档后也是如此。死亡的会把它们留在尸体上。殖民地的装备永远不会经过物品规则。</LootScavenging_ColonistsKeepGearOn>
-	<LootScavenging_ColonistsKeepGearOff>倒地或死亡的殖民者会掉落武器和随身物品，与原版游戏相同。殖民地的装备永远不会经过物品规则。</LootScavenging_ColonistsKeepGearOff>
+	<LootScavenging_ColonistsKeepGearOn>倒地的殖民者、殖民地奴隶或殖民地动物会把武器握在手中并保留随身物品，被搬运、被救援或读取存档后也是如此，驮兽背负的货物也不会散落。死亡的会把它们留在尸体上。殖民地的装备永远不会经过物品规则。</LootScavenging_ColonistsKeepGearOn>
+	<LootScavenging_ColonistsKeepGearOff>倒地或死亡的殖民者或殖民地动物会掉落武器和随身物品，与原版游戏相同。殖民地的装备永远不会经过物品规则。</LootScavenging_ColonistsKeepGearOff>
 	<LootScavenging_SectionKeepGear>装备留在身上</LootScavenging_SectionKeepGear>
 	<LootScavenging_HostilesKeepGear>敌对角色</LootScavenging_HostilesKeepGear>
 	<LootScavenging_HostilesKeepGearOn>倒地的敌对角色即使被搬运，也会手持武器并保留随身物品；死亡的则把所有东西留在尸体上，直到尸体被剥光或屠宰。</LootScavenging_HostilesKeepGearOn>
