@@ -10,3 +10,8 @@ if [ -f "$lint" ]; then
 else
     echo "copy lint skipped: $lint not found"
 fi
+
+# Unit tests of Source/Model, when the commit touches code or XML (they run on the working tree, not only the staged files).
+if git diff --cached --name-only | grep -qE '\.(cs|csproj|xml)$'; then
+    dotnet test --nologo -v q || { echo "pre-commit: dotnet test failed"; exit 1; }
+fi
