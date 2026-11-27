@@ -282,7 +282,7 @@ public sealed class ProgressionBatch : Batch
         var tier = ScrapTiers.TierFor((Era)project.techLevel, EraReader.ColonyEra());
         var scrap = Scrap(tier);
         ScrapStudy.TryGetWorth(scrap, out StudyWorth worth);
-        float perUnit = ScrapStudy.PaidPerUnit(worth);
+        float perUnit = ScrapStudy.PaidPerUnit(worth, project);
         float target = project.Cost - perUnit * 1.5f;
         float now = Find.ResearchManager.GetProgress(project);
         if (target > now) Find.ResearchManager.AddProgress(project, target - now, null);
