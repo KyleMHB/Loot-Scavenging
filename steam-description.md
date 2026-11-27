@@ -41,7 +41,7 @@ Study bills at a research bench pay a set number of points per unit into the cur
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-on-body.gif[/img]
 
-By default a dead pawn keeps everything on the body (weapon, medicine, food, silver and scrap) until you strip, butcher or cremate the corpse. Untick the hostile or non-hostile box under [b]Keep gear on the body[/b] and that group's loot drops on the ground as in the base game, then follows the item rules.
+By default a dead pawn keeps everything on the body (weapon, medicine, food, silver and scrap) until you strip or butcher the corpse. If the body burns or is eaten, that gear is lost with it. Tick [b]Strip corpses before cremating[/b] and cremation strips the corpse first, so its gear drops and follows the item rules. Your colonists and animals keep their gear too, so a downed pack animal does not scatter its load. Untick the hostile or non-hostile box under [b]Keep gear on the body[/b] and that group's loot drops on the ground as in the base game, then follows the item rules.
 
 [h2]Downed raiders keep their weapon[/h2]
 
