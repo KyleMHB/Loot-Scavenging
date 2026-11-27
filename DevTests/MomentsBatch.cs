@@ -32,7 +32,8 @@ public sealed class MomentsBatch : Batch
         JoinMark = P + "joiner-marked-unfamiliar", JoinLeave = P + "joiner-left-alone", JoinFollow = P + "joiner-apply-row",
         JoinPrisonerRules = P + "joiner-prisoner-setting", JoinProtected = P + "joiner-protected-never-marked", JoinFormer = P + "joiner-former-colonist-untouched",
         ColonistRescued = P + "colonist-downed-rescued-keeps-gear", ColonistKilled = P + "colonist-killed-keeps-gear", ColonistToggleOff = P + "colonist-gear-toggle-off",
-        VisitorDropped = P + "visitor-drop-weapon-sorted";
+        VisitorDropped = P + "visitor-drop-weapon-sorted", ColonyAnimal = P + "colony-animal-keeps-pack",
+        Cremation = P + "cremation-strip-setting";
 
     public override string Id => "lootscavenging-moments";
     public override int SegmentCount => 1;
@@ -58,6 +59,7 @@ public sealed class MomentsBatch : Batch
         new PlannedCase(ColonistRescued, Levels.PlayerWorkflow, "with the other boxes off, a downed colonist keeps his out-of-reach revolver and medicine, is rescued into a medical bed holding it, still holds it when set down again, and gets up holding it; nothing is scrapped"),
         new PlannedCase(ColonistKilled, Levels.Mechanical, "with the other boxes on and off, a killed colonist keeps his out-of-reach revolver and medicine in the corpse, whole; nothing lands"),
         new PlannedCase(ColonistToggleOff, Levels.Mechanical, "with the colonists box off, a downed colonist and a killed one drop the revolver whole"),
+        new PlannedCase(ColonyAnimal, Levels.Mechanical, "with the colonists box on, a downed colony muffalo keeps the revolver and silver in its pack and a killed one keeps them in its corpse, whole; with the box off both drop whole"),
         new PlannedCase(VisitorDropped, Levels.Mechanical, "with the non-hostiles box off, a downed visitor's out-of-reach revolver drops as scrap"),
         new PlannedCase(JoinMark, Levels.Mechanical, "a wanderer joins in out-of-reach armour and a revolver and keeps them; both are unfamiliar under the default rules and with every category on Keep, even off him; a revolver in his pack is marked and his medicine is not"),
         new PlannedCase(JoinLeave, Levels.Mechanical, "with the Other joiners row set to Exclude, a wanderer's vest carries no mark"),
@@ -76,6 +78,7 @@ public sealed class MomentsBatch : Batch
         new PlannedCase(ProtectedFamiliar, Levels.Mechanical, "loot rows set to Mark: a keep-listed (and, with Royalty, a persona) out-of-reach weapon is never unfamiliar"),
         new PlannedCase(OffMap, Levels.Mechanical, "a world pawn's death (no map, no corpse) logs no error"),
         new PlannedCase(Butcher, Levels.PlayerWorkflow, "a butcher bill strips a pirate's corpse and sorts its out-of-reach shirt into scrap; with the Hostile row set to Exclude the game's own butchering drops it whole"),
+        new PlannedCase(Cremation, Levels.PlayerWorkflow, "a cremation bill burns a pirate's corpse with its kept out-of-reach revolver and shirt, and nothing is scrapped; with Strip corpses before cremating on, the corpse is stripped first and both become scrap"),
         new PlannedCase(HomeOnly, Levels.Mechanical, "home-map-only leaves gear whole on an away map; off, it is scrapped there"),
         new PlannedCase(NoErrors, Levels.Mechanical, "no error naming the mod logged during the batch"),
     };
@@ -756,6 +759,58 @@ public sealed class MomentsBatch : Batch
                 p.Corpse?.Destroy();
                 if (!p.Destroyed) p.Destroy();
                 if (gun.Spawned) gun.Destroy();
+            }
+            if (ready) c.Conclude();
+        }
+
+        // ---- 24: the colonists box covers colony animals, so a pack animal's load is not scattered -------------------------
+        {
+            var c = ctx.Begin(ColonyAnimal);
+            var cell = sites.Dequeue();
+            var muffalo = PawnKindDef.Named("Muffalo");
+            c.Note("A colony muffalo carries a revolver and 50 silver in its pack. It is downed, then another is killed, with the colonists box on, then off");
+            bool ready = true;
+            foreach (bool box in new[] { true, false })
+            {
+                foreach (bool kill in new[] { false, true })
+                {
+                    ModHarness.RestoreSettings();
+                    Settings.values.colonistsKeepGear = box;
+                    string tag = (box ? "box on, " : "box off, ") + (kill ? "killed" : "downed");
+                    var p = Spawn(ctx, muffalo, Faction.OfPlayer, cell);
+                    var gun = Make(revolver, QualityCategory.Normal);
+                    var coins = Stack(silver, 50);
+                    p.inventory.innerContainer.TryAdd(gun);
+                    p.inventory.innerContainer.TryAdd(coins);
+                    c.Subject(p);
+                    var before = HeldStackIds(map, industrial);
+                    var beforeSilver = Kit.StackIds(map, silver);
+                    if (kill) p.Kill(null);
+                    else
+                    {
+                        HealthUtility.TryAnesthetize(p);
+                        if (!Kit.Require(ctx, ColonyAnimal, (p.Downed && !p.Dead, "the muffalo is downed and alive"))) { ready = false; p.Destroy(); break; }
+                        yield return Wait.Ticks(60);
+                    }
+                    var holder = kill ? p.Corpse?.InnerPawn : p;
+                    bool gunKept = holder != null && !gun.Destroyed && holder.inventory.innerContainer.Contains(gun);
+                    int silverKept = holder?.inventory.innerContainer.Where(t => t.def == silver).Sum(t => t.stackCount) ?? 0;
+                    int scrap = Units(HeldNewNear(map, industrial, before, cell)), silverOnGround = Units(NewNear(map, silver, beforeSilver, cell));
+                    c.Observe(tag + ": revolver", gunKept ? "in pack" : gun.Destroyed ? "destroyed" : gun.Spawned ? "on ground" : "elsewhere")
+                        .Observe(tag + ": silverInPack", silverKept).Observe(tag + ": silverOnGround", silverOnGround).Observe(tag + ": scrap", scrap);
+                    if (box)
+                    {
+                        c.Step(gunKept && silverKept == 50, $"{tag}: the revolver and silver stay in its {(kill ? "corpse" : "pack")}");
+                        c.Step(silverOnGround == 0 && scrap == 0 && !gun.Spawned, $"{tag}: nothing lands on the ground and nothing is scrapped");
+                    }
+                    else
+                        c.Step(!gun.Destroyed && Dropped(gun) && silverOnGround == 50 && scrap == 0, $"{tag}: the revolver and silver drop whole on the ground");
+                    p.Corpse?.Destroy();
+                    if (!p.Destroyed) p.Destroy();
+                    if (gun.Spawned) gun.Destroy();
+                    foreach (var t in NewNear(map, silver, beforeSilver, cell)) t.Destroy();
+                }
+                if (!ready) break;
             }
             if (ready) c.Conclude();
         }
@@ -1495,6 +1550,68 @@ public sealed class MomentsBatch : Batch
             {
                 c.Step(results[0].destroyed && !results[0].spawned && results[0].scrap > 0, $"Apply: the butcher strips the corpse and the shirt becomes {results[0].scrap} scrap");
                 c.Step(!results[1].destroyed && results[1].spawned && results[1].scrap == 0, "Exclude: the game's own butchering drops the shirt whole");
+                c.Conclude();
+            }
+            bill.suspended = true;
+        }
+
+        // ---- 01: cremation burns kept gear, unless Strip corpses before cremating is on ------------------------------------
+        {
+            var c = ctx.Begin(Cremation);
+            ModHarness.RestoreSettings();
+            var siteCell = sites.Dequeue();
+            var crematorium = Kit.Place(ctx, "ElectricCrematorium", siteCell);
+            Kit.HoldPower(ctx, crematorium, true);
+            var hauler = Kit.Worker(ctx, siteCell + new IntVec3(2, 0, -3), WorkTypeDefOf.Hauling, null);
+            c.Subject(hauler);
+            var recipe = DefDatabase<RecipeDef>.GetNamed("CremateCorpse");
+            var bill = (Bill_Production)recipe.MakeNewBill();
+            bill.repeatMode = BillRepeatModeDefOf.Forever;
+            bill.ingredientFilter.SetAllowAll(recipe.fixedIngredientFilter);
+            ((IBillGiver)crematorium).BillStack.AddBill(bill);
+            var shirtDef = Kit.Def("Apparel_CollarShirt");
+            c.Step(EraReader.ItemEra(shirtDef, Pirates).OutOfReach && EraReader.ItemEra(revolver, Pirates).OutOfReach,
+                "the collared shirt and revolver are out of reach of the tribal colony");
+            var results = new List<(bool strip, bool cremated, bool kept, bool gunGone, bool shirtGone, bool anyOnGround, int scrap)>();
+            foreach (bool strip in new[] { false, true })
+            {
+                // The hostiles box on and every category on Keep at death, so the revolver stays in the corpse whole and the
+                // shirt on it; then the rules scrap out-of-reach gear for the cremation.
+                ModHarness.RestoreSettings();
+                ModHarness.KeepGear(Settings.values, true, true, false);
+                ModHarness.ApplyStyle(Rules, ModHarness.LootStyle.Off);
+                Settings.values.cremationStripsCorpses = strip;
+                var p = Spawn(ctx, Mercenary, Pirates, siteCell + new IntVec3(0, 0, -3));
+                var gun = Arm(p, revolver, QualityCategory.Normal);
+                var shirt = Dress(p, shirtDef, QualityCategory.Normal);
+                p.Kill(null);
+                var corpse = p.Corpse;
+                var inner = corpse?.InnerPawn;
+                bool kept = inner != null && inner.inventory.innerContainer.Contains(gun) && inner.apparel.Contains(shirt);
+                Rules.weapons = CategoryRule.ScrapBeyondReach();
+                Rules.apparel = CategoryRule.ScrapBeyondReach();
+                corpse?.SetForbidden(false, false);
+                c.Note($"Strip corpses before cremating {(strip ? "on" : "off")}; a pirate's corpse with a revolver in its pack and a collared shirt lies by a powered crematorium");
+                int scrapBefore = AllScrap.Sum(d => Kit.CountOnMap(map, d));
+                var done = Wait.Until(() => corpse == null || corpse.Destroyed, 6000, Kit.KeepRested(hauler));
+                yield return done;
+                int scrap = AllScrap.Sum(d => Kit.CountOnMap(map, d)) - scrapBefore;
+                results.Add((strip, kept && !done.TimedOut, kept, gun.Destroyed, shirt.Destroyed, gun.Spawned || shirt.Spawned, scrap));
+                c.Observe((strip ? "on" : "off") + ": keptAtDeath", kept).Observe(strip ? "on" : "off",
+                    $"cremated {!done.TimedOut}, revolver destroyed {gun.Destroyed}, shirt destroyed {shirt.Destroyed}, on ground {gun.Spawned || shirt.Spawned}, scrap {scrap}");
+                if (gun.Spawned) gun.Destroy();
+                if (shirt.Spawned) shirt.Destroy();
+            }
+            if (results.Any(r => !r.cremated))
+                c.WorkflowInconclusive("the hauler did not cremate a corpse still holding its gear within 6000 ticks",
+                    (results.All(r => r.kept), "the gear stayed on the corpse at death"), (hauler.Spawned && !hauler.Dead, "the hauler is alive"),
+                    (bill.ShouldDoNow(), "the bill wants doing"));
+            else
+            {
+                var off = results[0];
+                var on = results[1];
+                c.Step(off.gunGone && off.shirtGone && !off.anyOnGround && off.scrap == 0, "off: the revolver and shirt burn with the corpse and nothing is scrapped");
+                c.Step(on.gunGone && on.shirtGone && !on.anyOnGround && on.scrap > 0, $"on: the corpse is stripped first and its revolver and shirt become {on.scrap} scrap");
                 c.Conclude();
             }
             bill.suspended = true;
