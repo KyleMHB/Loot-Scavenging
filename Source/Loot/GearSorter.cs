@@ -14,7 +14,15 @@ namespace LootScavenging.Loot;
 internal static class GearSorter
 {
     /// <param name="ownerRow">The group whose Who row judges the gear, for a joiner (ticket 25); by default the pawn's own.</param>
-    public static void Sort(Pawn pawn, Moment moment, bool equipment, bool apparel, bool inventory, OwnerGroup? ownerRow = null)
+    public static void Sort(Pawn pawn, Moment moment, bool equipment, bool apparel, bool inventory, OwnerGroup? ownerRow = null) =>
+        SortAs(pawn, pawn.Faction, moment, equipment, apparel, inventory, ownerRow);
+
+    /// <summary>Sorts a joiner's gear at his first spawn, judged as the faction he had when he joined off the map (ticket 05).</summary>
+    public static void SortArrivedJoiner(Pawn pawn, Faction formerFaction, OwnerGroup ownerRow) =>
+        SortAs(pawn, formerFaction, Moment.Join, equipment: true, apparel: true, inventory: true, ownerRow);
+
+    // The carrier is the faction whose tech level stands in for gear with no research and no tech level of its own.
+    private static void SortAs(Pawn pawn, Faction carrier, Moment moment, bool equipment, bool apparel, bool inventory, OwnerGroup? ownerRow)
     {
         // World pawns die off-map in numbers and drop nothing, so they are skipped before any logging.
         Map map = pawn.MapHeld;
@@ -32,7 +40,7 @@ internal static class GearSorter
         if (equipment && pawn.equipment != null)
         {
             foreach (ThingWithComps eq in pawn.equipment.AllEquipmentListForReading.ToList())
-                Judge(pawn, eq, owner, moment, mapKind, ItemCategory.Weapon, rules);
+                Judge(pawn, carrier, eq, owner, moment, mapKind, ItemCategory.Weapon, rules);
         }
 
         if (apparel && pawn.apparel != null)
@@ -43,7 +51,7 @@ internal static class GearSorter
             if (moment == Moment.Strip || moment == Moment.Join)
                 worn = worn.Where(ap => !pawn.apparel.IsLocked(ap));
             foreach (Apparel ap in worn)
-                Judge(pawn, ap, owner, moment, mapKind, ItemCategory.Apparel, rules);
+                Judge(pawn, carrier, ap, owner, moment, mapKind, ItemCategory.Apparel, rules);
         }
 
         // A visiting caravan's pack animal carries trade goods, which are stock and not gear, so they drop whole. The game
@@ -53,7 +61,7 @@ internal static class GearSorter
         if (inventory && pawn.inventory != null && !caravanCargo)
         {
             foreach (Thing thing in pawn.inventory.innerContainer.ToList())
-                Judge(pawn, thing, owner, moment, mapKind, ItemClassifier.InventoryCategoryOf(thing), rules);
+                Judge(pawn, carrier, thing, owner, moment, mapKind, ItemClassifier.InventoryCategoryOf(thing), rules);
         }
     }
 
@@ -63,7 +71,7 @@ internal static class GearSorter
         Map map = pawn.MapHeld;
         if (map == null)
             return;
-        Judge(pawn, eq, OwnerOf(pawn), moment, map.IsPlayerHome ? MapKind.Home : MapKind.Away, ItemCategory.Weapon,
+        Judge(pawn, pawn.Faction, eq, OwnerOf(pawn), moment, map.IsPlayerHome ? MapKind.Home : MapKind.Away, ItemCategory.Weapon,
             LootScavengingMod.Settings.values.rules);
     }
 
@@ -80,13 +88,13 @@ internal static class GearSorter
             factionHostileToPlayer: faction != null && faction.HostileTo(Faction.OfPlayer));
     }
 
-    private static void Judge(Pawn pawn, Thing thing, OwnerGroup owner, Moment moment, MapKind mapKind, ItemCategory category, LootRules rules)
+    private static void Judge(Pawn pawn, Faction carrier, Thing thing, OwnerGroup owner, Moment moment, MapKind mapKind, ItemCategory category, LootRules rules)
     {
         // Scrap already on the pawn (including scrap made earlier in this pass) is never judged again.
         if (ScrapDefs.IsScrap(thing.def))
             return;
 
-        EraResult era = EraReader.ItemEra(thing.def, pawn.Faction);
+        EraResult era = EraReader.ItemEra(thing.def, carrier);
         var candidate = new DropCandidate
         {
             ItemEra = era,

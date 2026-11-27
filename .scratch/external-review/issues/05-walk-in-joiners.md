@@ -1,6 +1,6 @@
 # 05: Sort walk-in joiners when they spawn
 
-Status: ready-for-agent
+Status: done
 
 **Recommended model:** `opus`: a new saved flag on pawns must load cleanly from saves without it.
 
