@@ -1,6 +1,6 @@
 # 12: Docs and texts
 
-Status: blocked
+Status: done
 
 **Recommended model:** `sonnet`
 

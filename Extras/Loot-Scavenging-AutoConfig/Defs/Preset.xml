@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <!-- Keep version equal to the Loot Scavenging version the preset was written for. Change it only when the preset's content
-       changes: Auto Mod Config merges a changed version into the player's settings and ignores an unchanged one. -->
+       changes: Auto Mod Config replaces the player's settings the first time it sees the preset, merges a changed version
+       into them later and ignores an unchanged one. -->
   <ModlistConfigurator.ModlistPresetDef>
     <defName>LootScavengingProgression</defName>
     <presetLabel>Loot Scavenging - Progression</presetLabel>

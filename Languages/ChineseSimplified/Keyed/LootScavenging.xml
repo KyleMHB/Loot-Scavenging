@@ -43,7 +43,7 @@
 	<LootScavenging_LockedReason>已被整合包锁定：此设置始终使用整合包的值，因此无法在此更改。</LootScavenging_LockedReason>
 	<LootScavenging_LockedSummary>部分设置已被整合包锁定。无论选择哪个预设，它们都保持整合包的值。</LootScavenging_LockedSummary>
 	<LootScavenging_PresetReset>恢复默认</LootScavenging_PresetReset>
-	<LootScavenging_PresetProgressionExplain>敌对、非敌对和野生角色以及殖民地的囚犯：超出你研究水平的武器和衣物会变为废料，其余照常掉落。其他加入者保留装备，超出你研究水平的装备被标记为陌生。倒地或死亡时无人丢下装备，尸体保留。</LootScavenging_PresetProgressionExplain>
+	<LootScavenging_PresetProgressionExplain>敌对、非敌对和野生角色以及殖民地的囚犯和被招募的囚犯：超出你研究水平的武器和衣物会变为废料，其余照常掉落。其他加入者保留装备，超出你研究水平的装备被标记为陌生。倒地或死亡时无人丢下装备，尸体保留。</LootScavenging_PresetProgressionExplain>
 	<LootScavenging_PresetCleanupExplain>忽略研究。仅针对敌对角色：品质低于一般的武器、品质低于良好的衣物，以及耐久度低于50%的武器或衣物会被删除，其所有弹药也会被删除；其余照常掉落。所有敌对的人类尸体都会被移除。</LootScavenging_PresetCleanupExplain>
 	<LootScavenging_PresetVanillaExplain>所有群体均不受影响，每个角色倒地或死亡时都会丢下装备，因此战利品和尸体的表现与原版游戏相同。</LootScavenging_PresetVanillaExplain>
 	<LootScavenging_ResetConfirm>将所有设置恢复为默认值（「渐进」预设），并清空保留列表和移除列表？</LootScavenging_ResetConfirm>
@@ -114,13 +114,13 @@
 	<LootScavenging_UnfamiliarLootedExplainUnused>只有从角色身上脱下的装备才是陌生的。从商人处购买或作为任务奖励获得的装备可以使用。仅用于设为「标记为陌生」的群体。</LootScavenging_UnfamiliarLootedExplainUnused>
 	<LootScavenging_SectionCorpses>尸体</LootScavenging_SectionCorpses>
 	<LootScavenging_CorpseHumanlike>移除人类尸体</LootScavenging_CorpseHumanlike>
-	<LootScavenging_CorpseHumanlikeOn>设为「应用物品规则」的群体中的人类尸体，在其装备经过规则处理后会被移除。</LootScavenging_CorpseHumanlikeOn>
+	<LootScavenging_CorpseHumanlikeOn>设为「应用物品规则」或「标记为陌生」的群体中的人类尸体，在其装备经过规则处理后会被移除。</LootScavenging_CorpseHumanlikeOn>
 	<LootScavenging_CorpseHumanlikeOff>人类尸体保留。</LootScavenging_CorpseHumanlikeOff>
 	<LootScavenging_CorpseAnimal>移除动物尸体</LootScavenging_CorpseAnimal>
-	<LootScavenging_CorpseAnimalOn>设为「应用物品规则」的群体中的动物尸体会被移除。只有野人和野生动物设为「应用物品规则」时，野生动物才会计入。</LootScavenging_CorpseAnimalOn>
+	<LootScavenging_CorpseAnimalOn>设为「应用物品规则」或「标记为陌生」的群体中的动物尸体会被移除。只有野人和野生动物设为「应用物品规则」或「标记为陌生」时，野生动物才会计入。</LootScavenging_CorpseAnimalOn>
 	<LootScavenging_CorpseAnimalOff>动物尸体保留，可用于获取食物或皮革。</LootScavenging_CorpseAnimalOff>
 	<LootScavenging_CorpseMechanoid>移除机械族尸体</LootScavenging_CorpseMechanoid>
-	<LootScavenging_CorpseMechanoidOn>设为「应用物品规则」的群体中的机械族尸体会被移除。</LootScavenging_CorpseMechanoidOn>
+	<LootScavenging_CorpseMechanoidOn>设为「应用物品规则」或「标记为陌生」的群体中的机械族尸体会被移除。</LootScavenging_CorpseMechanoidOn>
 	<LootScavenging_CorpseMechanoidOff>机械族尸体保留，可用于熔炼。</LootScavenging_CorpseMechanoidOff>
 	<LootScavenging_SectionLists>列表</LootScavenging_SectionLists>
 	<LootScavenging_ProtectQuest>保护任务物品</LootScavenging_ProtectQuest>

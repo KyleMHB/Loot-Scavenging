@@ -27,11 +27,11 @@
            colonistsKeepGear, hostilesKeepGear, nonHostilesKeepGear: true, false
          Who (one row per group of pawns)
            whoHostile, whoNonHostile, whoWild, whoPrisoners, whoRecruitedPrisoners, whoOtherJoiners:
-             Apply, Exclude, Mark
+             Apply, Exclude (shown as Leave alone), Mark (shown as Mark unfamiliar)
            homeMapOnly: true, false
          One rule per category. Replace <category> with weapons, apparel, ammunition, drugs, medicine, food or other,
          which gives for example weaponsOutcome and apparelBelowQuality (49 keys in all).
-           <category>Outcome: Keep (shown as Vanilla), Scrap, Disassemble, Delete
+           <category>Outcome: Keep (shown as Drop as normal), Scrap, Disassemble, Delete
            <category>OnlyBeyondReach: true, false
            <category>LimitQuality: true, false
            <category>BelowQuality: Awful, Poor, Normal, Good, Excellent, Masterwork, Legendary
