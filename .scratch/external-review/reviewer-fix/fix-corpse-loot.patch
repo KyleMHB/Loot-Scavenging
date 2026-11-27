@@ -1,0 +1,56 @@
+diff --git a/Source/Loot/CorpseLootFixes.cs b/Source/Loot/CorpseLootFixes.cs
+new file mode 100644
+index 0000000..195bd8f
+--- /dev/null
++++ b/Source/Loot/CorpseLootFixes.cs
+@@ -0,0 +1,50 @@
++using System;
++using HarmonyLib;
++using RimWorld;
++using Verse;
++
++namespace LootScavenging.Loot;
++
++// Loot kept on a body lives in the dead pawn's inventory. The game destroys that inventory with the corpse
++// (Corpse.Destroy -> PostCorpseDestroy), so a corpse eaten by a predator, burnt or rotted away took the loot with it, where
++// the base game had already dropped weapon and pack on the ground. Before a corpse on a map goes, its inventory is dropped
++// beside it. Strip, butcher and cremation bills and the mod's own corpse removal strip first, so they reach this empty.
++[HarmonyPatch(typeof(Corpse), nameof(Corpse.Destroy))]
++internal static class CorpseDestroyDropHook
++{
++    private static void Prefix(Corpse __instance)
++    {
++        try
++        {
++            if (__instance.Bugged || !__instance.Spawned)
++                return;
++            Pawn pawn = __instance.InnerPawn;
++            if (pawn?.inventory == null || pawn.inventory.innerContainer.Count == 0)
++                return;
++            // Colony loot comes back usable; anyone else's is forbidden, like the game's death drop.
++            pawn.inventory.DropAllNearPawn(__instance.Position, forbid: pawn.Faction != Faction.OfPlayer);
++        }
++        catch (Exception e)
++        {
++            Log.Error($"[Loot Scavenging] Dropping the loot of {__instance} before it was destroyed failed: {e}"); // not translated
++        }
++    }
++}
++
++// The Gear tab shows a drop button on every inventory row of a dead colonist, and the game drops at the dead pawn's own
++// map, which is null inside a corpse: "Dropped X in a null map" and nothing moves. A colonist's weapon and pack stay in the
++// corpse by default, so the button is now common. It drops beside the corpse instead.
++[HarmonyPatch(typeof(ITab_Pawn_Gear), "InterfaceDrop")]
++internal static class GearTabCorpseDropHook
++{
++    private static bool Prefix(Thing t)
++    {
++        if (!(t?.ParentHolder is Pawn_InventoryTracker inventory) || !inventory.pawn.Dead)
++            return true;
++        Corpse corpse = inventory.pawn.Corpse;
++        if (corpse == null || !corpse.Spawned)
++            return true;
++        inventory.innerContainer.TryDrop(t, corpse.Position, corpse.Map, ThingPlaceMode.Near, out Thing _);
++        return false;
++    }
++}
