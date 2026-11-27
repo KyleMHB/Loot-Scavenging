@@ -1,6 +1,6 @@
 # 01: Keep corpse loot when the corpse is destroyed
 
-Status: ready-for-agent
+Status: done
 
 **Recommended model:** `opus`: the loot on a body is the player's; a wrong patch loses or duplicates it in saves.
 
