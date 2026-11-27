@@ -34,11 +34,32 @@ public static class EraReader
             return supplied.Value;
         }
 
-        if (FactionEraMoves && Faction.OfPlayerSilentFail?.def != null)
+        // Callers ask per inspect redraw, per study ingredient and per scrapped item, so the walk over every project is
+        // cached for 250 ticks and dropped when a project finishes (ResetColonyEraCache) or the game changes.
+        int stamp = Current.ProgramState == ProgramState.Playing && Find.TickManager != null ? Find.TickManager.TicksGame / 250 : -1;
+        if (stamp >= 0 && stamp == colonyEraStamp && colonyEraGame == Current.Game)
         {
-            return EraRanking.ColonyEra(FinishedProjectEras(), (Era)Faction.OfPlayer.def.techLevel);
+            return colonyEraCache;
         }
-        return EraRanking.ColonyEra(FinishedProjectEras());
+
+        Era era = FactionEraMoves && Faction.OfPlayerSilentFail?.def != null
+            ? EraRanking.ColonyEra(FinishedProjectEras(), (Era)Faction.OfPlayer.def.techLevel)
+            : EraRanking.ColonyEra(FinishedProjectEras());
+        colonyEraCache = era;
+        colonyEraStamp = stamp;
+        colonyEraGame = stamp >= 0 ? Current.Game : null;
+        return era;
+    }
+
+    private static Era colonyEraCache;
+    private static int colonyEraStamp = -1;
+    private static Game colonyEraGame;
+
+    /// <summary>Drops the cached colony era; called when a research project finishes.</summary>
+    public static void ResetColonyEraCache()
+    {
+        colonyEraStamp = -1;
+        colonyEraGame = null;
     }
 
     /// <summary>

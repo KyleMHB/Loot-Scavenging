@@ -1,6 +1,6 @@
 # 09: Multiplayer roll and cost
 
-Status: ready-for-agent
+Status: done
 
 **Recommended model:** `sonnet`
 
