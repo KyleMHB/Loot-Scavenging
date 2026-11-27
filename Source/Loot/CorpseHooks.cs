@@ -83,6 +83,59 @@ internal static class CorpseRemovalHook
     }
 }
 
+// Gear kept on a body lives in the dead pawn's inventory, and Corpse.Destroy destroys that inventory with the body
+// (PostCorpseDestroy). A corpse eaten by a predator, burnt or rotted away would take it along, where the base game had
+// already dropped it at death, so it drops beside the corpse first. Stripping, butchering (autoStripCorpses) and this
+// mod's corpse removal empty the inventory before they destroy, so they reach here with nothing to drop. Resurrection
+// empties the corpse first (Bugged). A cremation bill does not strip, and its kept gear burns with the body (external
+// review, decision 5).
+[HarmonyPatch(typeof(Corpse), nameof(Corpse.Destroy))]
+internal static class CorpseDestroyDropHook
+{
+    [HarmonyPriority(Priority.Last)]
+    private static void Prefix(Corpse __instance, bool __runOriginal)
+    {
+        if (!__runOriginal || NonStrippingBillHook.Depth > 0)
+            return;
+        try
+        {
+            if (__instance.Bugged || !__instance.Spawned)
+                return;
+            Pawn pawn = __instance.InnerPawn;
+            if (pawn.inventory == null || pawn.inventory.innerContainer.Count == 0)
+                return;
+            // The gear was judged at death, and no sorting hook sits on DropAllNearPawn, so it drops as it is. Forbidden
+            // like the game's death drop (outside the home area), except the colony's own.
+            pawn.inventory.DropAllNearPawn(__instance.Position, forbid: pawn.Faction is not { IsPlayer: true });
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[Loot Scavenging] Dropping the gear kept on {__instance} before it was destroyed failed: {e}"); // not translated
+        }
+    }
+}
+
+// The window in which a bill that does not strip its corpses (cremation) destroys its ingredients, so the corpse
+// hook above lets the kept gear go with the body.
+[HarmonyPatch(typeof(Toils_Recipe), "ConsumeIngredients")]
+internal static class NonStrippingBillHook
+{
+    internal static int Depth;
+
+    private static void Prefix(RecipeDef recipe, out bool __state)
+    {
+        __state = recipe != null && !recipe.autoStripCorpses;
+        if (__state)
+            Depth++;
+    }
+
+    private static void Finalizer(bool __state)
+    {
+        if (__state)
+            Depth--;
+    }
+}
+
 // A butcher bill strips the corpse of its apparel while it gathers its ingredients (autoStripCorpses). Marking that
 // window tells the Strip patch below apart from a player's strip job and from any other strip. Butchering a humanlike
 // corpse strips it and sorts what comes off under the owner's Who row (ticket 25, decision 6).
