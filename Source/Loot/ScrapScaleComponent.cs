@@ -10,7 +10,7 @@ namespace LootScavenging.Loot;
 /// Converts a save's scrap once to the cheaper units of 0.5.2 (ticket 19), when each unit became worth half as much. A game
 /// without this component's data, from before 0.5.2 or started without the mod, loads at the old scale: every stack of raw
 /// and studied scrap it holds is doubled, so the scrap keeps its value, and the scale is saved. A new game starts at the
-/// current scale. This is the mod's only saved game data.
+/// current scale. The mod's other saved game data is the list of joiners waiting to be sorted (UnsortedJoiners).
 /// </summary>
 public class ScrapScaleComponent : GameComponent
 {

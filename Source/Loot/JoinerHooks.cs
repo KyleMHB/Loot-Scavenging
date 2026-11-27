@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using LootScavenging.Model;
 using RimWorld;
@@ -16,9 +17,13 @@ namespace LootScavenging.Loot;
 // so the SetFaction prefix would see neither. A pawn handled by it is marked in SortedDrop until the call ends, and the
 // SetFaction prefix inside skips him: nothing is judged twice, so a chance roll is not rolled again.
 //
+// A joiner who is not on any map has nowhere to drop his gear. A walk-in wanderer joins this way: his quest calls SetFaction
+// while he is still a world pawn, then spawns him at the map edge, by drop pod or by shuttle. So do pawns who join a caravan.
+// Under Apply he is noted in UnsortedJoiners with the faction he had, and his gear is sorted once, at his first spawn
+// (ticket 05). The join mark needs no map and is set at once.
+//
 // Not covered: a pawn the game makes a colonist without SetFaction (generated straight into the player's faction, as the
-// game-end wanderers and the pawns of a new game are), and a joiner who is not on any map, whose gear the item rules cannot
-// place (the join mark still works there).
+// game-end wanderers and the pawns of a new game are).
 
 internal static class JoiningGear
 {
@@ -45,7 +50,10 @@ internal static class JoiningGear
                 case WhoRule.Apply:
                     // His joiner row judges the gear; locked apparel stays, as at a strip. His pack is sorted too (ticket 21):
                     // a pawn downed with his weapon kept may carry it there.
-                    GearSorter.Sort(pawn, Moment.Join, equipment: true, apparel: true, inventory: true, ownerRow: row);
+                    if (pawn.MapHeld == null)
+                        UnsortedJoiners.Add(pawn, pawn.Faction);
+                    else
+                        GearSorter.Sort(pawn, Moment.Join, equipment: true, apparel: true, inventory: true, ownerRow: row);
                     break;
             }
 
@@ -83,4 +91,77 @@ internal static class RecruitHook
         __state = JoiningGear.Begin(pawn, faction, __runOriginal);
 
     private static void Finalizer(Pawn pawn, bool __state) => JoiningGear.End(pawn, __state);
+}
+
+/// <summary>
+/// Joiners whose gear waits for their first spawn (ticket 05), by thing id, with the faction each had before joining. Saved
+/// with the game, so a save made while a wanderer's drop pod or shuttle is on its way keeps him on the list. A save without
+/// this list (0.6.0 and earlier) loads it empty.
+/// </summary>
+public class UnsortedJoiners : GameComponent
+{
+    private static UnsortedJoiners current;
+
+    private Dictionary<int, Faction> formerFactions = new Dictionary<int, Faction>();
+    private List<int> idsWorking;
+    private List<Faction> factionsWorking;
+
+    public UnsortedJoiners(Game game)
+    {
+        current = this;
+    }
+
+    internal static void Add(Pawn pawn, Faction formerFaction)
+    {
+        if (current != null)
+            current.formerFactions[pawn.thingIDNumber] = formerFaction;
+    }
+
+    /// <summary>Removes the pawn from the list. True, with the faction he had, when he was on it.</summary>
+    internal static bool TryTake(Pawn pawn, out Faction formerFaction)
+    {
+        formerFaction = null;
+        if (current == null || current.formerFactions.Count == 0 || !current.formerFactions.TryGetValue(pawn.thingIDNumber, out formerFaction))
+            return false;
+        current.formerFactions.Remove(pawn.thingIDNumber);
+        return true;
+    }
+
+    public override void ExposeData()
+    {
+        // A wanderer's former faction is null; a faction reference saves and loads null as it is.
+        Scribe_Collections.Look(ref formerFactions, "unsortedJoiners", LookMode.Value, LookMode.Reference, ref idsWorking, ref factionsWorking); // not translated
+        if (Scribe.mode == LoadSaveMode.PostLoadInit && formerFactions == null)
+            formerFactions = new Dictionary<int, Faction>();
+    }
+}
+
+// A listed joiner's first spawn on a map: an edge walk-in, a drop pod or shuttle opening, a caravan entering a map.
+[HarmonyPatch(typeof(Pawn), nameof(Pawn.SpawnSetup))]
+internal static class JoinerSpawnHook
+{
+    private static void Postfix(Pawn __instance, bool respawningAfterLoad)
+    {
+        if (respawningAfterLoad || Current.ProgramState != ProgramState.Playing || !UnsortedJoiners.TryTake(__instance, out Faction formerFaction))
+            return;
+        // Taken off the list first, so a failed sort is never tried again. The row is read now, so a player who turned it from
+        // Apply while he travelled is obeyed. Prisoners are recruited on a map, so an off-map joiner is always an other joiner.
+        if (__instance.Dead || __instance.Faction is not { IsPlayer: true }
+            || LootScavengingMod.Settings.values.rules.RowFor(OwnerGroup.OtherJoiner) != WhoRule.Apply)
+            return;
+
+        SortedDrop.Enter(__instance);
+        try
+        {
+            GearSorter.SortArrivedJoiner(__instance, formerFaction, OwnerGroup.OtherJoiner);
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[Loot Scavenging] Sorting the gear of {__instance}, arriving after joining the colony, failed: {e}"); // not translated
+        }
+        finally
+        {
+            SortedDrop.Exit(__instance);
+        }
+    }
 }
