@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using LootScavenging.Model;
 using RimWorld;
 using Verse;
@@ -20,12 +21,30 @@ public class CompStudyInfo : ThingComp
         if (Current.ProgramState != ProgramState.Playing || !ScrapStudy.TryGetWorth(parent, out StudyWorth worth))
             return null;
 
-        string points = "LootScavenging_StudyPointsPerUnit".Translate(ScrapStudy.PaidPerUnit(worth).ToString("0.#")).Resolve();
         ResearchProjectDef project = ScrapStudy.CurrentProject;
-        return points + "\n" + Reason(ScrapStudy.Verdict(worth, project), worth, project);
+        string points = "LootScavenging_StudyPointsPerUnit".Translate(ScrapStudy.PaidPerUnit(worth, project).ToString("0.#")).Resolve();
+        StudyVerdict verdict = ScrapStudy.Verdict(worth, project);
+        if (verdict == StudyVerdict.Eligible && !HasBenchFor(project, parent.MapHeld))
+            return points + "\n" + "LootScavenging_StudyWhyNoBench".Translate(project.LabelCap).Resolve();
+        return points + "\n" + Reason(verdict, worth, project);
     }
 
-    private static string Reason(StudyVerdict verdict, StudyWorth worth, ResearchProjectDef project)
+    /// <summary>Whether the map has a research bench (one that takes bills) that can research the project.</summary>
+    private static bool HasBenchFor(ResearchProjectDef project, Map map)
+    {
+        if (map == null)
+            return true;
+        List<Building> buildings = map.listerBuildings.allBuildingsColonist;
+        for (int i = 0; i < buildings.Count; i++)
+        {
+            if (buildings[i] is Building_StudyBench bench && project.CanBeResearchedAt(bench, ignoreResearchBenchPowerStatus: true))
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>The sentence saying whether scrap can be studied for a verdict, and why not.</summary>
+    internal static string Reason(StudyVerdict verdict, StudyWorth worth, ResearchProjectDef project)
     {
         string projectLabel = project?.LabelCap.Resolve() ?? "";
         string scrapEra = ((TechLevel)StudyRules.EraOf(worth.Tier)).ToStringHuman();

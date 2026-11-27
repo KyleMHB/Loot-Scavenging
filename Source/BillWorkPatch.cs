@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using HarmonyLib;
 using LootScavenging.Model;
 using RimWorld;
@@ -35,6 +36,35 @@ internal static class BillWorkPatch
                 Log.ErrorOnce($"[Loot Scavenging] Setting the work for a bill failed: {e}", 0x4C5308); // not translated
             }
         };
+
+        // The game's progress bar divides by the recipe's nominal work. Its getter runs inside the toil's pre-tick actions, so
+        // each is wrapped to say whose bar is being drawn (see BillBarTotalPatch).
+        if (toil.preTickIntervalActions == null)
+            return;
+        for (int i = 0; i < toil.preTickIntervalActions.Count; i++)
+        {
+            Action<int> inner = toil.preTickIntervalActions[i];
+            toil.preTickIntervalActions[i] = delegate(int delta)
+            {
+                BillBarTotalPatch.Drawing = toil.actor;
+                try
+                {
+                    inner(delta);
+                }
+                finally
+                {
+                    BillBarTotalPatch.Drawing = null;
+                }
+            };
+        }
+    }
+
+    // Sets the work left and remembers it as the bar's total.
+    private static void SetWork(JobDriver_DoBill driver, float work)
+    {
+        driver.workLeft = work;
+        BillBarTotalPatch.Totals.Remove(driver);
+        BillBarTotalPatch.Totals.Add(driver, new BillBarTotalPatch.Total { Work = work });
     }
 
     private static void Rescale(Pawn actor)
@@ -50,7 +80,7 @@ internal static class BillWorkPatch
         if (RecycleRecipes.TryGetTier(recipe, out ScrapTierDef tierDef))
         {
             int units = Trim(job.placedThings, RecycleBatch.Units(Placed(job.placedThings), tierDef.batchSize * Factor(recipe)));
-            driver.workLeft = RecycleBatch.Work(units, tierDef.workPerUnit);
+            SetWork(driver, RecycleBatch.Work(units, tierDef.workPerUnit));
         }
         else if (StudyRecipes.TryGetTier(recipe, out _))
         {
@@ -59,17 +89,17 @@ internal static class BillWorkPatch
             if (!TryPlanStudy(job.bill, first, Placed(job.placedThings), out StudyPlan plan))
                 return;
             Trim(job.placedThings, Math.Max(1, plan.Things));
-            driver.workLeft = plan.Work;
+            SetWork(driver, plan.Work);
         }
         else if (OriginalItemRecipes.IsRecycle(recipe))
         {
             if (ScrapEquivalent.TryGet(first, out ScrapTier tier, out int units))
-                driver.workLeft = ScrapEquivalent.RecycleWork(tier, units);
+                SetWork(driver, ScrapEquivalent.RecycleWork(tier, units));
         }
         else if (OriginalItemRecipes.IsStudy(recipe))
         {
             if (ScrapStudy.TryGetWorth(first, out StudyWorth worth))
-                driver.workLeft = ScrapStudy.Plan(worth, 1, 1, ScrapStudy.CurrentProject).Work;
+                SetWork(driver, ScrapStudy.Plan(worth, 1, 1, ScrapStudy.CurrentProject).Work);
         }
     }
 
@@ -192,5 +222,34 @@ internal static class BillIngredientCapPatch
             else
                 chosen[i] = chosen[i].WithCount(counts[i]);
         }
+    }
+}
+
+/// <summary>
+/// Makes the work bar of the mod's bills total what the job really takes. The game's bar is
+/// <c>1 - workLeft / recipe.WorkAmountTotal</c>, and the recipe holds only a nominal amount, so a bill whose real work differs
+/// started part-filled or overflowed. While a wrapped pre-tick action of the bill's toil runs (<see cref="BillWorkPatch"/>),
+/// the total is read from what the work start set.
+/// </summary>
+[HarmonyPatch(typeof(RecipeDef), nameof(RecipeDef.WorkAmountTotal))]
+internal static class BillBarTotalPatch
+{
+    internal sealed class Total
+    {
+        public float Work;
+    }
+
+    internal static readonly ConditionalWeakTable<JobDriver_DoBill, Total> Totals = new ConditionalWeakTable<JobDriver_DoBill, Total>();
+
+    /// <summary>The pawn whose toil is running its pre-tick actions, or null.</summary>
+    [ThreadStatic]
+    internal static Pawn Drawing;
+
+    private static void Postfix(RecipeDef __instance, ref float __result)
+    {
+        Pawn actor = Drawing;
+        if (actor?.jobs?.curDriver is JobDriver_DoBill driver && actor.jobs.curJob?.RecipeDef == __instance
+            && Totals.TryGetValue(driver, out Total total) && total.Work > 0f)
+            __result = total.Work;
     }
 }

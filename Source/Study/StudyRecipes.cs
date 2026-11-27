@@ -172,28 +172,75 @@ public class RecipeWorker_Study : RecipeWorker
     {
         Map map = billDoer.Map;
         ResearchProjectDef project = ScrapStudy.CurrentProject;
+        bool paid = false;
+        string firstLabel = null;
+        TaggedString whyNot = default;
         foreach (Thing ingredient in ingredients)
         {
             if (ingredient == null || ingredient.Destroyed)
                 continue;
-            if (project != null && ScrapStudy.TryGetWorth(ingredient, out StudyWorth worth)
-                && ScrapStudy.Verdict(worth, project) == StudyVerdict.Eligible)
-                Study(billDoer, ingredient, worth, project);
+            if (TryPlan(ingredient, project, out StudyWorth worth, out StudyPlan plan))
+            {
+                Study(billDoer, ingredient, worth, project, plan);
+                paid = true;
+            }
+            else if (firstLabel == null)
+            {
+                firstLabel = ingredient.LabelNoCount;
+                whyNot = WhyNot(ingredient, project);
+            }
             if (!ingredient.Destroyed && !ingredient.Spawned && map != null)
                 GenPlace.TryPlaceThing(ingredient, billDoer.Position, map, ThingPlaceMode.Near);
         }
+        if (!paid && firstLabel != null)
+        {
+            Messages.Message("LootScavenging_StudyNotPaid".Translate(billDoer.Named("PAWN"), firstLabel, whyNot), new LookTargets(billDoer),
+                MessageTypeDefOf.RejectInput, historical: false);
+        }
     }
 
-    private static void Study(Pawn pawn, Thing ingredient, StudyWorth worth, ResearchProjectDef project)
+    /// <summary>
+    /// Whether an iteration with these ingredients pays anything now, read at the finish when the project may have changed. When
+    /// it does not, <see cref="StudyIterationPatch"/> keeps the bill's "Do X times" count from being spent.
+    /// </summary>
+    internal static bool WouldPay(List<Thing> ingredients)
     {
-        // The work start already trimmed the ingredient to the batch and the stock allowance (BillWorkPatch), so only the
-        // project's remaining cost can lower it now.
-        StudyPlan plan = ScrapStudy.Plan(worth, ingredient.stackCount, ingredient.stackCount, project);
+        ResearchProjectDef project = ScrapStudy.CurrentProject;
+        foreach (Thing ingredient in ingredients)
+        {
+            if (ingredient != null && !ingredient.Destroyed && TryPlan(ingredient, project, out _, out _))
+                return true;
+        }
+        return false;
+    }
+
+    // What this ingredient studies for the project now. The work start already trimmed the ingredient to the batch and the
+    // stock allowance (BillWorkPatch), so only the project's remaining cost can lower it now.
+    private static bool TryPlan(Thing ingredient, ResearchProjectDef project, out StudyWorth worth, out StudyPlan plan)
+    {
+        plan = default;
+        worth = default;
+        if (project == null || !ScrapStudy.TryGetWorth(ingredient, out worth)
+            || ScrapStudy.Verdict(worth, project) != StudyVerdict.Eligible)
+            return false;
+        plan = ScrapStudy.Plan(worth, ingredient.stackCount, ingredient.stackCount, project);
+        return plan.Things > 0 && plan.Points > 0f;
+    }
+
+    private static TaggedString WhyNot(Thing ingredient, ResearchProjectDef project)
+    {
+        if (!ScrapStudy.TryGetWorth(ingredient, out StudyWorth worth))
+            return "LootScavenging_StudyWhyNotWorth".Translate();
+        StudyVerdict verdict = ScrapStudy.Verdict(worth, project);
+        if (verdict != StudyVerdict.Eligible)
+            return CompStudyInfo.Reason(verdict, worth, project);
+        return "LootScavenging_StudyWhyTooLittle".Translate(project.LabelCap);
+    }
+
+    private static void Study(Pawn pawn, Thing ingredient, StudyWorth worth, ResearchProjectDef project, StudyPlan plan)
+    {
         int used = plan.Things;
         float points = plan.Points;
-        if (used <= 0 || points <= 0f)
-            return;
-
         string label = ingredient.LabelNoCount;
         if (used >= ingredient.stackCount)
             ingredient.Destroy();
@@ -201,8 +248,10 @@ public class RecipeWorker_Study : RecipeWorker
             ingredient.SplitOff(used).Destroy();
 
         string projectLabel = project.LabelCap;
+        // As bench research does: the pawn's record counts what the research tab counts.
+        pawn.records?.AddTo(RecordDefOf.ResearchPointsResearched, points);
         Find.ResearchManager.AddProgress(project, points, pawn);
-        Messages.Message("LootScavenging_StudyDone".Translate(pawn.Named("PAWN"), used.ToString(), label, points.ToString("0"),
+        Messages.Message("LootScavenging_StudyDone".Translate(pawn.Named("PAWN"), used.ToString(), label, points.ToString("0.#"),
             projectLabel), new LookTargets(pawn), MessageTypeDefOf.PositiveEvent, historical: false);
         if (Prefs.DevMode)
             Log.Message($"[Loot Scavenging] {pawn} studied {used} {label}: +{points} to {project.defName}"); // not translated
@@ -235,10 +284,22 @@ public class RecipeWorkerCounter_Study : RecipeWorkerCounter
         if (!StudyRecipes.TryGetTier(recipe, out ScrapTier tier) || bill.Map == null)
             return 0;
         int count = 0;
-        List<Thing> things = bill.Map.listerThings.ThingsOfDef(Loot.ScrapDefs.For(tier));
+        ThingDef scrap = Loot.ScrapDefs.For(tier);
+        ISlotGroup group = bill.GetIncludeSlotGroup();
+        if (group != null)
+        {
+            // "Count in" a stockpile: only what lies there, as the game's counter does.
+            foreach (Thing held in group.HeldThings)
+            {
+                if (CountValidThing(held, bill, scrap))
+                    count += held.stackCount;
+            }
+            return count;
+        }
+        List<Thing> things = bill.Map.listerThings.ThingsOfDef(scrap);
         for (int i = 0; i < things.Count; i++)
         {
-            if (CountValidThing(things[i], bill, things[i].def))
+            if (CountValidThing(things[i], bill, scrap))
                 count += things[i].stackCount;
         }
         return count;
@@ -332,5 +393,31 @@ internal static class StudyBillPatch
             cached[tier] = verdict;
         }
         return verdict;
+    }
+}
+
+/// <summary>
+/// Keeps a study bill's "Do X times" count when the iteration pays nothing (the project changed during the job): the game
+/// spends the count before the recipe worker runs, so for that case the worker is called alone.
+/// </summary>
+[HarmonyPatch(typeof(Bill_Production), nameof(Bill_Production.Notify_IterationCompleted))]
+internal static class StudyIterationPatch
+{
+    private static bool Prefix(Bill_Production __instance, Pawn billDoer, List<Thing> ingredients)
+    {
+        try
+        {
+            RecipeDef recipe = __instance.recipe;
+            if ((!StudyRecipes.TryGetTier(recipe, out _) && !OriginalItemRecipes.IsStudy(recipe)) || ingredients == null
+                || RecipeWorker_Study.WouldPay(ingredients))
+                return true;
+            recipe.Worker.Notify_IterationCompleted(billDoer, ingredients);
+            return false;
+        }
+        catch (Exception e)
+        {
+            Log.ErrorOnce($"[Loot Scavenging] Checking a finished study bill failed: {e}", 0x4C530A); // not translated
+            return true;
+        }
     }
 }

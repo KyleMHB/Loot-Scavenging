@@ -22,12 +22,16 @@
 	<LootScavenging_StudyWhyColonyEra>Пока нельзя изучить — поселению нужен технический уровень «{0}».</LootScavenging_StudyWhyColonyEra>
 	<LootScavenging_StudyWhyProjectEra>Нельзя изучить для «{0}», так как технический уровень технологии ({1}) выше, чем у лома ({2}).</LootScavenging_StudyWhyProjectEra>
 	<LootScavenging_StudyWhyNoGain>Сейчас нельзя изучить: скорость исследования у рассказчика равна нулю.</LootScavenging_StudyWhyNoGain>
+	<LootScavenging_StudyWhyNoBench>Сейчас нельзя изучить: на этой карте нет стола для исследований, на котором можно изучать «{0}».</LootScavenging_StudyWhyNoBench>
+	<LootScavenging_StudyWhyNotWorth>Сейчас нельзя изучить: этот предмет больше не незнакомый.</LootScavenging_StudyWhyNotWorth>
+	<LootScavenging_StudyWhyTooLittle>Сейчас нельзя изучить: для «{0}» нужно слишком мало очков, чтобы расходовать этот предмет.</LootScavenging_StudyWhyTooLittle>
+	<LootScavenging_StudyNotPaid>{PAWN_labelShort} {PAWN_gender ? вернул : вернула} {1} на место, не изучив. {2}</LootScavenging_StudyNotPaid>
 	<LootScavenging_RecycleOriginalLabel>переработать незнакомые предметы</LootScavenging_RecycleOriginalLabel>
 	<LootScavenging_RecycleOriginalJob>Перерабатывает незнакомый предмет.</LootScavenging_RecycleOriginalJob>
 	<LootScavenging_RecycleOriginalDescription>Разобрать один незнакомый предмет так, будто это лом, которым он стал бы: выход тот же. Отметьте предметы, которые не жалко израсходовать; по умолчанию ни один не отмечен.</LootScavenging_RecycleOriginalDescription>
 	<LootScavenging_StudyOriginalLabel>изучить незнакомые предметы</LootScavenging_StudyOriginalLabel>
 	<LootScavenging_StudyOriginalJob>Изучает незнакомый предмет.</LootScavenging_StudyOriginalJob>
-	<LootScavenging_StudyOriginalDescription>Изучить один незнакомый предмет ради очков исследования так, будто это лом, которым он стал бы: очков столько же. Отметьте предметы, которые не жалко израсходовать; по умолчанию ни один не отмечен.</LootScavenging_StudyOriginalDescription>
+	<LootScavenging_StudyOriginalDescription>Изучить один незнакомый предмет ради очков исследования так, будто это лом, которым он стал бы: очков столько же. Отметьте предметы, которые не жалко израсходовать; по умолчанию ни один не отмечен. Предмет остаётся нетронутым, если проекту нужно меньше половины его ценности.</LootScavenging_StudyOriginalDescription>
 	<LootScavenging_StudyDone>{PAWN_labelShort} {PAWN_gender ? завершил : завершила} изучение — {2} ({1} шт.). Очки исследования для «{4}»: +{3}.</LootScavenging_StudyDone>
 	<LootScavenging_SectionPresets>Пресеты</LootScavenging_SectionPresets>
 	<LootScavenging_PresetActive>Текущий пресет: {0}</LootScavenging_PresetActive>

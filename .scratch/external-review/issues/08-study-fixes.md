@@ -1,6 +1,6 @@
 # 08: Study fixes
 
-Status: ready-for-agent
+Status: done
 
 **Recommended model:** `sonnet`
 

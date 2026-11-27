@@ -10,12 +10,16 @@ namespace LootScavenging;
 /// <summary>What one thing is worth at the research bench.</summary>
 public readonly struct StudyWorth
 {
-    public StudyWorth(ScrapTier tier, int unitsPerThing, float pointsPerUnit)
+    public StudyWorth(ScrapTier tier, int unitsPerThing, float pointsPerUnit, bool whole = false)
     {
         Tier = tier;
         UnitsPerThing = unitsPerThing;
         PointsPerUnit = pointsPerUnit;
+        Whole = whole;
     }
+
+    /// <summary>The thing cannot be split: an unfamiliar original item is used up whole or not at all.</summary>
+    public bool Whole { get; }
 
     public ScrapTier Tier { get; }
 
@@ -46,7 +50,7 @@ public static class ScrapStudy
         if (!ScrapEquivalent.TryGet(thing, out ScrapTier tier, out int units)
             || !TryGetWorth(ScrapDefs.For(tier), out StudyWorth perUnit))
             return false;
-        worth = new StudyWorth(tier, units, perUnit.PointsPerUnit);
+        worth = new StudyWorth(tier, units, perUnit.PointsPerUnit, whole: true);
         return true;
     }
 
@@ -108,19 +112,45 @@ public static class ScrapStudy
     /// <summary>The storyteller's research factor. Only ever multiplied (Model/Study.cs), never divided by.</summary>
     public static float ResearchFactor => Find.Storyteller?.difficulty?.researchSpeedFactor ?? 1f;
 
+    /// <summary>
+    /// What a point of study is multiplied by for a project: the storyteller's factor, divided by the project's cost factor for
+    /// the player's faction, as bench research does (<c>ResearchManager.ResearchPerformed</c>). Without a project, only the
+    /// storyteller's factor.
+    /// </summary>
+    public static float FactorFor(ResearchProjectDef project)
+    {
+        float factor = ResearchFactor;
+        if (project != null && Faction.OfPlayerSilentFail != null)
+        {
+            float cost = project.CostFactor(Faction.OfPlayer.def.techLevel);
+            if (cost > 0f)
+                factor /= cost;
+        }
+        return factor;
+    }
+
     public static StudyVerdict Verdict(StudyWorth worth, ResearchProjectDef project)
     {
         LootScavengingSettings s = LootScavengingMod.Settings;
         return StudyRules.Check(worth.Tier, EraReader.ColonyEra(), FactsOf(project), s.values.studyTechprintProjects,
-            worth.PointsPerUnit, ResearchFactor);
+            worth.PointsPerUnit, FactorFor(project));
     }
 
-    public static float PaidPerUnit(StudyWorth worth) => StudyRules.PaidPerUnit(worth.PointsPerUnit, ResearchFactor);
+    /// <summary>Research-tab points one unit pays toward the project (the project may be null).</summary>
+    public static float PaidPerUnit(StudyWorth worth, ResearchProjectDef project) =>
+        StudyRules.PaidPerUnit(worth.PointsPerUnit, FactorFor(project));
 
     public static float Payable(ResearchProjectDef project) =>
         StudyRules.Payable(FactsOf(project), LootScavengingMod.Settings.values.studyTechprintProjects);
 
     /// <summary>What an iteration with these things studies now: things used, points and work (see StudyRules.Plan).</summary>
-    public static StudyPlan Plan(StudyWorth worth, int things, int maxThings, ResearchProjectDef project) =>
-        StudyRules.Plan(things, worth.UnitsPerThing, maxThings, PaidPerUnit(worth), project == null ? 0f : Payable(project));
+    public static StudyPlan Plan(StudyWorth worth, int things, int maxThings, ResearchProjectDef project)
+    {
+        float payable = project == null ? 0f : Payable(project);
+        float paidPerUnit = PaidPerUnit(worth, project);
+        // An original item cannot be split, so it is left unused when the project needs only a small share of its worth.
+        if (worth.Whole && !StudyRules.WorthUsingWhole(payable, paidPerUnit * Math.Max(1, worth.UnitsPerThing)))
+            return StudyRules.Plan(0, worth.UnitsPerThing, maxThings, paidPerUnit, payable);
+        return StudyRules.Plan(things, worth.UnitsPerThing, maxThings, paidPerUnit, payable);
+    }
 }

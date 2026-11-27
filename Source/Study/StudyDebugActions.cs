@@ -37,7 +37,7 @@ internal static class StudyDebugActions
         foreach (ScrapTier tier in (ScrapTier[])Enum.GetValues(typeof(ScrapTier)))
         {
             if (ScrapStudy.TryGetWorth(ScrapDefs.For(tier), out StudyWorth worth))
-                Log.Message($"[Loot Scavenging]   {tier}: {ScrapStudy.Verdict(worth, project)}, {ScrapStudy.PaidPerUnit(worth)} points per unit"); // not translated
+                Log.Message($"[Loot Scavenging]   {tier}: {ScrapStudy.Verdict(worth, project)}, {ScrapStudy.PaidPerUnit(worth, project)} points per unit"); // not translated
         }
     }
 

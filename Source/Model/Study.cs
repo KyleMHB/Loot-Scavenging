@@ -86,6 +86,16 @@ public static class StudyRules
     public const float PointsPerBatch = 100f;
 
     /// <summary>
+    /// An unfamiliar original item is used whole, so it is studied only when the project can still take at least this share of
+    /// its worth. Said in the bill's text.
+    /// </summary>
+    public const float MinShareOfWholeItem = 0.5f;
+
+    /// <summary>Whether a thing that cannot be split is worth using up for a project that can take <paramref name="payable"/> more points.</summary>
+    public static bool WorthUsingWhole(float payable, float itemWorth) =>
+        IsUsable(payable) && IsUsable(itemWorth) && payable >= itemWorth * MinShareOfWholeItem;
+
+    /// <summary>
     /// The era a tier is compared as: its nominal era. Spacer scrap compares as Spacer, so it does not pay into Ultra
     /// projects; neolithic scrap also covers Animal-era gear.
     /// </summary>
