@@ -1,6 +1,6 @@
 # 02: Drop from a dead colonist's Gear tab
 
-Status: ready-for-agent
+Status: done
 
 **Recommended model:** `sonnet`
 

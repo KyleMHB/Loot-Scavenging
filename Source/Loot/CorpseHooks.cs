@@ -194,3 +194,29 @@ internal static class ButcherStripHook
     }
 
 }
+
+// A dead colonist's Gear tab shows a drop button on each inventory row, and the game drops at the pawn's own map, which
+// is null inside a corpse: "Dropped X in a null map" and nothing moves. A colonist's weapon and pack stay on the body by
+// default, so the button is common. It drops beside the corpse instead, unforbidden like the game's own Gear tab drop.
+[HarmonyPatch(typeof(ITab_Pawn_Gear), "InterfaceDrop")]
+internal static class GearTabCorpseDropHook
+{
+    private static bool Prefix(Thing t)
+    {
+        try
+        {
+            if (t == null || t.def.destroyOnDrop || t.ParentHolder is not Pawn_InventoryTracker inventory || !inventory.pawn.Dead)
+                return true;
+            Corpse corpse = inventory.pawn.Corpse;
+            if (corpse == null || !corpse.Spawned)
+                return true;
+            inventory.innerContainer.TryDrop(t, corpse.Position, corpse.Map, ThingPlaceMode.Near, out Thing _);
+            return false;
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[Loot Scavenging] Dropping {t} from a dead pawn's Gear tab failed: {e}"); // not translated
+            return true;
+        }
+    }
+}
