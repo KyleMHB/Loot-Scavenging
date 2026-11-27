@@ -33,7 +33,7 @@
     <label>studied neolithic scrap</label>
     <description>Neolithic scrap that has already been studied. It can only be recycled, for less than unstudied scrap.</description>
     <graphicData>
-      <texPath>Things/Item/Scrap/Neolithic</texPath>
+      <texPath>Things/Item/LootScavenging/Scrap/Neolithic</texPath>
       <graphicClass>Graphic_StackCount</graphicClass>
       <color>(0.62, 0.62, 0.62)</color>
     </graphicData>
@@ -44,7 +44,7 @@
     <label>studied medieval scrap</label>
     <description>Medieval scrap that has already been studied. It can only be recycled, for less than unstudied scrap.</description>
     <graphicData>
-      <texPath>Things/Item/Scrap/Medieval</texPath>
+      <texPath>Things/Item/LootScavenging/Scrap/Medieval</texPath>
       <graphicClass>Graphic_StackCount</graphicClass>
       <color>(0.62, 0.62, 0.62)</color>
     </graphicData>
@@ -55,7 +55,7 @@
     <label>studied industrial scrap</label>
     <description>Industrial scrap that has already been studied. It can only be recycled, for less than unstudied scrap.</description>
     <graphicData>
-      <texPath>Things/Item/Scrap/Industrial</texPath>
+      <texPath>Things/Item/LootScavenging/Scrap/Industrial</texPath>
       <graphicClass>Graphic_StackCount</graphicClass>
       <color>(0.62, 0.62, 0.62)</color>
     </graphicData>
@@ -66,7 +66,7 @@
     <label>studied spacer scrap</label>
     <description>Spacer scrap that has already been studied. It can only be recycled, for less than unstudied scrap.</description>
     <graphicData>
-      <texPath>Things/Item/Scrap/Spacer</texPath>
+      <texPath>Things/Item/LootScavenging/Scrap/Spacer</texPath>
       <graphicClass>Graphic_StackCount</graphicClass>
       <color>(0.62, 0.62, 0.62)</color>
     </graphicData>
@@ -77,7 +77,7 @@
     <label>studied ultratech scrap</label>
     <description>Ultratech scrap that has already been studied. It can only be recycled, for less than unstudied scrap.</description>
     <graphicData>
-      <texPath>Things/Item/Scrap/Ultratech</texPath>
+      <texPath>Things/Item/LootScavenging/Scrap/Ultratech</texPath>
       <graphicClass>Graphic_StackCount</graphicClass>
       <color>(0.62, 0.62, 0.62)</color>
     </graphicData>
@@ -88,7 +88,7 @@
     <label>studied archotech scrap</label>
     <description>Archotech scrap that has already been studied. It can only be recycled, for less than unstudied scrap.</description>
     <graphicData>
-      <texPath>Things/Item/Scrap/Archotech</texPath>
+      <texPath>Things/Item/LootScavenging/Scrap/Archotech</texPath>
       <graphicClass>Graphic_StackCount</graphicClass>
       <color>(0.62, 0.62, 0.62)</color>
     </graphicData>
