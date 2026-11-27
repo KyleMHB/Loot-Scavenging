@@ -35,6 +35,7 @@ public class SettingKeysTests
             ["colonistsKeepGear"] = "colonistsKeepGear",
             ["hostilesKeepGear"] = "hostilesKeepGear",
             ["nonHostilesKeepGear"] = "nonHostilesKeepGear",
+            ["cremationStripsCorpses"] = "cremationStripsCorpses",
             ["scrapMarketValueNeolithic"] = "scrapMarketValueNeolithic",
             ["scrapMarketValueMedieval"] = "scrapMarketValueMedieval",
             ["scrapMarketValueIndustrial"] = "scrapMarketValueIndustrial",

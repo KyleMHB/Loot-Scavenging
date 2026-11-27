@@ -138,6 +138,7 @@ public static class SettingNames
     public const string ColonistsKeepGear = "colonistsKeepGear"; // not translated
     public const string HostilesKeepGear = "hostilesKeepGear"; // not translated
     public const string NonHostilesKeepGear = "nonHostilesKeepGear"; // not translated
+    public const string CremationStripsCorpses = "cremationStripsCorpses"; // not translated
     public const string DisassemblyYield = "rules.disassemblyYield"; // not translated
     public const string DisassemblyEfficiency = "rules.disassemblyEfficiency"; // not translated
     public const string CorpseHumanlike = "corpses.humanlike"; // not translated

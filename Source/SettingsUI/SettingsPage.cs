@@ -184,6 +184,8 @@ internal sealed class SettingsPage
             "LootScavenging_HostilesKeepGearOn".Translate(), "LootScavenging_HostilesKeepGearOff".Translate(), SettingNames.HostilesKeepGear);
         Toggle(ls, "LootScavenging_NonHostilesKeepGear".Translate(), ref v.nonHostilesKeepGear,
             "LootScavenging_NonHostilesKeepGearOn".Translate(), "LootScavenging_NonHostilesKeepGearOff".Translate(), SettingNames.NonHostilesKeepGear);
+        Toggle(ls, "LootScavenging_CremationStripsCorpses".Translate(), ref v.cremationStripsCorpses,
+            "LootScavenging_CremationStripsCorpsesOn".Translate(), "LootScavenging_CremationStripsCorpsesOff".Translate(), SettingNames.CremationStripsCorpses);
         Explain(ls, "LootScavenging_KeepGearExplain".Translate());
     }
 

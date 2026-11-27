@@ -163,6 +163,7 @@ Vanilla uses "study" for Anomaly's entity study. This mod's study is the same ac
 | setting / settings | 设置 | настройка / настройки |
 | the base game | 原版游戏 | базовая игра |
 | cremated | 火化 | кремирован |
+| crematorium | 火化炉 | крематорий |
 | disassembly efficiency | 拆解效率 | эффективность разборки |
 | follows the item rules | 遵循物品规则 | подчиняется правилам для предметов |
 | drops whole | 完整掉落 | выпадает целым |

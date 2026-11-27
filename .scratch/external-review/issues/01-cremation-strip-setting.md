@@ -1,6 +1,6 @@
 # 01: Setting: strip corpses when cremating
 
-Status: ready-for-agent
+Status: done
 
 **Recommended model:** `opus`: a new saved setting must load cleanly from saves and settings files without it, and its lock and presets must follow the existing pattern.
 

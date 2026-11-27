@@ -159,12 +159,12 @@
 	<LootScavenging_ColonistsKeepGearOff>倒地或死亡的殖民者会掉落武器和随身物品，与原版游戏相同。殖民地的装备永远不会经过物品规则。</LootScavenging_ColonistsKeepGearOff>
 	<LootScavenging_SectionKeepGear>装备留在身上</LootScavenging_SectionKeepGear>
 	<LootScavenging_HostilesKeepGear>敌对角色</LootScavenging_HostilesKeepGear>
-	<LootScavenging_HostilesKeepGearOn>倒地的敌对角色即使被搬运，也会手持武器并保留随身物品；死亡的则把所有东西留在尸体上，直到尸体被剥光、屠宰或火化。</LootScavenging_HostilesKeepGearOn>
+	<LootScavenging_HostilesKeepGearOn>倒地的敌对角色即使被搬运，也会手持武器并保留随身物品；死亡的则把所有东西留在尸体上，直到尸体被剥光或屠宰。</LootScavenging_HostilesKeepGearOn>
 	<LootScavenging_HostilesKeepGearOff>倒地或死亡的敌对角色会像原版游戏那样丢下武器和随身物品，掉落的物品在掉落时遵循物品规则。</LootScavenging_HostilesKeepGearOff>
 	<LootScavenging_NonHostilesKeepGear>非敌对角色和野人</LootScavenging_NonHostilesKeepGear>
 	<LootScavenging_NonHostilesKeepGearOn>非敌对派系的角色和野人：倒地者手持武器并保留随身物品，死者把所有东西留在尸体上。</LootScavenging_NonHostilesKeepGearOn>
 	<LootScavenging_NonHostilesKeepGearOff>倒地或死亡的非敌对角色或野人会像原版游戏那样丢下武器和随身物品，掉落的物品在掉落时遵循物品规则。</LootScavenging_NonHostilesKeepGearOff>
-	<LootScavenging_KeepGearExplain>这些勾选框决定装备落在哪里；下方「对象」各行决定其是否遵循物品规则。机械族等无法被剥光的角色仍会掉在地上。</LootScavenging_KeepGearExplain>
+	<LootScavenging_KeepGearExplain>这些勾选框决定装备落在哪里；下方「对象」各行决定其是否遵循物品规则。尸体被毁时，留在尸体上的装备会一并失去。只有勾选上方的选项，火化才会先剥光尸体。机械族等无法被剥光的角色仍会掉在地上。</LootScavenging_KeepGearExplain>
 	<LootScavenging_WhoApply>应用物品规则</LootScavenging_WhoApply>
 	<LootScavenging_WhoExclude>不受影响</LootScavenging_WhoExclude>
 	<LootScavenging_WhoMark>标记为陌生</LootScavenging_WhoMark>
@@ -196,4 +196,7 @@
 	<LootScavenging_ScrapValuePerTierExplain>库存中的废料会计入殖民地财富，并可按此价值出售。价值较低可避免库存拉高殖民地财富。</LootScavenging_ScrapValuePerTierExplain>
 	<LootScavenging_SectionOther>其他</LootScavenging_SectionOther>
 	<LootScavenging_ButcherExplain>屠宰人类尸体时会先将其剥光，剥下的物品按其所属群体那一行的物品规则处理。设为「不受影响」的群体的尸体或殖民者的尸体，按原版游戏的方式屠宰。</LootScavenging_ButcherExplain>
+	<LootScavenging_CremationStripsCorpses>火化前剥光尸体</LootScavenging_CremationStripsCorpses>
+	<LootScavenging_CremationStripsCorpsesOn>火化清单会先剥光尸体。尸体上保留的装备掉在火化炉旁，并像屠宰清单那样遵循物品规则。</LootScavenging_CremationStripsCorpsesOn>
+	<LootScavenging_CremationStripsCorpsesOff>火化清单会把尸体连同身上的所有东西一起烧掉，与原版游戏相同。</LootScavenging_CremationStripsCorpsesOff>
 </LanguageData>

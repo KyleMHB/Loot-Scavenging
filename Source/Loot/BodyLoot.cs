@@ -9,8 +9,8 @@ namespace LootScavenging.Loot;
 /// <summary>
 /// "Don't drop your stuff" (ticket 25, decision 2): three boxes, for colonists, hostiles and everyone else, choose whether a
 /// pawn keeps his gear on him. Pawn.Kill drops the weapon and inventory beside the corpse, so what should stay is taken off
-/// the pawn before that drop and put back into the dead pawn's inventory after it, where stripping, butchering or cremating
-/// the corpse finds it. A downed pawn under his box drops nothing: he keeps his weapon in hand and his pack, unjudged, as the
+/// the pawn before that drop and put back into the dead pawn's inventory after it, where stripping or butchering the corpse
+/// finds it (cremating too, with cremationStripsCorpses on; otherwise it burns with the body). A downed pawn under his box drops nothing: he keeps his weapon in hand and his pack, unjudged, as the
 /// game does for a pawn downed in a bed. The boxes choose where items land, the Who rows whether they are sorted: a covered
 /// non-colony pawn's gear is still sorted at his death, and what the rules kept stays on the body with its scrap. A
 /// colonist's gear is never sorted.

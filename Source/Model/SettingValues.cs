@@ -29,6 +29,10 @@ public sealed class SettingValues
     // The same for non-hostile faction pawns and pawns with no faction.
     public bool nonHostilesKeepGear = true;
 
+    // Kept gear goes with the body when the corpse is destroyed (spec decision 5). On, a cremation bill strips the corpse
+    // first, so the gear drops and is judged as at a butcher bill's strip. Off burns it, as in 0.6.0 and the base game.
+    public bool cremationStripsCorpses;
+
     public UnfamiliarScope unfamiliarScope = UnfamiliarScope.AllOutOfReach;
 
     public RecycleOrStudy recycleOrStudy = RecycleOrStudy.OneOrTheOther;

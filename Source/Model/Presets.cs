@@ -94,7 +94,8 @@ public static class Presets
 
     // Cleanup: hostile pawns only, and no era handling. Weapons below Normal, apparel below Good, and either below 50% hit
     // points are deleted, and so is all ammunition; everything else is left as in the game. Every hostile humanlike corpse is
-    // removed. The "Don't drop your stuff" boxes are not in the presets table, so they keep the Progression value.
+    // removed. The "Don't drop your stuff" boxes and the cremation strip are not in the presets table, so they keep the
+    // Progression value.
     private static void Cleanup(SettingValues v)
     {
         ResetBehaviour(v);
@@ -112,6 +113,7 @@ public static class Presets
         v.colonistsKeepGear = false;
         v.hostilesKeepGear = false;
         v.nonHostilesKeepGear = false;
+        v.cremationStripsCorpses = false;
     }
 
     // The compiled-in defaults: everything the table does not name, written out so they never depend on class initialisers.
@@ -136,6 +138,7 @@ public static class Presets
         v.colonistsKeepGear = true;
         v.hostilesKeepGear = true;
         v.nonHostilesKeepGear = true;
+        v.cremationStripsCorpses = false;
         v.unfamiliarScope = UnfamiliarScope.AllOutOfReach;
         v.recycleOrStudy = RecycleOrStudy.OneOrTheOther;
         v.studyTechprintProjects = false;

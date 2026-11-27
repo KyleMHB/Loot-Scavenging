@@ -25,6 +25,7 @@
 
          Don't drop your stuff (true keeps a downed pawn's weapon in hand and a dead pawn's loot on the body)
            colonistsKeepGear, hostilesKeepGear, nonHostilesKeepGear: true, false
+           cremationStripsCorpses: true, false (true strips a corpse before a cremation bill burns it)
          Who (one row per group of pawns)
            whoHostile, whoNonHostile, whoWild, whoPrisoners, whoRecruitedPrisoners, whoOtherJoiners:
              Apply, Exclude (shown as Leave alone), Mark (shown as Mark unfamiliar)

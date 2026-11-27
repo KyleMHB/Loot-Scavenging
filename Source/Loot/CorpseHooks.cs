@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using LootScavenging.Model;
 using RimWorld;
@@ -86,6 +87,9 @@ internal static class CorpseRemovalHook
 // A butcher bill strips the corpse of its apparel while it gathers its ingredients (autoStripCorpses). Marking that
 // window tells the Strip patch below apart from a player's strip job and from any other strip. Butchering a humanlike
 // corpse strips it and sorts what comes off under the owner's Who row (ticket 25, decision 6).
+// A cremation bill has autoStripCorpses off, so the corpse burns with the gear kept on it (external review, decision 5).
+// With "Strip corpses before cremating" on, the postfix strips each corpse ingredient where the game's own loop would,
+// inside the same window, so the gear drops by the crematorium and is judged as at a butcher strip.
 [HarmonyPatch(typeof(Toils_Recipe), "CalculateIngredients")]
 internal static class ButcherIngredientsHook
 {
@@ -93,9 +97,31 @@ internal static class ButcherIngredientsHook
 
     private static void Prefix(Job job, out bool __state)
     {
-        __state = job?.RecipeDef?.specialProducts != null && job.RecipeDef.specialProducts.Contains(SpecialProductType.Butchery);
+        RecipeDef recipe = job?.RecipeDef;
+        __state = recipe != null && (recipe.specialProducts != null && recipe.specialProducts.Contains(SpecialProductType.Butchery)
+            || StripsBeforeBurning(recipe));
         if (__state)
             Depth++;
+    }
+
+    // Harmony runs postfixes before the finalizer, so the window is still open here.
+    private static void Postfix(Job job, List<Thing> __result, bool __state)
+    {
+        if (!__state || __result == null || !StripsBeforeBurning(job.RecipeDef))
+            return;
+        foreach (Thing thing in __result)
+        {
+            if (thing is not Corpse corpse || !corpse.AnythingToStrip())
+                continue;
+            try
+            {
+                corpse.Strip();
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Loot Scavenging] Stripping {corpse} before cremation failed: {e}"); // not translated
+            }
+        }
     }
 
     private static void Finalizer(bool __state)
@@ -103,6 +129,10 @@ internal static class ButcherIngredientsHook
         if (__state)
             Depth--;
     }
+
+    // The game strips a corpse ingredient only when the recipe asks (autoStripCorpses); cremation does not.
+    private static bool StripsBeforeBurning(RecipeDef recipe) =>
+        !recipe.autoStripCorpses && LootScavengingMod.Settings.values.cremationStripsCorpses;
 }
 
 [HarmonyPatch(typeof(Pawn), nameof(Pawn.Strip))]
@@ -122,7 +152,7 @@ internal static class ButcherStripHook
             if (!CorpseEvaluator.ButcherSorts(owner, mapKind, LootScavengingMod.Settings.values.rules))
                 return;
             if (Prefs.DevMode)
-                Log.Message($"[Loot Scavenging] Butchering the corpse of {__instance}: sorting its apparel and inventory"); // not translated
+                Log.Message($"[Loot Scavenging] A bill stripping the corpse of {__instance}: sorting its apparel and inventory"); // not translated
             // The weapon was dropped at death. Inventory left on the body at death is judged here, under the same rules.
             SortedDrop.Enter(__instance);
             __state = true;
@@ -130,7 +160,7 @@ internal static class ButcherStripHook
         }
         catch (Exception e)
         {
-            Log.Error($"[Loot Scavenging] Sorting the gear of butchered {__instance} failed: {e}"); // not translated
+            Log.Error($"[Loot Scavenging] Sorting the gear of {__instance} stripped by a bill failed: {e}"); // not translated
         }
     }
 

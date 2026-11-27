@@ -159,12 +159,12 @@
 	<LootScavenging_ColonistsKeepGearOff>Обездвиженный или погибший поселенец роняет оружие и инвентарь, как в базовой игре. Снаряжение поселения никогда не подчиняется правилам для предметов.</LootScavenging_ColonistsKeepGearOff>
 	<LootScavenging_SectionKeepGear>Снаряжение остаётся на теле</LootScavenging_SectionKeepGear>
 	<LootScavenging_HostilesKeepGear>Враги</LootScavenging_HostilesKeepGear>
-	<LootScavenging_HostilesKeepGearOn>Обездвиженный враг сохраняет оружие в руках и инвентарь, в том числе когда его несут. Убитый сохраняет всё на теле, пока труп не раздет, не разделан и не кремирован.</LootScavenging_HostilesKeepGearOn>
+	<LootScavenging_HostilesKeepGearOn>Обездвиженный враг сохраняет оружие в руках и инвентарь, в том числе когда его несут. Убитый сохраняет всё на теле, пока труп не раздет или не разделан.</LootScavenging_HostilesKeepGearOn>
 	<LootScavenging_HostilesKeepGearOff>Обездвиженный или убитый враг роняет оружие и инвентарь, как в базовой игре, а выпавшее в момент выпадения подчиняется правилам для предметов.</LootScavenging_HostilesKeepGearOff>
 	<LootScavenging_NonHostilesKeepGear>Невраждебные и одичалые</LootScavenging_NonHostilesKeepGear>
 	<LootScavenging_NonHostilesKeepGearOn>Персонажи невраждебных фракций и одичалые: обездвиженный сохраняет оружие в руках и инвентарь, убитый — всё на теле.</LootScavenging_NonHostilesKeepGearOn>
 	<LootScavenging_NonHostilesKeepGearOff>Обездвиженный или убитый невраждебный или одичалый персонаж роняет оружие и инвентарь, как в базовой игре, а выпавшее в момент выпадения подчиняется правилам для предметов.</LootScavenging_NonHostilesKeepGearOff>
-	<LootScavenging_KeepGearExplain>Эти флажки определяют, где окажется снаряжение; строки «Кого касается» ниже — подчиняется ли оно правилам для предметов. Механоиды и другие персонажи, которых нельзя раздеть, всё равно роняют вещи на землю.</LootScavenging_KeepGearExplain>
+	<LootScavenging_KeepGearExplain>Эти флажки определяют, где окажется снаряжение; строки «Кого касается» ниже — подчиняется ли оно правилам для предметов. Снаряжение, оставленное на теле, теряется, если тело уничтожено. Кремация сначала раздевает труп, только если отмечен флажок выше. Механоиды и другие персонажи, которых нельзя раздеть, всё равно роняют вещи на землю.</LootScavenging_KeepGearExplain>
 	<LootScavenging_WhoApply>Применять правила для предметов</LootScavenging_WhoApply>
 	<LootScavenging_WhoExclude>Не трогать</LootScavenging_WhoExclude>
 	<LootScavenging_WhoMark>Помечать как незнакомое</LootScavenging_WhoMark>
@@ -196,4 +196,7 @@
 	<LootScavenging_ScrapValuePerTierExplain>Лом на складе учитывается в богатстве поселения и продаётся по этой цене. Низкая стоимость не даёт запасу лома повышать богатство поселения.</LootScavenging_ScrapValuePerTierExplain>
 	<LootScavenging_SectionOther>Прочее</LootScavenging_SectionOther>
 	<LootScavenging_ButcherExplain>При разделке трупа человека его сначала раздевают, а снятое подчиняется правилам для предметов из строки его владельца. Труп из группы с выбором «Не трогать» или труп поселенца разделывается, как в базовой игре.</LootScavenging_ButcherExplain>
+	<LootScavenging_CremationStripsCorpses>Раздевать трупы перед кремацией</LootScavenging_CremationStripsCorpses>
+	<LootScavenging_CremationStripsCorpsesOn>Задание кремации сначала раздевает труп. Сохранённое на нём снаряжение падает у крематория и подчиняется правилам для предметов, как при задании разделки.</LootScavenging_CremationStripsCorpsesOn>
+	<LootScavenging_CremationStripsCorpsesOff>Задание кремации сжигает труп вместе со всем, что на нём, как в базовой игре.</LootScavenging_CremationStripsCorpsesOff>
 </LanguageData>

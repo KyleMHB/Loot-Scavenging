@@ -63,12 +63,15 @@
   <LootScavenging_ColonistsKeepGearOn>A downed colonist or colony slave keeps their weapon in hand and their inventory, also when carried, rescued or loaded from a save. A dead one keeps them on the body. Colony gear never goes through the item rules.</LootScavenging_ColonistsKeepGearOn>
   <LootScavenging_ColonistsKeepGearOff>A downed or dead colonist drops their weapon and inventory, as in the base game. Colony gear never goes through the item rules.</LootScavenging_ColonistsKeepGearOff>
   <LootScavenging_HostilesKeepGear>Hostiles</LootScavenging_HostilesKeepGear>
-  <LootScavenging_HostilesKeepGearOn>A downed hostile keeps their weapon in hand and their inventory, also when carried. A dead one keeps everything on the body until the corpse is stripped, butchered or cremated.</LootScavenging_HostilesKeepGearOn>
+  <LootScavenging_HostilesKeepGearOn>A downed hostile keeps their weapon in hand and their inventory, also when carried. A dead one keeps everything on the body until the corpse is stripped or butchered.</LootScavenging_HostilesKeepGearOn>
   <LootScavenging_HostilesKeepGearOff>A downed or dead hostile drops their weapon and inventory, as in the base game, and what drops follows the item rules as it drops.</LootScavenging_HostilesKeepGearOff>
   <LootScavenging_NonHostilesKeepGear>Non-hostiles and wild people</LootScavenging_NonHostilesKeepGear>
   <LootScavenging_NonHostilesKeepGearOn>Pawns of non-hostile factions and wild people: a downed one keeps their weapon in hand and their inventory, and a dead one keeps everything on the body.</LootScavenging_NonHostilesKeepGearOn>
   <LootScavenging_NonHostilesKeepGearOff>A downed or dead non-hostile or wild pawn drops their weapon and inventory, as in the base game, and what drops follows the item rules as it drops.</LootScavenging_NonHostilesKeepGearOff>
-  <LootScavenging_KeepGearExplain>These boxes choose where gear lands; the Who rows below choose whether it follows the item rules. Mechanoids and other pawns that cannot be stripped still drop on the ground.</LootScavenging_KeepGearExplain>
+  <LootScavenging_CremationStripsCorpses>Strip corpses before cremating</LootScavenging_CremationStripsCorpses>
+  <LootScavenging_CremationStripsCorpsesOn>A cremation bill strips the corpse first. The gear kept on it drops by the crematorium and follows the item rules, as at a butcher bill.</LootScavenging_CremationStripsCorpsesOn>
+  <LootScavenging_CremationStripsCorpsesOff>A cremation bill burns the corpse with everything on it, as in the base game.</LootScavenging_CremationStripsCorpsesOff>
+  <LootScavenging_KeepGearExplain>These boxes choose where gear lands; the Who rows below choose whether it follows the item rules. Gear kept on a body is lost if the body is destroyed. Cremation strips it first only with the box above ticked. Mechanoids and other pawns that cannot be stripped still drop on the ground.</LootScavenging_KeepGearExplain>
   <!-- Settings page: who. Each row has an Apply and a Leave alone sentence; Mark uses WhoMarkExplain or WhoJoinMarkExplain. -->
   <LootScavenging_WhoApply>Apply item rules</LootScavenging_WhoApply>
   <LootScavenging_WhoExclude>Leave alone</LootScavenging_WhoExclude>

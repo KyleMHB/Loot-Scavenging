@@ -295,14 +295,15 @@ public class SettingsLoadTests
     }
 
     // The keys a 0.5.2 save holds that 0.6.0 still reads: every category rule, the corpse toggles, the study settings and
-    // the colonist box. The Who rows, the two new boxes and the per-tier market values are new, so it never holds them.
+    // the colonist box. The Who rows, the two new boxes, the cremation strip and the per-tier market values are new, so it never holds them.
     private static HashSet<string> OldFileKeys()
     {
         var keys = new HashSet<string> { "activePreset", "defaultsSeeded" };
         foreach (SettingKey key in SettingKeys.All)
         {
             bool isNew = key.Path.StartsWith("rules.who") || key.Path == SettingNames.HostilesKeepGear
-                || key.Path == SettingNames.NonHostilesKeepGear || key.Path.StartsWith("scrapMarketValue");
+                || key.Path == SettingNames.NonHostilesKeepGear || key.Path == SettingNames.CremationStripsCorpses
+                || key.Path.StartsWith("scrapMarketValue");
             if (!isNew)
                 keys.Add(key.Key);
         }

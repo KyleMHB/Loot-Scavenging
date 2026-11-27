@@ -18,7 +18,7 @@
        rules.whoPrisoners, rules.whoRecruitedPrisoners, rules.whoOtherJoiners, rules.homeMapOnly, rules.weapons,
        rules.apparel, rules.ammunition, rules.drugs, rules.medicine, rules.food, rules.other, rules.disassemblyYield,
        rules.disassemblyEfficiency, corpses.humanlike, corpses.animal, corpses.mechanoid, colonistsKeepGear,
-       hostilesKeepGear, nonHostilesKeepGear, unfamiliarScope, recycleOrStudy, studyTechprintProjects,
+       hostilesKeepGear, nonHostilesKeepGear, cremationStripsCorpses, unfamiliarScope, recycleOrStudy, studyTechprintProjects,
        studyPointsNeolithic, studyPointsMedieval, studyPointsIndustrial, studyPointsSpacer, studyPointsUltra,
        studyPointsArchotech, scrapMarketValueNeolithic, scrapMarketValueMedieval, scrapMarketValueIndustrial,
        scrapMarketValueSpacer, scrapMarketValueUltra, scrapMarketValueArchotech.
@@ -141,6 +141,7 @@
       <colonistsKeepGear>true</colonistsKeepGear>
       <hostilesKeepGear>true</hostilesKeepGear>
       <nonHostilesKeepGear>true</nonHostilesKeepGear>
+      <cremationStripsCorpses>false</cremationStripsCorpses>
       <unfamiliarScope>AllOutOfReach</unfamiliarScope>
       <recycleOrStudy>OneOrTheOther</recycleOrStudy>
       <studyTechprintProjects>false</studyTechprintProjects>

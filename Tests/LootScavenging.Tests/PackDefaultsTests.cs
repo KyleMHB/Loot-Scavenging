@@ -175,6 +175,7 @@ public class PackDefaultsTests
         {
             "rules.whoHostile", "rules.whoNonHostile", "rules.whoWild", "rules.whoPrisoners", "rules.whoRecruitedPrisoners",
             "rules.whoOtherJoiners", "rules.homeMapOnly", "colonistsKeepGear", "hostilesKeepGear", "nonHostilesKeepGear",
+            "cremationStripsCorpses",
             "rules.weapons", "rules.apparel", "rules.ammunition", "rules.drugs", "rules.medicine", "rules.food", "rules.other",
             "rules.disassemblyYield", "rules.disassemblyEfficiency",
             "corpses.humanlike", "corpses.animal", "corpses.mechanoid",
