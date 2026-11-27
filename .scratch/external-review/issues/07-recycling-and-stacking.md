@@ -1,6 +1,6 @@
 # 07: Recycling and stacking
 
-Status: ready-for-agent
+Status: done
 
 **Recommended model:** `sonnet`
 
