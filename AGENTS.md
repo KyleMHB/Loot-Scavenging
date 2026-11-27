@@ -14,7 +14,7 @@ This mod is built from the spec and the game's own code. Looting Manager, Non un
 - `1.6/Assemblies`, `1.7/Assemblies`: build output, selected by `LoadFolders.xml`. There is no root `Assemblies/`.
 - `Defs/`, `Languages/English/Keyed/`, `Textures/`: shipped content. Scrap textures live in `Textures/Things/Item/LootScavenging/Scrap/<era>`. There is no root `Patches/` folder yet.
 - `deploy.ps1` and `DevTests/devtests.json` each list the runtime folders and files the deploy copies (LICENSE included); keep them equal.
-- `tools/`: `ls_test.py` runs the in-game tests (see TESTING.md); the `preview_*`, `render_*` and `workshop_gallery.py` scripts make Workshop media.
+- `tools/`: `ls_test.py` runs the in-game tests (see TESTING.md); `play.ps1` opens the game with a minimal mod list for playing by hand; the `preview_*`, `render_*` and `workshop_gallery.py` scripts make Workshop media.
 - `Tests/LootScavenging.Tests`: xunit tests of `Source/Model/`, run by `dotnet test`.
 - `translation/`: the translation glossary and the record of the English each translation was made from. Committed, not shipped. `Languages/ChineseSimplified` and `Languages/Russian` ship.
 - `packs/`: preset patches for packs to copy into their own `Patches/`. The game never loads this folder.
