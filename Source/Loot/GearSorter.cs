@@ -102,7 +102,7 @@ internal static class GearSorter
 
         // Every item is a whole thing here: the hooks run before the game drops anything, so a stack is judged and
         // removed as one and a stack is never split by this mod.
-        LootDecision decision = LootEvaluator.Evaluate(candidate, rules);
+        LootDecision decision = LootEvaluator.Evaluate(candidate, rules, () => Rand.Value);
         if (Prefs.DevMode)
             Log.Message($"[Loot Scavenging] {moment} of {pawn} ({owner}, {mapKind} map): {thing} -> {decision.Outcome} ({decision.Reason})"); // not translated
 

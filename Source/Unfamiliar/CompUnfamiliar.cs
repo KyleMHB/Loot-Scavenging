@@ -65,6 +65,10 @@ public class CompUnfamiliar : ThingComp
 
     public override string CompInspectStringExtra()
     {
-        return Unfamiliar.IsUnfamiliar(parent) ? "LootScavenging_UnfamiliarInspect".Translate().Resolve() : null;
+        if (!Unfamiliar.IsUnfamiliar(parent))
+            return null;
+        // Gear with no research to finish (psychic lances) waits on the colony's tech level instead.
+        string key = EraReader.HasResearchPrerequisite(parent.def) ? "LootScavenging_UnfamiliarInspect" : "LootScavenging_UnfamiliarInspectNoResearch";
+        return key.Translate().Resolve();
     }
 }

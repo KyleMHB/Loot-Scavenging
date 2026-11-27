@@ -2,6 +2,7 @@
 <LanguageData>
 	<LootScavenging_UnfamiliarLabel>{0} (незнакомая технология)</LootScavenging_UnfamiliarLabel>
 	<LootScavenging_UnfamiliarInspect>Незнакомая технология: нельзя экипировать или надеть, пока не завершено её исследование.</LootScavenging_UnfamiliarInspect>
+	<LootScavenging_UnfamiliarInspectNoResearch>Незнакомая технология: нельзя экипировать или надеть, пока колония не достигнет её технологического уровня.</LootScavenging_UnfamiliarInspectNoResearch>
 	<LootScavenging_CannotEquipUnfamiliar>незнакомая технология</LootScavenging_CannotEquipUnfamiliar>
 	<LootScavenging_RecycleLabel>переработать {0}</LootScavenging_RecycleLabel>
 	<LootScavenging_RecycleJob>Перерабатывает {0}.</LootScavenging_RecycleJob>

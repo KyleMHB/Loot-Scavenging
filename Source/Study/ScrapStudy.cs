@@ -72,9 +72,12 @@ public static class ScrapStudy
         yield return scrap;
     }
 
+    // Asked per inspect redraw, per ingredient candidate and in BillWorkPatch, so the array is built once.
+    private static readonly ScrapTier[] Tiers = (ScrapTier[])Enum.GetValues(typeof(ScrapTier));
+
     public static bool TryGetScrapTier(ThingDef def, out ScrapTier tier)
     {
-        foreach (ScrapTier t in (ScrapTier[])Enum.GetValues(typeof(ScrapTier)))
+        foreach (ScrapTier t in Tiers)
         {
             if (ScrapDefs.For(t) == def)
             {

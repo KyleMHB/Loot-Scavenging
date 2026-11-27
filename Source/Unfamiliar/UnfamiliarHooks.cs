@@ -41,5 +41,6 @@ internal static class ResearchFinishedHook
     private static void Postfix()
     {
         Unfamiliar.ResetCache();
+        EraReader.ResetColonyEraCache();
     }
 }

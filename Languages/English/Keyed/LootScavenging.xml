@@ -2,6 +2,7 @@
 <LanguageData>
   <LootScavenging_UnfamiliarLabel>{0} (unfamiliar)</LootScavenging_UnfamiliarLabel>
   <LootScavenging_UnfamiliarInspect>Unfamiliar technology: cannot be equipped or worn until its research is finished.</LootScavenging_UnfamiliarInspect>
+  <LootScavenging_UnfamiliarInspectNoResearch>Unfamiliar technology: cannot be equipped or worn until your colony reaches its tech level.</LootScavenging_UnfamiliarInspectNoResearch>
   <LootScavenging_CannotEquipUnfamiliar>unfamiliar technology</LootScavenging_CannotEquipUnfamiliar>
   <LootScavenging_RecycleLabel>recycle {0}</LootScavenging_RecycleLabel>
   <LootScavenging_RecycleJob>Recycling {0}.</LootScavenging_RecycleJob>
