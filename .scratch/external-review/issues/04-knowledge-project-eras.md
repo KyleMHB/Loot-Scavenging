@@ -1,6 +1,6 @@
 # 04: Knowledge-project and no-recipe gear eras
 
-Status: ready-for-agent
+Status: done
 
 **Recommended model:** `sonnet`
 

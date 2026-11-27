@@ -84,9 +84,22 @@ public static class EraReader
         // No carrier (the default unfamiliar scope saves none, wild men have no faction): the era of the factions that
         // typically carry it stands in. Only read by gear with no research and no tech level of its own.
         Era factionEra = carrier?.def != null ? (Era)carrier.def.techLevel : TypicalCarrierEra(def);
-        return EraRanking.Resolve(researchEra, unfinished, (Era)def.techLevel, factionEra, IsGear(def), ColonyEra());
+        EraResult result = EraRanking.Resolve(researchEra, unfinished, (Era)def.techLevel, factionEra, IsGear(def), ColonyEra());
 
+        // Every prerequisite is finished and none has a tech level: Anomaly knowledge projects, which unlock shard gear
+        // and have no era of their own. The item's own tech level (Archotech) would keep it out of reach for good.
+        if (projects.Count > 0 && !unfinished && researchEra == Era.Undefined)
+        {
+            return new EraResult(result.Era, result.Source, false);
+        }
+        return result;
     }
+
+    /// <summary>
+    /// Whether the item has any research prerequisite, from its own def or the recipe that makes it. Gear with none
+    /// (Royalty psychic lances) has nothing to finish, so its text must not mention research.
+    /// </summary>
+    public static bool HasResearchPrerequisite(ThingDef def) => PrerequisitesOf(def).Count > 0;
 
     /// <summary>
     /// Weapons and apparel, judged by the def, so a sidearm carried in inventory still counts. The era fallbacks, the unfamiliar

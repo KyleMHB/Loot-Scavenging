@@ -2,6 +2,7 @@
 <LanguageData>
 	<LootScavenging_UnfamiliarLabel>{0}（陌生）</LootScavenging_UnfamiliarLabel>
 	<LootScavenging_UnfamiliarInspect>陌生技术：在完成其研究前无法装备或穿戴。</LootScavenging_UnfamiliarInspect>
+	<LootScavenging_UnfamiliarInspectNoResearch>陌生技术：在你的殖民地达到其科技等级前无法装备或穿戴。</LootScavenging_UnfamiliarInspectNoResearch>
 	<LootScavenging_CannotEquipUnfamiliar>陌生技术</LootScavenging_CannotEquipUnfamiliar>
 	<LootScavenging_RecycleLabel>回收{0}</LootScavenging_RecycleLabel>
 	<LootScavenging_RecycleJob>正在回收{0}。</LootScavenging_RecycleJob>
