@@ -42,6 +42,22 @@ public class CompUnfamiliar : ThingComp
         joinedEra = (Era)joined;
     }
 
+    // A split piece is a new thing, so it needs the mark copied; marked and unmarked stacks must not merge back.
+    public override void PostSplitOff(Thing piece)
+    {
+        CompUnfamiliar other = piece.TryGetComp<CompUnfamiliar>();
+        if (other == null)
+            return;
+        other.lootedEra = lootedEra;
+        other.joinedEra = joinedEra;
+    }
+
+    public override bool AllowStackWith(Thing other)
+    {
+        CompUnfamiliar comp = other.TryGetComp<CompUnfamiliar>();
+        return comp == null || (comp.lootedEra == lootedEra && comp.joinedEra == joinedEra);
+    }
+
     public override string TransformLabel(string label)
     {
         return Unfamiliar.IsUnfamiliar(parent) ? "LootScavenging_UnfamiliarLabel".Translate(label).Resolve() : label;

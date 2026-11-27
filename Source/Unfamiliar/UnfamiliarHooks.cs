@@ -5,18 +5,8 @@ using Verse;
 namespace LootScavenging;
 
 // The equip block. CanEquip feeds the right-click menu (a greyed "cannot equip" entry with a reason) and the outfit and
-// dress paths; colonists choosing their own apparel never call it, so the apparel score is patched too. Pawn generation
+// dress paths. Only the 4-argument overload is patched: the 2-argument one calls it. Colonists choosing their own apparel never call it, so the apparel score is patched too. Pawn generation
 // and raiders are left alone. Postfixes only, so nothing here can stop another mod's own check.
-
-[HarmonyPatch(typeof(EquipmentUtility), nameof(EquipmentUtility.CanEquip), new[] { typeof(Thing), typeof(Pawn) })]
-internal static class CanEquipHook
-{
-    private static void Postfix(Thing thing, Pawn pawn, ref bool __result)
-    {
-        if (__result && Unfamiliar.Blocks(thing, pawn))
-            __result = false;
-    }
-}
 
 [HarmonyPatch(typeof(EquipmentUtility), nameof(EquipmentUtility.CanEquip),
     new[] { typeof(Thing), typeof(Pawn), typeof(string), typeof(bool) },

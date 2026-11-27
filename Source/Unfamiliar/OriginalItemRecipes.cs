@@ -124,9 +124,10 @@ public class RecipeWorker_RecycleOriginal : RecipeWorker
         {
             if (ingredient == null || ingredient.Destroyed)
                 continue;
-            List<Thing> products = ScrapEquivalent.RecycleProducts(ingredient).ToList();
-            if (products.Count > 0)
+            // The item is given back only when it has no scrap equivalent at all; an empty roll uses it up, as scrap does.
+            if (ScrapEquivalent.TryGet(ingredient, out _, out _))
             {
+                List<Thing> products = ScrapEquivalent.RecycleProducts(ingredient).ToList();
                 if (Prefs.DevMode)
                     Log.Message($"[Loot Scavenging] {billDoer} recycled {ingredient}: {string.Join(", ", products.Select(p => p.LabelCap))}"); // not translated
                 ingredient.Destroy();
