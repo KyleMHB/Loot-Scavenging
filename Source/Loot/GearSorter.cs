@@ -54,11 +54,7 @@ internal static class GearSorter
                 Judge(pawn, carrier, ap, owner, moment, mapKind, ItemCategory.Apparel, rules);
         }
 
-        // A visiting caravan's pack animal carries trade goods, which are stock and not gear, so they drop whole. The game
-        // marks such an animal as a Carrier; the colony's own pack animals are still sorted.
-        bool caravanCargo = pawn.RaceProps.packAnimal && pawn.GetTraderCaravanRole() == TraderCaravanRole.Carrier
-            && pawn.Faction != Faction.OfPlayer;
-        if (inventory && pawn.inventory != null && !caravanCargo)
+        if (inventory && pawn.inventory != null)
         {
             foreach (Thing thing in pawn.inventory.innerContainer.ToList())
                 Judge(pawn, carrier, thing, owner, moment, mapKind, ItemClassifier.InventoryCategoryOf(thing), rules);

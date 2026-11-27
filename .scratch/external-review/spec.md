@@ -15,7 +15,7 @@ An outside reviewer tested 0.6.0 (Workshop build `06cf5d9`) and sent `review.md`
 
 | # | Finding | Fix |
 | --- | --- | --- |
-| 1 | Gear kept on a body (pack and held weapon in `pawn.inventory`) is destroyed with the corpse when a predator eats it, fire burns it or it rots away. `Corpse.Destroy` clears the corpse, then `PostCorpseDestroy` destroys the pawn's equipment, inventory and apparel. | Prefix `Corpse.Destroy`: when the corpse is spawned and the inner pawn's inventory holds anything, drop it near the corpse, forbidden unless the pawn was a colonist. Strip and butcher already empty the inventory first (`Pawn.Strip`, and `autoStripCorpses` on butcher recipes), so the prefix finds nothing there. Cremation does not strip (`Recipes_Cremation.xml` sets `autoStripCorpses` false), so the prefix skips a corpse destroyed by a cremation bill (decision 5). A pawn kind with `canStrip` false butchered at a bench would drop at the bench, but `BodyLoot.CanHoldLoot` already keeps those pawns from holding loot. |
+| 1 | Gear kept on a body (pack and held weapon in `pawn.inventory`) is destroyed with the corpse when a predator eats it, fire burns it or it rots away. `Corpse.Destroy` clears the corpse, then `PostCorpseDestroy` destroys the pawn's equipment, inventory and apparel. | Intended (decision 5, revised 2026-11-27): kept gear goes with the body. A new setting, off by default, has cremation strip the corpse first so its gear drops and is judged by the item rules (ticket 01). |
 | 2 | A dead colonist's Gear tab drop button does nothing and logs "Dropped X in a null map", because the item sits in a dead pawn's inventory with no map. | Prefix `ITab_Pawn_Gear.InterfaceDrop`: when the item's holder is a dead pawn's inventory and the corpse is spawned, drop it at the corpse. |
 | 3 | With any loot row on Mark and the default "All gear beyond your research" scope, the colony's own starting gear beyond its research becomes unfamiliar. | Intended (decision 1). The scope sentence says starting gear counts. |
 | 4 | Gear whose only prerequisites are Anomaly knowledge projects stays beyond reach after the research is done. Knowledge projects have no tech level, so `EraReader` falls back to the item's own tech level (Archotech for shard gear). | When every prerequisite is finished and none has a tech level, the item is in reach. Gear with no recipe and no research (Royalty psychic lances) keeps its own tech level, and its inspect text no longer says "until its research is finished". |
@@ -72,15 +72,15 @@ Kyle answered these on 2026-11-27.
 
 1. **Starting gear (finding 3): works as intended.** Gear beyond the colony's research is unusable until researched, starting gear included, because the colonists would not know how to use it. The default scope stays "All gear beyond your research". The scope sentence says starting gear counts, so a player is not surprised.
 2. **Study and cost factor (finding 8): divide.** Study points are divided by the project's cost factor for the player's faction, as bench research does.
-3. **Pack animal cargo: leave it alone.** A pack animal's trade goods are a caravan's stock, not gear, and are not run through the item rules. The ticket finds how the game marks caravan cargo before choosing the check.
+3. **Pack animal cargo: sort it (revised 2026-11-27).** A pack animal's inventory goes through the item rules like any other pawn's, as in 0.6.0. Ticket 10's skip was built and then reverted.
 4. **Texture path: move.** The scrap textures move to `Things/Item/LootScavenging/Scrap/`. Saves store the def by name, not the texture path.
-5. **Cremation (finding 1): keep burning.** The corpse prefix skips a corpse destroyed by a cremation bill, so kept gear burns with it and the setting text ("until stripped, butchered or cremated") stays true.
+5. **Destroyed corpses and cremation (finding 1, revised 2026-11-27).** Kept gear is destroyed with the corpse, whatever destroys it; the `Corpse.Destroy` drop was built and then reverted. A new setting, off by default, has a cremation bill strip the corpse before it burns, so the gear drops and the item rules judge it as at a butcher strip.
 
 ## Tickets
 
 | # | Ticket | Blocked by | Recommended model |
 | --- | --- | --- | --- |
-| 01 | Keep corpse loot when the corpse is destroyed (finding 1) | None | opus |
+| 01 | Setting: strip corpses when cremating (finding 1, decision 5) | None | opus |
 | 02 | Drop from a dead colonist's Gear tab (finding 2) | None | sonnet |
 | 03 | Say that starting gear counts in the scope sentence (finding 3) | None | sonnet |
 | 04 | Knowledge-project and no-recipe gear eras (finding 4) | None | sonnet |
@@ -89,7 +89,7 @@ Kyle answered these on 2026-11-27.
 | 07 | Recycling and stacking (finding 7, stacking, duplicate patch) | None | sonnet |
 | 08 | Study fixes (finding 8, "Study and recycle") | None | sonnet |
 | 09 | Multiplayer roll and cost (finding 9, "Cost") | None | sonnet |
-| 10 | Pack animal cargo | None | sonnet |
+| 10 | Pack animal cargo (dropped, decision 3) | None | sonnet |
 | 11 | Packaging: LICENSE, textures, AGENTS.md, build paths | None | sonnet |
 | 12 | Docs and texts (corpse text, "Packaging and docs" doc items) | 08 | sonnet |
 | 13 | Changelog and 0.6.1 release | 01 to 12 | sonnet |
