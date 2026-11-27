@@ -25,13 +25,17 @@
   <LootScavenging_StudyWhyColonyEra>Cannot be studied yet: the colony has not reached the {0} era.</LootScavenging_StudyWhyColonyEra>
   <LootScavenging_StudyWhyProjectEra>Cannot be studied for {0}: it is a {1} project, above {2} scrap.</LootScavenging_StudyWhyProjectEra>
   <LootScavenging_StudyWhyNoGain>Cannot be studied now: the storyteller's research speed is zero.</LootScavenging_StudyWhyNoGain>
+  <LootScavenging_StudyWhyNoBench>Cannot be studied now: no research bench on this map can research {0}.</LootScavenging_StudyWhyNoBench>
+  <LootScavenging_StudyWhyNotWorth>Cannot be studied now: this item is no longer unfamiliar.</LootScavenging_StudyWhyNotWorth>
+  <LootScavenging_StudyWhyTooLittle>Cannot be studied now: {0} needs too few points to be worth using up this item.</LootScavenging_StudyWhyTooLittle>
+  <LootScavenging_StudyNotPaid>{PAWN_labelShort} put {1} back without studying it. {2}</LootScavenging_StudyNotPaid>
   <!-- Unfamiliar items at the bench (ticket 07) -->
   <LootScavenging_RecycleOriginalLabel>recycle unfamiliar items</LootScavenging_RecycleOriginalLabel>
   <LootScavenging_RecycleOriginalJob>Recycling an unfamiliar item.</LootScavenging_RecycleOriginalJob>
   <LootScavenging_RecycleOriginalDescription>Break down one unfamiliar item as if it were the scrap it would have become: the same yield. Tick the items you are willing to use up; none are ticked by default.</LootScavenging_RecycleOriginalDescription>
   <LootScavenging_StudyOriginalLabel>study unfamiliar items</LootScavenging_StudyOriginalLabel>
   <LootScavenging_StudyOriginalJob>Studying an unfamiliar item.</LootScavenging_StudyOriginalJob>
-  <LootScavenging_StudyOriginalDescription>Study one unfamiliar item for research points as if it were the scrap it would have become: the same points. Tick the items you are willing to use up; none are ticked by default.</LootScavenging_StudyOriginalDescription>
+  <LootScavenging_StudyOriginalDescription>Study one unfamiliar item for research points as if it were the scrap it would have become: the same points. Tick the items you are willing to use up; none are ticked by default. An item is left alone when the project needs less than half its worth.</LootScavenging_StudyOriginalDescription>
   <LootScavenging_StudyDone>{PAWN_labelShort} studied {1} {2}: +{3} research points for {4}.</LootScavenging_StudyDone>
   <!-- Settings page: presets -->
   <LootScavenging_SectionPresets>Presets</LootScavenging_SectionPresets>

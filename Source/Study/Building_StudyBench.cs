@@ -88,8 +88,52 @@ public class ITab_StudyBills : ITab
         Building_StudyBench bench = SelBench;
         if (bench == null)
             return;
+        DoPasteButton(bench);
         Rect rect = new Rect(0f, 0f, WinSize.x, WinSize.y).ContractedBy(10f);
         mouseoverBill = bench.billStack.DoListing(rect, () => Options(bench), ref scrollPosition, ref viewHeight);
+    }
+
+    // The game's paste button for a copied bill (its ITab_Bills), in the same place. Its layout numbers are private there.
+    private const float PasteX = 48f;
+    private const float PasteY = 3f;
+    private const float PasteSize = 24f;
+    private const int BillLimit = 15;
+
+    private static void DoPasteButton(Building_StudyBench bench)
+    {
+        Bill clipboard = BillUtility.Clipboard;
+        if (clipboard == null)
+            return;
+        Rect rect = new Rect(WinSize.x - PasteX, PasteY, PasteSize, PasteSize);
+        if (!bench.def.AllRecipes.Contains(clipboard.recipe) || !clipboard.recipe.AvailableNow || !clipboard.recipe.AvailableOnNow(bench))
+        {
+            DoGreyedPaste(rect, "ClipboardBillNotAvailableHere".Translate() + ": " + clipboard.LabelCap);
+        }
+        else if (bench.billStack.Count >= BillLimit)
+        {
+            DoGreyedPaste(rect, "PasteBillTip".Translate() + " (" + "PasteBillTip_LimitReached".Translate() + "): " + clipboard.LabelCap);
+        }
+        else
+        {
+            if (Widgets.ButtonImageFitted(rect, TexButton.Paste, Color.white))
+            {
+                Bill bill = clipboard.Clone();
+                bill.InitializeAfterClone();
+                bench.billStack.AddBill(bill);
+                SoundDefOf.Tick_Low.PlayOneShotOnCamera();
+            }
+            if (Mouse.IsOver(rect))
+                TooltipHandler.TipRegion(rect, "PasteBillTip".Translate() + ": " + clipboard.LabelCap);
+        }
+    }
+
+    private static void DoGreyedPaste(Rect rect, string tip)
+    {
+        GUI.color = Color.gray;
+        Widgets.DrawTextureFitted(rect, TexButton.Paste, 1f);
+        GUI.color = Color.white;
+        if (Mouse.IsOver(rect))
+            TooltipHandler.TipRegion(rect, tip);
     }
 
     private static List<FloatMenuOption> Options(Building_StudyBench bench)

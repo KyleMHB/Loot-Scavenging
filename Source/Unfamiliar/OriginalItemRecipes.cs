@@ -100,7 +100,10 @@ internal static class OriginalItemRecipes
             ResearchProjectDef project = ScrapStudy.CurrentProject;
             if (project == null || !ScrapEquivalent.TryGet(thing, out ScrapTier tier, out _))
                 return false;
-            return StudyBillPatch.VerdictFor(tier, project) == StudyVerdict.Eligible;
+            if (StudyBillPatch.VerdictFor(tier, project) != StudyVerdict.Eligible)
+                return false;
+            // An item is used whole, so it waits when the project needs only a small share of its worth.
+            return ScrapStudy.TryGetWorth(thing, out StudyWorth worth) && ScrapStudy.Plan(worth, 1, 1, project).Things > 0;
         }
         return true;
     }

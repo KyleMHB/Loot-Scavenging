@@ -21,12 +21,16 @@
 	<LootScavenging_StudyWhyColonyEra>暂时无法调查：殖民地尚未达到{0}。</LootScavenging_StudyWhyColonyEra>
 	<LootScavenging_StudyWhyProjectEra>无法为{0}调查：它是{1}研究项目，高于{2}废料。</LootScavenging_StudyWhyProjectEra>
 	<LootScavenging_StudyWhyNoGain>现在无法调查：故事叙述者的研究速度为零。</LootScavenging_StudyWhyNoGain>
+	<LootScavenging_StudyWhyNoBench>现在无法调查：此地图上没有能研究{0}的研究台。</LootScavenging_StudyWhyNoBench>
+	<LootScavenging_StudyWhyNotWorth>现在无法调查：这件物品已不再陌生。</LootScavenging_StudyWhyNotWorth>
+	<LootScavenging_StudyWhyTooLittle>现在无法调查：{0}所需点数太少，不值得消耗这件物品。</LootScavenging_StudyWhyTooLittle>
+	<LootScavenging_StudyNotPaid>{PAWN_labelShort}没有调查{1}，已将其放回。{2}</LootScavenging_StudyNotPaid>
 	<LootScavenging_RecycleOriginalLabel>回收陌生物品</LootScavenging_RecycleOriginalLabel>
 	<LootScavenging_RecycleOriginalJob>正在回收陌生物品。</LootScavenging_RecycleOriginalJob>
 	<LootScavenging_RecycleOriginalDescription>将一件陌生物品按其本应变成的废料进行分解：产出相同。勾选你愿意消耗的物品；默认不勾选任何物品。</LootScavenging_RecycleOriginalDescription>
 	<LootScavenging_StudyOriginalLabel>调查陌生物品</LootScavenging_StudyOriginalLabel>
 	<LootScavenging_StudyOriginalJob>正在调查陌生物品。</LootScavenging_StudyOriginalJob>
-	<LootScavenging_StudyOriginalDescription>将一件陌生物品按其本应变成的废料进行调查以获取研究点数：点数相同。勾选你愿意消耗的物品；默认不勾选任何物品。</LootScavenging_StudyOriginalDescription>
+	<LootScavenging_StudyOriginalDescription>将一件陌生物品按其本应变成的废料进行调查以获取研究点数：点数相同。勾选你愿意消耗的物品；默认不勾选任何物品。若项目所需点数不足物品价值的一半，则不会使用该物品。</LootScavenging_StudyOriginalDescription>
 	<LootScavenging_StudyDone>{PAWN_labelShort}调查了{1}个{2}：为{4}提供+{3}研究点数。</LootScavenging_StudyDone>
 	<LootScavenging_SectionPresets>预设</LootScavenging_SectionPresets>
 	<LootScavenging_PresetActive>当前预设：{0}</LootScavenging_PresetActive>
