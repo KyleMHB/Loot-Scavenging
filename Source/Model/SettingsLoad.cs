@@ -121,13 +121,43 @@ public static class SettingsLoad
     /// clears them. Only a value that differs from its 0.5.2 default is translated (decision 13), since the Def still carries
     /// every old node at that default for old patches to find.
     /// </summary>
-    public static void MigrateDef(SettingValues def)
+    public static void MigrateDef(SettingValues def, IEnumerable<string> locked = null)
     {
         if (def?.rules == null || def.corpses == null)
             return;
         LegacySettings legacy = LegacySettings.TakeFromDef(def);
         if (legacy.Any)
             Translate(def, legacy, null, null);
+        if (locked != null)
+            LockOldDropAsSet(def, legacy, new HashSet<string>(TrimAll(locked)));
+    }
+
+    // A lock on an old drop node now locks both keep-gear boxes (SettingLocks), which take the Def's value. Unlocked, a value
+    // at its 0.5.2 default becomes the 0.6.0 default, ticked (decision 13). Locked, it was the pack's choice, so the boxes
+    // take what it meant: the death drop at Ground (the 0.5.2 default) dropped everything as in the base game, and the
+    // unshipped downed-gear Drop the weapon dropped the weapon. Either one unticks them. A box the pack locks by its own
+    // name keeps the Def's value.
+    private static void LockOldDropAsSet(SettingValues def, LegacySettings legacy, HashSet<string> locked)
+    {
+        bool drops = locked.Contains(LegacySettings.DeathDrop)
+            && (legacy.Text(LegacySettings.DeathDrop) ?? LegacySettings.Ground) == LegacySettings.Ground;
+        drops |= locked.Contains(LegacySettings.DownedGearLock)
+            && legacy.Text(LegacySettings.DownedGear) == LegacySettings.DropWeapon;
+        if (!drops)
+            return;
+        if (!locked.Contains(SettingNames.HostilesKeepGear))
+            def.hostilesKeepGear = false;
+        if (!locked.Contains(SettingNames.NonHostilesKeepGear))
+            def.nonHostilesKeepGear = false;
+    }
+
+    private static IEnumerable<string> TrimAll(IEnumerable<string> names)
+    {
+        foreach (string name in names)
+        {
+            if (name != null)
+                yield return name.Trim();
+        }
     }
 
     // Before 0.5.2 a file left out a value equal to the default of its day, and every category rule then defaulted to Keep.
@@ -297,6 +327,9 @@ public sealed class LegacySettings
     public const string DeathDrop = "deathDrop"; // not translated
     public const string StudyPointsMultiplier = "studyPointsMultiplier"; // not translated
     public const string ScrapMarketValue = "scrapMarketValue"; // not translated
+    // Never shipped and not translated, but a pack may lock it under this name (SettingLocks).
+    public const string DownedGear = "downedGear"; // not translated
+    public const string DownedGearLock = "rules.downedGear"; // not translated
 
     // Old values the translation compares against.
     public const string ScrapOutOfReach = "ScrapOutOfReach"; // not translated
@@ -306,6 +339,7 @@ public sealed class LegacySettings
     public const string MarkUnfamiliar = "MarkUnfamiliar"; // not translated
     public const string LeaveAlone = "LeaveAlone"; // not translated
     public const string Ground = "Ground"; // not translated
+    public const string DropWeapon = "DropWeapon"; // not translated
     public const string Degrade = "Degrade"; // not translated
 
     /// <summary>
@@ -317,7 +351,7 @@ public sealed class LegacySettings
         Hostile, NonHostileFaction, NoFaction, Prisoners, PrisonerJoinGear, OtherJoinGear, DropMode, DropIncludesMedicine,
         DropIncludesAmmunition, DeathDrop, StudyPointsMultiplier, ScrapMarketValue,
         "eraFallback", "studyEras", "ejectCharges", "degradeMin", "degradeMax", "degradeLowersQuality", "corpseChance", // not translated
-        "butcherRemovesApparel", "downedGear", "sortWhenArrested", "sortWhenStripped", "onDownedAndStrip", // not translated
+        "butcherRemovesApparel", DownedGear, "sortWhenArrested", "sortWhenStripped", "onDownedAndStrip", // not translated
     };
 
     /// <summary>The saved key of a category's outcome, which may hold the cut Degrade.</summary>
