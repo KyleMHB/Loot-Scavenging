@@ -259,14 +259,15 @@ internal sealed class SettingsPage
         {
             // Shown beside the rule that uses it; the value is shared by every disassemble rule.
             if (rule.outcome == Outcome.Disassemble && r.disassemblyYield == DisassemblyYield.ItemBased)
-                r.disassemblyEfficiency = PercentBox(ls, "LootScavenging_DisassemblyEfficiency".Translate(), "efficiency." + info.Field, // not translated
+                // One buffer for every box, since they all show the one value.
+                r.disassemblyEfficiency = PercentBox(ls, "LootScavenging_DisassemblyEfficiency".Translate(), "efficiency", // not translated
                     r.disassemblyEfficiency, 5, 100, SettingNames.DisassemblyEfficiency);
             rule.chance = PercentBox(ls, ChanceLabel(rule.outcome), "chance." + info.Field, rule.chance, 0, 100); // not translated
-            ls.CheckboxLabeled("LootScavenging_OnlyBeyondReach".Translate(), ref rule.onlyBeyondReach);
-            ls.CheckboxLabeled("LootScavenging_LimitQuality".Translate(), ref rule.limitQuality);
+            Checkbox(ls, "LootScavenging_OnlyBeyondReach".Translate(), ref rule.onlyBeyondReach, false);
+            Checkbox(ls, "LootScavenging_LimitQuality".Translate(), ref rule.limitQuality, false);
             if (rule.limitQuality)
                 Choice(ls, "LootScavenging_BelowQuality".Translate(), rule.belowQuality, Qualities, QualityName, v => info.Rule(settings.values.rules).belowQuality = v, lockName);
-            ls.CheckboxLabeled("LootScavenging_LimitHitPoints".Translate(), ref rule.limitHitPoints);
+            Checkbox(ls, "LootScavenging_LimitHitPoints".Translate(), ref rule.limitHitPoints, false);
             if (rule.limitHitPoints)
                 rule.belowHitPointFraction = PercentBox(ls, "LootScavenging_BelowHitPoints".Translate(), "hitPoints." + info.Field, // not translated
                     rule.belowHitPointFraction, 5, 100);
@@ -369,9 +370,14 @@ internal sealed class SettingsPage
         Indent(ls);
         foreach (ScrapTier tier in Tiers)
         {
-            float value = NumberBox(ls, TierLabel(tier), "value." + tier, v.ScrapMarketValue(tier), // not translated
+            string id = "value." + tier; // not translated
+            float value = NumberBox(ls, TierLabel(tier), id, v.ScrapMarketValue(tier),
                 SettingValues.MinScrapMarketValue, SettingValues.MaxScrapMarketValue, SettingNames.ScrapMarketValue(tier));
-            v.SetScrapMarketValue(tier, (float)Math.Round(value, 2));
+            float rounded = (float)Math.Round(value, 2);
+            // Two places are stored, so the box shows the rounded value rather than the extra digits typed.
+            if (rounded != value)
+                buffers[id] = rounded.ToString();
+            v.SetScrapMarketValue(tier, rounded);
         }
         Outdent(ls);
         Explain(ls, "LootScavenging_ScrapValuePerTierExplain".Translate());
@@ -500,23 +506,14 @@ internal sealed class SettingsPage
             new[] { UnfamiliarScope.LootedOnly, UnfamiliarScope.AllOutOfReach }, UnfamiliarScopeName, x => settings.values.unfamiliarScope = x, SettingNames.UnfamiliarScope);
         // Whole-sentence keys, with and without the "only used" note, so a translation controls the separator.
         bool looted = v.unfamiliarScope == UnfamiliarScope.LootedOnly;
-        bool unused = !AnyRowMarks(v.rules);
+        // Only the loot rows decide it, as in Unfamiliar: joiner marks are saved on the item and hold under either scope.
+        bool unused = !v.rules.AnyLootRowMarks;
         Explain(ls, (looted
             ? (unused ? "LootScavenging_UnfamiliarLootedExplainUnused" : "LootScavenging_UnfamiliarLootedExplain")
             : (unused ? "LootScavenging_UnfamiliarAllExplainUnused" : "LootScavenging_UnfamiliarAllExplain")).Translate());
 
         Toggle(ls, "LootScavenging_HomeMapOnly".Translate(), ref v.rules.homeMapOnly,
             "LootScavenging_HomeMapOnlyOn".Translate(), "LootScavenging_HomeMapOnlyOff".Translate(), SettingNames.HomeMapOnly);
-    }
-
-    private static bool AnyRowMarks(LootRules r)
-    {
-        foreach (OwnerGroup group in LootRules.RowGroups)
-        {
-            if (r.RowFor(group) == WhoRule.Mark)
-                return true;
-        }
-        return false;
     }
 
     private static string DisassemblyYieldName(DisassemblyYield yield)
@@ -575,10 +572,19 @@ internal sealed class SettingsPage
     {
         bool locked = IsLocked(lockName);
         SetDisabled(locked);
-        ls.CheckboxLabeled(label, ref value);
+        Checkbox(ls, label, ref value, locked);
         SetDisabled(false);
         Explain(ls, value ? onSentence : offSentence);
         LockedNote(ls, locked);
+    }
+
+    // Listing_Standard.CheckboxLabeled laid out the same way, with the game checkbox's own disabled flag: GUI.enabled does not
+    // stop that checkbox flipping, so a locked box needs the flag. A box in a locked category is disabled too.
+    private static void Checkbox(Listing_Standard ls, string label, ref bool value, bool disabled)
+    {
+        Rect rect = ls.GetRect(Text.CalcHeight(label, ls.ColumnWidth));
+        Widgets.CheckboxLabeled(rect, label, ref value, disabled || ambientDisabled);
+        ls.Gap(ls.verticalSpacing);
     }
 
     private static void Choice<T>(Listing_Standard ls, string label, T current, T[] options, Func<T, string> name, Action<T> set, string lockName = null)

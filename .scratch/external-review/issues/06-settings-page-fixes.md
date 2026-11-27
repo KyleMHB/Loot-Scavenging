@@ -1,6 +1,6 @@
 # 06: Settings page fixes
 
-Status: ready-for-agent
+Status: done
 
 **Recommended model:** `opus`: the lock fix can change a modpack's locked behaviour.
 

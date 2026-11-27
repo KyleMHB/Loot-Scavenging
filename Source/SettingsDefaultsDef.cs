@@ -50,7 +50,7 @@ internal static class SettingsDefaults
 
         SettingsDefaultsDef def = defs[0];
         // An old pack's patch on a node replaced in 0.6.0 becomes the settings that replaced it (ticket 25).
-        SettingsLoad.MigrateDef(def.values);
+        SettingsLoad.MigrateDef(def.values, def.locked);
         return new PresetConfig(def.values ?? PresetConfig.Code().Progression, new SettingLocks(def.locked));
     }
 }
