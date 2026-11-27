@@ -2,7 +2,7 @@ Vanilla raids hand a tribal colony assault rifles long before it could research 
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-raid.gif[/img]
 
-The rules run when a raider, visitor or other non-colony pawn dies, is stripped, is arrested or joins your colony. A downed pawn keeps their weapon in hand until then, so their gear goes through the rules only once. Gear your colony could already make drops as normal.
+The rules run when a raider, visitor or other non-colony pawn dies, is stripped, is arrested or joins your colony. Gear your colony could already make drops as normal.
 
 Every part of it is configurable: which groups of pawns the rules cover, an outcome and chance for each item category, keep and remove lists, and presets for progression, cleanup or vanilla. Modpacks can set and lock their own defaults.
 
@@ -41,7 +41,7 @@ Study bills at a research bench pay a set number of points per unit into the cur
 
 [img]https://raw.githubusercontent.com/KyleMHB/Loot-Scavenging/main/docs/images/workshop/loot-scavenging-on-body.gif[/img]
 
-By default a dead pawn keeps everything on the body (weapon, medicine, food, silver and scrap) until you strip or butcher the corpse. If the body burns or is eaten, that gear is lost with it. Tick [b]Strip corpses before cremating[/b] and cremation strips the corpse first, so its gear drops and follows the item rules. Your colonists and animals keep their gear too, so a downed pack animal does not scatter its load. Untick the hostile or non-hostile box under [b]Keep gear on the body[/b] and that group's loot drops on the ground as in the base game, then follows the item rules.
+By default a dead pawn keeps everything on the body (weapon, medicine, food, silver and scrap) until you strip or butcher the corpse. Gear on a body that burns or is eaten is lost with it. Tick [b]Strip corpses before cremating[/b] and cremation drops it first. Your colonists and animals keep their gear too. Untick the hostile or non-hostile box under [b]Keep gear on the body[/b] and that group's loot drops as in the base game, then follows the item rules.
 
 [h2]Downed raiders keep their weapon[/h2]
 
