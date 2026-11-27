@@ -1,8 +1,8 @@
 # Project instructions
 
-Read and follow `E:\Coding\Templates\AGENTS.md`. For RimWorld game knowledge read `E:\Coding\Rimworld\AGENTS.md` and its `GAME.md`.
+Read and follow `E:\Coding\Templates\AGENTS.md`. For RimWorld game knowledge read `E:\Coding\Rimworld\AGENTS.md` and its `GAME.md`. Those `E:` paths are the author's workspace; without it, the game's own decompiled code is the reference.
 
-Loot Scavenging (packageId `kylemhb.lootscavenging`, Workshop title "Loot Scavenging") is a RimWorld mod for 1.6 and 1.7. Harmony is the only hard dependency. The spec is `.scratch/loot-scavenging/spec.md`. No gameplay code exists yet.
+Loot Scavenging (packageId `kylemhb.lootscavenging`, Workshop title "Loot Scavenging") is a RimWorld mod for 1.6 and 1.7. Harmony is the only hard dependency. The mod is built and shipping: it sorts what dead, downed, stripped, arrested and joining pawns drop by item rules, turns what it removes into era-tiered scrap, and adds a study bench and recycling recipes. The original spec is `.scratch/loot-scavenging/spec.md`; later work has its own folder under `.scratch/`.
 
 ## Originality
 
@@ -10,9 +10,11 @@ This mod is built from the spec and the game's own code. Looting Manager, Non un
 
 ## Layout
 
-- `Source/`: the mod's C#. Intermediates go to `work/obj/<version>/`.
+- `Source/`: the mod's C#, by area (`Model/` plain rules, `Loot/` drop hooks and sorting, `Era/`, `Recycling/`, `Study/`, `Unfamiliar/`, `SettingsUI/`). Intermediates go to `work/obj/<version>/`.
 - `1.6/Assemblies`, `1.7/Assemblies`: build output, selected by `LoadFolders.xml`. There is no root `Assemblies/`.
-- `Defs/`, `Patches/`, `Languages/English/Keyed/`, `Textures/`: created when first needed.
+- `Defs/`, `Languages/English/Keyed/`, `Textures/`: shipped content. Scrap textures live in `Textures/Things/Item/LootScavenging/Scrap/<era>`. There is no root `Patches/` folder yet.
+- `deploy.ps1` and `DevTests/devtests.json` each list the runtime folders and files the deploy copies (LICENSE included); keep them equal.
+- `tools/`: `ls_test.py` runs the in-game tests (see TESTING.md); the `preview_*`, `render_*` and `workshop_gallery.py` scripts make Workshop media.
 - `Tests/LootScavenging.Tests`: xunit tests of `Source/Model/`, run by `dotnet test`.
 - `translation/`: the translation glossary and the record of the English each translation was made from. Committed, not shipped. `Languages/ChineseSimplified` and `Languages/Russian` ship.
 - `packs/`: preset patches for packs to copy into their own `Patches/`. The game never loads this folder.
@@ -27,6 +29,7 @@ The example preset's `<version>` in `Extras/Loot-Scavenging-AutoConfig/Defs/Pres
 
 ## Commands
 
+- Build paths default to the author's `E:` install; override with `-p:RimWorldPath=... -p:HarmonyPath=... -p:TranslateTool=...` (README, Building from source).
 - Build 1.7: `dotnet build Source/LootScavenging.csproj -c Release`
 - Build 1.6: `dotnet build Source/LootScavenging.csproj -c Release -p:RimWorldVersion=1.6` (net472 against `Krafs.Rimworld.Ref` 1.6.4871; the installed game is 1.7, so 1.6 is compile-checked only)
 - Unit tests: `dotnet test` from the repo root. `Tests/LootScavenging.Tests` compiles `Source/Model/` directly, so code there must stay plain C# with no RimWorld references.

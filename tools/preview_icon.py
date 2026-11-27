@@ -15,7 +15,7 @@ from PIL import Image, ImageFilter
 from preview_story import font
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRAP = ROOT / "Textures" / "Things" / "Item" / "Scrap"
+SCRAP = ROOT / "Textures" / "Things" / "Item" / "LootScavenging" / "Scrap"
 SIZE = (1280, 720)
 BACKGROUND = (16, 21, 30, 255)
 CREAM = (245, 236, 214, 255)

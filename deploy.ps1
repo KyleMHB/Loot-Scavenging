@@ -24,5 +24,5 @@ Invoke-RimWorldModDeploy `
     -BuildPath $project `
     -Configuration "Release" `
     -Folders $folders `
-    -Files @("LoadFolders.xml") `
+    -Files @("LoadFolders.xml", "LICENSE") `
     -RemoveFilePatterns @("*.pdb")

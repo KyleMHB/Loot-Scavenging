@@ -7,7 +7,7 @@
   "devProject": "DevTests/LootScavenging.DevTests.csproj",
   "evidenceFolder": "LootScavengingTests",
   "runtimeFolders": ["About", "1.6", "1.7", "Defs", "Patches", "Languages", "Textures", "packs", "Extras"],
-  "runtimeFiles": ["LoadFolders.xml"],
+  "runtimeFiles": ["LoadFolders.xml", "LICENSE"],
   "modSets": {
     "default": ["brrainz.harmony", "ludeon.rimworld", "kylemhb.lootscavenging"],
     "dlcs": ["brrainz.harmony", "ludeon.rimworld", "ludeon.rimworld.royalty", "ludeon.rimworld.ideology", "ludeon.rimworld.biotech", "ludeon.rimworld.anomaly", "ludeon.rimworld.odyssey", "kylemhb.lootscavenging"],
