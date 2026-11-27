@@ -1,6 +1,6 @@
 # 03: Say that starting gear counts in the scope sentence
 
-Status: ready-for-agent
+Status: done
 
 **Recommended model:** `sonnet`
 

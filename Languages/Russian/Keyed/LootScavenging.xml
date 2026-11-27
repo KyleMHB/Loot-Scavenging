@@ -103,9 +103,9 @@
 	<LootScavenging_UnfamiliarScope>Пометка «незнакомая технология»</LootScavenging_UnfamiliarScope>
 	<LootScavenging_UnfamiliarAll>Всё снаряжение, опережающее ваши исследования</LootScavenging_UnfamiliarAll>
 	<LootScavenging_UnfamiliarLooted>Только добытое снаряжение</LootScavenging_UnfamiliarLooted>
-	<LootScavenging_UnfamiliarAllExplain>Любое снаряжение, опережающее ваши исследования, незнакомо, откуда бы оно ни взялось, поэтому купленное у торговцев или полученное в награду за задание тоже незнакомо.</LootScavenging_UnfamiliarAllExplain>
+	<LootScavenging_UnfamiliarAllExplain>Любое снаряжение, опережающее ваши исследования, незнакомо, откуда бы оно ни взялось. Это касается и стартового снаряжения вашей колонии, ведь колонисты пока не умеют им пользоваться, и снаряжения, купленного у торговцев или полученного в награду за задание.</LootScavenging_UnfamiliarAllExplain>
 	<LootScavenging_UnfamiliarLootedExplain>Незнакомо только снаряжение, снятое с персонажей. Купленное у торговцев или полученное в награду за задание можно использовать.</LootScavenging_UnfamiliarLootedExplain>
-	<LootScavenging_UnfamiliarAllExplainUnused>Любое снаряжение, опережающее ваши исследования, незнакомо, откуда бы оно ни взялось, поэтому купленное у торговцев или полученное в награду за задание тоже незнакомо. Используется только для групп с выбором «Помечать как незнакомое».</LootScavenging_UnfamiliarAllExplainUnused>
+	<LootScavenging_UnfamiliarAllExplainUnused>Любое снаряжение, опережающее ваши исследования, незнакомо, откуда бы оно ни взялось. Это касается и стартового снаряжения вашей колонии, ведь колонисты пока не умеют им пользоваться, и снаряжения, купленного у торговцев или полученного в награду за задание. Используется только для групп с выбором «Помечать как незнакомое».</LootScavenging_UnfamiliarAllExplainUnused>
 	<LootScavenging_UnfamiliarLootedExplainUnused>Незнакомо только снаряжение, снятое с персонажей. Купленное у торговцев или полученное в награду за задание можно использовать. Используется только для групп с выбором «Помечать как незнакомое».</LootScavenging_UnfamiliarLootedExplainUnused>
 	<LootScavenging_SectionCorpses>Трупы</LootScavenging_SectionCorpses>
 	<LootScavenging_CorpseHumanlike>Убирать трупы людей</LootScavenging_CorpseHumanlike>

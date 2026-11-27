@@ -160,9 +160,9 @@
   <LootScavenging_UnfamiliarScope>Unfamiliar label</LootScavenging_UnfamiliarScope>
   <LootScavenging_UnfamiliarAll>All gear beyond your research</LootScavenging_UnfamiliarAll>
   <LootScavenging_UnfamiliarLooted>Looted gear only</LootScavenging_UnfamiliarLooted>
-  <LootScavenging_UnfamiliarAllExplain>Any gear beyond your research is unfamiliar, wherever it came from, so gear bought from traders or given as a quest reward is unfamiliar too.</LootScavenging_UnfamiliarAllExplain>
+  <LootScavenging_UnfamiliarAllExplain>Any gear beyond your research is unfamiliar, wherever it came from. That includes your colony's own starting gear, since your colonists don't know how to use it yet, and gear bought from traders or given as a quest reward.</LootScavenging_UnfamiliarAllExplain>
   <LootScavenging_UnfamiliarLootedExplain>Only gear that came off pawns is unfamiliar. Gear bought from traders or given as a quest reward can be used.</LootScavenging_UnfamiliarLootedExplain>
-  <LootScavenging_UnfamiliarAllExplainUnused>Any gear beyond your research is unfamiliar, wherever it came from, so gear bought from traders or given as a quest reward is unfamiliar too. Only used for groups set to Mark unfamiliar.</LootScavenging_UnfamiliarAllExplainUnused>
+  <LootScavenging_UnfamiliarAllExplainUnused>Any gear beyond your research is unfamiliar, wherever it came from. That includes your colony's own starting gear, since your colonists don't know how to use it yet, and gear bought from traders or given as a quest reward. Only used for groups set to Mark unfamiliar.</LootScavenging_UnfamiliarAllExplainUnused>
   <LootScavenging_UnfamiliarLootedExplainUnused>Only gear that came off pawns is unfamiliar. Gear bought from traders or given as a quest reward can be used. Only used for groups set to Mark unfamiliar.</LootScavenging_UnfamiliarLootedExplainUnused>
   <!-- Settings page: corpses -->
   <LootScavenging_SectionCorpses>Corpses</LootScavenging_SectionCorpses>
