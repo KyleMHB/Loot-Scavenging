@@ -1,6 +1,8 @@
 # 13: Changelog and 0.6.1 release
 
-Status: blocked
+Status: done
+
+Shipped as 0.7.0 on 2026-11-27, not 0.6.1: ticket 01 became a new setting, and a feature bumps the minor version.
 
 **Recommended model:** `sonnet`
 
