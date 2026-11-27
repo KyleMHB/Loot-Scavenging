@@ -8,7 +8,7 @@ Every part of it is configurable: which groups of pawns the rules cover, an outc
 
 For cleanup only, a preset deletes weak gear and all ammo from the hostile dead and removes their corpses.
 
-[b]Mod version:[/b] 0.6.0
+[b]Mod version:[/b] 0.7.0
 
 [b]Languages:[/b] English, 简体中文 (Simplified Chinese), Русский (Russian). The Chinese and Russian text is machine-translated; tell me if a line reads wrong.
 

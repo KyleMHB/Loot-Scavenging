@@ -2,6 +2,41 @@
 
 <!-- Agent read route: read only the newest relevant release; locate older versions by searching `^## ` headings. -->
 
+## 0.7.0 - 2026-11-27
+
+### Added
+
+- A "Strip corpses before cremating" setting, off by default and in every preset. With it on, a cremation bill strips each corpse first, so gear kept on the body drops by the crematorium and follows the item rules as it would at a butcher. With it off, kept gear burns with the body. Modpacks can set and lock it as `cremationStripsCorpses`.
+
+### Changed
+
+- The Colonists box of "Keep gear on the body" also covers your colony's animals, so a downed or killed pack animal keeps its load instead of scattering it.
+- Studying an unfamiliar item pays like research work. Its points are divided by the project's cost factor for your faction and count toward the researcher's research record. A study job leaves an unfamiliar item alone when the project needs less than half of what the item would pay.
+- The "All gear beyond your research" scope sentence now says that starting gear beyond your research becomes unfamiliar too.
+- The corpse removal texts say they cover groups set to Mark unfamiliar as well as Apply.
+
+### Fixed
+
+- "Drop" on a dead colonist's Gear tab did nothing and logged an error. It now drops the item beside the corpse.
+- Gear tied to an Anomaly knowledge project stayed unfamiliar after the project was finished.
+- Gear with no recipe and no research said it waited on research. It now says it waits on the colony's tech level.
+- A wanderer's or other walk-in joiner's gear was never sorted under "Other joiners: Apply". It is now sorted once, when they first arrive on a map.
+- A recycled unfamiliar item that gave no scrap was handed back to be rolled again. It is now used up, unless it has no scrap equivalent.
+- A stack split from unfamiliar items lost its mark, and marked and unmarked items stacked together.
+- A finished study job that paid nothing still counted toward the bill. It no longer counts and says why it paid nothing.
+- The study bill's stock count follows its count settings, the work bar shows the job's real total work, the bills tab has the paste button, and "can be studied now" shows only when a bench can research the project.
+- Locked checkboxes on the settings page could still be toggled. The category boxes under a locked category are locked too.
+- The unfamiliar scope sentence counted the joiner rows, so on the default settings it described a label that was not in use.
+- The scrap market value box showed a different value from the rounded one it stores.
+- A 0.5.2 modpack that locked the death drop on the ground got both keep-gear boxes locked on, the opposite of its choice. They are now locked off.
+- Loot rolls used their own random numbers, which desynced games under Multiplayer. They now use the game's.
+- Scrap textures moved to their own folder, so another mod's texture at the same path no longer replaces them.
+
+### Internal
+
+- The colony's era is cached between research changes, so sorting gear does less work.
+- The mod ships its LICENSE file.
+
 ## 0.6.0 - 2026-11-25
 
 ### Added

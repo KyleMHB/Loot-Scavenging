@@ -98,6 +98,12 @@ Not covered: clicking in the settings page and bill tabs (the ui batch only draw
 - Observed: milestone `20261125-171735-lootscavenging-milestone-s1-666983b6` raid, study and spacer beats happened; the recycle beat did not (24 neolithic scrap, 5 studied, scrap still on the map after 60 s). The only earlier milestone report kept, `20261121-134911`, failed the same beat, so this predates these fixes. Not looked into.
 - Status: The two compatibility issues from the full tier are fixed. Milestone's recycle beat is open.
 
+### 2026-11-27 - Full tier and release check for 0.7.0 (external review)
+
+- Version/environment: RimWorld 1.7, seed 1, English, branch `external-review` at `0b4bf68` plus the 0.7.0 version bump (mod DLL unchanged). `deploy.ps1` built 1.7 and 1.6 clean, translations passed; `dotnet test` 403/403.
+- Runs: default run-all `20261127-155628-run-all-s1-7d701ddd` 103 pass, 3 skip (ammunition, Hospitality, techprints: environment); dlcs run-all `20261127-155701-run-all-s1-bb736473` 104 pass, 2 skip (ammunition, Hospitality); progression `20261127-155746-lootscavenging-progression-s1-bf4f256a` 6/6; removal check passed; perf `20261127-155850-perf-s1-8117bb7f` pass, 0 ms/tick; `release-check` passed with the usual no-`perf.*`-cases warning.
+- Status: Ready for the Workshop upload once `external-review` is merged to `main`.
+
 ### 2026-11-25 - Release check for 0.6.0
 
 - Version/environment: RimWorld 1.7, seed 1, English, `main` at `d0ba2f9` (`settings-redesign` fast-forwarded; mod DLL unchanged since `4b5f8e3`). `deploy.ps1` built 1.7 and 1.6 clean, translations passed.

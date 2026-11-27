@@ -1,7 +1,9 @@
-A new Who list sets what happens to the gear of each group of pawns: hostile pawns, non-hostile pawns, wild people and animals, prisoners, recruited prisoners and other joiners. Each row applies the item rules, leaves the group alone, or keeps its gear whole and marks gear beyond your research unfamiliar.
+Fixes from an outside review of 0.6.0, and one new setting.
 
-Three new "Keep gear on the body" boxes, for colonists, hostiles, and non-hostiles and wild people, are on by default. A downed pawn keeps their weapon in hand, and a dead one keeps everything on the body until the corpse is stripped, butchered or cremated. Untick a box and that group drops loot as in the base game.
+"Strip corpses before cremating" is off by default. With it on, a cremation bill strips each corpse first, so gear kept on the body drops by the crematorium instead of burning.
 
-The drop mode setting is gone. The item rules decide everything, and each category now chooses Scrap, Disassemble on the spot, Delete or Drop as normal.
+The Colonists box of "Keep gear on the body" now covers your animals, so a downed pack animal keeps its load.
 
-Your 0.5.2 settings carry over once. A value you left at its 0.5.2 default moves to the 0.6.0 default, so set it again if you chose it on purpose, such as dropping loot at death.
+Studying unfamiliar items pays like research work, divided by the project's cost factor. A study that would pay nothing no longer uses up the bill.
+
+Also fixed: dropping from a dead colonist's Gear tab, Anomaly gear staying unfamiliar after its research, walk-in joiners' gear never being sorted, locked settings that could still be toggled, and Multiplayer desyncs from loot rolls.
