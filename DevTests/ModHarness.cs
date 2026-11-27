@@ -21,7 +21,7 @@ public sealed class ModHarness : HarnessSettings
     public override bool FailOnModErrors => true;
     // Keep equal to deploy.ps1's folders and devtests.json's runtimeFolders.
     public override string[] RuntimeFolders => new[] { "About", "1.6", "1.7", "Defs", "Patches", "Languages", "Textures", "packs", "Extras" };
-    public override string[] RuntimeFiles => new[] { "LoadFolders.xml" };
+    public override string[] RuntimeFiles => new[] { "LoadFolders.xml", "LICENSE" };
 
     public override IEnumerable<Batch> CreateBatches() => new Batch[] { new SmokeBatch(), new OutcomesBatch(), new MomentsBatch(), new SettingsBatch(), new BenchBatch(), new SavesBatch(), new PreviewBatch(), new PreviewStoryBatch(), new MilestoneBatch(), new WorkshopClipsBatch(), new PromoClipsBatch(), new StacksBatch(), new ProgressionBatch(), new UiBatch(), new StartupBatch() };
 
