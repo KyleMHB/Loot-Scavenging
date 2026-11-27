@@ -21,5 +21,5 @@
     <li>kylemhb.lootscavenging</li>
     <li>Garethp.ModlistConfigurator</li>
   </loadAfter>
-  <description>Optional example preset for Loot Scavenging. It sets the Progression preset and leaves every other setting at the mod's defaults. Importing it replaces the saved Loot Scavenging settings. Copy it, edit the settings file and raise the version in its Defs file to ship your own. The settings file lists every key and its values.</description>
+  <description>Optional example preset for Loot Scavenging. It sets the Progression preset and leaves every other setting at the mod's defaults. The first import replaces the saved Loot Scavenging settings, and a later version merges only the changed settings. Copy it, edit the settings file and raise the version in its Defs file to ship your own. The settings file lists every key and its values.</description>
 </ModMetaData>

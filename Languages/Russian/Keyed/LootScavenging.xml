@@ -43,7 +43,7 @@
 	<LootScavenging_LockedReason>Заблокировано сборкой: эта настройка всегда берёт значение сборки, поэтому её нельзя изменить здесь.</LootScavenging_LockedReason>
 	<LootScavenging_LockedSummary>Некоторые настройки заблокированы сборкой. Они сохраняют значения сборки при любом пресете.</LootScavenging_LockedSummary>
 	<LootScavenging_PresetReset>Восстановить по умолчанию</LootScavenging_PresetReset>
-	<LootScavenging_PresetProgressionExplain>Враждебные, невраждебные и дикие персонажи и пленники поселения: их оружие и одежда, опережающие ваши исследования, становятся ломом, а остальное выпадает как обычно. Другие вступающие сохраняют снаряжение, а опережающее ваши исследования помечается как незнакомое. Никто не роняет снаряжение, когда обездвижен или убит, трупы остаются.</LootScavenging_PresetProgressionExplain>
+	<LootScavenging_PresetProgressionExplain>Враждебные, невраждебные и дикие персонажи и пленники поселения, а также завербованные пленники: их оружие и одежда, опережающие ваши исследования, становятся ломом, а остальное выпадает как обычно. Другие вступающие сохраняют снаряжение, а опережающее ваши исследования помечается как незнакомое. Никто не роняет снаряжение, когда обездвижен или убит, трупы остаются.</LootScavenging_PresetProgressionExplain>
 	<LootScavenging_PresetCleanupExplain>Не учитывает исследования. Только с враждебных персонажей удаляются оружие с качеством ниже «нормально», одежда с качеством ниже «хорошо», любое из них с прочностью ниже 50%, а также все их боеприпасы; остальное выпадает как обычно. Все трупы враждебных людей убираются.</LootScavenging_PresetCleanupExplain>
 	<LootScavenging_PresetVanillaExplain>Ни одна группа не затрагивается, и каждый роняет снаряжение, когда обездвижен или убит, поэтому добыча и трупы ведут себя как в базовой игре.</LootScavenging_PresetVanillaExplain>
 	<LootScavenging_ResetConfirm>Вернуть все настройки по умолчанию (пресет «Прогрессия») и очистить списки «Всегда оставлять» и «Всегда удалять»?</LootScavenging_ResetConfirm>
@@ -114,13 +114,13 @@
 	<LootScavenging_UnfamiliarLootedExplainUnused>Незнакомо только снаряжение, снятое с персонажей. Купленное у торговцев или полученное в награду за задание можно использовать. Используется только для групп с выбором «Помечать как незнакомое».</LootScavenging_UnfamiliarLootedExplainUnused>
 	<LootScavenging_SectionCorpses>Трупы</LootScavenging_SectionCorpses>
 	<LootScavenging_CorpseHumanlike>Убирать трупы людей</LootScavenging_CorpseHumanlike>
-	<LootScavenging_CorpseHumanlikeOn>Трупы людей из групп с выбором «Применять правила для предметов» убираются после того, как их снаряжение прошло через правила.</LootScavenging_CorpseHumanlikeOn>
+	<LootScavenging_CorpseHumanlikeOn>Трупы людей из групп с выбором «Применять правила для предметов» или «Помечать как незнакомое» убираются после того, как их снаряжение прошло через правила.</LootScavenging_CorpseHumanlikeOn>
 	<LootScavenging_CorpseHumanlikeOff>Трупы людей остаются.</LootScavenging_CorpseHumanlikeOff>
 	<LootScavenging_CorpseAnimal>Убирать туши животных</LootScavenging_CorpseAnimal>
-	<LootScavenging_CorpseAnimalOn>Туши животных из групп с выбором «Применять правила для предметов» убираются. Дикие животные учитываются, только пока для одичалых и диких животных выбрано «Применять правила для предметов».</LootScavenging_CorpseAnimalOn>
+	<LootScavenging_CorpseAnimalOn>Туши животных из групп с выбором «Применять правила для предметов» или «Помечать как незнакомое» убираются. Дикие животные учитываются, только пока для одичалых и диких животных выбрано «Применять правила для предметов» или «Помечать как незнакомое».</LootScavenging_CorpseAnimalOn>
 	<LootScavenging_CorpseAnimalOff>Туши животных остаются — на еду или кожу.</LootScavenging_CorpseAnimalOff>
 	<LootScavenging_CorpseMechanoid>Убирать останки механоидов</LootScavenging_CorpseMechanoid>
-	<LootScavenging_CorpseMechanoidOn>Останки механоидов из групп с выбором «Применять правила для предметов» убираются.</LootScavenging_CorpseMechanoidOn>
+	<LootScavenging_CorpseMechanoidOn>Останки механоидов из групп с выбором «Применять правила для предметов» или «Помечать как незнакомое» убираются.</LootScavenging_CorpseMechanoidOn>
 	<LootScavenging_CorpseMechanoidOff>Останки механоидов остаются — на переплавку.</LootScavenging_CorpseMechanoidOff>
 	<LootScavenging_SectionLists>Списки</LootScavenging_SectionLists>
 	<LootScavenging_ProtectQuest>Защищать предметы заданий</LootScavenging_ProtectQuest>

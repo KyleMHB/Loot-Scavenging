@@ -49,7 +49,7 @@
   <LootScavenging_LockedReason>Locked by the modpack: this setting always uses the pack's value, so it cannot be changed here.</LootScavenging_LockedReason>
   <LootScavenging_LockedSummary>Some settings are locked by the modpack. They stay at the pack's values whichever preset you pick.</LootScavenging_LockedSummary>
   <LootScavenging_PresetReset>Reset to defaults</LootScavenging_PresetReset>
-  <LootScavenging_PresetProgressionExplain>Hostile, non-hostile and wild pawns and the colony's prisoners: their weapons and apparel beyond your research become scrap, and everything else drops as normal. Other joiners keep their gear, with gear beyond your research marked unfamiliar. Nobody drops their gear when downed or killed, and corpses are left.</LootScavenging_PresetProgressionExplain>
+  <LootScavenging_PresetProgressionExplain>Hostile, non-hostile and wild pawns, the colony's prisoners and recruited prisoners: their weapons and apparel beyond your research become scrap, and everything else drops as normal. Other joiners keep their gear, with gear beyond your research marked unfamiliar. Nobody drops their gear when downed or killed, and corpses are left.</LootScavenging_PresetProgressionExplain>
   <LootScavenging_PresetCleanupExplain>Ignores research. From hostile pawns only, weapons below normal quality, apparel below good quality and either one below 50% hit points are deleted, and so is all their ammunition; the rest drops as normal. Every hostile humanlike corpse is removed.</LootScavenging_PresetCleanupExplain>
   <LootScavenging_PresetVanillaExplain>Every group is left alone and everyone drops their gear when downed or killed, so loot and corpses behave as in the base game.</LootScavenging_PresetVanillaExplain>
   <LootScavenging_ResetConfirm>Set every setting back to its default (the Progression preset) and empty the keep and remove lists?</LootScavenging_ResetConfirm>
@@ -172,13 +172,13 @@
   <!-- Settings page: corpses -->
   <LootScavenging_SectionCorpses>Corpses</LootScavenging_SectionCorpses>
   <LootScavenging_CorpseHumanlike>Remove humanlike corpses</LootScavenging_CorpseHumanlike>
-  <LootScavenging_CorpseHumanlikeOn>Corpses of people from groups set to Apply item rules are removed after their gear has been through the rules.</LootScavenging_CorpseHumanlikeOn>
+  <LootScavenging_CorpseHumanlikeOn>Corpses of people from groups set to Apply item rules or Mark unfamiliar are removed after their gear has been sorted.</LootScavenging_CorpseHumanlikeOn>
   <LootScavenging_CorpseHumanlikeOff>Corpses of people are left.</LootScavenging_CorpseHumanlikeOff>
   <LootScavenging_CorpseAnimal>Remove animal corpses</LootScavenging_CorpseAnimal>
-  <LootScavenging_CorpseAnimalOn>Animal corpses from groups set to Apply item rules are removed. Wild animals only count while wild people and animals are set to Apply item rules.</LootScavenging_CorpseAnimalOn>
+  <LootScavenging_CorpseAnimalOn>Animal corpses from groups set to Apply item rules or Mark unfamiliar are removed. Wild animals only count while wild people and animals are set to Apply item rules or Mark unfamiliar.</LootScavenging_CorpseAnimalOn>
   <LootScavenging_CorpseAnimalOff>Animal corpses are left, for food or leather.</LootScavenging_CorpseAnimalOff>
   <LootScavenging_CorpseMechanoid>Remove mechanoid corpses</LootScavenging_CorpseMechanoid>
-  <LootScavenging_CorpseMechanoidOn>Mechanoid corpses from groups set to Apply item rules are removed.</LootScavenging_CorpseMechanoidOn>
+  <LootScavenging_CorpseMechanoidOn>Mechanoid corpses from groups set to Apply item rules or Mark unfamiliar are removed.</LootScavenging_CorpseMechanoidOn>
   <LootScavenging_CorpseMechanoidOff>Mechanoid corpses are left, for smelting.</LootScavenging_CorpseMechanoidOff>
   <LootScavenging_ButcherExplain>Butchering a humanlike corpse strips it first, and what comes off follows the item rules under its owner's row. The corpse of a group set to Leave alone, or a colonist's, is butchered as in the base game.</LootScavenging_ButcherExplain>
   <!-- Settings page: lists -->
