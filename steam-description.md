@@ -79,7 +79,7 @@ The settings page shows the active preset and whether you changed it.
 
 [h2]Compatibility[/h2]
 
-Loot Scavenging is not compatible with Looting Manager.
+Loot Scavenging is not compatible with Looting Manager. It works with Non uno Pinata, but the scrap stays on the body with the gear Pinata keeps.
 
 Modpacks can patch the scrap eras, their benches and materials, and the default settings, which are all XML. A pack can also lock chosen settings. A modlist can ship its own settings through Auto Mod Config, which is optional. The mod's folder has an example preset.
 
